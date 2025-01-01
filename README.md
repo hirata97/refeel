@@ -1,64 +1,69 @@
-# vue-boilerplate
+# Vue Boilerplate
+2025/01/01作成
+Vue 3 と Vite を用いた開発を始めるためのテンプレート。
 
-This template should help get you started developing with Vue 3 in Vite.
+## 新しいリポジトリの作成方法
 
-## Recommended IDE Setup
+1. **ローカルにクローン**  
+   ```
+   git clone https://github.com/<このリポジトリのURL>.git
+   cd <クローンしたディレクトリ>
+   ```
+2. **リモートURLを削除**  
+   ```
+   git remote remove origin
+   ```
+3. **GitHubで新しいリポジトリを作成し、リンクを設定**  
+   ```
+   git remote add origin https://github.com/<ユーザー名>/<新しいリポジトリ>.git
+   git branch -M main
+   git push -u origin main
+   ```
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 推奨開発環境
 
-## Type Support for `.vue` Imports in TS
+- [VSCode](https://code.visualstudio.com/)  
+- [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)（Veturは無効化）
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## TypeScriptの`.vue`サポート
 
-## Customize configuration
+`.vue`ファイルの型情報を正しく処理するため、`tsc`の代わりに`vue-tsc`を使用します。また、エディタにはVolarを導入する必要があります。
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## プロジェクトセットアップ
 
-## Project Setup
+1. **依存関係をインストール**  
+   ```
+   npm install
+   ```
+2. **開発用ビルドとホットリロード**  
+   ```
+   npm run dev
+   ```
+3. **本番用ビルド**  
+   ```
+   npm run build
+   ```
+4. **ユニットテストの実行**  
+   ```
+   npm run test:unit
+   ```
+5. **E2Eテストの実行**  
+   初回のみブラウザをインストール：  
+   ```
+   npx playwright install
+   ```
+   テスト実行：  
+   ```
+   npm run test:e2e
+   ```
 
-```sh
-npm install
+## Lint
+
+コードをLintする：  
 ```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-npm run build
-
-# Runs the end-to-end tests
-npm run test:e2e
-# Runs the tests only on Chromium
-npm run test:e2e -- --project=chromium
-# Runs the tests of a specific file
-npm run test:e2e -- tests/example.spec.ts
-# Runs the tests in debug mode
-npm run test:e2e -- --debug
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
 npm run lint
 ```
+
+--- 
+
+必要に応じてさらに調整できます！
