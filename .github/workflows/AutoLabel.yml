@@ -30,10 +30,10 @@ jobs:
           contains(github.event.issue.title, 'bug') ||
           contains(github.event.issue.title, 'feature') ||
           contains(github.event.issue.title, 'enhancement') ||
-          contains(github.event.issue.body, 'documentation') ||
-          contains(github.event.issue.body, 'refactor') ||
-          contains(github.event.issue.body, 'test') ||
-          contains(github.event.issue.body, 'design') ||
-          contains(github.event.issue.body, 'security') ||
-          contains(github.event.issue.body, 'performance') ||
-          contains(github.event.issue.body, 'research')
+          contains(github.event.issue.title, 'documentation') ||
+          contains(github.event.issue.title, 'refactor') ||
+          contains(github.event.issue.title, 'test') ||
+          contains(github.event.issue.title, 'design') ||
+          contains(github.event.issue.title, 'security') ||
+          contains(github.event.issue.title, 'performance') ||
+          contains(github.event.issue.title, 'research')
