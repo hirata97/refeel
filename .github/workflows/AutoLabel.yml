@@ -8,49 +8,83 @@ jobs:
   auto-label:
     runs-on: ubuntu-latest
 
-    permissions:
-      issues: write
-
     steps:
-      - name: Initialize dynamic labels
-        id: set-labels
-        run: |
-          echo "labels=" >> $GITHUB_ENV
-
-          # Check for keywords and dynamically add labels
-          if echo "${{ github.event.issue.title }}" | grep -i "bug"; then
-            echo "labels=bug" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "feature"; then
-            echo "labels=feature" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "enhancement"; then
-            echo "labels=enhancement" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "documentation"; then
-            echo "labels=documentation" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "refactor"; then
-            echo "labels=refactor" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "test"; then
-            echo "labels=test" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "design"; then
-            echo "labels=design" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "security"; then
-            echo "labels=security" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "performance"; then
-            echo "labels=performance" >> $GITHUB_ENV
-          fi
-          if echo "${{ github.event.issue.title }}" | grep -i "research"; then
-            echo "labels=research" >> $GITHUB_ENV
-          fi
-
-      - name: Apply labels based on title
+      - name: Check and apply labels
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: ${{ env.labels }}
+        if: contains(github.event.issue.title, 'bug')
+        with:
+          labels: bug
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'feature')
+        with:
+          labels: feature
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'enhancement')
+        with:
+          labels: enhancement
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'documentation')
+        with:
+          labels: documentation
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'refactor')
+        with:
+          labels: refactor
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'test')
+        with:
+          labels: test
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'design')
+        with:
+          labels: design
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'security')
+        with:
+          labels: security
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'performance')
+        with:
+          labels: performance
+
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        if: contains(github.event.issue.title, 'research')
+        with:
+          labels: research
