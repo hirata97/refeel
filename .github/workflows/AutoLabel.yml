@@ -2,9 +2,7 @@ name: Auto-label Issues
 
 on:
   issues:
-    types:
-      - opened
-      - edited
+    types: [opened, edited]
 
 jobs:
   auto-label:
@@ -26,7 +24,6 @@ jobs:
             security
             performance
             research
-        # 条件に応じてラベルを適用する
         if: |
           contains(github.event.issue.title, 'bug') ||
           contains(github.event.issue.title, 'feature') ||
