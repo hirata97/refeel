@@ -1,0 +1,39 @@
+name: Auto-label Issues
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check and apply labels
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: |
+            bug
+            feature
+            enhancement
+            documentation
+            refactor
+            test
+            design
+            security
+            performance
+            research
+        # 条件に応じてラベルを適用する
+        if: |
+          contains(github.event.issue.title, 'bug') ||
+          contains(github.event.issue.title, 'feature') ||
+          contains(github.event.issue.title, 'enhancement') ||
+          contains(github.event.issue.body, 'documentation') ||
+          contains(github.event.issue.body, 'refactor') ||
+          contains(github.event.issue.body, 'test') ||
+          contains(github.event.issue.body, 'design') ||
+          contains(github.event.issue.body, 'security') ||
+          contains(github.event.issue.body, 'performance') ||
+          contains(github.event.issue.body, 'research')
