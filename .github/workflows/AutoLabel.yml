@@ -8,30 +8,49 @@ jobs:
   auto-label:
     runs-on: ubuntu-latest
 
+    permissions:
+      issues: write
+
     steps:
-      - name: Check and apply labels
+      - name: Initialize dynamic labels
+        id: set-labels
+        run: |
+          echo "labels=" >> $GITHUB_ENV
+
+          # Check for keywords and dynamically add labels
+          if echo "${{ github.event.issue.title }}" | grep -i "bug"; then
+            echo "labels=bug" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "feature"; then
+            echo "labels=feature" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "enhancement"; then
+            echo "labels=enhancement" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "documentation"; then
+            echo "labels=documentation" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "refactor"; then
+            echo "labels=refactor" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "test"; then
+            echo "labels=test" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "design"; then
+            echo "labels=design" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "security"; then
+            echo "labels=security" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "performance"; then
+            echo "labels=performance" >> $GITHUB_ENV
+          fi
+          if echo "${{ github.event.issue.title }}" | grep -i "research"; then
+            echo "labels=research" >> $GITHUB_ENV
+          fi
+
+      - name: Apply labels based on title
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: |
-            bug
-            feature
-            enhancement
-            documentation
-            refactor
-            test
-            design
-            security
-            performance
-            research
-        if: |
-          contains(github.event.issue.title, 'bug') ||
-          contains(github.event.issue.title, 'feature') ||
-          contains(github.event.issue.title, 'enhancement') ||
-          contains(github.event.issue.title, 'documentation') ||
-          contains(github.event.issue.title, 'refactor') ||
-          contains(github.event.issue.title, 'test') ||
-          contains(github.event.issue.title, 'design') ||
-          contains(github.event.issue.title, 'security') ||
-          contains(github.event.issue.title, 'performance') ||
-          contains(github.event.issue.title, 'research')
+          labels: ${{ env.labels }}
