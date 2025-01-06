@@ -1,0 +1,32 @@
+src
+├── App.vue
+├── assets
+│   ├── base.css
+│   ├── logo.svg
+│   └── main.css
+├── components
+│   ├── HelloWorld.vue
+│   ├── TheWelcome.vue
+│   ├── WelcomeItem.vue
+│   ├── __tests__
+│   └── icons
+├── main.ts
+├── plugins
+├── router
+│   └── index.ts
+├── shims-vue.d.ts
+├── stores
+│   └── counter.ts
+├── style.css
+└── views
+    ├── DashBoardPage.vue
+    ├── DiaryManagerPage.vue
+    ├── DiaryViewPage.vue
+    ├── HelpPage.vue
+    ├── LoginPage.vue
+    ├── RegisterPage.vue
+    ├── ReportPage.vue
+    ├── SettingPage.vue
+    └── TopPage.vue
+
+9 directories, 21 files

@@ -1,0 +1,23 @@
+.
+├── README.md
+├── config
+├── dist
+├── e2e
+├── env.d.ts
+├── eslint.config.js
+├── index.html
+├── node_modules
+├── package-lock.json
+├── package.json
+├── playwright.config.ts
+├── public
+├── src
+├── tree_log
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── tsconfig.vitest.json
+├── vite.config.ts
+└── vitest.config.ts
+
+8 directories, 13 files

@@ -1,0 +1,36 @@
+name: Update Directory Structure
+
+on:
+  push:
+    branches:
+      - main # main ブランチへの push に反応
+  pull_request:
+    branches:
+      - main # main ブランチへの PR マージ時に反応
+
+jobs:
+  generate-directory-structure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js (Optional if your project needs it)
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Generate root directory structure
+        run: tree -L 1 > tree_log/root_directory_structure.txt
+
+      - name: Generate src directory structure
+        run: tree -L 2 src > tree_log/src_directory_structure.txt
+
+      - name: Commit and push directory structure files
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add tree_log/*
+          git commit -m "Update directory structure files"
+          git push origin main
