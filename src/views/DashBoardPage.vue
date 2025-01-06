@@ -25,8 +25,12 @@
 
     <!-- ダッシュボードボタン -->
     <footer class="dashboard-actions">
-      <button @click="navigateTo('/diary')" class="button primary">新しい日記を書く</button>
-      <button @click="navigateTo('/settings')" class="button secondary">設定</button>
+      <button @click="navigateTo('/diary')" class="button primary" aria-label="新しい日記を書く">
+        新しい日記を書く
+      </button>
+      <button @click="navigateTo('/setting')" class="button secondary" aria-label="設定を開く">
+        設定
+      </button>
     </footer>
   </div>
 </template>
@@ -93,6 +97,14 @@ export default {
   border-radius: 8px;
   padding: 16px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .card-content {
@@ -114,6 +126,7 @@ export default {
 .dashboard-actions {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
@@ -145,5 +158,21 @@ export default {
 
 .secondary:hover {
   background-color: #e6f2ff;
+}
+
+/* モバイル対応 */
+@media (max-width: 600px) {
+  .dashboard-header {
+    margin-bottom: 16px;
+  }
+
+  .dashboard-grid {
+    gap: 8px;
+  }
+
+  .dashboard-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
 }
 </style>
