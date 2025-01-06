@@ -1,12 +1,9 @@
 .
 ├── README.md
-├── config
-├── dist
 ├── e2e
 ├── env.d.ts
 ├── eslint.config.js
 ├── index.html
-├── node_modules
 ├── package-lock.json
 ├── package.json
 ├── playwright.config.ts
@@ -20,4 +17,4 @@
 ├── vite.config.ts
 └── vitest.config.ts
 
-8 directories, 13 files
+5 directories, 13 files
