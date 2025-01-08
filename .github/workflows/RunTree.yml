@@ -27,10 +27,17 @@ jobs:
       - name: Generate src directory structure
         run: tree -L 2 src > tree_log/src_directory_structure.txt
 
-      - name: Commit and push directory structure files
+      - name: Set up Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
+
+      - name: Commit and push directory structure files
+        run: |
           git add tree_log/*
-          git commit -m "Update directory structure files"
-          git push origin main
+          if git diff-index --cached --quiet HEAD --; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update directory structure files"
+            git push origin main
+          fi

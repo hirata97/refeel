@@ -1,6 +1,5 @@
 <template>
   <v-container class="dashboard-container">
-    <!-- v-typography を標準タグに置き換え -->
     <div class="title">Diaryアプリ</div>
 
     <v-btn class="action-button" color="primary" block @click="navigateTo('/register')">
