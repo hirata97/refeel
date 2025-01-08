@@ -3,7 +3,25 @@
     <v-text class="display-1 mb-4 text-center">Register</v-text>
 
     <v-form @submit.prevent="handleRegister" class="register-form">
-      <v-text-field label="Username" v-model="username" outlined full-width class="mb-3" required />
+      <v-alert
+        v-if="errorMessage"
+        type="error"
+        dismissible
+        class="mb-3"
+        @click:close="clearErrorMessage"
+      >
+        {{ errorMessage }}
+      </v-alert>
+
+      <v-text-field
+        label="Username"
+        v-model="username"
+        outlined
+        full-width
+        class="mb-3"
+        :error="usernameError"
+        required
+      />
       <v-text-field
         label="Email"
         v-model="email"
@@ -11,6 +29,7 @@
         full-width
         class="mb-3"
         type="email"
+        :error="emailError"
         required
       />
       <v-text-field
@@ -20,6 +39,7 @@
         outlined
         full-width
         class="mb-4"
+        :error="passwordError"
         required
       />
       <v-btn type="submit" color="primary" block class="mb-2">Register</v-btn>
@@ -34,26 +54,47 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const username = ref('')
-const email = ref('')
-const password = ref('')
+// 各変数の型を string に統一
+const username = ref<string>('')
+const email = ref<string>('')
+const password = ref<string>('')
 
+// エラーメッセージやバリデーションフラグ
+const errorMessage = ref<string>('')
+const usernameError = ref<boolean>(false)
+const emailError = ref<boolean>(false)
+const passwordError = ref<boolean>(false)
+
+// フォーム送信時の処理
 const handleRegister = () => {
-  if (!username.value || !email.value || !password.value) {
-    alert('All fields are required.')
+  // エラーフラグのリセット
+  usernameError.value = !username.value.trim()
+  emailError.value = !email.value.trim()
+  passwordError.value = !password.value.trim()
+
+  if (usernameError.value || emailError.value || passwordError.value) {
+    errorMessage.value = 'Please fill in all fields correctly.'
     return
   }
 
+  // ユーザーデータを保存
   const userData = {
-    username: username.value,
-    email: email.value,
-    password: password.value,
+    username: username.value.trim(),
+    email: email.value.trim(),
+    password: password.value.trim(),
   }
 
   localStorage.setItem('user', JSON.stringify(userData))
+  clearErrorMessage()
   router.push('/login')
 }
 
+// エラーメッセージをクリア
+const clearErrorMessage = () => {
+  errorMessage.value = ''
+}
+
+// ログイン画面への遷移
 const navigateToLogin = () => {
   router.push('/login')
 }
