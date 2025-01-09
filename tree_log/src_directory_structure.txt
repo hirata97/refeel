@@ -7,9 +7,7 @@ src
 ├── components
 │   ├── HelloWorld.vue
 │   ├── TheWelcome.vue
-│   ├── WelcomeItem.vue
-│   ├── __tests__
-│   └── icons
+│   └── WelcomeItem.vue
 ├── main.ts
 ├── router
 │   └── index.ts
@@ -30,4 +28,4 @@ src
     ├── SettingPage.vue
     └── TopPage.vue
 
-9 directories, 22 files
+7 directories, 22 files
