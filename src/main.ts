@@ -8,6 +8,7 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import router from './router'
+import { supabase } from './lib/supabase' // Supabase をインポート
 
 const vuetify = createVuetify({
   components,
@@ -17,4 +18,5 @@ const vuetify = createVuetify({
 createApp(App)
   .use(vuetify)
   .use(router) // Vue Router を登録
+  .provide('supabase', supabase) // Supabase インスタンスを provide
   .mount('#app')

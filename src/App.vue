@@ -48,8 +48,10 @@
   </v-layout>
 </template>
 
+
 <script setup>
 import { ref } from 'vue'
+import SupabaseComponent from './components/SupabaseComponent.vue'
 
 // サイドバーの開閉状態
 const drawer = ref(true)
