@@ -60,6 +60,8 @@
 
 <script lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { isAuthenticated } from '@/utils/auth'
 
 export interface Diary {
   date: string
@@ -71,6 +73,18 @@ export interface Diary {
 export default {
   name: 'DiaryPage',
   setup() {
+    const router = useRouter()
+
+    // 認証チェック
+    onMounted(() => {
+      if (!isAuthenticated()) {
+        router.push({
+          path: '/login',
+          query: { redirect: router.currentRoute.value.fullPath },
+        })
+      }
+    })
+
     const diaries = ref<Diary[]>([])
     const diaryEntry = ref<Diary>({
       date: getCurrentDate(),

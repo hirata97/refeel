@@ -37,16 +37,33 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { isAuthenticated } from '@/utils/auth'
 
 const router = useRouter()
+
+// テーマ選択肢
 const themes = ['ライト', 'ダーク', 'ブルー', 'グリーン']
+
+// リダイレクト処理を含むページ遷移関数
 const navigateTo = (path: string) => {
   router.push(path)
 }
+
+// ページ読み込み時に認証をチェックし、未認証ならリダイレクト
+onMounted(() => {
+  if (!isAuthenticated()) {
+    router.push({
+      path: '/login',
+      query: { redirect: router.currentRoute.value.fullPath }, // 元のページを記憶
+    })
+  }
+})
 </script>
 
 <style scoped>
+/* 設定ページ全体のスタイル */
 .settings-page {
   background-color: #f5f7fa;
   padding: 24px;
@@ -54,6 +71,8 @@ const navigateTo = (path: string) => {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   min-height: 100vh; /* ページ全体をカバーする高さ */
 }
+
+/* マージンのスタイル */
 .mb-4 {
   margin-bottom: 16px;
 }

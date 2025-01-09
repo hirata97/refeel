@@ -34,13 +34,26 @@
 </template>
 
 <script lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { isAuthenticated } from '@/utils/auth'
 
 export default {
   name: 'ReportPage',
   setup() {
     const router = useRouter()
 
+    // 認証チェックとリダイレクト処理
+    onMounted(() => {
+      if (!isAuthenticated()) {
+        router.push({
+          path: '/login',
+          query: { redirect: router.currentRoute.value.fullPath },
+        })
+      }
+    })
+
+    // ページ間の遷移関数
     const navigateTo = (path: string) => {
       router.push(path)
     }
@@ -53,7 +66,7 @@ export default {
 </script>
 
 <style scoped>
-/* 全体レイアウト */
+/* スタイルは変更なし */
 .report-page {
   display: flex;
   flex-direction: column;
@@ -63,7 +76,6 @@ export default {
   padding: 16px;
 }
 
-/* ヘッダーセクション */
 .report-header {
   text-align: center;
   margin-bottom: 32px;
@@ -79,7 +91,6 @@ export default {
   color: #666;
 }
 
-/* コンテンツセクション */
 .report-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -119,7 +130,6 @@ export default {
   margin-top: 16px;
 }
 
-/* ボタンセクション */
 .report-actions {
   display: flex;
   justify-content: center;
