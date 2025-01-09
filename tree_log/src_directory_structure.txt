@@ -5,9 +5,10 @@ src
 │   ├── logo.svg
 │   └── main.css
 ├── components
-│   ├── HelloWorld.vue
-│   ├── TheWelcome.vue
-│   └── WelcomeItem.vue
+│   ├── MyComponent.vue
+│   └── SupabaseComponent.vue
+├── lib
+│   └── supabase.ts
 ├── main.ts
 ├── router
 │   └── index.ts
@@ -28,4 +29,4 @@ src
     ├── SettingPage.vue
     └── TopPage.vue
 
-7 directories, 22 files
+8 directories, 22 files
