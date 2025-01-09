@@ -37,12 +37,26 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { isAuthenticated } from '@/utils/auth'
 
 interface Diary {
   date: string
   title: string
   content: string
 }
+
+const router = useRouter()
+
+// ページ読み込み時に認証をチェックし、未認証ならリダイレクト
+onMounted(() => {
+  if (!isAuthenticated()) {
+    router.push({
+      path: '/login',
+      query: { redirect: router.currentRoute.value.fullPath }, // 元のページを記憶
+    })
+  }
+})
 
 // データの管理
 const diaries = ref<Diary[]>([])
