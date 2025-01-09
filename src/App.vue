@@ -1,13 +1,105 @@
 <template>
-  <v-app>
+  <v-layout>
+    <!-- サイドバー -->
+    <v-navigation-drawer v-model="drawer">
+      <v-list density="compact">
+        <!-- サイドバー項目をループで表示 -->
+        <v-list-item v-for="item in items" :key="item.title" :to="item.link" router link>
+          <v-list-item-icon>
+            <v-icon>{{ item.prependIcon }}</v-icon>
+          </v-list-item-icon>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
+
+    <!-- ツールバー -->
+    <v-app-bar class="ps-4" color="deep-purple">
+      <!-- サイドバーの開閉ボタン -->
+      <v-app-bar-nav-icon @click="drawer = !drawer" />
+
+      <v-app-bar-title>日記アプリゆる開発</v-app-bar-title>
+
+      <template #append>
+        <!-- ユーザーメニュー -->
+        <v-btn class="text-none me-2" height="48" icon slim>
+          <v-avatar
+            color="surface-light"
+            image="https://cdn.vuetifyjs.com/images/john.png"
+            size="32"
+          />
+
+          <v-menu activator="parent">
+            <v-list density="compact" nav>
+              <v-list-item append-icon="mdi-cog-outline" link title="Settings" />
+              <v-list-item append-icon="mdi-logout" link title="Logout" />
+            </v-list>
+          </v-menu>
+        </v-btn>
+      </template>
+    </v-app-bar>
+
+    <!-- メインコンテンツ (router-view) -->
     <v-main>
-      <router-view></router-view>
+      <div class="pa-4">
+        <router-view></router-view>
+      </div>
     </v-main>
-  </v-app>
+  </v-layout>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from 'vue'
 
-<style>
-/* 必要なスタイルを追加 */
+// サイドバーの開閉状態
+const drawer = ref(true)
+
+// サイドバーに表示する項目
+const items = ref([
+  {
+    title: 'Dashboard',
+    prependIcon: 'mdi-view-dashboard-outline',
+    link: '/dashboard',
+  },
+  {
+    title: 'Team',
+    prependIcon: 'mdi-account-group',
+    link: '/team', // ここに適切なリンクを設定
+  },
+  {
+    title: 'Projects',
+    prependIcon: 'mdi-briefcase-outline',
+    link: '/projects', // ここに適切なリンクを設定
+  },
+  {
+    title: 'Calendar',
+    prependIcon: 'mdi-calendar',
+    link: '/calendar', // ここに適切なリンクを設定
+  },
+  {
+    title: 'Reports',
+    prependIcon: 'mdi-file-chart-outline',
+    link: '/reports', // ここに適切なリンクを設定
+  },
+])
+</script>
+
+<style scoped>
+/* 必要に応じてスタイルを追加 */
+.v-layout {
+  position: relative;
+}
+
+.v-navigation-drawer {
+  z-index: 1;
+}
+
+.v-app-bar {
+  z-index: 2;
+}
+
+.v-main {
+  z-index: 0;
+  position: relative;
+}
 </style>
