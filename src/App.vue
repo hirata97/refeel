@@ -6,7 +6,9 @@
   </v-app>
 </template>
 
-<script setup></script>
+<script setup lang="ts">
+import SupabaseComponent from './components/SupabaseComponent.vue'
+</script>
 
 <style>
 /* 必要なスタイルを追加 */
