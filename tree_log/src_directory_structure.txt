@@ -17,6 +17,8 @@ src
 ├── stores
 │   └── counter.ts
 ├── style.css
+├── utils
+│   └── auth.ts
 └── views
     ├── DashBoardPage.vue
     ├── DiaryManagerPage.vue
@@ -28,4 +30,4 @@ src
     ├── SettingPage.vue
     └── TopPage.vue
 
-8 directories, 21 files
+9 directories, 22 files
