@@ -5,12 +5,12 @@ import { isAuthenticated } from '@/utils/auth'
 const pages = {
   TopPage: () => import('@/views/TopPage.vue'),
   LoginPage: () => import('@/views/LoginPage.vue'),
-  RegisterPage: () => import('@/views/RegisterPage.vue'),
+  AccountRegisterPage: () => import('@/views/AccountRegisterPage.vue'),
   SettingPage: () => import('@/views/SettingPage.vue'),
   HelpPage: () => import('@/views/HelpPage.vue'),
-  ReportPage: () => import('@/views/ReportPage.vue'),
+  DiaryRegisterPage: () => import('@/views/DiaryRegisterPage.vue'),
+  DiaryreportPage: () => import('@/views/DiaryReportPage.vue'),
   DiaryViewPage: () => import('@/views/DiaryViewPage.vue'),
-  DiaryManagerPage: () => import('@/views/DiaryManagerPage.vue'),
   DashBoardPage: () => import('@/views/DashBoardPage.vue'),
 }
 
@@ -18,15 +18,25 @@ const pages = {
 const routes = [
   { path: '/', name: 'Home', component: pages.TopPage },
   { path: '/login', name: 'Login', component: pages.LoginPage },
-  { path: '/register', name: 'Register', component: pages.RegisterPage },
+  { path: '/register', name: 'Register', component: pages.AccountRegisterPage },
   { path: '/setting', name: 'Setting', component: pages.SettingPage, meta: { requiresAuth: true } },
   { path: '/help', name: 'Help', component: pages.HelpPage, meta: { requiresAuth: true } },
-  { path: '/report', name: 'Report', component: pages.ReportPage, meta: { requiresAuth: true } },
-  { path: '/diary', name: 'Diary', component: pages.DiaryViewPage, meta: { requiresAuth: true } },
   {
-    path: '/manager',
-    name: 'Manager',
-    component: pages.DiaryManagerPage,
+    path: '/diaryregister',
+    name: 'Diaryresister',
+    component: pages.DiaryRegisterPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/diaryreport',
+    name: 'Diaryreport',
+    component: pages.DiaryreportPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/diaryview',
+    name: 'Diaryview',
+    component: pages.DiaryViewPage,
     meta: { requiresAuth: true },
   },
   {

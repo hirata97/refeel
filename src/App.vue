@@ -48,7 +48,6 @@
   </v-layout>
 </template>
 
-
 <script setup>
 import { ref } from 'vue'
 import SupabaseComponent from './components/SupabaseComponent.vue'
@@ -64,12 +63,12 @@ const items = ref([
     link: '/dashboard',
   },
   {
-    title: 'Team',
+    title: 'DiaryView',
     prependIcon: 'mdi-account-group',
     link: '/team', // ここに適切なリンクを設定
   },
   {
-    title: 'Projects',
+    title: 'diaryRegister',
     prependIcon: 'mdi-briefcase-outline',
     link: '/projects', // ここに適切なリンクを設定
   },
