@@ -1,61 +1,48 @@
 <template>
-  <div class="diary-page">
-    <h1>日記登録ページ</h1>
-
-    <div class="form-section">
+  <v-container class="diary-page" max-width="600">
+    <v-sheet class="form-section pa-4 my-4" elevation="2">
       <h2>新しい日記を追加する</h2>
-      <form @submit.prevent="handleAddDiary">
-        <div>
-          <label for="title">タイトル</label>
-          <input v-model="diaryEntry.title" id="title" type="text" required />
-        </div>
-        <div>
-          <label for="content">内容</label>
-          <textarea v-model="diaryEntry.content" id="content" rows="3" required></textarea>
-        </div>
-        <div>
-          <label for="date">日付</label>
-          <input v-model="diaryEntry.date" id="date" type="date" required />
-        </div>
-        <div>
-          <label>今日の調子</label>
-          <input type="range" v-model="diaryEntry.mood" min="1" max="5" />
-          <span>{{ diaryEntry.mood }}</span>
-        </div>
-        <button type="submit">日記を追加</button>
-      </form>
-    </div>
+      <v-form @submit.prevent="handleAddDiary" ref="form">
+        <v-text-field v-model="diaryEntry.title" label="タイトル" outlined required />
+        <v-textarea v-model="diaryEntry.content" label="内容" outlined rows="3" required />
+        <v-text-field v-model="diaryEntry.date" label="日付" type="date" outlined required />
+        <v-slider v-model="diaryEntry.mood" label="今日の調子" min="1" max="5" step="1" />
+        <v-btn type="submit" color="primary" block>日記を追加</v-btn>
+      </v-form>
+    </v-sheet>
 
-    <div class="latest-diary-section">
+    <v-sheet class="latest-diary-section pa-4 my-4" elevation="2">
       <h2>最新の日記</h2>
       <div v-if="diaries.length">
-        <div
-          class="diary-entry"
-          v-for="(diary, index) in [diaries[diaries.length - 1]]"
-          :key="index"
-        >
-          <h3>{{ diary.title }}</h3>
-          <p>{{ diary.content }}</p>
-          <small>{{ diary.date }}</small>
-          <button @click="handleDeleteDiary(index)">削除</button>
-        </div>
+        <v-card v-for="(diary, index) in [diaries[diaries.length - 1]]" :key="index" class="mb-4">
+          <v-card-title>{{ diary.title }}</v-card-title>
+          <v-card-text>
+            <p>{{ diary.content }}</p>
+            <small>{{ diary.date }}</small>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="error" text @click="handleDeleteDiary(index)">削除</v-btn>
+          </v-card-actions>
+        </v-card>
       </div>
       <p v-else>日記がありません。</p>
-    </div>
+    </v-sheet>
 
-    <div class="all-diaries-section">
+    <v-sheet class="all-diaries-section pa-4 my-4" elevation="2">
       <h2>全ての日記</h2>
-      <div v-for="(diary, index) in diaries" :key="index">
-        <div class="diary-card">
-          <h3>{{ diary.date }}</h3>
+      <v-card v-for="(diary, index) in diaries" :key="index" class="mb-4">
+        <v-card-title>{{ diary.date }}</v-card-title>
+        <v-card-text>
           <p>{{ diary.title }}</p>
           <p>{{ diary.content }}</p>
           <p>調子: {{ diary.mood }}</p>
-          <button @click="handleDeleteDiary(index)">削除</button>
-        </div>
-      </div>
-    </div>
-  </div>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="error" text @click="handleDeleteDiary(index)">削除</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-sheet>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -117,7 +104,6 @@ export default {
       }
       diaries.value.push(diaryEntry.value)
       localStorage.setItem('diaries', JSON.stringify(diaries.value))
-      // フォームのリセット
       diaryEntry.value = {
         date: getCurrentDate(),
         title: '',
@@ -144,41 +130,6 @@ export default {
 
 <style scoped>
 .diary-page {
-  max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
-}
-
-h1 {
-  text-align: center;
-}
-
-.form-section,
-.latest-diary-section,
-.all-diaries-section {
-  margin-bottom: 20px;
-}
-
-form input,
-form textarea,
-form button {
-  display: block;
-  width: 100%;
-  margin: 10px 0;
-}
-
-.diary-card {
-  background-color: #f9f9f9;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-}
-
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  cursor: pointer;
 }
 </style>
