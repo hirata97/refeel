@@ -63,24 +63,29 @@ const items = ref([
     link: '/dashboard',
   },
   {
-    title: 'DiaryView',
-    prependIcon: 'mdi-account-group',
-    link: '/team', // ここに適切なリンクを設定
+    title: 'Diary Register',
+    prependIcon: 'mdi-pencil-outline',
+    link: '/diaryregister',
   },
   {
-    title: 'diaryRegister',
-    prependIcon: 'mdi-briefcase-outline',
-    link: '/projects', // ここに適切なリンクを設定
+    title: 'Diary View',
+    prependIcon: 'mdi-book-open-outline',
+    link: '/diaryview',
   },
   {
-    title: 'Calendar',
-    prependIcon: 'mdi-calendar',
-    link: '/calendar', // ここに適切なリンクを設定
-  },
-  {
-    title: 'Reports',
+    title: 'Diary Report',
     prependIcon: 'mdi-file-chart-outline',
-    link: '/reports', // ここに適切なリンクを設定
+    link: '/diaryreport',
+  },
+  {
+    title: 'Setting',
+    prependIcon: 'mdi-cog-outline',
+    link: '/setting',
+  },
+  {
+    title: 'Help',
+    prependIcon: 'mdi-help-circle-outline',
+    link: '/help',
   },
 ])
 </script>
