@@ -48,29 +48,30 @@ interface Diary {
 
 const router = useRouter()
 
-// ページ読み込み時に認証をチェックし、未認証ならリダイレクト
+// 認証チェックと日記データのロード
 onMounted(() => {
   if (!isAuthenticated()) {
     router.push({
       path: '/login',
       query: { redirect: router.currentRoute.value.fullPath }, // 元のページを記憶
     })
+  } else {
+    loadDiaries()
   }
 })
 
-// データの管理
 const diaries = ref<Diary[]>([])
 const selectedDate = ref<string | null>(null)
 const anchorEl = ref<HTMLElement | null>(null)
 const isPopoverOpen = ref(false)
 
 // ローカルストレージから日記を読み込む
-onMounted(() => {
+const loadDiaries = () => {
   const savedDiaries = localStorage.getItem('diaries')
   if (savedDiaries) {
     diaries.value = JSON.parse(savedDiaries)
   }
-})
+}
 
 // 日記削除処理
 const handleDeleteDiary = (diaryToDelete: Diary) => {

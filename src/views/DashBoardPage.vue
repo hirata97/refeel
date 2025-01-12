@@ -6,7 +6,6 @@
       <p class="dashboard-description">ここでは日記のダッシュボードを表示します。</p>
     </header>
 
-    <!-- ダッシュボードカード -->
     <section class="dashboard-grid">
       <div class="dashboard-card">
         <div class="card-content">
@@ -67,7 +66,6 @@ export default {
 </script>
 
 <style scoped>
-/* 全体ページのスタイル */
 .dashboard-page {
   display: flex;
   flex-direction: column;
@@ -77,7 +75,6 @@ export default {
   padding: 16px;
 }
 
-/* ヘッダー */
 .dashboard-header {
   text-align: center;
   margin-bottom: 32px;
