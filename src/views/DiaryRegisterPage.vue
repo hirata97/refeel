@@ -21,7 +21,7 @@
             <small>{{ diary.date }}</small>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="error" text @click="handleDeleteDiary(index)">削除</v-btn>
+            <v-btn color="error" @click="handleDeleteDiary(diaries.length - 1)">削除</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -38,7 +38,7 @@
           <p>調子: {{ diary.mood }}</p>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="error" text @click="handleDeleteDiary(index)">削除</v-btn>
+          <v-btn color="error" @click="handleDeleteDiary(index)">削除</v-btn>
         </v-card-actions>
       </v-card>
     </v-sheet>
@@ -88,7 +88,6 @@ export default {
       return `${yyyy}-${mm}-${dd}`
     }
 
-    // ローカルストレージから日記データを読み込む
     onMounted(() => {
       const savedDiaries = localStorage.getItem('diaries')
       if (savedDiaries) {
@@ -102,7 +101,7 @@ export default {
         alert('タイトルと内容は必須です。')
         return
       }
-      diaries.value.push(diaryEntry.value)
+      diaries.value.push({ ...diaryEntry.value }) // ディープコピーで保存
       localStorage.setItem('diaries', JSON.stringify(diaries.value))
       diaryEntry.value = {
         date: getCurrentDate(),
