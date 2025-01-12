@@ -19,13 +19,13 @@ src
 ├── utils
 │   └── auth.ts
 └── views
+    ├── AccountRegisterPage.vue
     ├── DashBoardPage.vue
-    ├── DiaryManagerPage.vue
+    ├── DiaryRegisterPage.vue
+    ├── DiaryReportPage.vue
     ├── DiaryViewPage.vue
     ├── HelpPage.vue
     ├── LoginPage.vue
-    ├── RegisterPage.vue
-    ├── ReportPage.vue
     ├── SettingPage.vue
     └── TopPage.vue
 
