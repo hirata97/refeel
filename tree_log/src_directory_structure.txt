@@ -1,9 +1,5 @@
 src
 ├── App.vue
-├── assets
-│   ├── base.css
-│   ├── logo.svg
-│   └── main.css
 ├── components
 │   ├── MyComponent.vue
 │   └── SupabaseComponent.vue
@@ -15,7 +11,6 @@ src
 ├── shims-vue.d.ts
 ├── stores
 │   └── counter.ts
-├── style.css
 ├── utils
 │   └── auth.ts
 └── views
@@ -29,4 +24,4 @@ src
     ├── SettingPage.vue
     └── TopPage.vue
 
-8 directories, 22 files
+7 directories, 18 files
