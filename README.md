@@ -1,19 +1,20 @@
 # Vue Boilerplate
+
 2025/01/01作成
 Vue 3 と Vite を用いた開発を始めるためのテンプレート。
 
 ## 新しいリポジトリの作成方法
 
-1. **ローカルにクローン**  
+1. **ローカルにクローン**
    ```
    git clone https://github.com/<このリポジトリのURL>.git
    cd <クローンしたディレクトリ>
    ```
-2. **リモートURLを削除**  
+2. **リモートURLを削除**
    ```
    git remote remove origin
    ```
-3. **GitHubで新しいリポジトリを作成し、リンクを設定**  
+3. **GitHubで新しいリポジトリを作成し、リンクを設定**
    ```
    git remote add origin https://github.com/<ユーザー名>/<新しいリポジトリ>.git
    git branch -M main
@@ -22,7 +23,7 @@ Vue 3 と Vite を用いた開発を始めるためのテンプレート。
 
 ## 推奨開発環境
 
-- [VSCode](https://code.visualstudio.com/)  
+- [VSCode](https://code.visualstudio.com/)
 - [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)（Veturは無効化）
 
 ## TypeScriptの`.vue`サポート
@@ -31,39 +32,38 @@ Vue 3 と Vite を用いた開発を始めるためのテンプレート。
 
 ## プロジェクトセットアップ
 
-1. **依存関係をインストール**  
+1. **依存関係をインストール**
    ```
    npm install
    ```
-2. **開発用ビルドとホットリロード**  
+2. **開発用ビルドとホットリロード**
    ```
    npm run dev
    ```
-3. **本番用ビルド**  
+3. **本番用ビルド**
    ```
    npm run build
    ```
-4. **ユニットテストの実行**  
+4. **ユニットテストの実行**
    ```
    npm run test:unit
    ```
 5. **E2Eテストの実行**  
-   初回のみブラウザをインストール：  
+   初回のみブラウザをインストール：
    ```
    npx playwright install
    ```
-   テスト実行：  
+   テスト実行：
    ```
    npm run test:e2e
    ```
 
 ## Lint
 
-コードをLintする：  
+コードをLintする：
+
 ```
 npm run lint
 ```
 
---- 
-
-必要に応じてさらに調整できます！
+---
