@@ -43,7 +43,7 @@
         required
       />
       <v-btn type="submit" color="primary" block class="mb-2">Register</v-btn>
-      <v-btn color="secondary" block @click="navigateToLogin">Back to Login</v-btn>
+      <v-btn color="secondary" block @click="navigateToTopPage">Back to TopPage</v-btn>
     </v-form>
   </v-container>
 </template>
@@ -94,9 +94,9 @@ const clearErrorMessage = () => {
   errorMessage.value = ''
 }
 
-// ログイン画面への遷移
-const navigateToLogin = () => {
-  router.push('/login')
+// トップページへの遷移
+const navigateToTopPage = () => {
+  router.push('/')
 }
 </script>
 
