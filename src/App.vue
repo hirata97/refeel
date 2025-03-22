@@ -1,7 +1,11 @@
 <template>
   <v-layout>
     <!-- サイドバー -->
-    <v-navigation-drawer v-model="drawer">
+    <v-navigation-drawer
+      :permanent="false"
+      v-model="drawer"
+      :disable-resize-watcher="disableSidebarToggle"
+    >
       <v-list density="compact">
         <!-- サイドバー項目をループで表示 -->
         <v-list-item v-for="item in items" :key="item.title" :to="item.link" router link>
@@ -16,7 +20,7 @@
     <!-- ツールバー -->
     <v-app-bar class="ps-4" color="deep-purple">
       <!-- サイドバーの開閉ボタン -->
-      <v-app-bar-nav-icon @click="drawer = !drawer" />
+      <v-app-bar-nav-icon :disabled="disableSidebarToggle" @click="toggleDrawer" />
 
       <v-app-bar-title>日記アプリゆる開発</v-app-bar-title>
 
@@ -48,12 +52,12 @@
   </v-layout>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import SupabaseComponent from './components/SupabaseComponent.vue'
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 // サイドバーの開閉状態
-const drawer = ref(true)
+const drawer = ref(false)
 
 // サイドバーに表示する項目
 const items = ref([
@@ -88,6 +92,22 @@ const items = ref([
     link: '/help',
   },
 ])
+
+// 現在のルートを取得
+const route = useRoute()
+
+// サイドバーの開閉ボタンを無効にするかどうかを決定
+const disableSidebarToggle = computed(() => {
+  const noSidebarRoutes = ['/', '/login', '/register']
+  return noSidebarRoutes.includes(route.path)
+})
+
+// サイドバーの開閉を切り替える関数
+const toggleDrawer = () => {
+  if (!disableSidebarToggle.value) {
+    drawer.value = !drawer.value
+  }
+}
 </script>
 
 <style scoped>
