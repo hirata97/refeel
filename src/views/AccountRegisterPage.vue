@@ -42,7 +42,19 @@
         :error="passwordError"
         required
       />
-      <v-btn type="submit" color="primary" block class="mb-2">アカウントを登録する</v-btn>
+      <v-text-field
+        label="Confirm Password"
+        type="password"
+        v-model="confirmPassword"
+        outlined
+        full-width
+        class="mb-4"
+        :error="confirmPasswordError"
+        required
+      />
+      <v-btn type="submit" color="primary" block class="mb-2" :loading="isLoading"
+        >アカウントを登録する</v-btn
+      >
       <v-btn color="secondary" block @click="navigateToTopPage">トップページに戻る</v-btn>
     </v-form>
   </v-container>
@@ -55,16 +67,23 @@ import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 
-// 各変数の型を string に統一
 const username = ref<string>('')
 const email = ref<string>('')
 const password = ref<string>('')
+
+// 追加: Confirm Password用の変数
+const confirmPassword = ref<string>('')
 
 // エラーメッセージやバリデーションフラグ
 const errorMessage = ref<string>('')
 const usernameError = ref<boolean>(false)
 const emailError = ref<boolean>(false)
 const passwordError = ref<boolean>(false)
+// 追加: Confirm Passwordのエラーフラグ
+const confirmPasswordError = ref<boolean>(false)
+
+// 追加: ローディング状態用の変数
+const isLoading = ref<boolean>(false)
 
 // メールアドレスの形式をチェックする関数
 const isValidEmail = (email: string) => {
@@ -77,61 +96,73 @@ const handleRegister = async () => {
   const usernameTrim = username.value.trim()
   const emailTrim = email.value.trim()
   const passwordTrim = password.value.trim()
+  const confirmPasswordTrim = confirmPassword.value.trim()
 
   usernameError.value = !usernameTrim
   emailError.value = !emailTrim || !isValidEmail(emailTrim)
   passwordError.value = passwordTrim.length < 6
+  // 追加: パスワード確認のバリデーション
+  confirmPasswordError.value = passwordTrim !== confirmPasswordTrim
 
-  if (usernameError.value || emailError.value || passwordError.value) {
+  if (
+    usernameError.value ||
+    emailError.value ||
+    passwordError.value ||
+    confirmPasswordError.value
+  ) {
     errorMessage.value =
-      'Please fill in all fields correctly. (Password must be at least 6 characters and email must be valid)'
+      '各項目を正しく入力してください。（パスワードは6文字以上、メールは有効な形式、確認パスワードが一致していること）'
     return
   }
 
-  // Supabase の認証APIを使って新規ユーザーを登録
-  const { data, error } = await supabase.auth.signUp({
-    email: emailTrim,
-    password: passwordTrim,
-  })
-
-  if (error) {
-    console.error('Supabase Error:', error)
-    errorMessage.value = error.message
-    return
-  }
-
-  // 登録後にセッションが返されない場合は、ここで自動サインイン
-  if (!data.session) {
-    // 例: サインイン処理を呼び出す
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+  isLoading.value = true
+  try {
+    // Supabase の認証APIを使って新規ユーザーを登録
+    const { data, error } = await supabase.auth.signUp({
       email: emailTrim,
       password: passwordTrim,
     })
-    if (signInError) {
-      console.error('Sign In Error:', signInError)
-      errorMessage.value = 'Sign in failed after registration.'
+
+    if (error) {
+      console.error('Supabase Error:', error)
+      errorMessage.value = error.message
       return
     }
-  }
 
-  if (data.user) {
-    // accounts テーブルに追加
-    const { error: accountError } = await supabase.from('accounts').insert([
-      {
-        id: data.user.id, // Supabase Auth の user.id を使用
-        username: usernameTrim,
+    // 登録後にセッションが返されない場合は、ここで自動サインイン
+    if (!data.session) {
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: emailTrim,
-      },
-    ])
-
-    if (accountError) {
-      errorMessage.value = 'User registration successful, but failed to save account data.'
-      return
+        password: passwordTrim,
+      })
+      if (signInError) {
+        console.error('Sign In Error:', signInError)
+        errorMessage.value = 'Sign in failed after registration.'
+        return
+      }
     }
-  }
 
-  clearErrorMessage()
-  router.push('/login')
+    if (data.user) {
+      // accounts テーブルに追加
+      const { error: accountError } = await supabase.from('accounts').insert([
+        {
+          id: data.user.id,
+          username: usernameTrim,
+          email: emailTrim,
+        },
+      ])
+
+      if (accountError) {
+        errorMessage.value = 'User registration successful, but failed to save account data.'
+        return
+      }
+    }
+
+    clearErrorMessage()
+    router.push('/login')
+  } finally {
+    isLoading.value = false
+  }
 }
 
 // エラーメッセージをクリア
