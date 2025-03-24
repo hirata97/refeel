@@ -7,8 +7,4 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Supabase URL or Key is missing')
 }
 
-console.log('Supabase URL:', supabaseUrl)
-console.log('Supabase Key:', supabaseKey)
-
 export const supabase = createClient(supabaseUrl, supabaseKey)
-console.log('Supabase Client:', supabase)

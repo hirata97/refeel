@@ -38,7 +38,7 @@
       />
 
       <v-btn :loading="isLoading" type="submit" color="primary" block class="mb-2"> Login </v-btn>
-      <v-btn color="secondary" block @click="navigateToTopPage"> Top Page </v-btn>
+      <v-btn color="secondary" block @click="navigateToTopPage"> トップページに戻る </v-btn>
     </v-form>
   </v-container>
 </template>
@@ -63,9 +63,12 @@ const handleLogin = async () => {
 
   isLoading.value = true
 
+  const emailTrim = email.value.trim()
+  const passwordTrim = password.value.trim()
+
   const { error } = await supabase.auth.signInWithPassword({
-    email: email.value.trim(),
-    password: password.value.trim(),
+    email: emailTrim,
+    password: passwordTrim,
   })
 
   if (error) {

@@ -1,6 +1,6 @@
 <template>
   <v-container class="register-container">
-    <v-text class="display-1 mb-4 text-center">Register</v-text>
+    <v-text class="display-1 mb-4 text-center">アカウント新規登録</v-text>
 
     <v-form @submit.prevent="handleRegister" class="register-form">
       <v-alert
@@ -42,8 +42,8 @@
         :error="passwordError"
         required
       />
-      <v-btn type="submit" color="primary" block class="mb-2">Register</v-btn>
-      <v-btn color="secondary" block @click="navigateToTopPage">Back to TopPage</v-btn>
+      <v-btn type="submit" color="primary" block class="mb-2">アカウントを登録する</v-btn>
+      <v-btn color="secondary" block @click="navigateToTopPage">トップページに戻る</v-btn>
     </v-form>
   </v-container>
 </template>
@@ -74,10 +74,13 @@ const isValidEmail = (email: string) => {
 
 // フォーム送信時の処理
 const handleRegister = async () => {
-  // エラーフラグのリセット
-  usernameError.value = !username.value.trim()
-  emailError.value = !email.value.trim() || !isValidEmail(email.value.trim())
-  passwordError.value = password.value.length < 6
+  const usernameTrim = username.value.trim()
+  const emailTrim = email.value.trim()
+  const passwordTrim = password.value.trim()
+
+  usernameError.value = !usernameTrim
+  emailError.value = !emailTrim || !isValidEmail(emailTrim)
+  passwordError.value = passwordTrim.length < 6
 
   if (usernameError.value || emailError.value || passwordError.value) {
     errorMessage.value =
@@ -87,8 +90,8 @@ const handleRegister = async () => {
 
   // Supabase の認証APIを使って新規ユーザーを登録
   const { data, error } = await supabase.auth.signUp({
-    email: email.value.trim(),
-    password: password.value.trim(),
+    email: emailTrim,
+    password: passwordTrim,
   })
 
   if (error) {
@@ -101,8 +104,8 @@ const handleRegister = async () => {
   if (!data.session) {
     // 例: サインイン処理を呼び出す
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.value.trim(),
-      password: password.value.trim(),
+      email: emailTrim,
+      password: passwordTrim,
     })
     if (signInError) {
       console.error('Sign In Error:', signInError)
@@ -116,8 +119,8 @@ const handleRegister = async () => {
     const { error: accountError } = await supabase.from('accounts').insert([
       {
         id: data.user.id, // Supabase Auth の user.id を使用
-        username: username.value.trim(),
-        email: email.value.trim(),
+        username: usernameTrim,
+        email: emailTrim,
       },
     ])
 
