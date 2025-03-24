@@ -51,6 +51,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
 
@@ -65,26 +66,67 @@ const usernameError = ref<boolean>(false)
 const emailError = ref<boolean>(false)
 const passwordError = ref<boolean>(false)
 
+// メールアドレスの形式をチェックする関数
+const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email)
+}
+
 // フォーム送信時の処理
-const handleRegister = () => {
+const handleRegister = async () => {
   // エラーフラグのリセット
   usernameError.value = !username.value.trim()
-  emailError.value = !email.value.trim()
-  passwordError.value = !password.value.trim()
+  emailError.value = !email.value.trim() || !isValidEmail(email.value.trim())
+  passwordError.value = password.value.length < 6
 
   if (usernameError.value || emailError.value || passwordError.value) {
-    errorMessage.value = 'Please fill in all fields correctly.'
+    errorMessage.value =
+      'Please fill in all fields correctly. (Password must be at least 6 characters and email must be valid)'
     return
   }
 
-  // ユーザーデータを保存
-  const userData = {
-    username: username.value.trim(),
+  // Supabase の認証APIを使って新規ユーザーを登録
+  const { data, error } = await supabase.auth.signUp({
     email: email.value.trim(),
     password: password.value.trim(),
+  })
+
+  if (error) {
+    console.error('Supabase Error:', error)
+    errorMessage.value = error.message
+    return
   }
 
-  localStorage.setItem('user', JSON.stringify(userData))
+  // 登録後にセッションが返されない場合は、ここで自動サインイン
+  if (!data.session) {
+    // 例: サインイン処理を呼び出す
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.value.trim(),
+      password: password.value.trim(),
+    })
+    if (signInError) {
+      console.error('Sign In Error:', signInError)
+      errorMessage.value = 'Sign in failed after registration.'
+      return
+    }
+  }
+
+  if (data.user) {
+    // accounts テーブルに追加
+    const { error: accountError } = await supabase.from('accounts').insert([
+      {
+        id: data.user.id, // Supabase Auth の user.id を使用
+        username: username.value.trim(),
+        email: email.value.trim(),
+      },
+    ])
+
+    if (accountError) {
+      errorMessage.value = 'User registration successful, but failed to save account data.'
+      return
+    }
+  }
+
   clearErrorMessage()
   router.push('/login')
 }
