@@ -23,6 +23,7 @@
         required
         :rules="[(v) => !!v || 'Email is required']"
         aria-label="Enter your email"
+        autofocus
       />
 
       <v-text-field
