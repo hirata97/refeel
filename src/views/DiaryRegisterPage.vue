@@ -82,29 +82,64 @@ const addDiary = async (): Promise<void> => {
     alert('タイトルと内容は必須です。')
     return
   }
-  try {
-    const { error } = await supabase.from('diaries').insert([
-      {
-        user_id: userId.value,
+
+  // 同日の日記が既に存在しているかチェック
+  const { data: existingEntries, error: fetchError } = await supabase
+    .from('diaries')
+    .select('id')
+    .eq('user_id', userId.value)
+    .eq('date', diaryEntry.value.date)
+
+  if (fetchError) {
+    console.error('日記取得エラー:', fetchError)
+    alert(`日記の取得に失敗しました: ${fetchError.message}`)
+    return
+  }
+
+  if (existingEntries && existingEntries.length > 0) {
+    // 既に日記が存在する場合は更新確認ダイアログを表示
+    const shouldUpdate = confirm('本日の記録は既に登録されています。更新しますか？')
+    if (!shouldUpdate) {
+      return
+    }
+    // 先頭のレコードを更新する
+    const diaryId = existingEntries[0].id
+    const { error: updateError } = await supabase
+      .from('diaries')
+      .update({
         title: diaryEntry.value.title,
         content: diaryEntry.value.content,
         date: diaryEntry.value.date,
         mood: diaryEntry.value.mood,
-      },
-    ])
-    if (error) {
-      throw error
+      })
+      .eq('id', diaryId)
+    if (updateError) {
+      console.error('更新エラー:', updateError)
+      alert(`日記の更新に失敗しました: ${updateError.message}`)
+      return
     }
     resetDiaryEntry()
-    alert('日記の記録が成功しました')
-  } catch (err: unknown) {
-    let message = '不明なエラー'
-    if (err instanceof Error) {
-      message = err.message
-    }
-    console.error('Supabase Error:', err)
-    alert(`日記の保存に失敗しました: ${message}`)
+    alert('日記の更新が成功しました')
+    return
   }
+
+  // 同日のレコードが無ければ新規登録する
+  const { error } = await supabase.from('diaries').insert([
+    {
+      user_id: userId.value,
+      title: diaryEntry.value.title,
+      content: diaryEntry.value.content,
+      date: diaryEntry.value.date,
+      mood: diaryEntry.value.mood,
+    },
+  ])
+  if (error) {
+    console.error('登録エラー:', error)
+    alert(`日記の保存に失敗しました: ${error.message}`)
+    return
+  }
+  resetDiaryEntry()
+  alert('日記の記録が成功しました')
 }
 </script>
 
