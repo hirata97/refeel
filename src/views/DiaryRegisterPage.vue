@@ -96,6 +96,7 @@ const addDiary = async (): Promise<void> => {
       throw error
     }
     resetDiaryEntry()
+    alert('日記の記録が成功しました')
   } catch (err: unknown) {
     let message = '不明なエラー'
     if (err instanceof Error) {
