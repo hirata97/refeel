@@ -48,7 +48,16 @@ const diaryEntry = ref<Diary>({
 
 const userId = ref<string>('')
 
-onMounted(async () => {
+const resetDiaryEntry = () => {
+  diaryEntry.value = {
+    date: getCurrentDate(),
+    title: '',
+    content: '',
+    mood: 3,
+  }
+}
+
+const initializeUser = async () => {
   if (!isAuthenticated()) {
     router.push({
       path: '/login',
@@ -62,6 +71,10 @@ onMounted(async () => {
   if (user) {
     userId.value = user.id
   }
+}
+
+onMounted(() => {
+  initializeUser()
 })
 
 const addDiary = async (): Promise<void> => {
@@ -69,26 +82,27 @@ const addDiary = async (): Promise<void> => {
     alert('タイトルと内容は必須です。')
     return
   }
-  const { error } = await supabase.from('diaries').insert([
-    {
-      user_id: userId.value,
-      title: diaryEntry.value.title,
-      content: diaryEntry.value.content,
-      date: diaryEntry.value.date,
-      mood: diaryEntry.value.mood,
-    },
-  ])
-  if (error) {
-    console.error('Supabase Error:', error)
-    alert(`日記の保存に失敗しました: ${error.message}`)
-    return
-  }
-  // フォームのリセット
-  diaryEntry.value = {
-    date: getCurrentDate(),
-    title: '',
-    content: '',
-    mood: 3,
+  try {
+    const { error } = await supabase.from('diaries').insert([
+      {
+        user_id: userId.value,
+        title: diaryEntry.value.title,
+        content: diaryEntry.value.content,
+        date: diaryEntry.value.date,
+        mood: diaryEntry.value.mood,
+      },
+    ])
+    if (error) {
+      throw error
+    }
+    resetDiaryEntry()
+  } catch (err: unknown) {
+    let message = '不明なエラー'
+    if (err instanceof Error) {
+      message = err.message
+    }
+    console.error('Supabase Error:', err)
+    alert(`日記の保存に失敗しました: ${message}`)
   }
 }
 </script>
