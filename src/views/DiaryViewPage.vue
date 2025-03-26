@@ -1,20 +1,18 @@
 <template>
   <v-container class="diary-view-page">
     <v-typography variant="h4" class="mb-4">日記一覧</v-typography>
-    <v-data-table :headers="headers" :items="diaries" class="mb-4">
-      <template v-slot:header>
-        <thead>
-          <tr>
-            <th v-for="header in headers" :key="header.value">
-              {{ header.text }}
-            </th>
-          </tr>
-        </thead>
+    <v-data-table :headers="headers" :items="diaries" class="mb-4" hover>
+      <template #[`item.date`]="{ item }">
+        {{ formatDate(item.date) }}
       </template>
       <template #[`item.actions`]="{ item }">
-        <v-btn icon @click="handleDeleteDiary(item.raw)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        <v-btn
+          icon="mdi-delete"
+          variant="text"
+          color="error"
+          @click="handleDeleteDiary(item)"
+          :loading="isDeleting"
+        />
       </template>
     </v-data-table>
   </v-container>
@@ -27,67 +25,30 @@ import { isAuthenticated } from '@/utils/auth'
 import { supabase } from '@/lib/supabase'
 
 interface Diary {
-  id?: string // 追加
+  id?: string
   date: string
   title: string
   content: string
 }
 
 const router = useRouter()
-
-// Supabaseからログインユーザーの日記を読み込む
 const diaries = ref<Diary[]>([])
-const loadDiaries = async () => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (user) {
-    const { data, error } = await supabase.from('diaries').select('*').eq('user_id', user.id)
-    if (error) {
-      console.error('日記取得エラー:', error)
-      return
-    }
-    diaries.value = data || []
-  }
-}
+const isDeleting = ref(false)
 
-// 日記削除処理（Supabaseから削除）
-const handleDeleteDiary = async (diaryToDelete: Diary) => {
-  if (!diaryToDelete.id) return
-  const { error } = await supabase.from('diaries').delete().eq('id', diaryToDelete.id)
-  if (error) {
-    console.error('日記削除エラー:', error)
-    return
-  }
-  // 再読み込み
-  await loadDiaries()
-}
-
-// 認証チェックと日記データのロード
-onMounted(async () => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath },
-    })
-  } else {
-    await loadDiaries()
-  }
-})
-
-// テーブル用ヘッダー定義
-const headers = ref([
+const headers = [
   {
     title: '日付',
     key: 'date',
     align: 'start',
     sortable: true,
+    width: '120px',
   },
   {
     title: 'タイトル',
     key: 'title',
     align: 'start',
     sortable: true,
+    width: '200px',
   },
   {
     title: '内容',
@@ -100,8 +61,62 @@ const headers = ref([
     key: 'actions',
     align: 'center',
     sortable: false,
+    width: '100px',
   },
-])
+]
+
+const formatDate = (dateString: string): string => {
+  return new Date(dateString).toLocaleDateString('ja-JP')
+}
+
+const loadDiaries = async () => {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
+    const { data, error } = await supabase
+      .from('diaries')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('date', { ascending: false })
+
+    if (error) throw error
+    diaries.value = data || []
+  } catch (error) {
+    console.error('日記取得エラー:', error)
+  }
+}
+
+const handleDeleteDiary = async (item: Diary) => {
+  if (!item?.id || isDeleting.value) return
+
+  if (!confirm('本当にこの日記を削除しますか？')) return
+
+  try {
+    isDeleting.value = true
+    const { error } = await supabase.from('diaries').delete().eq('id', item.id)
+
+    if (error) throw error
+    await loadDiaries()
+  } catch (error) {
+    console.error('日記削除エラー:', error)
+  } finally {
+    isDeleting.value = false
+  }
+}
+
+onMounted(async () => {
+  if (!isAuthenticated()) {
+    router.push({
+      path: '/login',
+      query: { redirect: router.currentRoute.value.fullPath },
+    })
+    return
+  }
+  await loadDiaries()
+})
 </script>
 
 <style scoped>
