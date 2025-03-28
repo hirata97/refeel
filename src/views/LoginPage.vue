@@ -15,14 +15,15 @@
       </v-alert>
 
       <v-text-field
-        label="Username"
-        v-model="username"
+        label="Email"
+        v-model="email"
         outlined
         full-width
         class="mb-3"
         required
-        :rules="[(v) => !!v || 'Username is required']"
-        aria-label="Enter your username"
+        :rules="[(v) => !!v || 'Email is required']"
+        aria-label="Enter your email"
+        autofocus
       />
 
       <v-text-field
@@ -37,8 +38,8 @@
         aria-label="Enter your password"
       />
 
-      <v-btn :loading="isLoading" type="submit" color="primary" block class="mb-2">Login</v-btn>
-      <v-btn color="secondary" block @click="navigateToRegister">Register</v-btn>
+      <v-btn :loading="isLoading" type="submit" color="primary" block class="mb-2"> Login </v-btn>
+      <v-btn color="secondary" block @click="navigateToTopPage"> トップページに戻る </v-btn>
     </v-form>
   </v-container>
 </template>
@@ -46,36 +47,44 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { supabase } from '@/lib/supabase'
 import { VForm } from 'vuetify/components'
 
 const router = useRouter()
 
-const username = ref('')
+const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
 const valid = ref(false)
 const form = ref<InstanceType<typeof VForm> | null>(null)
 const isLoading = ref(false)
 
-const handleLogin = () => {
+const handleLogin = async () => {
   if (!form.value?.validate()) return
 
   isLoading.value = true
 
-  const user = JSON.parse(localStorage.getItem('user') || '{}')
+  const emailTrim = email.value.trim()
+  const passwordTrim = password.value.trim()
 
-  if (user.username === username.value && user.password === password.value) {
-    errorMessage.value = ''
-    router.push('/dashboard')
-  } else {
-    errorMessage.value = 'Invalid username or password.'
+  const { error } = await supabase.auth.signInWithPassword({
+    email: emailTrim,
+    password: passwordTrim,
+  })
+
+  if (error) {
+    errorMessage.value = error.message
+    isLoading.value = false
+    return
   }
 
+  router.push('/dashboard')
   isLoading.value = false
 }
 
-const navigateToRegister = () => {
-  router.push('/register')
+// 登録ページからトップページに遷移
+const navigateToTopPage = () => {
+  router.push('/')
 }
 
 watch(errorMessage, (newValue) => {

@@ -24,7 +24,11 @@
 
     <!-- ダッシュボードボタン -->
     <footer class="dashboard-actions">
-      <button @click="navigateTo('/diary')" class="button primary" aria-label="新しい日記を書く">
+      <button
+        @click="navigateTo('/diaryregister')"
+        class="button primary"
+        aria-label="新しい日記を書く"
+      >
         新しい日記を書く
       </button>
       <button @click="navigateTo('/setting')" class="button secondary" aria-label="設定を開く">

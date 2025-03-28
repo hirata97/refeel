@@ -1,29 +1,39 @@
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { createClient, SupabaseClient } from '@supabase/supabase-js'
+<script lang="ts">
+import { defineComponent, inject, ref, onMounted } from 'vue'
+import { SupabaseClient } from '@supabase/supabase-js'
 
-// Supabase クライアントの初期化
-const supabaseUrl = 'https://your-project.supabase.co'
-const supabaseKey = 'your-anon-key'
-const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey)
+export default defineComponent({
+  name: 'SupabaseComponent',
+  setup() {
+    const supabase = inject('supabase') as SupabaseClient
+    const injectedValue = inject('injectedKey')
 
-// データとエラーの状態を定義
-const data = ref<any[]>([])
-const error = ref<string | null>(null)
+    const data = ref<any[]>([])
+    const error = ref<string | null>(null)
 
-// コンポーネントがマウントされたときにデータを取得
-onMounted(async () => {
-  const { data: result, error: fetchError } = await supabase
-    .from('your_table_name') // 取得したいテーブル名
-    .select('*')
+    onMounted(async () => {
+      const { data: result, error: fetchError } = await supabase.from('your_table_name').select('*')
 
-  if (fetchError) {
-    error.value = fetchError.message
-    console.error('Error fetching data:', fetchError.message)
-  } else {
-    data.value = result || []
-    console.log('Fetched data:', result)
-  }
+      if (fetchError) {
+        error.value = fetchError.message
+        console.error('Error fetching data:', fetchError.message)
+      } else {
+        data.value = result || []
+        console.log('Fetched data:', result)
+      }
+    })
+
+    const json = (value: any) => {
+      return JSON.stringify(value, null, 2)
+    }
+
+    return {
+      injectedValue,
+      data,
+      error,
+      json,
+    }
+  },
 })
 </script>
 
@@ -33,7 +43,7 @@ onMounted(async () => {
     <div v-if="error" class="error">エラー: {{ error }}</div>
     <ul v-else>
       <li v-for="item in data" :key="item.id">
-        {{ item | json }}
+        {{ json(item) }}
       </li>
     </ul>
   </div>

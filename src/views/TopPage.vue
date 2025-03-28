@@ -14,12 +14,8 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-
 const router = useRouter()
-
-const navigateTo = (path: string) => {
-  router.push(path)
-}
+const navigateTo = (path: string) => router.push(path)
 </script>
 
 <style scoped>

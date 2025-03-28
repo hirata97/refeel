@@ -16,7 +16,7 @@ const pages = {
 
 // ルートの定義を簡略化
 const routes = [
-  { path: '/', name: 'Home', component: pages.TopPage },
+  { path: '/', name: 'Top', component: pages.TopPage },
   { path: '/login', name: 'Login', component: pages.LoginPage },
   { path: '/register', name: 'Register', component: pages.AccountRegisterPage },
   { path: '/setting', name: 'Setting', component: pages.SettingPage, meta: { requiresAuth: true } },
