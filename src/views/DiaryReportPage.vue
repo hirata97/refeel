@@ -1,23 +1,18 @@
 <template>
   <div class="report-page">
-    <!-- ヘッダー -->
     <header class="report-header">
       <h1 class="report-title">レポート</h1>
       <p class="report-description">過去のデータを基にした統計や傾向を確認できます。</p>
     </header>
 
-    <!-- レポートコンテンツ -->
     <section class="report-content">
-      <!-- 感情の傾向 -->
       <div class="report-card">
-        <h3 class="card-title">感情の傾向</h3>
-        <p class="card-description">最近の感情データに基づく傾向を示します。</p>
-        <!-- グラフやチャートをここに配置可能 -->
-        <div class="chart-placeholder">グラフエリア</div>
+        <h3 class="card-title">気分の推移</h3>
+        <p class="card-description">過去30日間の気分の変化を表示します。</p>
+        <Line v-if="chartData.datasets.length > 0" :data="chartData" :options="chartOptions" />
       </div>
     </section>
 
-    <!-- アクションボタン -->
     <footer class="report-actions">
       <button @click="navigateTo('/dashboard')" class="button primary">ダッシュボードに戻る</button>
       <button @click="navigateTo('/help')" class="button secondary">ヘルプ</button>
@@ -25,36 +20,121 @@
   </div>
 </template>
 
-<script lang="ts">
-import { onMounted } from 'vue'
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Line } from 'vue-chartjs'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js'
 import { isAuthenticated } from '@/utils/auth'
+import { supabase } from '@/lib/supabase'
 
-export default {
-  name: 'ReportPage',
-  setup() {
-    const router = useRouter()
+// Chart.jsコンポーネントの登録
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
-    // 認証チェックとリダイレクト処理
-    onMounted(() => {
-      if (!isAuthenticated()) {
-        router.push({
-          path: '/login',
-          query: { redirect: router.currentRoute.value.fullPath },
-        })
-      }
-    })
+const router = useRouter()
 
-    // ページ間の遷移関数
-    const navigateTo = (path: string) => {
-      router.push(path)
-    }
+// チャートデータの初期状態
+const chartData = ref({
+  labels: [],
+  datasets: [
+    {
+      label: '気分スコア',
+      data: [],
+      borderColor: '#4CAF50',
+      tension: 0.1,
+    },
+  ],
+})
 
-    return {
-      navigateTo,
-    }
+// チャートのオプション設定
+const chartOptions = {
+  responsive: true,
+  scales: {
+    y: {
+      min: 1,
+      max: 5,
+      ticks: {
+        stepSize: 1,
+      },
+    },
+  },
+  plugins: {
+    legend: {
+      display: false,
+    },
   },
 }
+
+// 日記データの取得と加工
+const loadMoodData = async () => {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+    if (!user) return
+
+    // 過去30日分のデータを取得
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    const { data, error } = await supabase
+      .from('diaries')
+      .select('date, mood')
+      .eq('user_id', user.id)
+      .gte('date', thirtyDaysAgo.toISOString().split('T')[0])
+      .order('date', { ascending: true })
+
+    if (error) throw error
+
+    if (data) {
+      // データの加工
+      const dates = data.map((entry) => {
+        const date = new Date(entry.date)
+        return date.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })
+      })
+      const moods = data.map((entry) => entry.mood)
+
+      // チャートデータの更新
+      chartData.value = {
+        labels: dates,
+        datasets: [
+          {
+            label: '気分スコア',
+            data: moods,
+            borderColor: '#4CAF50',
+            tension: 0.1,
+          },
+        ],
+      }
+    }
+  } catch (error) {
+    console.error('データ取得エラー:', error)
+  }
+}
+
+const navigateTo = (path: string) => {
+  router.push(path)
+}
+
+onMounted(async () => {
+  if (!isAuthenticated()) {
+    router.push({
+      path: '/login',
+      query: { redirect: router.currentRoute.value.fullPath },
+    })
+    return
+  }
+  await loadMoodData()
+})
 </script>
 
 <style scoped>
