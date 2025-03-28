@@ -15,14 +15,6 @@
         <!-- グラフやチャートをここに配置可能 -->
         <div class="chart-placeholder">グラフエリア</div>
       </div>
-
-      <!-- 日記の頻度 -->
-      <div class="report-card">
-        <h3 class="card-title">日記の頻度</h3>
-        <p class="card-description">日記を作成した日付の分布を表示します。</p>
-        <!-- グラフやチャートをここに配置可能 -->
-        <div class="chart-placeholder">グラフエリア</div>
-      </div>
     </section>
 
     <!-- アクションボタン -->
