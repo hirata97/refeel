@@ -39,5 +39,5 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "Update directory structure files"
-            git push origin main
+            git push origin HEAD:main
           fi
