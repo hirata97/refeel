@@ -1,4 +1,5 @@
 .
+├── CLAUDE.md
 ├── README.md
 ├── e2e
 ├── env.d.ts
@@ -17,4 +18,4 @@
 ├── vite.config.ts
 └── vitest.config.ts
 
-5 directories, 13 files
+5 directories, 14 files
