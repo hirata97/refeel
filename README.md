@@ -135,43 +135,14 @@ npm run lint
 
 これらのガイドラインに従うことで、テストスイートの一貫性と明確さを確保し、チーム全員が理解しやすく貢献しやすくなります。
 
-### clineの使用法
+## Claude Codeでの開発
 
-Memory Bankの更新: すべてのMemory Bankファイルが作成されました。これらのファイルに具体的な情報を追加することが重要です。各ファイルのセクションにプロジェクトに関する詳細を記入してください。
+このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。詳細な開発ガイドは`CLAUDE.md`を参照してください。
 
-プロジェクトのレビュー: 現在のプロジェクトの状態を確認し、進捗状況や残りのタスクを把握します。progress.mdファイルにこれらの情報を記載することで、プロジェクトの全体像を把握しやすくなります。
-
-次のステップの計画: activeContext.mdに基づいて、次に取り組むべきタスクを計画します。これには、現在の作業の焦点、最近の変更、次のステップが含まれます。
-
-技術的な詳細の確認: techContext.mdを使用して、使用している技術や開発環境、技術的な制約を確認します。これにより、開発プロセスがスムーズに進むようになります。
-
-システムパターンの確認: systemPatterns.mdを参照して、システムアーキテクチャや設計パターンを確認します。これにより、プロジェクトの技術的な方向性を理解しやすくなります。
-Working with Cline
-Core Workflows
-Plan Mode
-ディスカッションと計画を行う。
-
-Act Mode
-
-特定のタスクの実装と実行に使用
-
-Key Commands
-"follow your custom instructions"
-Clineにメモリバンクファイルを読み取って、中断したところから続行するように指示(タスクの開始時にこれを使用)
-
-"initialize memory bank"
-新しいプロジェクトを開始するときに使用
-
-"update memory bank"
-タスク中に完全なドキュメントのレビューと更新をトリガー
-
-Documentation Updates
-メモリバンクのアップデートは、次の場合に自動的に行われます
-
-You discover new patterns in your project
-
-After implementing significant changes
-
-When you explicitly request with "update memory bank"
-
-When you feel context needs clarification
+### 主要な開発コマンド
+- `npm run dev` - 開発サーバー起動
+- `npm run build` - プロダクションビルド
+- `npm run test:unit` - ユニットテスト
+- `npm run test:e2e` - E2Eテスト
+- `npm run lint` - リンティング
+- `npm run type-check` - 型チェック

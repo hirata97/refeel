@@ -33,3 +33,6 @@ test-results/
 playwright-report/
 
 .env
+
+# Serena MCP files
+.serena/

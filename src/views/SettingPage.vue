@@ -5,20 +5,6 @@
 
     <!-- 設定カード -->
     <v-row dense>
-      <!-- 通知設定 -->
-      <v-col cols="12" md="6">
-        <v-card>
-          <v-card-title>
-            <v-icon class="mr-2" size="24">mdi-bell</v-icon>
-            通知設定
-          </v-card-title>
-          <v-card-subtitle>通知のオン/オフを設定します。</v-card-subtitle>
-          <v-card-actions>
-            <v-switch label="通知を有効にする" class="mt-2" />
-          </v-card-actions>
-        </v-card>
-      </v-col>
-
       <!-- テーマ設定 -->
       <v-col cols="12" md="6">
         <v-card>
@@ -45,11 +31,6 @@ const router = useRouter()
 
 // テーマ選択肢
 const themes = ['ライト', 'ダーク', 'ブルー', 'グリーン']
-
-// リダイレクト処理を含むページ遷移関数
-const navigateTo = (path: string) => {
-  router.push(path)
-}
 
 // ページ読み込み時に認証をチェックし、未認証ならリダイレクト
 onMounted(() => {
