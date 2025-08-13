@@ -1,20 +1,31 @@
 <template>
   <v-container class="diary-view-page">
     <v-typography variant="h4" class="mb-4">日記一覧</v-typography>
-    <v-data-table :headers="headers" :items="diaries" class="mb-4" hover>
-      <template #[`item.date`]="{ item }">
-        {{ formatDate(item.date) }}
-      </template>
-      <template #[`item.actions`]="{ item }">
-        <v-btn
-          icon="mdi-delete"
-          variant="text"
-          color="error"
-          @click="handleDeleteDiary(item)"
-          :loading="isDeleting"
-        />
-      </template>
-    </v-data-table>
+
+    <v-tabs v-model="selectedTab" class="mb-4">
+      <v-tab v-for="month in availableMonths" :key="month" :value="month">
+        {{ formatMonthTab(month) }}
+      </v-tab>
+    </v-tabs>
+
+    <v-window v-model="selectedTab">
+      <v-window-item v-for="month in availableMonths" :key="month" :value="month">
+        <v-data-table :headers="headers" :items="getFilteredDiaries(month)" class="mb-4" hover>
+          <template #[`item.date`]="{ item }">
+            {{ formatDate(item.date) }}
+          </template>
+          <template #[`item.actions`]="{ item }">
+            <v-btn
+              icon="mdi-delete"
+              variant="text"
+              color="error"
+              @click="handleDeleteDiary(item)"
+              :loading="isDeleting"
+            />
+          </template>
+        </v-data-table>
+      </v-window-item>
+    </v-window>
   </v-container>
 </template>
 
@@ -34,6 +45,8 @@ interface Diary {
 const router = useRouter()
 const diaries = ref<Diary[]>([])
 const isDeleting = ref(false)
+const selectedTab = ref('')
+const availableMonths = ref<string[]>([])
 
 const headers = [
   {
@@ -57,7 +70,7 @@ const headers = [
     sortable: true,
   },
   {
-    title: '操作',
+    title: '削除',
     key: 'actions',
     align: 'center',
     sortable: false,
@@ -67,6 +80,30 @@ const headers = [
 
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP')
+}
+
+// 月表示用のフォーマット関数
+const formatMonthTab = (monthStr: string): string => {
+  const date = new Date(monthStr + '-01')
+  return new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long' }).format(date)
+}
+
+// 選択された月の日記をフィルタリングする関数
+const getFilteredDiaries = (month: string) => {
+  return diaries.value.filter((diary) => diary.date.startsWith(month))
+}
+
+// 日記データから利用可能な月のリストを生成する関数
+const updateAvailableMonths = () => {
+  const months = new Set<string>()
+  diaries.value.forEach((diary) => {
+    const monthStr = diary.date.substring(0, 7) // YYYY-MM 形式で取得
+    months.add(monthStr)
+  })
+  availableMonths.value = Array.from(months).sort().reverse()
+  if (availableMonths.value.length > 0 && !selectedTab.value) {
+    selectedTab.value = availableMonths.value[0]
+  }
 }
 
 const loadDiaries = async () => {
@@ -84,6 +121,7 @@ const loadDiaries = async () => {
 
     if (error) throw error
     diaries.value = data || []
+    updateAvailableMonths() // 月リストを更新
   } catch (error) {
     console.error('日記取得エラー:', error)
   }

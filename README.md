@@ -66,7 +66,6 @@ Vue 3 と Vite を用いた開発を始めるためのテンプレート。
 npm run lint
 ```
 
-
 ## Supabaseの設定
 
 このプロジェクトでは、Supabaseを使用してデータベース操作を行います。以下の手順に従ってSupabaseを設定してください。
@@ -136,5 +135,14 @@ npm run lint
 
 これらのガイドラインに従うことで、テストスイートの一貫性と明確さを確保し、チーム全員が理解しやすく貢献しやすくなります。
 
-=======
+## Claude Codeでの開発
 
+このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。詳細な開発ガイドは`CLAUDE.md`を参照してください。
+
+### 主要な開発コマンド
+- `npm run dev` - 開発サーバー起動
+- `npm run build` - プロダクションビルド
+- `npm run test:unit` - ユニットテスト
+- `npm run test:e2e` - E2Eテスト
+- `npm run lint` - リンティング
+- `npm run type-check` - 型チェック
