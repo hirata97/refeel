@@ -33,3 +33,10 @@ test-results/
 playwright-report/
 
 .env
+
+# MCP Serena files
+.serena/
+
+# GitHub CLI download artifacts
+gh_*.tar.gz
+gh_*/
