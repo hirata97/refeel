@@ -18,7 +18,8 @@
     "start-issue": "./scripts/start-issue.sh",
     "auto-issue": "./scripts/auto-issue.sh",
     "auto-implement": "node scripts/auto-implement.js",
-    "auto-cycle": "./scripts/auto-cycle.sh"
+    "auto-cycle": "./scripts/auto-cycle.sh",
+    "close-issues": "./scripts/close-linked-issues.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

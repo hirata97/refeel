@@ -114,3 +114,15 @@ echo "✅ プルリクエストが作成されました！"
 # 作成されたPRのURLを表示
 PR_URL=$(gh pr view --json url --jq .url)
 echo "PR URL: $PR_URL"
+
+# Issue自動クローズ処理（developブランチ向けPRの場合）
+if [ -n "$ISSUE_NUMBER" ]; then
+    echo ""
+    echo "🔒 Issue #$ISSUE_NUMBER の自動クローズを実行中..."
+    
+    if ./scripts/close-linked-issues.sh "$PR_BODY"; then
+        echo "✅ Issue自動クローズが完了しました"
+    else
+        echo "⚠️  Issue自動クローズでエラーが発生しました（手動でクローズしてください）"
+    fi
+fi
