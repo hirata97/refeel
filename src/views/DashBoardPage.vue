@@ -7,65 +7,63 @@
     </header>
 
     <section class="dashboard-grid">
-      <div class="dashboard-card">
-        <div class="card-content">
-          <h3 class="card-title">最近の日記</h3>
-          <p class="card-description">ここに最近の日記エントリーのプレビューを表示します。</p>
-        </div>
-      </div>
+      <BaseCard
+        title="最近の日記"
+        class="dashboard-card"
+      >
+        <p>ここに最近の日記エントリーのプレビューを表示します。</p>
+      </BaseCard>
 
-      <div class="dashboard-card">
-        <div class="card-content">
-          <h3 class="card-title">感情の統計</h3>
-          <p class="card-description">ここに最近の感情の傾向を示すグラフを表示します。</p>
-        </div>
-      </div>
+      <BaseCard
+        title="感情の統計"
+        class="dashboard-card"
+      >
+        <p>ここに最近の感情の傾向を示すグラフを表示します。</p>
+      </BaseCard>
     </section>
 
     <!-- ダッシュボードボタン -->
     <footer class="dashboard-actions">
-      <button
+      <BaseButton
         @click="navigateTo('/diaryregister')"
-        class="button primary"
-        aria-label="新しい日記を書く"
+        color="primary"
+        size="large"
+        class="mb-2"
       >
         新しい日記を書く
-      </button>
-      <button @click="navigateTo('/setting')" class="button secondary" aria-label="設定を開く">
+      </BaseButton>
+      <BaseButton
+        @click="navigateTo('/setting')"
+        color="secondary"
+        variant="outlined"
+        size="large"
+      >
         設定
-      </button>
+      </BaseButton>
     </footer>
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { isAuthenticated } from '@/utils/auth'
+import { BaseCard, BaseButton } from '@/components/base'
 
-export default {
-  name: 'DashboardPage',
-  setup() {
-    const router = useRouter()
+const router = useRouter()
 
-    // 認証状態をチェック
-    onMounted(() => {
-      if (!isAuthenticated()) {
-        router.push({
-          path: '/login',
-          query: { redirect: router.currentRoute.value.fullPath },
-        })
-      }
+// 認証状態をチェック
+onMounted(() => {
+  if (!isAuthenticated()) {
+    router.push({
+      path: '/login',
+      query: { redirect: router.currentRoute.value.fullPath },
     })
+  }
+})
 
-    const navigateTo = (path: string) => {
-      router.push(path)
-    }
-
-    return {
-      navigateTo,
-    }
-  },
+const navigateTo = (path: string) => {
+  router.push(path)
 }
 </script>
 
@@ -104,73 +102,12 @@ export default {
   margin-bottom: 32px;
 }
 
-.dashboard-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.dashboard-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.card-content {
-  display: flex;
-  flex-direction: column;
-}
-
-.card-title {
-  font-size: 1.25rem;
-  margin-bottom: 8px;
-}
-
-.card-description {
-  font-size: 1rem;
-  color: #666;
-}
-
 /* アクションボタン */
 .dashboard-actions {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   gap: 16px;
-}
-
-.button {
-  padding: 12px 24px;
-  font-size: 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    background-color 0.3s,
-    color 0.3s;
-}
-
-.primary {
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-}
-
-.secondary {
-  background-color: #fff;
-  color: #007bff;
-  border: 1px solid #007bff;
-}
-
-.primary:hover {
-  background-color: #0056b3;
-}
-
-.secondary:hover {
-  background-color: #e6f2ff;
 }
 
 /* モバイル対応 */

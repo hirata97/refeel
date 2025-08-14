@@ -35,9 +35,28 @@ npx playwright install
 npm run test:e2e
 ```
 
-### GitHub Issue → PR 自動化コマンド
+### 🚀 自動Issue実装システム
 
-#### Issue管理
+#### 完全自動化コマンド（推奨）
+```bash
+# 単一Issue自動実装
+npm run auto-issue [issue番号]
+# - Issue詳細自動取得
+# - Claude Codeによる自動実装
+# - コード品質チェック
+# - PR自動作成
+# 引数なしの場合は最新のオープンIssueを自動選択
+
+# 高度な自動実装（Claude Code API使用）
+npm run auto-implement [issue番号]
+
+# 全オープンIssue連続自動実装
+npm run auto-cycle
+```
+
+#### GitHub Issue → PR 自動化コマンド
+
+##### Issue管理
 ```bash
 # Issue一覧表示
 npm run fetch-issue
@@ -46,9 +65,9 @@ npm run fetch-issue
 npm run fetch-issue [issue番号]
 ```
 
-#### 開発ワークフロー
+##### 開発ワークフロー
 ```bash
-# Issue作業開始（推奨）
+# Issue作業開始（従来方式）
 npm run start-issue [issue番号]
 # - 専用ブランチ作成
 # - タスクファイル生成

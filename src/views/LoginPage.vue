@@ -1,24 +1,23 @@
 <template>
-  <v-container class="login-container">
-    <v-text class="display-1 mb-4 text-center">Login</v-text>
-
-    <v-form ref="form" v-model="valid" @submit.prevent="handleLogin" class="login-form">
-      <v-alert
-        v-if="errorMessage"
+  <BaseForm
+    title="Login"
+    container-class="login-container"
+    form-class="login-form"
+    @submit="handleLogin"
+  >
+    <template #content>
+      <BaseAlert
+        v-model="showError"
         type="error"
-        dismissible
-        class="mb-3"
-        @click:close="errorMessage = ''"
-        aria-live="polite"
-      >
-        {{ errorMessage }}
-      </v-alert>
+        closable
+        :message="errorMessage"
+        @close="errorMessage = ''"
+      />
 
       <v-text-field
         label="Email"
         v-model="email"
-        outlined
-        full-width
+        variant="outlined"
         class="mb-3"
         required
         :rules="[(v) => !!v || 'Email is required']"
@@ -30,37 +29,59 @@
         label="Password"
         type="password"
         v-model="password"
-        outlined
-        full-width
+        variant="outlined"
         class="mb-4"
         required
         :rules="[(v) => !!v || 'Password is required']"
         aria-label="Enter your password"
       />
+    </template>
 
-      <v-btn :loading="isLoading" type="submit" color="primary" block class="mb-2"> Login </v-btn>
-      <v-btn color="secondary" block @click="navigateToTopPage"> トップページに戻る </v-btn>
-    </v-form>
-  </v-container>
+    <template #actions>
+      <BaseButton
+        :loading="isLoading"
+        type="submit"
+        color="primary"
+        block
+        class="mb-2"
+      >
+        Login
+      </BaseButton>
+      <BaseButton
+        color="secondary"
+        block
+        @click="navigateToTopPage"
+      >
+        トップページに戻る
+      </BaseButton>
+    </template>
+  </BaseForm>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
-import { VForm } from 'vuetify/components'
+import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
 
 const router = useRouter()
 
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
-const valid = ref(false)
-const form = ref<InstanceType<typeof VForm> | null>(null)
 const isLoading = ref(false)
 
-const handleLogin = async () => {
-  if (!form.value?.validate()) return
+const showError = computed({
+  get: () => !!errorMessage.value,
+  set: (value: boolean) => {
+    if (!value) {
+      errorMessage.value = ''
+    }
+  }
+})
+
+const handleLogin = async (isValid: boolean) => {
+  if (!isValid) return
 
   isLoading.value = true
 
@@ -86,14 +107,6 @@ const handleLogin = async () => {
 const navigateToTopPage = () => {
   router.push('/')
 }
-
-watch(errorMessage, (newValue) => {
-  if (newValue) {
-    setTimeout(() => {
-      errorMessage.value = ''
-    }, 5000)
-  }
-})
 </script>
 
 <style scoped>
