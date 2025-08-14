@@ -12,7 +12,8 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "create-pr": "./scripts/create-pr.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
