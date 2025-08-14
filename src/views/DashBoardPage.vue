@@ -45,22 +45,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
 import { BaseCard, BaseButton } from '@/components/base'
 
 const router = useRouter()
-
-// 認証状態をチェック
-onMounted(() => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath },
-    })
-  }
-})
 
 const navigateTo = (path: string) => {
   router.push(path)

@@ -31,8 +31,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
 import { supabase } from '@/lib/supabase'
 
 interface Diary {
@@ -42,7 +40,6 @@ interface Diary {
   content: string
 }
 
-const router = useRouter()
 const diaries = ref<Diary[]>([])
 const isDeleting = ref(false)
 const selectedTab = ref('')
@@ -146,13 +143,6 @@ const handleDeleteDiary = async (item: Diary) => {
 }
 
 onMounted(async () => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath },
-    })
-    return
-  }
   await loadDiaries()
 })
 </script>

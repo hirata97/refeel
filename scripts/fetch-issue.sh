@@ -73,7 +73,9 @@ ${LABELS}
 npm run start-issue ${ISSUE_NUMBER}
 
 # 作業完了後PR作成  
-npm run create-pr "fix: Issue #${ISSUE_NUMBER} ${TITLE}" "Issue #${ISSUE_NUMBER}の対応"
+npm run create-pr "fix: Issue #${ISSUE_NUMBER} ${TITLE}" "Issue #${ISSUE_NUMBER}の対応
+
+Closes #${ISSUE_NUMBER}"
 \`\`\`
 
 ## Claude Code用プロンプト
@@ -97,7 +99,7 @@ echo ""
 echo "次のステップ:"
 echo "1. ファイルの内容を確認: cat $TASK_FILE"
 echo "2. Claude Codeで作業開始: Issue内容をコピーして実装依頼"
-echo "3. 作業完了後: npm run create-pr \"fix: Issue #$ISSUE_NUMBER $TITLE\" \"Issue #${ISSUE_NUMBER}の対応\""
+echo "3. 作業完了後: npm run create-pr \"fix: Issue #$ISSUE_NUMBER $TITLE\" \"Issue #${ISSUE_NUMBER}の対応\n\nCloses #${ISSUE_NUMBER}\""
 echo ""
 
 # Issue作業開始用ブランチ提案

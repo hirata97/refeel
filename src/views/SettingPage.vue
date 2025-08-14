@@ -37,29 +37,17 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
 
 const router = useRouter()
 
 // テーマ選択肢
 const themes = ['ライト', 'ダーク', 'ブルー', 'グリーン']
 
-// リダイレクト処理を含むページ遷移関数
+// ページ遷移関数
 const navigateTo = (path: string) => {
   router.push(path)
 }
-
-// ページ読み込み時に認証をチェックし、未認証ならリダイレクト
-onMounted(() => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath }, // 元のページを記憶
-    })
-  }
-})
 </script>
 
 <style scoped>
