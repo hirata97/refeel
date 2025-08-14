@@ -6,21 +6,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
-
-const router = useRouter()
-
-// ページ読み込み時に認証をチェックし、未認証ならリダイレクト
-onMounted(() => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath }, // 元のページを記憶
-    })
-  }
-})
 </script>
 
 <style scoped>

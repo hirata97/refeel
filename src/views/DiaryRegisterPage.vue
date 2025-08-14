@@ -16,8 +16,6 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
 import { supabase } from '@/lib/supabase'
 
 interface Diary {
@@ -29,7 +27,6 @@ interface Diary {
   mood: number
 }
 
-const router = useRouter()
 
 const getCurrentDate = (): string => {
   const today = new Date()
@@ -58,13 +55,6 @@ const resetDiaryEntry = () => {
 }
 
 const initializeUser = async () => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath },
-    })
-    return
-  }
   const {
     data: { user },
   } = await supabase.auth.getUser()

@@ -34,7 +34,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { isAuthenticated } from '@/utils/auth'
 import { supabase } from '@/lib/supabase'
 
 // Chart.jsコンポーネントの登録
@@ -126,13 +125,6 @@ const navigateTo = (path: string) => {
 }
 
 onMounted(async () => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath },
-    })
-    return
-  }
   await loadMoodData()
 })
 </script>
