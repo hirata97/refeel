@@ -64,6 +64,29 @@ git push origin "$CURRENT_BRANCH"
 # PR作成
 echo "プルリクエストを作成しています..."
 
+# Issue番号を検出（ブランチ名、PR_TITLE、PR_DESCRIPTIONから）
+ISSUE_NUMBER=""
+
+# 1. ブランチ名からIssue番号を検出（例: issue/16-auth, feature/issue-16）
+if [[ "$CURRENT_BRANCH" =~ issue[/-]([0-9]+) ]]; then
+    ISSUE_NUMBER="${BASH_REMATCH[1]}"
+# 2. PR_TITLEからIssue番号を検出（例: "feat: Issue #16"）
+elif [[ "$PR_TITLE" =~ Issue[[:space:]]*#([0-9]+) ]]; then
+    ISSUE_NUMBER="${BASH_REMATCH[1]}"
+# 3. PR_DESCRIPTIONからIssue番号を検出
+elif [[ "$PR_DESCRIPTION" =~ Issue[[:space:]]*#([0-9]+) ]]; then
+    ISSUE_NUMBER="${BASH_REMATCH[1]}"
+fi
+
+# Closesセクションを作成
+CLOSES_SECTION=""
+if [ -n "$ISSUE_NUMBER" ]; then
+    CLOSES_SECTION="
+
+Closes #$ISSUE_NUMBER"
+    echo "📋 Issue #$ISSUE_NUMBER を自動クローズ設定に追加しました"
+fi
+
 # PR本文を作成
 PR_BODY="## 概要
 ${PR_DESCRIPTION:-$PR_TITLE}
@@ -77,7 +100,7 @@ $(git log develop.."$CURRENT_BRANCH" --oneline --pretty=format:"- %s" | head -10
 - [ ] npm run test:unit
 - [ ] 動作確認
 
-🤖 Generated with [Claude Code](https://claude.ai/code)"
+🤖 Generated with [Claude Code](https://claude.ai/code)$CLOSES_SECTION"
 
 # PRを作成（developブランチに向けて）
 gh pr create \
