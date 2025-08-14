@@ -66,6 +66,67 @@ Vue 3 と Vite を用いた開発を始めるためのテンプレート。
 npm run lint
 ```
 
+## GitHub Issue → PR 自動化ワークフロー
+
+このプロジェクトでは、GitHub IssueからPR作成までを自動化する効率的なワークフローを提供しています。
+
+### 利用可能なコマンド
+
+#### 1. Issue一覧・詳細取得
+```bash
+npm run fetch-issue [issue番号]
+```
+- Issue番号なしで実行するとオープン中のIssue一覧を表示
+- Issue番号を指定すると詳細情報を取得してタスクファイルを生成
+
+#### 2. Issue作業開始（推奨）
+```bash
+npm run start-issue [issue番号]
+```
+- 専用のフィーチャーブランチを自動作成
+- タスク管理ファイル生成（`tasks/issue-[番号]-tasks.md`）
+- 自分をIssueにアサイン
+- Claude Code用のプロンプトをクリップボードにコピー
+
+#### 3. PR作成
+```bash
+npm run create-pr "タイトル" "説明"
+```
+- 変更を自動コミット・プッシュ
+- developブランチに向けたPRを自動作成
+- Claude Code署名付きコミットメッセージ
+
+### 完全なワークフロー例
+
+```bash
+# 1. 現在のIssue確認
+npm run fetch-issue
+
+# 2. Issue #18の作業開始
+npm run start-issue 18
+
+# 3. Claude Codeで実装作業
+# （クリップボードのプロンプトをClaude Codeに貼り付け）
+
+# 4. 作業完了後PR作成
+npm run create-pr "feat: テーマ機能の活用" "Issue #18の対応完了"
+```
+
+### 生成されるファイル
+
+- `tasks/issue-[番号]-tasks.md` - 詳細なタスク管理ファイル
+  - Issue内容の整理
+  - 実装チェックリスト  
+  - Claude Code用プロンプト
+  - 推奨コマンド例
+
+### 特徴
+
+- **自動ブランチ作成**: Issue番号とタイトルから適切なブランチ名を生成
+- **Claude Code連携**: 最適化されたプロンプトを自動生成
+- **アサイン機能**: 作業開始時に自動で自分をアサイン
+- **テンプレート化**: 一貫したPR本文とコミットメッセージ
+
 ## Supabaseの設定
 
 このプロジェクトでは、Supabaseを使用してデータベース操作を行います。以下の手順に従ってSupabaseを設定してください。

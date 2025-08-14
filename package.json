@@ -13,7 +13,9 @@
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
-    "create-pr": "./scripts/create-pr.sh"
+    "create-pr": "./scripts/create-pr.sh",
+    "fetch-issue": "./scripts/fetch-issue.sh",
+    "start-issue": "./scripts/start-issue.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
