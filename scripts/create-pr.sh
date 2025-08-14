@@ -1,0 +1,93 @@
+#!/bin/bash
+
+# Claude Code自動PR作成スクリプト
+# 使用方法: ./scripts/create-pr.sh "PR title" "PR description"
+
+set -e
+
+# 引数チェック
+if [ $# -lt 1 ]; then
+    echo "使用方法: $0 \"PR title\" [\"PR description\"]"
+    echo "例: $0 \"feat: ユーザー認証機能を追加\" \"ログイン・ログアウト機能を実装しました\""
+    exit 1
+fi
+
+PR_TITLE="$1"
+PR_DESCRIPTION="${2:-}"
+
+# 現在のブランチ名を取得
+CURRENT_BRANCH=$(git branch --show-current)
+
+# developブランチにいる場合は警告
+if [ "$CURRENT_BRANCH" = "develop" ]; then
+    echo "警告: developブランチにいます。フィーチャーブランチから実行することを推奨します。"
+    read -p "続行しますか？ (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        exit 1
+    fi
+fi
+
+echo "現在のブランチ: $CURRENT_BRANCH"
+
+# 変更があるかチェック
+if git diff-index --quiet HEAD --; then
+    echo "コミットする変更がありません。"
+    
+    # すでにリモートブランチが存在するかチェック
+    if git ls-remote --exit-code --heads origin "$CURRENT_BRANCH" >/dev/null 2>&1; then
+        echo "リモートブランチが存在します。PRを作成します..."
+    else
+        echo "変更もリモートブランチもありません。終了します。"
+        exit 0
+    fi
+else
+    echo "変更を検出しました。コミットしてプッシュします..."
+    
+    # 変更をステージング
+    git add .
+    
+    # コミット
+    git commit -m "$PR_TITLE
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+    
+    echo "コミット完了: $PR_TITLE"
+fi
+
+# リモートにプッシュ
+echo "リモートにプッシュしています..."
+git push origin "$CURRENT_BRANCH"
+
+# PR作成
+echo "プルリクエストを作成しています..."
+
+# PR本文を作成
+PR_BODY="## 概要
+${PR_DESCRIPTION:-$PR_TITLE}
+
+## 変更内容
+$(git log develop.."$CURRENT_BRANCH" --oneline --pretty=format:"- %s" | head -10)
+
+## テスト実行
+- [ ] npm run type-check
+- [ ] npm run lint
+- [ ] npm run test:unit
+- [ ] 動作確認
+
+🤖 Generated with [Claude Code](https://claude.ai/code)"
+
+# PRを作成（developブランチに向けて）
+gh pr create \
+    --title "$PR_TITLE" \
+    --body "$PR_BODY" \
+    --base develop \
+    --head "$CURRENT_BRANCH"
+
+echo "✅ プルリクエストが作成されました！"
+
+# 作成されたPRのURLを表示
+PR_URL=$(gh pr view --json url --jq .url)
+echo "PR URL: $PR_URL"
