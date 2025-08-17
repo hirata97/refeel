@@ -1,230 +1,278 @@
-# セキュリティ実装ガイド
+# セキュリティ実装詳細
 
-このドキュメントでは、GoalCategorizationDiaryアプリケーションで実装されたセキュリティ機能について説明します。
+このドキュメントでは、GoalCategorizationDiaryアプリケーションで実装されたセキュリティ機能の技術的詳細を説明します。
 
-## 📋 実装されたセキュリティ機能
+> **関連ドキュメント**  
+> - [セキュリティガイドライン](SECURITY.md) - ポリシーと概要  
+> - [セキュリティ開発ガイド](SECURITY_DEVELOPMENT.md) - 実装手順とベストプラクティス
 
-### 🛡️ セキュリティヘッダー
+## 📋 アーキテクチャ概要
 
-以下のセキュリティヘッダーが実装されています：
-
-#### 1. Content Security Policy (CSP)
+```mermaid
+graph TB
+    A[ブラウザ] --> B[セキュリティヘッダー]
+    B --> C[Vue.js アプリケーション]
+    C --> D[セキュリティユーティリティ]
+    D --> E[XSS対策]
+    D --> F[CSRF対策]
+    D --> G[入力値検証]
+    C --> H[Supabase Client]
+    H --> I[認証・認可]
+    D --> J[セキュリティレポート]
 ```
-default-src 'self'; 
-script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; 
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; 
-font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; 
-img-src 'self' data: https:; 
-connect-src 'self' https://*.supabase.co wss://*.supabase.co; 
-frame-ancestors 'none';
-```
 
-#### 2. その他のセキュリティヘッダー
-- **X-XSS-Protection**: `1; mode=block` - XSS攻撃の検出時にページ読み込みをブロック
-- **X-Content-Type-Options**: `nosniff` - MIMEタイプスニッフィングを防止
-- **X-Frame-Options**: `DENY` - クリックジャッキング攻撃を防止
-- **Referrer-Policy**: `strict-origin-when-cross-origin` - リファラー情報の制御
-- **Permissions-Policy**: `camera=(), microphone=(), geolocation=()` - 不要な権限を無効化
+## 🛡️ 実装されたセキュリティ機能
 
-### 🔒 XSS対策
+### 1. セキュリティヘッダー
+**実装場所**: `vite.config.ts`, `index.html`
 
-#### 実装場所
-- `src/utils/security.ts` - XSSProtectionクラス
+| ヘッダー | 設定値 | 目的 |
+|---------|--------|------|
+| Content-Security-Policy | `default-src 'self'; script-src 'self' 'unsafe-inline'...` | XSS攻撃の防止 |
+| X-Frame-Options | `DENY` | クリックジャッキング防止 |
+| X-XSS-Protection | `1; mode=block` | レガシーXSS保護 |
+| X-Content-Type-Options | `nosniff` | MIME誤認識防止 |
+| Referrer-Policy | `strict-origin-when-cross-origin` | リファラー制御 |
+| Permissions-Policy | `camera=(), microphone=()...` | 不要権限の無効化 |
 
-#### 機能
-1. **HTMLサニタイゼーション**
-   ```typescript
-   XSSProtection.sanitizeHTML(content: string): string
-   ```
-   - DOMPurifyを使用した安全なHTMLサニタイゼーション
-   - 許可されたタグのみを保持
-   - 危険なタグ（script、object等）を除去
+### 2. XSS対策
+**実装場所**: `src/utils/security.ts` - `XSSProtection`クラス
 
-2. **テキストサニタイゼーション**
-   ```typescript
-   XSSProtection.sanitizeText(input: string): string
-   ```
-   - HTML特殊文字のエスケープ処理
-   - `< > " ' /` を安全な文字に変換
-
-3. **URLサニタイゼーション**
-   ```typescript
-   XSSProtection.sanitizeURL(url: string): string | null
-   ```
-   - 危険なプロトコル（javascript:、data:）の検出と除去
-   - 許可されたプロトコル（http:、https:、mailto:）のみ受け入れ
-
-#### 実装箇所
-- ログインページ (`src/views/LoginPage.vue`)
-- アカウント登録ページ (`src/views/AccountRegisterPage.vue`)
-- 全フォーム入力でサニタイゼーション実施
-
-### 🛡️ CSRF対策
-
-#### 実装場所
-- `src/utils/security.ts` - CSRFProtectionクラス
-
-#### 機能
-1. **CSRFトークン生成**
-   ```typescript
-   CSRFProtection.generateToken(): string
-   ```
-   - 暗号学的に安全な32バイトランダムトークン生成
-
-2. **トークン管理**
-   - セッションストレージでのトークン保存
-   - HTTPヘッダーへの自動追加
-   - リクエスト毎のトークン検証
-
-3. **Supabase統合**
-   - `src/lib/supabase.ts` でCSRFヘッダー自動追加
-   - 全APIリクエストにCSRFトークンを含む
-
-#### セキュリティ設定
-- **セッションストレージ使用**: XSSリスクを軽減
-- **X-Requested-With ヘッダー**: CSRF攻撃の追加防御
-
-### 🔍 入力値検証
-
-#### 実装場所
-- `src/utils/security.ts` - InputValidationクラス
-
-#### 機能
-1. **メールアドレス検証**
-   ```typescript
-   InputValidation.isValidEmail(email: string): boolean
-   ```
-
-2. **パスワード強度検証**
-   ```typescript
-   InputValidation.validatePassword(password: string)
-   ```
-   - 最小8文字、最大128文字
-   - 大文字、小文字、数字、特殊文字を要求
-   - 詳細なエラーメッセージ提供
-
-3. **SQLインジェクション対策**
-   ```typescript
-   InputValidation.checkForSQLInjection(input: string): boolean
-   ```
-   - 危険なSQLキーワードの検出
-   - 不正な文字パターンの検証
-
-### 📊 セキュリティレポート
-
-#### 実装場所
-- `src/utils/security.ts` - SecurityReportingクラス
-
-#### 機能
-1. **CSP違反レポート**
-   - ブラウザのCSP違反イベントを監視
-   - 自動的にセキュリティエンドポイントにレポート送信
-
-2. **セキュリティインシデント追跡**
-   - 認証失敗の監視とログ記録
-   - ブルートフォース攻撃の検出
-   - セッション異常の検出
-
-3. **認証監査ログ**
-   - `src/utils/auth.ts` で認証試行を記録
-   - 連続失敗の監視（5回以上でアラート）
-   - IPアドレスとユーザーエージェントの記録
-
-### 🔐 認証セキュリティ強化
-
-#### 実装場所
-- `src/utils/auth.ts`
-
-#### 機能
-1. **認証試行監視**
-   ```typescript
-   logAuthAttempt(isSuccess: boolean, email: string, reason?: string)
-   ```
-
-2. **セッション検証**
-   ```typescript
-   validateSession(): Promise<boolean>
-   ```
-
-3. **ブルートフォース対策**
-   - 失敗回数の追跡
-   - 連続失敗時の自動アラート
-
-## 🚀 セキュリティ機能の初期化
-
-### 設定場所
-- `src/main.ts` でセキュリティ機能を初期化
-
-### 初期化内容
 ```typescript
+// HTMLコンテンツのサニタイゼーション（DOMPurify使用）
+XSSProtection.sanitizeHTML(content: string): string
+
+// テキスト入力のエスケープ処理  
+XSSProtection.sanitizeText(input: string): string
+
+// URL検証（危険なプロトコル除去）
+XSSProtection.sanitizeURL(url: string): string | null
+```
+
+### 3. CSRF対策
+**実装場所**: `src/utils/security.ts` - `CSRFProtection`クラス
+
+```typescript
+// 暗号学的に安全なトークン生成
+CSRFProtection.generateToken(): string
+
+// トークンの保存・取得（セッションストレージ）
+CSRFProtection.storeToken(token: string): void
+CSRFProtection.getToken(): string | null
+
+// HTTPヘッダーへの自動追加
+CSRFProtection.addTokenToHeaders(headers?: Record<string, string>): Record<string, string>
+```
+
+### 4. 入力値検証
+**実装場所**: `src/utils/security.ts` - `InputValidation`クラス
+
+```typescript
+// メールアドレス形式検証
+InputValidation.isValidEmail(email: string): boolean
+
+// パスワード強度検証（8文字以上、大小英数特殊文字）
+InputValidation.validatePassword(password: string): ValidationResult
+
+// SQLインジェクション対策
+InputValidation.checkForSQLInjection(input: string): boolean
+```
+
+### 5. セキュリティレポート
+**実装場所**: `src/utils/security.ts` - `SecurityReporting`クラス
+
+```typescript
+// CSP違反レポート送信
+SecurityReporting.reportCSPViolation(violationReport: Record<string, unknown>): Promise<void>
+
+// セキュリティインシデント報告
+SecurityReporting.reportSecurityIncident(incidentType: string, details: Record<string, unknown>): Promise<void>
+```
+
+### 6. 認証セキュリティ
+**実装場所**: `src/utils/auth.ts`
+
+```typescript
+// 認証試行の監視とログ記録
+logAuthAttempt(isSuccess: boolean, email: string, reason?: string): Promise<void>
+
+// セッション有効性検証
+validateSession(): Promise<boolean>
+```
+
+## 🚀 初期化と設定
+
+**実装場所**: `src/main.ts`
+
+```typescript
+// セキュリティ機能の初期化
 initializeSecurity()
+
+// 初期化内容:
+// 1. CSRFトークンの生成と保存
+// 2. CSP違反監視の開始  
+// 3. グローバルエラーハンドラーの設定
 ```
-- CSRFトークンの生成と保存
-- CSP違反監視の開始
-- グローバルエラーハンドラーの設定
 
-## 📁 関連ファイル
+## 🏗️ 設計思想と制約事項
 
-### 新規作成ファイル
-- `src/utils/security.ts` - メインセキュリティユーティリティ
-- `docs/SECURITY_IMPLEMENTATION.md` - このドキュメント
+### 設計原則
+1. **多層防御**: 複数のセキュリティ機能を組み合わせ
+2. **型安全性**: TypeScriptによる静的型チェック
+3. **パフォーマンス重視**: 最小限のオーバーヘッド
+4. **保守性**: 明確なAPIと責務分離
 
-### 更新ファイル
-- `vite.config.ts` - セキュリティヘッダーの設定
-- `index.html` - HTMLレベルでのセキュリティメタタグ
-- `src/main.ts` - セキュリティ初期化の追加
-- `src/lib/supabase.ts` - CSRFトークン統合
-- `src/utils/auth.ts` - 認証セキュリティ強化
-- `src/views/LoginPage.vue` - ログインセキュリティ強化
-- `src/views/AccountRegisterPage.vue` - 登録セキュリティ強化
+### 技術的制約
+- **ブラウザ互換性**: モダンブラウザ対応（ES2020+）
+- **CSP制約**: 開発環境では一部制限を緩和
+- **セッションストレージ**: XSS攻撃時のリスク軽減のため
+- **依存関係**: DOMPurifyライブラリに依存
 
-## 🔍 セキュリティ検証方法
+### パフォーマンスへの影響
+| 機能 | 初期化コスト | ランタイムコスト | 最適化策 |
+|------|-------------|-----------------|----------|
+| XSS対策 | 低 | 中（サニタイゼーション時） | useMemoでキャッシュ |
+| CSRF対策 | 低 | 低（ヘッダー追加のみ） | - |
+| 入力値検証 | 低 | 低（正規表現） | 事前コンパイル |
+| セキュリティレポート | 中 | 低（非同期送信） | 失敗時のリトライ制限 |
 
-### 1. CSPの動作確認
+## 🔧 拡張・保守ガイド
+
+### 新しいセキュリティ機能の追加
+
+1. **src/utils/security.ts** に新しいクラスを追加
+```typescript
+export class NewSecurityFeature {
+  static newMethod(): void {
+    // 実装
+  }
+}
+```
+
+2. **型定義の追加**
+```typescript
+// types/security.ts（新規作成推奨）
+export interface NewSecurityConfig {
+  enabled: boolean;
+  options: Record<string, unknown>;
+}
+```
+
+3. **初期化に追加**
+```typescript
+// src/main.ts
+import { NewSecurityFeature } from '@/utils/security'
+NewSecurityFeature.initialize()
+```
+
+### 既存機能の変更
+
+#### CSP設定の変更
+```typescript
+// vite.config.ts
+server: {
+  headers: {
+    'Content-Security-Policy': "新しいCSP設定"
+  }
+}
+```
+
+#### サニタイゼーション設定の変更
+```typescript
+// src/utils/security.ts
+const sanitizeConfig = {
+  ALLOWED_TAGS: ['新しいタグ'],
+  ALLOWED_ATTR: ['新しい属性']
+}
+```
+
+### 設定の外部化
+
+将来的に設定を外部化する場合：
+
+```typescript
+// config/security.ts
+export const securityConfig = {
+  xss: {
+    enabled: true,
+    allowedTags: ['b', 'i', 'em']
+  },
+  csrf: {
+    enabled: true,
+    tokenLength: 32
+  }
+}
+```
+
+## 🔍 検証とテスト
+
+### 1. 自動テスト
 ```bash
-# 開発サーバー起動
-npm run dev
+# セキュリティ機能のユニットテスト
+npm run test:unit -- --grep "security"
 
-# ブラウザの開発者ツールでConsoleを確認
-# CSP違反があれば警告が表示される
+# 型チェック
+npm run type-check
 ```
 
-### 2. XSS対策の確認
+### 2. 手動検証
 ```javascript
-// ブラウザコンソールでテスト
-XSSProtection.sanitizeHTML('<script>alert("xss")</script><p>安全なテキスト</p>')
-// 結果: '<p>安全なテキスト</p>'
+// ブラウザコンソールでのテスト例
+// XSS対策
+XSSProtection.sanitizeHTML('<script>alert("test")</script>')
+
+// CSRF対策  
+console.log(CSRFProtection.getToken())
+
+// 入力値検証
+InputValidation.validatePassword('TestPass123!')
 ```
 
-### 3. CSRF対策の確認
-```javascript
-// セッションストレージでCSRFトークンを確認
-console.log(sessionStorage.getItem('csrf_token'))
+### 3. セキュリティスキャン
+```bash
+# 脆弱性スキャン
+npm audit
+npm audit fix
+
+# 依存関係チェック
+npm outdated
 ```
 
-## 🚨 注意事項
+## ⚠️ 既知の問題と制限事項
 
-1. **開発環境での設定**
-   - CSPの`unsafe-inline`と`unsafe-eval`は開発用
-   - 本番環境では削除を推奨
+### 開発環境での制限
+- CSPの `unsafe-inline` `unsafe-eval` は開発時のみ
+- 本番環境では厳格化が必要
 
-2. **Supabaseセキュリティ**
-   - RLS（Row Level Security）の適切な設定が必要
-   - Supabase側でのセキュリティポリシー確認
+### ブラウザ互換性
+- Internet Explorer 11以下は非対応
+- 一部のモバイルブラウザでCSP制限あり
 
-3. **継続的監視**
-   - セキュリティレポートの定期確認
-   - 認証ログの監視
-   - 脆弱性スキャンの実施
+### パフォーマンス制約
+- 大量のHTMLサニタイゼーション時の処理時間
+- セキュリティレポート送信時のネットワーク負荷
 
-## 📚 参考資料
+## 📋 関連ファイル一覧
 
-- [OWASP XSS Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html)
-- [OWASP CSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html)
-- [MDN Content Security Policy](https://developer.mozilla.org/ja/docs/Web/HTTP/CSP)
-- [DOMPurify Documentation](https://github.com/cure53/DOMPurify)
+### コアファイル
+- `src/utils/security.ts` - メインセキュリティユーティリティ
+- `src/utils/auth.ts` - 認証セキュリティ強化
+- `src/lib/supabase.ts` - CSRF統合
+
+### 設定ファイル  
+- `vite.config.ts` - セキュリティヘッダー設定
+- `index.html` - HTMLレベルセキュリティ
+
+### コンポーネント
+- `src/views/LoginPage.vue` - ログインセキュリティ
+- `src/views/AccountRegisterPage.vue` - 登録セキュリティ
+
+### ドキュメント
+- `docs/SECURITY.md` - セキュリティガイドライン
+- `docs/SECURITY_DEVELOPMENT.md` - 開発ガイド
 
 ---
 
-**実装完了日**: 2025-08-17  
-**対応Issue**: #71 XSS対策とセキュリティヘッダーの実装
+**実装完了**: 2025-08-17  
+**対応Issue**: #71  
+**次回レビュー**: 2025-09-17
