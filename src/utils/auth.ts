@@ -126,7 +126,7 @@ const getClientIP = async (): Promise<string> => {
         pc.close()
       }, 1000)
     })
-  } catch (error) {
+  } catch {
     return 'unknown'
   }
 }

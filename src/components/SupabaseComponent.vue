@@ -2,13 +2,19 @@
 import { defineComponent, inject, ref, onMounted } from 'vue'
 import { SupabaseClient } from '@supabase/supabase-js'
 
+// データベースレコードの型定義
+interface DatabaseRecord {
+  id: string | number;
+  [key: string]: unknown;
+}
+
 export default defineComponent({
   name: 'SupabaseComponent',
   setup() {
     const supabase = inject('supabase') as SupabaseClient
     const injectedValue = inject('injectedKey')
 
-    const data = ref<any[]>([])
+    const data = ref<DatabaseRecord[]>([])
     const error = ref<string | null>(null)
 
     onMounted(async () => {
@@ -23,7 +29,7 @@ export default defineComponent({
       }
     })
 
-    const json = (value: any) => {
+    const json = (value: unknown) => {
       return JSON.stringify(value, null, 2)
     }
 

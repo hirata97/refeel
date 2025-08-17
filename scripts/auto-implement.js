@@ -5,9 +5,9 @@
  * Claude Code APIを使用してIssueの自動実装を行います
  */
 
-const { execSync, spawn } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync, spawn } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 // 設定
 const CLAUDE_CODE_BINARY = 'claude'; // Claude Code CLI のパス
@@ -159,7 +159,7 @@ class AutoImplementer {
         cwd: PROJECT_ROOT 
       });
       console.log('  ✅ リンティング: 正常');
-    } catch (error) {
+    } catch {
       console.log('  ⚠️  リンティング: 警告あり（続行）');
     }
 
@@ -171,7 +171,7 @@ class AutoImplementer {
         cwd: PROJECT_ROOT 
       });
       console.log('  ✅ ビルドテスト: 正常');
-    } catch (error) {
+    } catch {
       console.log('  ⚠️  ビルドテスト: 警告あり（続行）');
     }
   }
