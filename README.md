@@ -1,150 +1,181 @@
-# Vue Boilerplate
+# Goal Categorization Diary
 
-2025/01/01作成
-Vue 3 と Vite を用いた開発を始めるためのテンプレート。
+目標設定と進捗追跡のためのVue.js Webアプリケーション
 
-## 新しいリポジトリの作成方法
+## プロジェクト概要
 
-1. **ローカルにクローン**
+Goal Categorization Diaryは、日々の目標を管理し、進捗を追跡するためのWebアプリケーションです。Vue 3、TypeScript、Supabaseを使用して構築されており、ユーザーが目標を設定し、日記形式で進捗を記録できます。
+
+## 主な機能
+
+- **ユーザー認証**: Supabaseによる安全な認証システム
+- **目標管理**: カテゴリ別の目標設定と管理
+- **日記機能**: 日々の進捗を記録できる日記システム
+- **データ可視化**: Chart.jsによる進捗データの可視化
+- **レスポンシブデザイン**: モバイルデバイス対応
+
+## 技術スタック
+
+- **フロントエンド**: Vue 3 + TypeScript + Vite
+- **UIフレームワーク**: Vuetify 3（Material Design）
+- **バックエンド**: Supabase（認証、データベース、リアルタイム更新）
+- **状態管理**: Pinia
+- **ルーティング**: Vue Router
+- **データ可視化**: Chart.js + vue-chartjs
+- **テスティング**: Vitest（ユニット）+ Playwright（E2E）
+- **デプロイ**: Vercel
+
+## セットアップ
+
+### 前提条件
+
+- Node.js (v16以降)
+- npm
+- Supabaseアカウント
+
+### インストール
+
+1. **リポジトリのクローン**
+   ```bash
+   git clone https://github.com/RsPYP/GoalCategorizationDiary.git
+   cd GoalCategorizationDiary
    ```
-   git clone https://github.com/<このリポジトリのURL>.git
-   cd <クローンしたディレクトリ>
-   ```
-2. **リモートURLを削除**
-   ```
-   git remote remove origin
-   ```
-3. **GitHubで新しいリポジトリを作成し、リンクを設定**
-   ```
-   git remote add origin https://github.com/<ユーザー名>/<新しいリポジトリ>.git
-   git branch -M main
-   git push -u origin main
-   ```
 
-## 推奨開発環境
-
-- [VSCode](https://code.visualstudio.com/)
-- [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)（Veturは無効化）
-
-## TypeScriptの`.vue`サポート
-
-`.vue`ファイルの型情報を正しく処理するため、`tsc`の代わりに`vue-tsc`を使用します。また、エディタにはVolarを導入する必要があります。
-
-## プロジェクトセットアップ
-
-1. **依存関係をインストール**
-   ```
+2. **依存関係のインストール**
+   ```bash
    npm install
    ```
-2. **開発用ビルドとホットリロード**
+
+3. **環境変数の設定**
+   
+   `.env`ファイルを作成し、Supabaseの設定を追加：
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_KEY=your-anon-key
    ```
+
+4. **開発サーバーの起動**
+   ```bash
    npm run dev
    ```
-3. **本番用ビルド**
-   ```
-   npm run build
-   ```
-4. **ユニットテストの実行**
-   ```
-   npm run test:unit
-   ```
-5. **E2Eテストの実行**  
-   初回のみブラウザをインストール：
-   ```
-   npx playwright install
-   ```
-   テスト実行：
-   ```
-   npm run test:e2e
-   ```
 
-## Lint
+## 開発コマンド
 
-コードをLintする：
+### 基本コマンド
+```bash
+# 開発環境起動
+npm run dev
 
-```
+# 型チェック付きビルド
+npm run build
+
+# リンティング
 npm run lint
+
+# コードフォーマット
+npm run format
+
+# ユニットテスト
+npm run test:unit
+
+# E2Eテスト（初回のみブラウザインストール）
+npx playwright install
+npm run test:e2e
 ```
 
-## GitHub Issue → PR 自動化ワークフロー
+### 🚀 自動化ワークフロー
 
-このプロジェクトでは、GitHub IssueからPR作成までを自動化する効率的なワークフローを提供しています。
+#### GitHub Issue → PR 自動化コマンド
 
-### 利用可能なコマンド
-
-#### 1. Issue一覧・詳細取得
+##### Issue管理
 ```bash
-npm run fetch-issue [issue番号]
-```
-- Issue番号なしで実行するとオープン中のIssue一覧を表示
-- Issue番号を指定すると詳細情報を取得してタスクファイルを生成
-
-#### 2. Issue作業開始（推奨）
-```bash
-npm run start-issue [issue番号]
-```
-- 専用のフィーチャーブランチを自動作成
-- タスク管理ファイル生成（`tasks/issue-[番号]-tasks.md`）
-- 自分をIssueにアサイン
-- Claude Code用のプロンプトをクリップボードにコピー
-
-#### 3. PR作成
-```bash
-npm run create-pr "タイトル" "説明"
-```
-- 変更を自動コミット・プッシュ
-- developブランチに向けたPRを自動作成
-- Claude Code署名付きコミットメッセージ
-
-### 完全なワークフロー例
-
-```bash
-# 1. 現在のIssue確認
+# Issue一覧表示
 npm run fetch-issue
 
-# 2. Issue #18の作業開始
-npm run start-issue 18
-
-# 3. Claude Codeで実装作業
-# （クリップボードのプロンプトをClaude Codeに貼り付け）
-
-# 4. 作業完了後PR作成
-npm run create-pr "feat: テーマ機能の活用" "Issue #18の対応完了"
+# 特定のIssue詳細とタスクファイル生成
+npm run fetch-issue [issue番号]
 ```
 
-### 生成されるファイル
+##### 開発ワークフロー
+```bash
+# Issue作業開始
+npm run start-issue [issue番号]
+# - 専用ブランチ作成
+# - タスクファイル生成
+# - 自動アサイン
+# - Claude Code用プロンプト準備
 
-- `tasks/issue-[番号]-tasks.md` - 詳細なタスク管理ファイル
-  - Issue内容の整理
-  - 実装チェックリスト  
-  - Claude Code用プロンプト
-  - 推奨コマンド例
+# PR作成
+npm run create-pr "タイトル" "説明"
+# - 自動コミット・プッシュ
+# - develop向けPR作成
+# - Claude Code署名付きメッセージ
+```
 
-### 特徴
+#### 完全自動化（推奨）
+```bash
+# 単一Issue自動実装
+npm run auto-issue [issue番号]
+# - Issue詳細自動取得
+# - Claude Codeによる自動実装
+# - コード品質チェック
+# - PR自動作成
 
-- **自動ブランチ作成**: Issue番号とタイトルから適切なブランチ名を生成
-- **Claude Code連携**: 最適化されたプロンプトを自動生成
-- **アサイン機能**: 作業開始時に自動で自分をアサイン
-- **テンプレート化**: 一貫したPR本文とコミットメッセージ
-- **自動ラベリング**: 新しいラベル体系による自動分類
+# 全オープンIssue連続自動実装
+npm run auto-cycle
+```
+
+## プロジェクト構造
+
+```
+src/
+├── components/          # 再利用可能なコンポーネント
+│   └── base/           # ベースコンポーネント
+├── lib/                # ライブラリ設定
+│   └── supabase.ts     # Supabaseクライアント
+├── plugins/            # Vue プラグイン
+│   └── vuetify.ts      # Vuetify設定
+├── router/             # ルーティング設定
+├── stores/             # Pinia ストア
+├── utils/              # ユーティリティ関数
+├── views/              # ページコンポーネント
+│   ├── DashBoardPage.vue      # ダッシュボード
+│   ├── DiaryRegisterPage.vue  # 日記登録
+│   ├── DiaryViewPage.vue      # 日記一覧
+│   ├── DiaryReportPage.vue    # レポート
+│   ├── LoginPage.vue          # ログイン
+│   ├── AccountRegisterPage.vue # アカウント登録
+│   └── SettingPage.vue        # 設定
+└── App.vue             # ルートコンポーネント
+```
+
+## テスト戦略
+
+### テストファイル命名規則
+- **形式**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
+- **例**: `normal_LoginPage_01.spec.js`, `exception_LoginPage_01.spec.js`
+
+### ディレクトリ構造
+```
+tests/
+└── [コンポーネント名]/
+    ├── normal_[コンポーネント名]_01.spec.js
+    └── exception_[コンポーネント名]_01.spec.js
+```
 
 ## 🏷️ ラベル管理システム
 
-### ラベル体系
-
-このプロジェクトでは、効率的なIssue管理のために体系化されたラベルシステムを採用しています。
-
-#### 優先度ラベル
+### 優先度ラベル
 - `priority:P0` 🔴 - 最高優先度（緊急・重要）
 - `priority:P1` 🟡 - 高優先度（重要）  
 - `priority:P2` 🔵 - 中優先度（通常）
 
-#### 作業規模ラベル
+### 作業規模ラベル
 - `size:S` 🔴 - 小規模（1-2日）
 - `size:M` 🟡 - 中規模（3-5日）
 - `size:L` 🔵 - 大規模（1週間以上）
 
-#### 実装内容ラベル
+### 実装内容ラベル
 
 **基本的な作業（type-basic:）**
 - `type-basic:bugfix` - バグ修正
@@ -162,119 +193,22 @@ npm run create-pr "feat: テーマ機能の活用" "Issue #18の対応完了"
 - `type-quality:docs` - ドキュメント
 - `type-quality:test` - テスト関連
 
-### 自動ラベリング機能
+## デプロイメント
 
-- Issue作成時に自動でラベルが付与されます
-- タイトルや本文から適切な`type-`ラベルを自動判定
-- 緊急キーワード検出時は`priority:P0`を自動付与
-- 日本語・英語両方のキーワードに対応
+本プロジェクトはVercelで自動デプロイされます。developブランチへのマージで自動的にデプロイが実行されます。
 
-## Supabaseの設定
+## 貢献
 
-このプロジェクトでは、Supabaseを使用してデータベース操作を行います。以下の手順に従ってSupabaseを設定してください。
+1. Issueを確認し、作業したいものを選択
+2. `npm run start-issue [issue番号]` で作業開始
+3. 機能実装・テスト追加
+4. `npm run create-pr` でPR作成
+5. レビュー後、developブランチにマージ
 
-1. **Supabaseプロジェクトの作成**
+## ライセンス
 
-   - [Supabase](https://supabase.io/)にサインアップし、新しいプロジェクトを作成します。
+このプロジェクトはプライベートリポジトリです。
 
-2. **APIキーとURLの取得**
+## サポート
 
-   - プロジェクトの設定ページから、APIキーとURLを取得します。
-
-3. **環境変数の設定**
-
-   SupabaseのURLとAPIキーを環境変数として設定します。プロジェクトのルートディレクトリに `.env` ファイルを作成し、以下の内容を追加します。
-
-   ```
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_KEY=your-anon-key
-   ```
-
-4. **Supabaseクライアントの初期化**
-
-   - `src/lib/supabase.ts`ファイルでSupabaseクライアントを初期化します。
-
-   ```typescript
-   // filepath: /home/mizuki/projects/GoalCategorizationDiary/src/lib/supabase.ts
-   import { createClient } from '@supabase/supabase-js'
-
-   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-   const supabaseKey = import.meta.env.VITE_SUPABASE_KEY
-
-   export const supabase = createClient(supabaseUrl, supabaseKey)
-   ```
-
-5. **Supabaseクライアントの提供**
-
-   - `src/main.ts`ファイルでSupabaseクライアントをアプリケーション全体に提供します。
-
-   ```typescript
-   // filepath: /home/mizuki/projects/GoalCategorizationDiary/src/main.ts
-   import { createApp } from 'vue'
-   import App from './App.vue'
-   import { supabase } from './lib/supabase'
-
-   createApp(App).provide('supabase', supabase).mount('#app')
-   ```
-
-# プロジェクトドキュメント
-
-## テスト作成ガイドライン
-
-### テストファイルの命名規則
-
-- **形式**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
-- **例**: `normal_LoginPage_01.spec.js`, `exception_LoginPage_01.spec.js`
-
-### テストの内容
-
-- 各テストファイルは一つの観点に焦点を当てます。
-- 正常系と異常系のテストを同じファイルに含めることができます。
-
-### ディレクトリ構造
-
-- `tests/`ディレクトリ内に、各コンポーネントごとにサブディレクトリを作成します（例: ログインページのテストは`LoginPage`ディレクトリに配置）。
-- テストファイルは適切なコンポーネントディレクトリ内に配置します。
-
-これらのガイドラインに従うことで、テストスイートの一貫性と明確さを確保し、チーム全員が理解しやすく貢献しやすくなります。
-
-### clineの使用法
-
-Memory Bankの更新: すべてのMemory Bankファイルが作成されました。これらのファイルに具体的な情報を追加することが重要です。各ファイルのセクションにプロジェクトに関する詳細を記入してください。
-
-プロジェクトのレビュー: 現在のプロジェクトの状態を確認し、進捗状況や残りのタスクを把握します。progress.mdファイルにこれらの情報を記載することで、プロジェクトの全体像を把握しやすくなります。
-
-次のステップの計画: activeContext.mdに基づいて、次に取り組むべきタスクを計画します。これには、現在の作業の焦点、最近の変更、次のステップが含まれます。
-
-技術的な詳細の確認: techContext.mdを使用して、使用している技術や開発環境、技術的な制約を確認します。これにより、開発プロセスがスムーズに進むようになります。
-
-システムパターンの確認: systemPatterns.mdを参照して、システムアーキテクチャや設計パターンを確認します。これにより、プロジェクトの技術的な方向性を理解しやすくなります。
-Working with Cline
-Core Workflows
-Plan Mode
-ディスカッションと計画を行う。
-
-Act Mode
-
-特定のタスクの実装と実行に使用
-
-Key Commands
-"follow your custom instructions"
-Clineにメモリバンクファイルを読み取って、中断したところから続行するように指示(タスクの開始時にこれを使用)
-
-"initialize memory bank"
-新しいプロジェクトを開始するときに使用
-
-"update memory bank"
-タスク中に完全なドキュメントのレビューと更新をトリガー
-
-Documentation Updates
-メモリバンクのアップデートは、次の場合に自動的に行われます
-
-You discover new patterns in your project
-
-After implementing significant changes
-
-When you explicitly request with "update memory bank"
-
-When you feel context needs clarification
+質問やバグ報告は [Issues](https://github.com/RsPYP/GoalCategorizationDiary/issues) で受け付けています。
