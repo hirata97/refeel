@@ -31,10 +31,10 @@ echo "ブランチ名: $BRANCH_NAME"
 
 # 現在のブランチを確認
 CURRENT_BRANCH=$(git branch --show-current)
-if [ "$CURRENT_BRANCH" != "develop" ]; then
-    echo "developブランチに切り替えます..."
-    git checkout develop
-    git pull origin develop
+if [ "$CURRENT_BRANCH" != "main" ]; then
+    echo "mainブランチに切り替えます..."
+    git checkout main
+    git pull origin main
 fi
 
 # 新しいブランチを作成

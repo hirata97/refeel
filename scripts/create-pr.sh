@@ -18,9 +18,9 @@ PR_DESCRIPTION="${2:-}"
 # 現在のブランチ名を取得
 CURRENT_BRANCH=$(git branch --show-current)
 
-# developブランチにいる場合は警告
-if [ "$CURRENT_BRANCH" = "develop" ]; then
-    echo "警告: developブランチにいます。フィーチャーブランチから実行することを推奨します。"
+# mainブランチにいる場合は警告
+if [ "$CURRENT_BRANCH" = "main" ]; then
+    echo "警告: mainブランチにいます。フィーチャーブランチから実行することを推奨します。"
     read -p "続行しますか？ (y/N): " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -92,7 +92,7 @@ PR_BODY="## 概要
 ${PR_DESCRIPTION:-$PR_TITLE}
 
 ## 変更内容
-$(git log develop.."$CURRENT_BRANCH" --oneline --pretty=format:"- %s" | head -10)
+$(git log main.."$CURRENT_BRANCH" --oneline --pretty=format:"- %s" | head -10)
 
 ## テスト実行
 - [ ] npm run type-check
@@ -102,11 +102,11 @@ $(git log develop.."$CURRENT_BRANCH" --oneline --pretty=format:"- %s" | head -10
 
 🤖 Generated with [Claude Code](https://claude.ai/code)$CLOSES_SECTION"
 
-# PRを作成（developブランチに向けて）
+# PRを作成（mainブランチに向けて）
 gh pr create \
     --title "$PR_TITLE" \
     --body "$PR_BODY" \
-    --base develop \
+    --base main \
     --head "$CURRENT_BRANCH"
 
 echo "✅ プルリクエストが作成されました！"
@@ -115,7 +115,7 @@ echo "✅ プルリクエストが作成されました！"
 PR_URL=$(gh pr view --json url --jq .url)
 echo "PR URL: $PR_URL"
 
-# Issue自動クローズ処理（developブランチ向けPRの場合）
+# Issue自動クローズ処理（mainブランチ向けPRの場合）
 if [ -n "$ISSUE_NUMBER" ]; then
     echo ""
     echo "🔒 Issue #$ISSUE_NUMBER の自動クローズを実行中..."

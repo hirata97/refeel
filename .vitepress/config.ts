@@ -3,11 +3,8 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Goal Categorization Diary',
   description: '目標設定と進捗追跡のためのWebアプリケーション開発ガイド',
-  base: '/GoalCategorizationDiary/',
   
   themeConfig: {
-    logo: '/logo.svg',
-    
     nav: [
       { text: 'ホーム', link: '/' },
       { text: '開発ガイド', link: '/docs/DEVELOPMENT_COMMANDS' },
@@ -59,32 +56,6 @@ export default defineConfig({
     
     socialLinks: [
       { icon: 'github', link: 'https://github.com/RsPYP/GoalCategorizationDiary' }
-    ],
-    
-    footer: {
-      message: 'Goal Categorization Diary 開発ドキュメント',
-      copyright: 'Copyright © 2025'
-    },
-    
-    search: {
-      provider: 'local'
-    },
-    
-    editLink: {
-      pattern: 'https://github.com/RsPYP/GoalCategorizationDiary/edit/main/:path',
-      text: 'GitHub で編集'
-    },
-    
-    lastUpdated: {
-      text: '最終更新',
-      formatOptions: {
-        dateStyle: 'short',
-        timeStyle: 'medium'
-      }
-    }
-  },
-  
-  markdown: {
-    lineNumbers: true
+    ]
   }
 })

@@ -40,3 +40,7 @@ playwright-report/
 # GitHub CLI download artifacts
 gh_*.tar.gz
 gh_*/
+
+# VitePress cache
+.vitepress/cache/
+.vitepress/dist/

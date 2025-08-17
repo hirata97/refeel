@@ -68,7 +68,7 @@ npm run start-issue [issue番号]
 # PR作成
 npm run create-pr "タイトル" "説明"
 # - 自動コミット・プッシュ
-# - develop向けPR作成
+# - main向けPR作成
 # - Claude Code署名付きメッセージ
 # - Issue番号から自動的に Closes #番号 を追加
 ```
