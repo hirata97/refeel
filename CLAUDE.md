@@ -2,6 +2,26 @@
 
 このファイルは、Claude Code（claude.ai/code）がこのリポジトリでコードを作業する際のガイダンスを提供します。
 
+## 📋 CLAUDE.md運用ルール
+
+### 基本方針
+- **CLAUDE.mdは要約・参照のみ**: 詳細内容は `docs/` ディレクトリに分割して配置
+- **参照形式**: 各セクションで対応するdocsファイルへのリンクを提供
+- **保持内容**: プロジェクト概要、クイックリファレンス、重要な注意事項のみ
+- **更新頻度**: docsファイル追加・変更時に参照リンクを更新
+
+### ドキュメント管理
+- **新規ドキュメント**: `docs/` 配下に作成し、CLAUDE.mdから参照
+- **内容重複の回避**: 同じ情報を複数ファイルに記載しない
+- **一元管理**: 各種設定・手順は専用ドキュメントで一元管理
+
+### Claude Code利用時の注意
+- 詳細な作業手順が必要な場合は該当docsファイルを参照
+- CLAUDE.mdは全体概要の把握とクイックリファレンスとして活用
+- 新しい情報追加時は適切なdocsファイルに分類して記載
+
+---
+
 ## プロジェクト概要
 
 **GoalCategorizationDiary** - 目標設定と進捗追跡のためのVue.js Webアプリケーション
@@ -11,164 +31,64 @@
 - Pinia（状態管理）
 - Vercel自動デプロイ
 
-## 開発コマンド
+## 📚 ドキュメント構成
 
-### 基本開発コマンド
+### 開発関連
+- **🛠️ 開発コマンド**: [docs/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT_COMMANDS.md)
+- **🏗️ アーキテクチャ**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **📝 コーディング規則**: [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
+
+### 環境・設定
+- **⚙️ 環境設定**: [docs/ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md)
+- **🔐 Supabase認証設定**: [docs/SUPABASE_QUICK_SETUP.md](docs/SUPABASE_QUICK_SETUP.md)
+- **📖 認証システム詳細**: [docs/SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md)
+
+### プロジェクト管理
+- **🏷️ Issue ラベル体系**: [docs/ISSUE_LABELS.md](docs/ISSUE_LABELS.md)
+
+## 🚀 クイックスタート
+
+### 初回セットアップ
 ```bash
-# 開発環境起動
+# リポジトリクローン
+git clone https://github.com/RsPYP/GoalCategorizationDiary.git
+cd GoalCategorizationDiary
+
+# 環境設定
+npm install
+cp .env.example .env  # Supabase設定を編集
+
+# 開発開始
 npm run dev
-
-# 型チェック付きビルド
-npm run build
-
-# リンティング
-npm run lint
-
-# コードフォーマット
-npm run format
-
-# ユニットテスト
-npm run test:unit
-
-# E2Eテスト（初回のみブラウザインストール）
-npx playwright install
-npm run test:e2e
 ```
+**詳細**: [環境設定ガイド](docs/ENVIRONMENT_SETUP.md)
 
-### 🚀 自動Issue実装システム
-
-#### 完全自動化コマンド（推奨）
+### Issue作業フロー
 ```bash
-# 単一Issue自動実装
-npm run auto-issue [issue番号]
-# - Issue詳細自動取得
-# - Claude Codeによる自動実装
-# - コード品質チェック
-# - PR自動作成
-# 引数なしの場合は最新のオープンIssueを自動選択
+# Issue確認・作業開始
+npm run fetch-issue [番号]
+npm run start-issue [番号]
 
-# 高度な自動実装（Claude Code API使用）
-npm run auto-implement [issue番号]
-
-# 全オープンIssue連続自動実装
-npm run auto-cycle
-```
-
-#### GitHub Issue → PR 自動化コマンド
-
-##### Issue管理
-```bash
-# Issue一覧表示
-npm run fetch-issue
-
-# 特定のIssue詳細とタスクファイル生成
-npm run fetch-issue [issue番号]
-```
-
-##### 開発ワークフロー
-```bash
-# Issue作業開始（従来方式）
-npm run start-issue [issue番号]
-# - 専用ブランチ作成
-# - タスクファイル生成
-# - 自動アサイン
-# - Claude Code用プロンプト準備
-
-# PR作成
+# 実装後のPR作成
 npm run create-pr "タイトル" "説明"
-# - 自動コミット・プッシュ
-# - develop向けPR作成
-# - Claude Code署名付きメッセージ
 ```
+**詳細**: [開発コマンド一覧](docs/DEVELOPMENT_COMMANDS.md)
 
-## アーキテクチャと構造
+## ⚠️ 重要な注意点
 
-### 技術スタック
-- **フロントエンド**: Vue 3 + TypeScript + Vite
-- **バックエンド**: Supabase（認証、データベース、リアルタイム更新）
-- **UI**: Vuetify（Material Design）
-- **チャート**: Chart.js + vue-chartjs
-- **状態管理**: Pinia
-- **ルーティング**: Vue Router
-- **デプロイ**: Vercel（自動デプロイ）
+- **TypeScript**: 型エラーは必ず解決してからコミット
+- **テスト**: `npm run lint`, `npm run type-check` を実行してからPR作成
+- **認証**: Supabase環境変数の設定確認が必要
+- **Issue管理**: 適切なラベル（priority、size、type）を付与
 
-### コンポーネント構造
-- `src/views/` - 各ページのメインビュー
-  - AccountRegisterPage.vue - アカウント登録
-  - DashBoardPage.vue - ダッシュボード
-  - DiaryRegisterPage.vue - 目標登録
-  - DiaryReportPage.vue - レポート画面
-  - DiaryViewPage.vue - 目標表示
-  - LoginPage.vue - ログイン
-  - SettingPage.vue - 設定
-  - TopPage.vue - トップページ
+## 🔗 関連リンク
 
-### 重要な設定ファイル
-- `src/lib/supabase.ts` - Supabaseクライアント設定
-- `vite.config.ts` - Viteビルド設定
-- `eslint.config.js` - ESLint設定
-- `playwright.config.ts` - E2Eテスト設定
+- **プロジェクトURL**: https://github.com/RsPYP/GoalCategorizationDiary
+- **デプロイ**: Vercel自動デプロイ
+- **課題管理**: GitHub Issues + 自動化スクリプト
 
-## 開発規則とパターン
+---
 
-### コード規則
-1. **命名規則**: Vue標準規則に従う
-2. **パッケージマネージャ**: npm使用
-3. **型チェック**: TypeScript必須
-4. **リンティング**: ESLint + Prettier
-
-### テストパターン
-- **テストファイル命名**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
-- **例**: `normal_LoginPage_01.spec.js`, `exception_LoginPage_01.spec.js`
-- **テストディレクトリ**: `tests/[コンポーネント名]/`
-- **ユニットテスト**: Vitest
-- **E2Eテスト**: Playwright
-
-### Git ワークフロー
-- **メインブランチ**: develop
-- **フィーチャーブランチ**: `feature/機能名` or `issue/番号-説明`
-- **コミットメッセージ**: Conventional Commits形式
-- **PR**: developブランチに向けて作成
-
-## 環境設定
-
-### Supabase設定
-環境変数ファイル（`.env`）を作成：
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_KEY=your-anon-key
-```
-
-### 推奨開発環境
-- エディタ: VSCode
-- 拡張機能: 
-  - Volar（Vue）
-  - Veturは無効化
-  - Prettier
-  - ESLint
-
-## 自動化スクリプト
-
-### scripts/ ディレクトリ
-- `create-pr.sh` - PR自動作成スクリプト
-- `fetch-issue.sh` - Issue取得・タスク化スクリプト
-- `start-issue.sh` - Issue作業開始スクリプト
-
-### 生成ファイル
-- `tasks/issue-[番号]-tasks.md` - Issue用タスク管理ファイル
-
-## 重要な注意点
-
-- TypeScriptの型エラーは必ず解決してからコミット
-- リンティング・フォーマットルールに従う
-- テストの実行確認を忘れずに行う
-- Supabase環境変数の設定確認
-- 自動化スクリプトを活用した効率的な開発フロー推奨
-
-## Claude Code使用時の推奨フロー
-
-1. **Issue確認**: `npm run fetch-issue` でタスク確認
-2. **作業開始**: `npm run start-issue [番号]` で環境準備
-3. **実装作業**: 生成されたプロンプトを使用して依頼
-4. **品質確認**: `npm run lint`, `npm run type-check` で検証
-5. **PR作成**: `npm run create-pr` で完了
+**📝 更新履歴**
+- 2025-08-17: ドキュメント構造化・分割実施
+- 2025-08-17: Issue #2 認証ロジック実装完了
