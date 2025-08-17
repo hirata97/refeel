@@ -9,9 +9,12 @@ export const useAuthStore = defineStore('auth', () => {
   const session = ref<Session | null>(null)
   const loading = ref(true)
   const error = ref<string | null>(null)
+  const sessionExpiresAt = ref<number | null>(null)
+  const lastActivity = ref<number>(Date.now())
+  const sessionTimeout = ref<number>(30 * 60 * 1000) // 30分のタイムアウト
 
   // 計算プロパティ
-  const isAuthenticated = computed(() => !!user.value && !!session.value)
+  const isAuthenticated = computed(() => !!user.value && !!session.value && !isSessionExpired.value)
   const userProfile = computed(() => {
     if (!user.value) return null
     return {
@@ -21,17 +24,46 @@ export const useAuthStore = defineStore('auth', () => {
       createdAt: user.value.created_at
     }
   })
+  
+  const isSessionExpired = computed(() => {
+    if (!sessionExpiresAt.value) return false
+    return Date.now() > sessionExpiresAt.value
+  })
+
+  const timeUntilExpiry = computed(() => {
+    if (!sessionExpiresAt.value) return 0
+    return Math.max(0, sessionExpiresAt.value - Date.now())
+  })
+
+  // セッション活動時間の更新
+  const updateLastActivity = () => {
+    lastActivity.value = Date.now()
+  }
+
+  // セッションタイムアウトの設定
+  const setSessionTimeout = (timeout: number) => {
+    sessionTimeout.value = timeout
+  }
 
   // アクション
   const setUser = (newUser: User | null) => {
     user.value = newUser
+    updateLastActivity()
   }
 
   const setSession = (newSession: Session | null) => {
     session.value = newSession
     if (newSession?.user) {
       user.value = newSession.user
+      // セッション有効期限を設定（Supabaseのexpires_atを使用、またはデフォルト値）
+      const expiresAt = newSession.expires_at 
+        ? newSession.expires_at * 1000 
+        : Date.now() + sessionTimeout.value
+      sessionExpiresAt.value = expiresAt
+    } else {
+      sessionExpiresAt.value = null
     }
+    updateLastActivity()
   }
 
   const setLoading = (isLoading: boolean) => {
@@ -46,12 +78,99 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
   }
 
+  // セッションの強制無効化
+  const invalidateSession = async () => {
+    try {
+      await supabase.auth.signOut()
+      setUser(null)
+      setSession(null)
+      sessionExpiresAt.value = null
+      localStorage.removeItem('user')
+      localStorage.removeItem('lastActivity')
+      console.log('セッションを強制無効化しました')
+    } catch (err) {
+      console.error('セッション無効化エラー:', err)
+    }
+  }
+
+  // セッションIDの再生成
+  const regenerateSession = async () => {
+    try {
+      if (!session.value) {
+        throw new Error('セッションが存在しません')
+      }
+
+      // 新しいセッションを要求
+      const { data, error } = await supabase.auth.refreshSession()
+      
+      if (error) {
+        throw error
+      }
+
+      if (data.session) {
+        setSession(data.session)
+        console.log('セッションIDを再生成しました')
+        return { success: true }
+      }
+
+      throw new Error('セッション再生成に失敗しました')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'セッション再生成に失敗しました'
+      setError(errorMessage)
+      return { success: false, error: errorMessage }
+    }
+  }
+
+  // セッションの有効性を確認し、期限切れの場合は無効化
+  const validateSession = async () => {
+    if (!session.value) return false
+
+    try {
+      // アクティビティタイムアウトチェック
+      const inactiveTime = Date.now() - lastActivity.value
+      if (inactiveTime > sessionTimeout.value) {
+        console.log('セッションがタイムアウトしました')
+        await invalidateSession()
+        return false
+      }
+
+      // セッション有効期限チェック
+      if (isSessionExpired.value) {
+        console.log('セッションの有効期限が切れました')
+        await invalidateSession()
+        return false
+      }
+
+      // Supabaseセッションの有効性確認
+      const { data: { user }, error } = await supabase.auth.getUser()
+      
+      if (error || !user) {
+        console.log('Supabaseセッションが無効です')
+        await invalidateSession()
+        return false
+      }
+
+      updateLastActivity()
+      return true
+    } catch (err) {
+      console.error('セッション検証エラー:', err)
+      await invalidateSession()
+      return false
+    }
+  }
+
   // 認証状態の初期化
   const initialize = async () => {
     try {
       setLoading(true)
       clearError()
       
+      // 保存された最終活動時間を復元
+      const savedActivity = localStorage.getItem('lastActivity')
+      if (savedActivity) {
+        lastActivity.value = parseInt(savedActivity, 10)
+      }
+
       // 現在のセッションを取得
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
@@ -61,6 +180,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (session) {
         setSession(session)
+        // セッションの有効性を検証
+        const isValid = await validateSession()
+        if (!isValid) {
+          setUser(null)
+          setSession(null)
+        }
       } else {
         setUser(null)
         setSession(null)
@@ -90,6 +215,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (data.session && data.user) {
         setSession(data.session)
+        // セッションIDを再生成（セキュリティ強化）
+        await regenerateSession()
+        // 最終活動時間を保存
+        localStorage.setItem('lastActivity', lastActivity.value.toString())
+        
+        console.log('ログイン成功、セッションを作成しました')
         return { success: true, user: data.user }
       }
 
@@ -123,6 +254,7 @@ export const useAuthStore = defineStore('auth', () => {
         // セッションがない場合もある
         if (data.session) {
           setSession(data.session)
+          localStorage.setItem('lastActivity', lastActivity.value.toString())
         }
         return { success: true, user: data.user, needsConfirmation: !data.session }
       }
@@ -152,10 +284,13 @@ export const useAuthStore = defineStore('auth', () => {
       // 状態をクリア
       setUser(null)
       setSession(null)
+      sessionExpiresAt.value = null
       
       // ローカルストレージもクリア
       localStorage.removeItem('user')
+      localStorage.removeItem('lastActivity')
 
+      console.log('ログアウトしました')
       return { success: true }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'ログアウトに失敗しました'
@@ -177,20 +312,20 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (session) {
         setSession(session)
+        localStorage.setItem('lastActivity', lastActivity.value.toString())
+        console.log('セッションを更新しました')
         return true
       }
       
       // セッションが無効な場合は状態をクリア
-      setUser(null)
-      setSession(null)
+      await invalidateSession()
       return false
     } catch (err) {
       console.error('セッション更新エラー:', err)
       setError(err instanceof Error ? err.message : 'セッションの更新に失敗しました')
       
       // エラーの場合も状態をクリア
-      setUser(null)
-      setSession(null)
+      await invalidateSession()
       return false
     }
   }
@@ -204,21 +339,26 @@ export const useAuthStore = defineStore('auth', () => {
         case 'SIGNED_IN':
           if (session) {
             setSession(session)
+            localStorage.setItem('lastActivity', lastActivity.value.toString())
           }
           break
         case 'SIGNED_OUT':
           setUser(null)
           setSession(null)
+          sessionExpiresAt.value = null
           localStorage.removeItem('user')
+          localStorage.removeItem('lastActivity')
           break
         case 'TOKEN_REFRESHED':
           if (session) {
             setSession(session)
+            localStorage.setItem('lastActivity', lastActivity.value.toString())
           }
           break
         case 'USER_UPDATED':
           if (session?.user) {
             setUser(session.user)
+            updateLastActivity()
           }
           break
       }
@@ -229,16 +369,33 @@ export const useAuthStore = defineStore('auth', () => {
     return subscription
   }
 
+  // セッション監視の開始
+  const startSessionMonitoring = () => {
+    // 1分ごとにセッションの有効性をチェック
+    const interval = setInterval(async () => {
+      if (session.value) {
+        await validateSession()
+      }
+    }, 60000) // 1分
+
+    return () => clearInterval(interval)
+  }
+
   return {
     // 状態
     user,
     session,
     loading,
     error,
+    sessionExpiresAt,
+    lastActivity,
+    sessionTimeout,
     
     // 計算プロパティ
     isAuthenticated,
     userProfile,
+    isSessionExpired,
+    timeUntilExpiry,
     
     // アクション
     initialize,
@@ -248,6 +405,12 @@ export const useAuthStore = defineStore('auth', () => {
     refreshSession,
     setupAuthListener,
     setError,
-    clearError
+    clearError,
+    updateLastActivity,
+    setSessionTimeout,
+    invalidateSession,
+    regenerateSession,
+    validateSession,
+    startSessionMonitoring
   }
 })

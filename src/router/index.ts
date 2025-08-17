@@ -53,21 +53,49 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
+  
+  // セッション監視を開始（初回のみ）
+  if (!authStore.session && typeof authStore.startSessionMonitoring === 'function') {
+    authStore.startSessionMonitoring()
+  }
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    const authStore = useAuthStore()
+    // 認証が必要なルート
+    
+    // セッションの有効性を確認
+    if (authStore.session && typeof authStore.validateSession === 'function') {
+      const isValid = await authStore.validateSession()
+      if (!isValid) {
+        // セッションが無効な場合はログインページへリダイレクト
+        next({
+          path: '/login',
+          query: { 
+            redirect: to.fullPath,
+            reason: 'session_expired'
+          }
+        })
+        return
+      }
+    }
     
     // 認証状態をチェック
     if (!authStore.isAuthenticated) {
       next({
         path: '/login',
-        query: { redirect: to.fullPath }, // 元のページを記憶しておく
+        query: { redirect: to.fullPath },
       })
     } else {
+      // 最終活動時間を更新
+      if (typeof authStore.updateLastActivity === 'function') {
+        authStore.updateLastActivity()
+      }
       next()
     }
   } else {
-    next() // 認証不要のルート
+    // 認証不要のルート
+    next()
   }
 })
 
