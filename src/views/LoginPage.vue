@@ -63,6 +63,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
+import { InputValidation, XSSProtection } from '@/utils/security'
+import { logAuthAttempt } from '@/utils/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -98,14 +100,41 @@ const handleLogin = async (isValid: boolean) => {
     return
   }
 
-  const result = await authStore.signIn(emailTrim, passwordTrim)
-
-  if (result.success) {
-    // ログイン成功時は認証ストアが自動的に状態を更新する
-    // ダッシュボードにリダイレクト
-    router.push('/dashboard')
+  // 入力値の検証とサニタイゼーション
+  const sanitizedEmail = XSSProtection.sanitizeText(emailTrim)
+  
+  // メールアドレス形式の検証
+  if (!InputValidation.isValidEmail(sanitizedEmail)) {
+    authStore.setError('有効なメールアドレスを入力してください')
+    await logAuthAttempt(false, sanitizedEmail, 'invalid_email_format')
+    return
   }
-  // エラーの場合は認証ストアが自動的にエラー状態を設定する
+
+  // パスワード長の基本チェック
+  if (passwordTrim.length < 1 || passwordTrim.length > 128) {
+    authStore.setError('パスワードが不正です')
+    await logAuthAttempt(false, sanitizedEmail, 'invalid_password_length')
+    return
+  }
+
+  try {
+    const result = await authStore.signIn(sanitizedEmail, passwordTrim)
+
+    if (result.success) {
+      // ログイン成功をログに記録
+      await logAuthAttempt(true, sanitizedEmail)
+      
+      // ダッシュボードにリダイレクト
+      router.push('/dashboard')
+    } else {
+      // ログイン失敗をログに記録
+      await logAuthAttempt(false, sanitizedEmail, result.error || 'login_failed')
+    }
+  } catch {
+    // 予期しないエラーをログに記録
+    await logAuthAttempt(false, sanitizedEmail, 'unexpected_error')
+    authStore.setError('ログイン処理中にエラーが発生しました')
+  }
 }
 
 // 登録ページからトップページに遷移
