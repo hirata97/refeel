@@ -170,6 +170,7 @@ tests/
 - `priority:P1` 🟡 - 高優先度（重要）  
 - `priority:P2` 🔵 - 中優先度（通常）
 
+<<<<<<< HEAD
 ### 作業規模ラベル
 - `size:S` 🔴 - 小規模（1-2日）
 - `size:M` 🟡 - 中規模（3-5日）
@@ -212,3 +213,16 @@ tests/
 ## サポート
 
 質問やバグ報告は [Issues](https://github.com/RsPYP/GoalCategorizationDiary/issues) で受け付けています。
+=======
+## Claude Codeでの開発
+
+このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。詳細な開発ガイドは`CLAUDE.md`を参照してください。
+
+### 主要な開発コマンド
+- `npm run dev` - 開発サーバー起動
+- `npm run build` - プロダクションビルド
+- `npm run test:unit` - ユニットテスト
+- `npm run test:e2e` - E2Eテスト
+- `npm run lint` - リンティング
+- `npm run type-check` - 型チェック
+>>>>>>> main
