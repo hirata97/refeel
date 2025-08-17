@@ -16,7 +16,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
+
+const router = useRouter()
+const authStore = useAuthStore()
 
 interface Diary {
   id?: string
@@ -43,8 +48,6 @@ const diaryEntry = ref<Diary>({
   mood: 3,
 })
 
-const userId = ref<string>('')
-
 const resetDiaryEntry = () => {
   diaryEntry.value = {
     date: getCurrentDate(),
@@ -54,17 +57,14 @@ const resetDiaryEntry = () => {
   }
 }
 
-const initializeUser = async () => {
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (user) {
-    userId.value = user.id
-  }
-}
-
+// 認証チェックとユーザー初期化
 onMounted(() => {
-  initializeUser()
+  // 認証状態をチェック
+  if (!authStore.isAuthenticated) {
+    // 認証されていない場合はログインページにリダイレクト
+    router.push('/login')
+    return
+  }
 })
 
 const addDiary = async (): Promise<void> => {
@@ -73,11 +73,18 @@ const addDiary = async (): Promise<void> => {
     return
   }
 
+  // 認証状態を再確認
+  if (!authStore.isAuthenticated || !authStore.user) {
+    alert('認証が必要です。ログインしてください。')
+    router.push('/login')
+    return
+  }
+
   // 同日の日記が既に存在しているかチェック
   const { data: existingEntries, error: fetchError } = await supabase
     .from('diaries')
     .select('id')
-    .eq('user_id', userId.value)
+    .eq('user_id', authStore.user.id)
     .eq('date', diaryEntry.value.date)
 
   if (fetchError) {
@@ -116,7 +123,7 @@ const addDiary = async (): Promise<void> => {
   // 同日のレコードが無ければ新規登録する
   const { error } = await supabase.from('diaries').insert([
     {
-      user_id: userId.value,
+      user_id: authStore.user.id,
       title: diaryEntry.value.title,
       content: diaryEntry.value.content,
       date: diaryEntry.value.date,

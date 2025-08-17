@@ -10,8 +10,8 @@
         v-model="showError"
         type="error"
         closable
-        :message="errorMessage"
-        @close="errorMessage = ''"
+        :message="authStore.error || ''"
+        @close="authStore.clearError"
       />
 
       <v-text-field
@@ -39,7 +39,7 @@
 
     <template #actions>
       <BaseButton
-        :loading="isLoading"
+        :loading="authStore.loading"
         type="submit"
         color="primary"
         block
@@ -59,48 +59,53 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const email = ref('')
 const password = ref('')
-const errorMessage = ref('')
-const isLoading = ref(false)
 
+// 認証ストアからエラー状態とローディング状態を使用
 const showError = computed({
-  get: () => !!errorMessage.value,
+  get: () => !!authStore.error,
   set: (value: boolean) => {
     if (!value) {
-      errorMessage.value = ''
+      authStore.clearError()
     }
+  }
+})
+
+// すでにログイン済みの場合はダッシュボードにリダイレクト
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    router.push('/dashboard')
   }
 })
 
 const handleLogin = async (isValid: boolean) => {
   if (!isValid) return
 
-  isLoading.value = true
-
   const emailTrim = email.value.trim()
   const passwordTrim = password.value.trim()
 
-  const { error } = await supabase.auth.signInWithPassword({
-    email: emailTrim,
-    password: passwordTrim,
-  })
-
-  if (error) {
-    errorMessage.value = error.message
-    isLoading.value = false
+  if (!emailTrim || !passwordTrim) {
+    authStore.setError('メールアドレスとパスワードを入力してください')
     return
   }
 
-  router.push('/dashboard')
-  isLoading.value = false
+  const result = await authStore.signIn(emailTrim, passwordTrim)
+
+  if (result.success) {
+    // ログイン成功時は認証ストアが自動的に状態を更新する
+    // ダッシュボードにリダイレクト
+    router.push('/dashboard')
+  }
+  // エラーの場合は認証ストアが自動的にエラー状態を設定する
 }
 
 // 登録ページからトップページに遷移

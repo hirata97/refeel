@@ -45,10 +45,21 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { BaseCard, BaseButton } from '@/components/base'
 
 const router = useRouter()
+const authStore = useAuthStore()
+
+// 認証状態をチェック
+onMounted(() => {
+  if (!authStore.isAuthenticated) {
+    // 認証されていない場合はログインページにリダイレクト
+    router.push('/login')
+  }
+})
 
 const navigateTo = (path: string) => {
   router.push(path)

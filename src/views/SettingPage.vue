@@ -37,9 +37,20 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
+
+// 認証状態をチェック
+onMounted(() => {
+  if (!authStore.isAuthenticated) {
+    // 認証されていない場合はログインページにリダイレクト
+    router.push('/login')
+  }
+})
 
 // テーマ選択肢
 const themes = ['ライト', 'ダーク', 'ブルー', 'グリーン']

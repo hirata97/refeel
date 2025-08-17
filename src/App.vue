@@ -35,8 +35,8 @@
 
           <v-menu activator="parent">
             <v-list density="compact" nav>
-              <v-list-item append-icon="mdi-cog-outline" link title="Settings" />
-              <v-list-item append-icon="mdi-logout" link title="Logout" />
+              <v-list-item append-icon="mdi-cog-outline" link title="Settings" @click="goToSettings" />
+              <v-list-item append-icon="mdi-logout" link title="Logout" @click="handleLogout" />
             </v-list>
           </v-menu>
         </v-btn>
@@ -54,7 +54,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const route = useRoute()
+const router = useRouter()
+const authStore = useAuthStore()
 
 // サイドバーの開閉状態
 const drawer = ref(false)
@@ -93,8 +98,21 @@ const items = ref([
   },
 ])
 
-// 現在のルートを取得
-const route = useRoute()
+// ログアウト処理
+const handleLogout = async () => {
+  const result = await authStore.signOut()
+  if (result.success) {
+    await router.push('/login')
+  } else {
+    console.error('ログアウトエラー:', result.error)
+    alert('ログアウトに失敗しました')
+  }
+}
+
+// 設定ページに移動
+const goToSettings = () => {
+  router.push('/setting')
+}
 
 // サイドバーの開閉ボタンを無効にするかどうかを決定
 const disableSidebarToggle = computed(() => {
