@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
+import { useAuthStore } from '@/stores/auth'
 
 // ページコンポーネントを一元管理
 const pages = {
@@ -55,7 +55,10 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-    if (!isAuthenticated()) {
+    const authStore = useAuthStore()
+    
+    // 認証状態をチェック
+    if (!authStore.isAuthenticated) {
       next({
         path: '/login',
         query: { redirect: to.fullPath }, // 元のページを記憶しておく

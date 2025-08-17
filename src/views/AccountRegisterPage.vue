@@ -61,11 +61,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const username = ref<string>('')
 const email = ref<string>('')
@@ -75,7 +77,7 @@ const password = ref<string>('')
 const confirmPassword = ref<string>('')
 
 // エラーメッセージやバリデーションフラグ
-const errorMessage = ref<string>('')
+const errorMessage = computed(() => authStore.error)
 const usernameError = ref<boolean>(false)
 const emailError = ref<boolean>(false)
 const passwordError = ref<boolean>(false)
@@ -83,7 +85,14 @@ const passwordError = ref<boolean>(false)
 const confirmPasswordError = ref<boolean>(false)
 
 // 追加: ローディング状態用の変数
-const isLoading = ref<boolean>(false)
+const isLoading = computed(() => authStore.loading)
+
+// すでにログイン済みの場合はダッシュボードにリダイレクト
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    router.push('/dashboard')
+  }
+})
 
 // メールアドレスの形式をチェックする関数
 const isValidEmail = (email: string) => {
@@ -110,64 +119,55 @@ const handleRegister = async () => {
     passwordError.value ||
     confirmPasswordError.value
   ) {
-    errorMessage.value =
+    authStore.setError(
       '各項目を正しく入力してください。（パスワードは6文字以上、メールは有効な形式、確認パスワードが一致していること）'
+    )
     return
   }
 
-  isLoading.value = true
-  try {
-    // Supabase の認証APIを使って新規ユーザーを登録
-    const { data, error } = await supabase.auth.signUp({
-      email: emailTrim,
-      password: passwordTrim,
-    })
+  // 認証ストアを使用してユーザー登録
+  const result = await authStore.signUp(emailTrim, passwordTrim)
 
-    if (error) {
-      console.error('Supabase Error:', error)
-      errorMessage.value = error.message
-      return
-    }
+  if (result.success) {
+    // ユーザー登録成功時、accounts テーブルに追加
+    try {
+      if (result.user) {
+        const { error: accountError } = await supabase.from('accounts').insert([
+          {
+            id: result.user.id,
+            username: usernameTrim,
+            email: emailTrim,
+          },
+        ])
 
-    // 登録後にセッションが返されない場合は、ここで自動サインイン
-    if (!data.session) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: emailTrim,
-        password: passwordTrim,
-      })
-      if (signInError) {
-        console.error('Sign In Error:', signInError)
-        errorMessage.value = 'Sign in failed after registration.'
-        return
+        if (accountError) {
+          authStore.setError('User registration successful, but failed to save account data.')
+          return
+        }
       }
-    }
 
-    if (data.user) {
-      // accounts テーブルに追加
-      const { error: accountError } = await supabase.from('accounts').insert([
-        {
-          id: data.user.id,
-          username: usernameTrim,
-          email: emailTrim,
-        },
-      ])
-
-      if (accountError) {
-        errorMessage.value = 'User registration successful, but failed to save account data.'
-        return
+      // 確認メールが必要な場合
+      if (result.needsConfirmation) {
+        authStore.setError('確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。')
+        // エラーではないので、ログインページに移動
+        setTimeout(() => {
+          router.push('/login')
+        }, 3000)
+      } else {
+        // すぐにログインできる場合はダッシュボードへ
+        router.push('/dashboard')
       }
+    } catch (err) {
+      console.error('Account creation error:', err)
+      authStore.setError('アカウント情報の保存に失敗しました')
     }
-
-    clearErrorMessage()
-    router.push('/login')
-  } finally {
-    isLoading.value = false
   }
+  // エラーの場合は認証ストアが自動的にエラー状態を設定する
 }
 
 // エラーメッセージをクリア
 const clearErrorMessage = () => {
-  errorMessage.value = ''
+  authStore.clearError()
 }
 
 // トップページへの遷移
