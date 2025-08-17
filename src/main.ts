@@ -9,6 +9,7 @@ import validationPlugin from './plugins/validation'
 import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
+import { initializeSecurity } from './utils/security'
 import { AuditLogger, AuditEventType, logAuthEvent } from './utils/audit-logger'
 
 const app = createApp(App)
@@ -20,6 +21,9 @@ app
   .use(validationPlugin)
   .use(router) // Vue Router を登録
   .provide('supabase', supabase) // Supabase インスタンスを provide
+
+// セキュリティ機能の初期化
+initializeSecurity()
 
 // 認証ストアの初期化
 const authStore = useAuthStore()

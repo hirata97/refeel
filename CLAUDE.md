@@ -29,7 +29,7 @@
 - Vuetify（Material Design）
 - Chart.js（データ可視化）
 - Pinia（状態管理）
-- セキュリティ機能（VeeValidate + DOMPurify）
+- セキュリティ機能（XSS対策、CSRF対策、セキュリティヘッダー、VeeValidate + DOMPurify）
 - Vercel自動デプロイ
 
 ## 📚 ドキュメント構成
@@ -46,7 +46,10 @@
 - **📖 認証システム詳細**: [docs/SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md)
 
 ### セキュリティ
-- **🛡️ セキュリティガイドライン**: [docs/SECURITY.md](docs/SECURITY.md)
+- **🛡️ セキュリティガイドライン**: [docs/SECURITY.md](docs/SECURITY.md) - ポリシーと概要
+- **🔧 セキュリティ開発ガイド**: [docs/SECURITY_DEVELOPMENT.md](docs/SECURITY_DEVELOPMENT.md) - 実践的な開発手順
+- **📖 セキュリティ実装詳細**: [docs/SECURITY_IMPLEMENTATION.md](docs/SECURITY_IMPLEMENTATION.md) - 技術的詳細
+- **🔍 セキュリティトラブルシューティング**: [docs/SECURITY_TROUBLESHOOTING.md](docs/SECURITY_TROUBLESHOOTING.md) - 問題解決ガイド
 
 ### プロジェクト管理
 - **🏷️ Issue ラベル体系**: [docs/ISSUE_LABELS.md](docs/ISSUE_LABELS.md)
@@ -99,6 +102,7 @@ npm run create-pr "タイトル" "説明"
 - 2025-08-17: ドキュメント構造化・分割実施
 - 2025-08-17: Issue #2 認証ロジック実装完了
 - 2025-08-17: Issue #76 データ取得とキャッシング戦略実装完了
+- 2025-08-17: Issue #71 XSS対策とセキュリティヘッダー実装完了
 - 2025-08-17: Issue #72 入力値検証とサニタイゼーション実装完了
-- 2025-08-17: セキュリティガイドライン追加
+- 2025-08-17: セキュリティドキュメント構造化・実践ガイド追加
 - 2025-08-17: 開発ワークフロードキュメント追加
