@@ -15,41 +15,37 @@
 
       <v-text-field
         label="Username"
-        v-model="username"
+        v-bind="usernameField"
         outlined
         full-width
         class="mb-3"
-        :error="usernameError"
         required
       />
       <v-text-field
         label="Email"
-        v-model="email"
+        v-bind="emailField"
         outlined
         full-width
         class="mb-3"
         type="email"
-        :error="emailError"
         required
       />
       <v-text-field
         label="Password"
         type="password"
-        v-model="password"
+        v-bind="passwordField"
         outlined
         full-width
         class="mb-4"
-        :error="passwordError"
         required
       />
       <v-text-field
         label="Confirm Password"
         type="password"
-        v-model="confirmPassword"
+        v-bind="confirmPasswordField"
         outlined
         full-width
         class="mb-4"
-        :error="confirmPasswordError"
         required
       />
       <v-btn type="submit" color="primary" block class="mb-2" :loading="isLoading"
@@ -61,33 +57,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
+import { useRegisterValidation } from '@/composables/useValidation'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const username = ref<string>('')
-const email = ref<string>('')
-const password = ref<string>('')
+// バリデーション機能を使用
+const { 
+  usernameField, 
+  emailField, 
+  passwordField, 
+  confirmPasswordField, 
+  onSubmit, 
+  isSubmitting 
+} = useRegisterValidation()
 
-// 追加: Confirm Password用の変数
-const confirmPassword = ref<string>('')
-
-// エラーメッセージやバリデーションフラグ
+// エラーメッセージやローディング状態
 const errorMessage = computed(() => authStore.error)
-const usernameError = ref<boolean>(false)
-const emailError = ref<boolean>(false)
-const passwordError = ref<boolean>(false)
-// 追加: Confirm Passwordのエラーフラグ
-const confirmPasswordError = ref<boolean>(false)
-
-// 追加: ローディング状態用の変数
-const isLoading = computed(() => authStore.loading)
+const isLoading = computed(() => authStore.loading || isSubmitting.value)
 
 // すでにログイン済みの場合はダッシュボードにリダイレクト
 onMounted(() => {
@@ -98,72 +91,43 @@ onMounted(() => {
 
 // フォーム送信時の処理
 const handleRegister = async () => {
-  const usernameTrim = username.value.trim()
-  const emailTrim = email.value.trim()
-  const passwordTrim = password.value.trim()
-  const confirmPasswordTrim = confirmPassword.value.trim()
-
-  // 入力値のサニタイゼーション
-  const sanitizedUsername = XSSProtection.sanitizeText(usernameTrim)
-  const sanitizedEmail = XSSProtection.sanitizeText(emailTrim)
-
-  // セキュリティ検証
-  usernameError.value = !sanitizedUsername || sanitizedUsername.length < 2 || sanitizedUsername.length > 50
-  emailError.value = !sanitizedEmail || !InputValidation.isValidEmail(sanitizedEmail)
-  
-  // パスワード強度検証
-  const passwordValidation = InputValidation.validatePassword(passwordTrim)
-  passwordError.value = !passwordValidation.isValid
-  
-  // パスワード確認のバリデーション
-  confirmPasswordError.value = passwordTrim !== confirmPasswordTrim
-
-  // SQLインジェクション対策
-  const sqlSafeUsername = InputValidation.checkForSQLInjection(sanitizedUsername)
-  const sqlSafeEmail = InputValidation.checkForSQLInjection(sanitizedEmail)
-
-  if (!sqlSafeUsername || !sqlSafeEmail) {
-    authStore.setError('入力値に不正な文字が含まれています')
-    await logAuthAttempt(false, sanitizedEmail, 'sql_injection_attempt')
-    return
-  }
-
-  if (
-    usernameError.value ||
-    emailError.value ||
-    passwordError.value ||
-    confirmPasswordError.value
-  ) {
-    let errorDetails = '入力項目に問題があります: '
-    if (usernameError.value) errorDetails += 'ユーザー名は2-50文字で入力してください。'
-    if (emailError.value) errorDetails += '有効なメールアドレスを入力してください。'
-    if (passwordError.value) errorDetails += `パスワード: ${passwordValidation.errors.join(', ')}`
-    if (confirmPasswordError.value) errorDetails += 'パスワードが一致しません。'
-    
-    authStore.setError(errorDetails)
-    await logAuthAttempt(false, sanitizedEmail, 'validation_failed')
-    return
-  }
-
   try {
-    // 認証ストアを使用してユーザー登録
-    const result = await authStore.signUp(sanitizedEmail, passwordTrim)
+    // バリデーションとサニタイゼーションを実行
+    const sanitizedData = await onSubmit()
+    if (!sanitizedData) return
 
-    if (result.success) {
-      // ユーザー登録成功をログに記録
+    // 追加のセキュリティ検証（XSSフレームワークによる）
+    const sanitizedUsername = XSSProtection.sanitizeText(sanitizedData.username)
+    const sanitizedEmail = XSSProtection.sanitizeText(sanitizedData.email)
+
+    // SQLインジェクション対策
+    const sqlSafeUsername = InputValidation.checkForSQLInjection(sanitizedUsername)
+    const sqlSafeEmail = InputValidation.checkForSQLInjection(sanitizedEmail)
+
+    if (!sqlSafeUsername || !sqlSafeEmail) {
+      authStore.setError('入力値に不正な文字が含まれています')
+      await logAuthAttempt(false, sanitizedEmail, 'sql_injection_attempt')
+      return
+    }
+
+    try {
+      // ユーザー登録成功をログに記録  
       await logAuthAttempt(true, sanitizedEmail)
       
-      // ユーザー登録成功時、accounts テーブルに追加
-      try {
-        if (result.user) {
-          const { error: accountError } = await supabase.from('accounts').insert([
-            {
-              id: result.user.id,
-              username: sanitizedUsername,
-              email: sanitizedEmail,
-            },
-          ])
+      // 認証ストアを使用してユーザー登録
+      const result = await authStore.signUp(sanitizedData.email, sanitizedData.password)
 
+      if (result.success) {
+        // ユーザー登録成功時、accounts テーブルに追加
+        try {
+          if (result.user) {
+            const { error: accountError } = await supabase.from('accounts').insert([
+              {
+                id: result.user.id,
+                username: sanitizedUsername,
+                email: sanitizedEmail,
+              },
+            ])
           if (accountError) {
             authStore.setError('User registration successful, but failed to save account data.')
             return
@@ -190,10 +154,11 @@ const handleRegister = async () => {
       // ユーザー登録失敗をログに記録
       await logAuthAttempt(false, sanitizedEmail, result.error || 'registration_failed')
     }
+    // エラーの場合は認証ストアが自動的にエラー状態を設定する
   } catch {
     // 予期しないエラーをログに記録
     await logAuthAttempt(false, sanitizedEmail, 'unexpected_registration_error')
-    authStore.setError('登録処理中にエラーが発生しました')
+    authStore.setError('アカウント登録処理中にエラーが発生しました')
   }
 }
 

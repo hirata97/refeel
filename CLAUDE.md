@@ -29,13 +29,14 @@
 - Vuetify（Material Design）
 - Chart.js（データ可視化）
 - Pinia（状態管理）
-- セキュリティ機能（XSS対策、CSRF対策、セキュリティヘッダー）
+- セキュリティ機能（XSS対策、CSRF対策、セキュリティヘッダー、VeeValidate + DOMPurify）
 - Vercel自動デプロイ
 
 ## 📚 ドキュメント構成
 
 ### 開発関連
 - **🛠️ 開発コマンド**: [docs/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT_COMMANDS.md)
+- **🔄 開発ワークフロー**: [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)
 - **🏗️ アーキテクチャ**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **📝 コーディング規則**: [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
 
@@ -102,4 +103,6 @@ npm run create-pr "タイトル" "説明"
 - 2025-08-17: Issue #2 認証ロジック実装完了
 - 2025-08-17: Issue #76 データ取得とキャッシング戦略実装完了
 - 2025-08-17: Issue #71 XSS対策とセキュリティヘッダー実装完了
+- 2025-08-17: Issue #72 入力値検証とサニタイゼーション実装完了
 - 2025-08-17: セキュリティドキュメント構造化・実践ガイド追加
+- 2025-08-17: 開発ワークフロードキュメント追加
