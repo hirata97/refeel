@@ -157,6 +157,50 @@ VITE_SUPABASE_KEY=your-anon-key
 ### 生成ファイル
 - `tasks/issue-[番号]-tasks.md` - Issue用タスク管理ファイル
 
+## ラベル体系
+
+### 🏷️ 新しいラベル管理システム
+
+#### 優先度ラベル（priority:）
+- `priority:P0` - 最高優先度（緊急・重要）🔴
+- `priority:P1` - 高優先度（重要）🟡  
+- `priority:P2` - 中優先度（通常）🔵
+
+#### サイズラベル（size:）
+- `size:S` - 小規模（1-2日）🔴
+- `size:M` - 中規模（3-5日）🟡
+- `size:L` - 大規模（1週間以上）🔵
+
+#### 実装内容ラベル（type-分類:）
+
+**基本的な作業タイプ（type-basic:）**
+- `type-basic:bugfix` - バグ修正🔴
+- `type-basic:enhancement` - 既存機能改善🟠
+- `type-basic:feature` - 新機能追加🟢
+- `type-basic:refactor` - リファクタリング🟣
+
+**インフラ・技術タイプ（type-infra:）**
+- `type-infra:automation` - 自動化・スクリプト🟠
+- `type-infra:ci-cd` - CI/CD・パイプライン🔵
+- `type-infra:performance` - パフォーマンス改善🔵
+- `type-infra:security` - セキュリティ🔴
+
+**品質・ドキュメントタイプ（type-quality:）**
+- `type-quality:docs` - ドキュメント🔵
+- `type-quality:test` - テスト関連🟡
+
+#### 特殊ラベル（z-）
+- `z-good-first-issue` - 初心者向け
+- `z-help-wanted` - コミュニティ協力歓迎
+
+### 🤖 自動ラベリング機能
+
+GitHub Actionsによる自動ラベル付与機能が設定済みです：
+- Issue作成時に作成者を自動アサイン
+- タイトル・本文から適切なtypeラベルを自動判定
+- 緊急キーワード検出時に`priority:P0`を自動付与
+- 日本語・英語両方のキーワードに対応
+
 ## 重要な注意点
 
 - TypeScriptの型エラーは必ず解決してからコミット
@@ -164,6 +208,7 @@ VITE_SUPABASE_KEY=your-anon-key
 - テストの実行確認を忘れずに行う
 - Supabase環境変数の設定確認
 - 自動化スクリプトを活用した効率的な開発フロー推奨
+- Issue作成時は適切なラベル（priority、size、type）を付与
 
 ## Claude Code使用時の推奨フロー
 

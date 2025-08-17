@@ -126,6 +126,48 @@ npm run create-pr "feat: テーマ機能の活用" "Issue #18の対応完了"
 - **Claude Code連携**: 最適化されたプロンプトを自動生成
 - **アサイン機能**: 作業開始時に自動で自分をアサイン
 - **テンプレート化**: 一貫したPR本文とコミットメッセージ
+- **自動ラベリング**: 新しいラベル体系による自動分類
+
+## 🏷️ ラベル管理システム
+
+### ラベル体系
+
+このプロジェクトでは、効率的なIssue管理のために体系化されたラベルシステムを採用しています。
+
+#### 優先度ラベル
+- `priority:P0` 🔴 - 最高優先度（緊急・重要）
+- `priority:P1` 🟡 - 高優先度（重要）  
+- `priority:P2` 🔵 - 中優先度（通常）
+
+#### 作業規模ラベル
+- `size:S` 🔴 - 小規模（1-2日）
+- `size:M` 🟡 - 中規模（3-5日）
+- `size:L` 🔵 - 大規模（1週間以上）
+
+#### 実装内容ラベル
+
+**基本的な作業（type-basic:）**
+- `type-basic:bugfix` - バグ修正
+- `type-basic:enhancement` - 既存機能改善
+- `type-basic:feature` - 新機能追加
+- `type-basic:refactor` - リファクタリング
+
+**インフラ・技術（type-infra:）**
+- `type-infra:automation` - 自動化・スクリプト
+- `type-infra:ci-cd` - CI/CD・パイプライン
+- `type-infra:performance` - パフォーマンス改善
+- `type-infra:security` - セキュリティ
+
+**品質・ドキュメント（type-quality:）**
+- `type-quality:docs` - ドキュメント
+- `type-quality:test` - テスト関連
+
+### 自動ラベリング機能
+
+- Issue作成時に自動でラベルが付与されます
+- タイトルや本文から適切な`type-`ラベルを自動判定
+- 緊急キーワード検出時は`priority:P0`を自動付与
+- 日本語・英語両方のキーワードに対応
 
 ## Supabaseの設定
 

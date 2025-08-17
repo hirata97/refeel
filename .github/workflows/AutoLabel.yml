@@ -1,80 +1,97 @@
-name: Auto-label Issues
+name: Auto-label and Auto-assign Issues
 
 on:
   issues:
     types: [opened, edited]
 
 jobs:
-  auto-label:
+  auto-label-assign:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check and apply labels for bug
-        if: contains(github.event.issue.title, 'bug')
+      - name: Auto-assign issue to creator
+        uses: actions-ecosystem/action-assign@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          assignees: ${{ github.event.issue.user.login }}
+
+      # Type-Basic Labels
+      - name: Check and apply labels for bug/bugfix
+        if: contains(github.event.issue.title, 'bug') || contains(github.event.issue.title, 'バグ')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: bug
+          labels: type-basic:bugfix
 
       - name: Check and apply labels for feature
-        if: contains(github.event.issue.title, 'feature')
+        if: contains(github.event.issue.title, 'feature') || contains(github.event.issue.title, '機能')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: feature
+          labels: type-basic:feature
 
       - name: Check and apply labels for enhancement
-        if: contains(github.event.issue.title, 'enhancement')
+        if: contains(github.event.issue.title, 'enhancement') || contains(github.event.issue.title, '改善')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: enhancement
-
-      - name: Check and apply labels for documentation
-        if: contains(github.event.issue.title, 'documentation')
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: documentation
+          labels: type-basic:enhancement
 
       - name: Check and apply labels for refactor
-        if: contains(github.event.issue.title, 'refactor')
+        if: contains(github.event.issue.title, 'refactor') || contains(github.event.issue.title, 'リファクタ') || contains(github.event.issue.title, 'クリーンアップ')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: refactor
+          labels: type-basic:refactor
 
-      - name: Check and apply labels for test
-        if: contains(github.event.issue.title, 'test')
+      # Type-Infra Labels
+      - name: Check and apply labels for CI/CD
+        if: contains(github.event.issue.title, 'CI/CD') || contains(github.event.issue.body, 'CI/CD') || contains(github.event.issue.title, 'パイプライン')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: test
+          labels: type-infra:ci-cd
 
-      - name: Check and apply labels for design
-        if: contains(github.event.issue.title, 'design')
+      - name: Check and apply labels for automation
+        if: contains(github.event.issue.title, 'automation') || contains(github.event.issue.title, '自動化')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: design
+          labels: type-infra:automation
 
       - name: Check and apply labels for security
-        if: contains(github.event.issue.title, 'security')
+        if: contains(github.event.issue.title, 'security') || contains(github.event.issue.title, 'セキュリティ')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: security
+          labels: type-infra:security
 
       - name: Check and apply labels for performance
-        if: contains(github.event.issue.title, 'performance')
+        if: contains(github.event.issue.title, 'performance') || contains(github.event.issue.title, 'パフォーマンス')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: performance
+          labels: type-infra:performance
 
-      - name: Check and apply labels for research
-        if: contains(github.event.issue.title, 'research')
+      # Type-Quality Labels
+      - name: Check and apply labels for test
+        if: contains(github.event.issue.title, 'test') || contains(github.event.issue.title, 'テスト')
         uses: actions-ecosystem/action-add-labels@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          labels: research
+          labels: type-quality:test
+
+      - name: Check and apply labels for documentation
+        if: contains(github.event.issue.title, 'docs') || contains(github.event.issue.title, 'documentation') || contains(github.event.issue.title, 'ドキュメント')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: type-quality:docs
+
+      # Priority Labels
+      - name: Auto-assign priority labels based on content
+        if: contains(github.event.issue.body, '緊急') || contains(github.event.issue.title, 'urgent') || contains(github.event.issue.title, 'critical')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: priority:P0
