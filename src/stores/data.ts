@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
+import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
 
 // データ型定義
 export interface DiaryEntry {
@@ -243,9 +244,24 @@ export const useDataStore = defineStore('data', () => {
       setLoading('createDiary', true)
       setError('createDiary', null)
 
+      // セキュリティチェックを実行
+      const titleCheck = performSecurityCheck(diaryData.title)
+      const contentCheck = performSecurityCheck(diaryData.content)
+
+      if (!titleCheck.isSecure) {
+        throw new Error(`タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`)
+      }
+
+      if (!contentCheck.isSecure) {
+        throw new Error(`内容に不正な内容が含まれています: ${contentCheck.threats.join(', ')}`)
+      }
+
+      // データをサニタイズ
+      const sanitizedData = sanitizeInputData(diaryData) as Omit<DiaryEntry, 'id' | 'created_at' | 'updated_at'>
+
       const { data, error: insertError } = await supabase
         .from('diaries')
-        .insert([diaryData])
+        .insert([sanitizedData])
         .select()
         .single()
 
@@ -276,9 +292,27 @@ export const useDataStore = defineStore('data', () => {
       setLoading('updateDiary', true)
       setError('updateDiary', null)
 
+      // 更新データのセキュリティチェック
+      if (updates.title) {
+        const titleCheck = performSecurityCheck(updates.title)
+        if (!titleCheck.isSecure) {
+          throw new Error(`タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`)
+        }
+      }
+
+      if (updates.content) {
+        const contentCheck = performSecurityCheck(updates.content)
+        if (!contentCheck.isSecure) {
+          throw new Error(`内容に不正な内容が含まれています: ${contentCheck.threats.join(', ')}`)
+        }
+      }
+
+      // データをサニタイズ
+      const sanitizedUpdates = sanitizeInputData(updates) as Partial<DiaryEntry>
+
       const { data, error: updateError } = await supabase
         .from('diaries')
-        .update(updates)
+        .update(sanitizedUpdates)
         .eq('id', id)
         .select()
         .single()

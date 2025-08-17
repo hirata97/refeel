@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
+import { performSecurityCheck } from '@/utils/sanitization'
 
 export const useAuthStore = defineStore('auth', () => {
   // 状態
@@ -204,6 +205,18 @@ export const useAuthStore = defineStore('auth', () => {
       setLoading(true)
       clearError()
 
+      // セキュリティチェックを実行
+      const emailCheck = performSecurityCheck(email)
+      const passwordCheck = performSecurityCheck(password)
+
+      if (!emailCheck.isSecure) {
+        throw new Error(`メールアドレスに不正な内容が含まれています: ${emailCheck.threats.join(', ')}`)
+      }
+
+      if (!passwordCheck.isSecure) {
+        throw new Error(`パスワードに不正な内容が含まれています: ${passwordCheck.threats.join(', ')}`)
+      }
+
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password
@@ -239,6 +252,18 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       setLoading(true)
       clearError()
+
+      // セキュリティチェックを実行
+      const emailCheck = performSecurityCheck(email)
+      const passwordCheck = performSecurityCheck(password)
+
+      if (!emailCheck.isSecure) {
+        throw new Error(`メールアドレスに不正な内容が含まれています: ${emailCheck.threats.join(', ')}`)
+      }
+
+      if (!passwordCheck.isSecure) {
+        throw new Error(`パスワードに不正な内容が含まれています: ${passwordCheck.threats.join(', ')}`)
+      }
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
