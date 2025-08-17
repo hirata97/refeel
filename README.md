@@ -1,140 +1,219 @@
-# Vue Boilerplate
+# Goal Categorization Diary
 
-2025/01/01作成
-Vue 3 と Vite を用いた開発を始めるためのテンプレート。
+目標設定と進捗追跡のためのVue.js Webアプリケーション
 
-## 新しいリポジトリの作成方法
+## プロジェクト概要
 
-1. **ローカルにクローン**
+Goal Categorization Diaryは、日々の目標を管理し、進捗を追跡するためのWebアプリケーションです。Vue 3、TypeScript、Supabaseを使用して構築されており、ユーザーが目標を設定し、日記形式で進捗を記録できます。
+
+## 主な機能
+
+- **ユーザー認証**: Supabaseによる安全な認証システム
+- **目標管理**: カテゴリ別の目標設定と管理
+- **日記機能**: 日々の進捗を記録できる日記システム
+- **データ可視化**: Chart.jsによる進捗データの可視化
+- **レスポンシブデザイン**: モバイルデバイス対応
+
+## 技術スタック
+
+- **フロントエンド**: Vue 3 + TypeScript + Vite
+- **UIフレームワーク**: Vuetify 3（Material Design）
+- **バックエンド**: Supabase（認証、データベース、リアルタイム更新）
+- **状態管理**: Pinia
+- **ルーティング**: Vue Router
+- **データ可視化**: Chart.js + vue-chartjs
+- **テスティング**: Vitest（ユニット）+ Playwright（E2E）
+- **デプロイ**: Vercel
+
+## セットアップ
+
+### 前提条件
+
+- Node.js (v16以降)
+- npm
+- Supabaseアカウント
+
+### インストール
+
+1. **リポジトリのクローン**
+   ```bash
+   git clone https://github.com/RsPYP/GoalCategorizationDiary.git
+   cd GoalCategorizationDiary
    ```
-   git clone https://github.com/<このリポジトリのURL>.git
-   cd <クローンしたディレクトリ>
-   ```
-2. **リモートURLを削除**
-   ```
-   git remote remove origin
-   ```
-3. **GitHubで新しいリポジトリを作成し、リンクを設定**
-   ```
-   git remote add origin https://github.com/<ユーザー名>/<新しいリポジトリ>.git
-   git branch -M main
-   git push -u origin main
-   ```
 
-## 推奨開発環境
-
-- [VSCode](https://code.visualstudio.com/)
-- [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)（Veturは無効化）
-
-## TypeScriptの`.vue`サポート
-
-`.vue`ファイルの型情報を正しく処理するため、`tsc`の代わりに`vue-tsc`を使用します。また、エディタにはVolarを導入する必要があります。
-
-## プロジェクトセットアップ
-
-1. **依存関係をインストール**
-   ```
+2. **依存関係のインストール**
+   ```bash
    npm install
    ```
-2. **開発用ビルドとホットリロード**
-   ```
-   npm run dev
-   ```
-3. **本番用ビルド**
-   ```
-   npm run build
-   ```
-4. **ユニットテストの実行**
-   ```
-   npm run test:unit
-   ```
-5. **E2Eテストの実行**  
-   初回のみブラウザをインストール：
-   ```
-   npx playwright install
-   ```
-   テスト実行：
-   ```
-   npm run test:e2e
-   ```
-
-## Lint
-
-コードをLintする：
-
-```
-npm run lint
-```
-
-## Supabaseの設定
-
-このプロジェクトでは、Supabaseを使用してデータベース操作を行います。以下の手順に従ってSupabaseを設定してください。
-
-1. **Supabaseプロジェクトの作成**
-
-   - [Supabase](https://supabase.io/)にサインアップし、新しいプロジェクトを作成します。
-
-2. **APIキーとURLの取得**
-
-   - プロジェクトの設定ページから、APIキーとURLを取得します。
 
 3. **環境変数の設定**
-
-   SupabaseのURLとAPIキーを環境変数として設定します。プロジェクトのルートディレクトリに `.env` ファイルを作成し、以下の内容を追加します。
-
-   ```
+   
+   `.env`ファイルを作成し、Supabaseの設定を追加：
+   ```env
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_KEY=your-anon-key
    ```
 
-4. **Supabaseクライアントの初期化**
-
-   - `src/lib/supabase.ts`ファイルでSupabaseクライアントを初期化します。
-
-   ```typescript
-   // filepath: /home/mizuki/projects/GoalCategorizationDiary/src/lib/supabase.ts
-   import { createClient } from '@supabase/supabase-js'
-
-   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-   const supabaseKey = import.meta.env.VITE_SUPABASE_KEY
-
-   export const supabase = createClient(supabaseUrl, supabaseKey)
+4. **開発サーバーの起動**
+   ```bash
+   npm run dev
    ```
 
-5. **Supabaseクライアントの提供**
+## 開発コマンド
 
-   - `src/main.ts`ファイルでSupabaseクライアントをアプリケーション全体に提供します。
+### 基本コマンド
+```bash
+# 開発環境起動
+npm run dev
 
-   ```typescript
-   // filepath: /home/mizuki/projects/GoalCategorizationDiary/src/main.ts
-   import { createApp } from 'vue'
-   import App from './App.vue'
-   import { supabase } from './lib/supabase'
+# 型チェック付きビルド
+npm run build
 
-   createApp(App).provide('supabase', supabase).mount('#app')
-   ```
+# リンティング
+npm run lint
 
-# プロジェクトドキュメント
+# コードフォーマット
+npm run format
 
-## テスト作成ガイドライン
+# ユニットテスト
+npm run test:unit
 
-### テストファイルの命名規則
+# E2Eテスト（初回のみブラウザインストール）
+npx playwright install
+npm run test:e2e
+```
 
+### 🚀 自動化ワークフロー
+
+#### GitHub Issue → PR 自動化コマンド
+
+##### Issue管理
+```bash
+# Issue一覧表示
+npm run fetch-issue
+
+# 特定のIssue詳細とタスクファイル生成
+npm run fetch-issue [issue番号]
+```
+
+##### 開発ワークフロー
+```bash
+# Issue作業開始
+npm run start-issue [issue番号]
+# - 専用ブランチ作成
+# - タスクファイル生成
+# - 自動アサイン
+# - Claude Code用プロンプト準備
+
+# PR作成
+npm run create-pr "タイトル" "説明"
+# - 自動コミット・プッシュ
+# - develop向けPR作成
+# - Claude Code署名付きメッセージ
+```
+
+#### 完全自動化（推奨）
+```bash
+# 単一Issue自動実装
+npm run auto-issue [issue番号]
+# - Issue詳細自動取得
+# - Claude Codeによる自動実装
+# - コード品質チェック
+# - PR自動作成
+
+# 全オープンIssue連続自動実装
+npm run auto-cycle
+```
+
+## プロジェクト構造
+
+```
+src/
+├── components/          # 再利用可能なコンポーネント
+│   └── base/           # ベースコンポーネント
+├── lib/                # ライブラリ設定
+│   └── supabase.ts     # Supabaseクライアント
+├── plugins/            # Vue プラグイン
+│   └── vuetify.ts      # Vuetify設定
+├── router/             # ルーティング設定
+├── stores/             # Pinia ストア
+├── utils/              # ユーティリティ関数
+├── views/              # ページコンポーネント
+│   ├── DashBoardPage.vue      # ダッシュボード
+│   ├── DiaryRegisterPage.vue  # 日記登録
+│   ├── DiaryViewPage.vue      # 日記一覧
+│   ├── DiaryReportPage.vue    # レポート
+│   ├── LoginPage.vue          # ログイン
+│   ├── AccountRegisterPage.vue # アカウント登録
+│   └── SettingPage.vue        # 設定
+└── App.vue             # ルートコンポーネント
+```
+
+## テスト戦略
+
+### テストファイル命名規則
 - **形式**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
 - **例**: `normal_LoginPage_01.spec.js`, `exception_LoginPage_01.spec.js`
 
-### テストの内容
-
-- 各テストファイルは一つの観点に焦点を当てます。
-- 正常系と異常系のテストを同じファイルに含めることができます。
-
 ### ディレクトリ構造
+```
+tests/
+└── [コンポーネント名]/
+    ├── normal_[コンポーネント名]_01.spec.js
+    └── exception_[コンポーネント名]_01.spec.js
+```
 
-- `tests/`ディレクトリ内に、各コンポーネントごとにサブディレクトリを作成します（例: ログインページのテストは`LoginPage`ディレクトリに配置）。
-- テストファイルは適切なコンポーネントディレクトリ内に配置します。
+## 🏷️ ラベル管理システム
 
-これらのガイドラインに従うことで、テストスイートの一貫性と明確さを確保し、チーム全員が理解しやすく貢献しやすくなります。
+### 優先度ラベル
+- `priority:P0` 🔴 - 最高優先度（緊急・重要）
+- `priority:P1` 🟡 - 高優先度（重要）  
+- `priority:P2` 🔵 - 中優先度（通常）
 
+<<<<<<< HEAD
+### 作業規模ラベル
+- `size:S` 🔴 - 小規模（1-2日）
+- `size:M` 🟡 - 中規模（3-5日）
+- `size:L` 🔵 - 大規模（1週間以上）
+
+### 実装内容ラベル
+
+**基本的な作業（type-basic:）**
+- `type-basic:bugfix` - バグ修正
+- `type-basic:enhancement` - 既存機能改善
+- `type-basic:feature` - 新機能追加
+- `type-basic:refactor` - リファクタリング
+
+**インフラ・技術（type-infra:）**
+- `type-infra:automation` - 自動化・スクリプト
+- `type-infra:ci-cd` - CI/CD・パイプライン
+- `type-infra:performance` - パフォーマンス改善
+- `type-infra:security` - セキュリティ
+
+**品質・ドキュメント（type-quality:）**
+- `type-quality:docs` - ドキュメント
+- `type-quality:test` - テスト関連
+
+## デプロイメント
+
+本プロジェクトはVercelで自動デプロイされます。developブランチへのマージで自動的にデプロイが実行されます。
+
+## 貢献
+
+1. Issueを確認し、作業したいものを選択
+2. `npm run start-issue [issue番号]` で作業開始
+3. 機能実装・テスト追加
+4. `npm run create-pr` でPR作成
+5. レビュー後、developブランチにマージ
+
+## ライセンス
+
+このプロジェクトはプライベートリポジトリです。
+
+## サポート
+
+質問やバグ報告は [Issues](https://github.com/RsPYP/GoalCategorizationDiary/issues) で受け付けています。
+=======
 ## Claude Codeでの開発
 
 このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。詳細な開発ガイドは`CLAUDE.md`を参照してください。
@@ -146,3 +225,4 @@ npm run lint
 - `npm run test:e2e` - E2Eテスト
 - `npm run lint` - リンティング
 - `npm run type-check` - 型チェック
+>>>>>>> main

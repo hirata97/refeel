@@ -25,22 +25,22 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
+import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
+const authStore = useAuthStore()
+
+// 認証状態をチェック
+onMounted(() => {
+  if (!authStore.isAuthenticated) {
+    // 認証されていない場合はログインページにリダイレクト
+    router.push('/login')
+  }
+})
 
 // テーマ選択肢
 const themes = ['ライト', 'ダーク', 'ブルー', 'グリーン']
 
-// ページ読み込み時に認証をチェックし、未認証ならリダイレクト
-onMounted(() => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath }, // 元のページを記憶
-    })
-  }
-})
 </script>
 
 <style scoped>

@@ -15,10 +15,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { isAuthenticated } from '@/utils/auth'
-import { supabase } from '@/lib/supabase'
+import { useAuthStore } from '@/stores/auth'
+import { useDataStore } from '@/stores/data'
+import { usePerformanceMonitor, debounce } from '@/utils/performance'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const dataStore = useDataStore()
+const performance = usePerformanceMonitor()
 
 interface Diary {
   id?: string
@@ -29,15 +35,28 @@ interface Diary {
   mood: number
 }
 
-const router = useRouter()
-
-const getCurrentDate = (): string => {
-  const today = new Date()
-  const yyyy = today.getFullYear()
-  const mm = String(today.getMonth() + 1).padStart(2, '0')
-  const dd = String(today.getDate()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd}`
-}
+// 最適化された現在日付取得（メモ化）
+const getCurrentDate = (() => {
+  let cached = ''
+  let lastCheck = 0
+  
+  return (): string => {
+    const now = Date.now()
+    // 1分以内は同じ日付を返す
+    if (now - lastCheck < 60000 && cached) {
+      return cached
+    }
+    
+    const today = new Date()
+    const yyyy = today.getFullYear()
+    const mm = String(today.getMonth() + 1).padStart(2, '0')
+    const dd = String(today.getDate()).padStart(2, '0')
+    
+    cached = `${yyyy}-${mm}-${dd}`
+    lastCheck = now
+    return cached
+  }
+})()
 
 const diaryEntry = ref<Diary>({
   date: getCurrentDate(),
@@ -45,8 +64,6 @@ const diaryEntry = ref<Diary>({
   content: '',
   mood: 3,
 })
-
-const userId = ref<string>('')
 
 const resetDiaryEntry = () => {
   diaryEntry.value = {
@@ -57,89 +74,77 @@ const resetDiaryEntry = () => {
   }
 }
 
-const initializeUser = async () => {
-  if (!isAuthenticated()) {
-    router.push({
-      path: '/login',
-      query: { redirect: router.currentRoute.value.fullPath },
-    })
-    return
-  }
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (user) {
-    userId.value = user.id
-  }
-}
-
-onMounted(() => {
-  initializeUser()
+// バリデーション（計算プロパティで最適化）
+const isValid = computed(() => {
+  return diaryEntry.value.title.trim().length > 0 && 
+         diaryEntry.value.content.trim().length > 0
 })
 
+// デバウンス処理されたオートセーブ（実装例）
+// const debouncedAutoSave = debounce(async () => {
+//   if (isValid.value && authStore.user?.id) {
+//     try {
+//       // オートセーブロジック（必要に応じて実装）
+//       console.log('Auto-saving draft...')
+//     } catch (error) {
+//       console.error('オートセーブエラー:', error)
+//     }
+//   }
+// }, 2000)
+
+// 認証チェックとユーザー初期化
+onMounted(() => {
+  // 認証状態をチェック
+  if (!authStore.isAuthenticated) {
+    // 認証されていない場合はログインページにリダイレクト
+    router.push('/login')
+    return
+  }
+})
+
+// 最適化された日記作成処理
 const addDiary = async (): Promise<void> => {
-  if (!diaryEntry.value.title || !diaryEntry.value.content) {
+  if (!isValid.value) {
     alert('タイトルと内容は必須です。')
     return
   }
 
-  // 同日の日記が既に存在しているかチェック
-  const { data: existingEntries, error: fetchError } = await supabase
-    .from('diaries')
-    .select('id')
-    .eq('user_id', userId.value)
-    .eq('date', diaryEntry.value.date)
-
-  if (fetchError) {
-    console.error('日記取得エラー:', fetchError)
-    alert(`日記の取得に失敗しました: ${fetchError.message}`)
+  // 認証状態を再確認
+  if (!authStore.isAuthenticated || !authStore.user) {
+    alert('認証が必要です。ログインしてください。')
+    router.push('/login')
     return
   }
 
-  if (existingEntries && existingEntries.length > 0) {
-    // 既に日記が存在する場合は更新確認ダイアログを表示
-    const shouldUpdate = confirm('本日の記録は既に登録されています。更新しますか？')
-    if (!shouldUpdate) {
-      return
+  try {
+    performance.start('create_diary')
+    
+    // データストアを使用した最適化された作成処理
+    const diaryData = {
+      user_id: authStore.user.id,
+      title: diaryEntry.value.title.trim(),
+      content: diaryEntry.value.content.trim(),
+      goal_category: 'default', // デフォルトカテゴリ
+      progress_level: diaryEntry.value.mood || 3
     }
-    // 先頭のレコードを更新する
-    const diaryId = existingEntries[0].id
-    const { error: updateError } = await supabase
-      .from('diaries')
-      .update({
-        title: diaryEntry.value.title,
-        content: diaryEntry.value.content,
-        date: diaryEntry.value.date,
-        mood: diaryEntry.value.mood,
-      })
-      .eq('id', diaryId)
-    if (updateError) {
-      console.error('更新エラー:', updateError)
-      alert(`日記の更新に失敗しました: ${updateError.message}`)
-      return
-    }
+
+    await dataStore.createDiary(diaryData)
+    
+    performance.end('create_diary')
+    
+    // 成功メッセージ
+    alert('日記が登録されました！')
+    
+    // フォームリセット
     resetDiaryEntry()
-    alert('日記の更新が成功しました')
-    return
+    
+    // オプション: ダッシュボードにリダイレクト
+    router.push('/dashboard')
+    
+  } catch (error: unknown) {
+    console.error('日記作成エラー:', error)
+    alert(`日記の作成に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
-
-  // 同日のレコードが無ければ新規登録する
-  const { error } = await supabase.from('diaries').insert([
-    {
-      user_id: userId.value,
-      title: diaryEntry.value.title,
-      content: diaryEntry.value.content,
-      date: diaryEntry.value.date,
-      mood: diaryEntry.value.mood,
-    },
-  ])
-  if (error) {
-    console.error('登録エラー:', error)
-    alert(`日記の保存に失敗しました: ${error.message}`)
-    return
-  }
-  resetDiaryEntry()
-  alert('日記の記録が成功しました')
 }
 </script>
 

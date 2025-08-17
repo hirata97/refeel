@@ -1,5 +1,5 @@
 {
-  "name": "vue-boilerplate",
+  "name": "goal-categorization-diary",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,14 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "create-pr": "./scripts/create-pr.sh",
+    "fetch-issue": "./scripts/fetch-issue.sh",
+    "start-issue": "./scripts/start-issue.sh",
+    "auto-issue": "./scripts/auto-issue.sh",
+    "auto-implement": "node scripts/auto-implement.js",
+    "auto-cycle": "./scripts/auto-cycle.sh",
+    "close-issues": "./scripts/close-linked-issues.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
