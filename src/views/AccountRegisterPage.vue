@@ -91,6 +91,8 @@ onMounted(() => {
 
 // フォーム送信時の処理
 const handleRegister = async () => {
+  let sanitizedEmail = 'unknown'
+  
   try {
     // バリデーションとサニタイゼーションを実行
     const sanitizedData = await onSubmit()
@@ -98,7 +100,7 @@ const handleRegister = async () => {
 
     // 追加のセキュリティ検証（XSSフレームワークによる）
     const sanitizedUsername = XSSProtection.sanitizeText(sanitizedData.username)
-    const sanitizedEmail = XSSProtection.sanitizeText(sanitizedData.email)
+    sanitizedEmail = XSSProtection.sanitizeText(sanitizedData.email)
 
     // SQLインジェクション対策
     const sqlSafeUsername = InputValidation.checkForSQLInjection(sanitizedUsername)
@@ -128,31 +130,36 @@ const handleRegister = async () => {
                 email: sanitizedEmail,
               },
             ])
-          if (accountError) {
-            authStore.setError('User registration successful, but failed to save account data.')
-            return
+            if (accountError) {
+              authStore.setError('User registration successful, but failed to save account data.')
+              return
+            }
           }
-        }
 
-        // 確認メールが必要な場合
-        if (result.needsConfirmation) {
-          authStore.setError('確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。')
-          // エラーではないので、ログインページに移動
-          setTimeout(() => {
-            router.push('/login')
-          }, 3000)
-        } else {
-          // すぐにログインできる場合はダッシュボードへ
-          router.push('/dashboard')
+          // 確認メールが必要な場合
+          if (result.needsConfirmation) {
+            authStore.setError('確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。')
+            // エラーではないので、ログインページに移動
+            setTimeout(() => {
+              router.push('/login')
+            }, 3000)
+          } else {
+            // すぐにログインできる場合はダッシュボードへ
+            router.push('/dashboard')
+          }
+        } catch (err) {
+          console.error('Account creation error:', err)
+          authStore.setError('アカウント情報の保存に失敗しました')
+          await logAuthAttempt(false, sanitizedEmail, 'account_save_failed')
         }
-      } catch (err) {
-        console.error('Account creation error:', err)
-        authStore.setError('アカウント情報の保存に失敗しました')
-        await logAuthAttempt(false, sanitizedEmail, 'account_save_failed')
+      } else {
+        // ユーザー登録失敗をログに記録
+        await logAuthAttempt(false, sanitizedEmail, result.error || 'registration_failed')
       }
-    } else {
-      // ユーザー登録失敗をログに記録
-      await logAuthAttempt(false, sanitizedEmail, result.error || 'registration_failed')
+    } catch (innerErr) {
+      // 内部エラーをログに記録
+      await logAuthAttempt(false, sanitizedEmail, 'inner_registration_error')
+      authStore.setError('認証処理中にエラーが発生しました')
     }
     // エラーの場合は認証ストアが自動的にエラー状態を設定する
   } catch {
