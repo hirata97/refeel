@@ -139,6 +139,27 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_KEY=your-anon-key
 ```
 
+**📚 認証システムドキュメント**:
+- **🚀 クイックセットアップ**: [docs/SUPABASE_QUICK_SETUP.md](docs/SUPABASE_QUICK_SETUP.md) - 5分で設定完了
+- **📖 詳細ドキュメント**: [docs/SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md) - 完全な技術仕様
+
+#### 認証システム概要
+- **認証方法**: メール + パスワード
+- **状態管理**: Pinia ストア (`src/stores/auth.ts`)
+- **セッション管理**: 自動更新・永続化対応
+- **ルート保護**: Vue Router ガード機能
+- **データベース**: RLS (Row Level Security) 設定済み
+
+#### 必要なデータベーステーブル
+- `accounts` - ユーザープロファイル情報
+- `diaries` - 日記データ（ユーザー毎に分離）
+
+#### セットアップが必要な場合
+新しいSupabaseプロジェクトでは以下の設定が必要：
+1. 認証プロバイダー設定 (メール確認無効化)
+2. データベーステーブル作成 (SQLスクリプト実行)
+3. RLSポリシー設定 (セキュリティ設定)
+
 ### 推奨開発環境
 - エディタ: VSCode
 - 拡張機能: 
