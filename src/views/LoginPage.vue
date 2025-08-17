@@ -16,11 +16,10 @@
 
       <v-text-field
         label="Email"
-        v-model="email"
+        v-bind="emailField"
         variant="outlined"
         class="mb-3"
         required
-        :rules="[(v) => !!v || 'Email is required']"
         aria-label="Enter your email"
         autofocus
       />
@@ -28,18 +27,17 @@
       <v-text-field
         label="Password"
         type="password"
-        v-model="password"
+        v-bind="passwordField"
         variant="outlined"
         class="mb-4"
         required
-        :rules="[(v) => !!v || 'Password is required']"
         aria-label="Enter your password"
       />
     </template>
 
     <template #actions>
       <BaseButton
-        :loading="authStore.loading"
+        :loading="authStore.loading || isSubmitting"
         type="submit"
         color="primary"
         block
@@ -59,16 +57,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
+import { useLoginValidation } from '@/composables/useValidation'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const email = ref('')
-const password = ref('')
+// バリデーション機能を使用
+const { emailField, passwordField, onSubmit, isSubmitting } = useLoginValidation()
 
 // 認証ストアからエラー状態とローディング状態を使用
 const showError = computed({
@@ -90,22 +89,22 @@ onMounted(() => {
 const handleLogin = async (isValid: boolean) => {
   if (!isValid) return
 
-  const emailTrim = email.value.trim()
-  const passwordTrim = password.value.trim()
+  try {
+    // バリデーションとサニタイゼーションを実行
+    const sanitizedData = await onSubmit()
+    if (!sanitizedData) return
 
-  if (!emailTrim || !passwordTrim) {
-    authStore.setError('メールアドレスとパスワードを入力してください')
-    return
+    const result = await authStore.signIn(sanitizedData.email, sanitizedData.password)
+
+    if (result.success) {
+      // ログイン成功時は認証ストアが自動的に状態を更新する
+      // ダッシュボードにリダイレクト
+      router.push('/dashboard')
+    }
+    // エラーの場合は認証ストアが自動的にエラー状態を設定する
+  } catch {
+    authStore.setError('ログイン処理中にエラーが発生しました')
   }
-
-  const result = await authStore.signIn(emailTrim, passwordTrim)
-
-  if (result.success) {
-    // ログイン成功時は認証ストアが自動的に状態を更新する
-    // ダッシュボードにリダイレクト
-    router.push('/dashboard')
-  }
-  // エラーの場合は認証ストアが自動的にエラー状態を設定する
 }
 
 // 登録ページからトップページに遷移

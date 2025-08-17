@@ -15,41 +15,37 @@
 
       <v-text-field
         label="Username"
-        v-model="username"
+        v-bind="usernameField"
         outlined
         full-width
         class="mb-3"
-        :error="usernameError"
         required
       />
       <v-text-field
         label="Email"
-        v-model="email"
+        v-bind="emailField"
         outlined
         full-width
         class="mb-3"
         type="email"
-        :error="emailError"
         required
       />
       <v-text-field
         label="Password"
         type="password"
-        v-model="password"
+        v-bind="passwordField"
         outlined
         full-width
         class="mb-4"
-        :error="passwordError"
         required
       />
       <v-text-field
         label="Confirm Password"
         type="password"
-        v-model="confirmPassword"
+        v-bind="confirmPasswordField"
         outlined
         full-width
         class="mb-4"
-        :error="confirmPasswordError"
         required
       />
       <v-btn type="submit" color="primary" block class="mb-2" :loading="isLoading"
@@ -61,31 +57,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
+import { useRegisterValidation } from '@/composables/useValidation'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const username = ref<string>('')
-const email = ref<string>('')
-const password = ref<string>('')
+// バリデーション機能を使用
+const { 
+  usernameField, 
+  emailField, 
+  passwordField, 
+  confirmPasswordField, 
+  onSubmit, 
+  isSubmitting 
+} = useRegisterValidation()
 
-// 追加: Confirm Password用の変数
-const confirmPassword = ref<string>('')
-
-// エラーメッセージやバリデーションフラグ
+// エラーメッセージやローディング状態
 const errorMessage = computed(() => authStore.error)
-const usernameError = ref<boolean>(false)
-const emailError = ref<boolean>(false)
-const passwordError = ref<boolean>(false)
-// 追加: Confirm Passwordのエラーフラグ
-const confirmPasswordError = ref<boolean>(false)
-
-// 追加: ローディング状態用の変数
-const isLoading = computed(() => authStore.loading)
+const isLoading = computed(() => authStore.loading || isSubmitting.value)
 
 // すでにログイン済みの場合はダッシュボードにリダイレクト
 onMounted(() => {
@@ -94,75 +87,54 @@ onMounted(() => {
   }
 })
 
-// メールアドレスの形式をチェックする関数
-const isValidEmail = (email: string) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
-}
-
 // フォーム送信時の処理
 const handleRegister = async () => {
-  const usernameTrim = username.value.trim()
-  const emailTrim = email.value.trim()
-  const passwordTrim = password.value.trim()
-  const confirmPasswordTrim = confirmPassword.value.trim()
+  try {
+    // バリデーションとサニタイゼーションを実行
+    const sanitizedData = await onSubmit()
+    if (!sanitizedData) return
 
-  usernameError.value = !usernameTrim
-  emailError.value = !emailTrim || !isValidEmail(emailTrim)
-  passwordError.value = passwordTrim.length < 6
-  // 追加: パスワード確認のバリデーション
-  confirmPasswordError.value = passwordTrim !== confirmPasswordTrim
+    // 認証ストアを使用してユーザー登録
+    const result = await authStore.signUp(sanitizedData.email, sanitizedData.password)
 
-  if (
-    usernameError.value ||
-    emailError.value ||
-    passwordError.value ||
-    confirmPasswordError.value
-  ) {
-    authStore.setError(
-      '各項目を正しく入力してください。（パスワードは6文字以上、メールは有効な形式、確認パスワードが一致していること）'
-    )
-    return
-  }
+    if (result.success) {
+      // ユーザー登録成功時、accounts テーブルに追加
+      try {
+        if (result.user) {
+          const { error: accountError } = await supabase.from('accounts').insert([
+            {
+              id: result.user.id,
+              username: sanitizedData.username,
+              email: sanitizedData.email,
+            },
+          ])
 
-  // 認証ストアを使用してユーザー登録
-  const result = await authStore.signUp(emailTrim, passwordTrim)
-
-  if (result.success) {
-    // ユーザー登録成功時、accounts テーブルに追加
-    try {
-      if (result.user) {
-        const { error: accountError } = await supabase.from('accounts').insert([
-          {
-            id: result.user.id,
-            username: usernameTrim,
-            email: emailTrim,
-          },
-        ])
-
-        if (accountError) {
-          authStore.setError('User registration successful, but failed to save account data.')
-          return
+          if (accountError) {
+            authStore.setError('User registration successful, but failed to save account data.')
+            return
+          }
         }
-      }
 
-      // 確認メールが必要な場合
-      if (result.needsConfirmation) {
-        authStore.setError('確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。')
-        // エラーではないので、ログインページに移動
-        setTimeout(() => {
-          router.push('/login')
-        }, 3000)
-      } else {
-        // すぐにログインできる場合はダッシュボードへ
-        router.push('/dashboard')
+        // 確認メールが必要な場合
+        if (result.needsConfirmation) {
+          authStore.setError('確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。')
+          // エラーではないので、ログインページに移動
+          setTimeout(() => {
+            router.push('/login')
+          }, 3000)
+        } else {
+          // すぐにログインできる場合はダッシュボードへ
+          router.push('/dashboard')
+        }
+      } catch (err) {
+        console.error('Account creation error:', err)
+        authStore.setError('アカウント情報の保存に失敗しました')
       }
-    } catch (err) {
-      console.error('Account creation error:', err)
-      authStore.setError('アカウント情報の保存に失敗しました')
     }
+    // エラーの場合は認証ストアが自動的にエラー状態を設定する
+  } catch {
+    authStore.setError('アカウント登録処理中にエラーが発生しました')
   }
-  // エラーの場合は認証ストアが自動的にエラー状態を設定する
 }
 
 // エラーメッセージをクリア
