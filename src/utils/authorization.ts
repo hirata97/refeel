@@ -9,7 +9,7 @@ export interface AuthorizationContext {
     type: ResourceType
     id: string
     ownerId?: string
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   }
   action: Permission
   clientInfo?: {
@@ -24,7 +24,7 @@ export interface AuthorizationResult {
   granted: boolean
   reason?: string
   conditions?: string[]
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 // 条件付き認可ルール
@@ -65,7 +65,7 @@ export class AuthorizationEngine {
         if (!context.resource) return false
         
         // 作成から24時間以内のみ編集可能（例）
-        const createdAt = context.resource.metadata?.created_at
+        const createdAt = context.resource.metadata?.created_at as string | undefined
         if (createdAt) {
           const hoursSinceCreation = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60)
           return hoursSinceCreation <= 24
@@ -77,7 +77,7 @@ export class AuthorizationEngine {
 
     // 管理者パネルアクセスの条件
     this.addConditionalRule(Permission.ACCESS_ADMIN_PANEL, {
-      condition: (context) => {
+      condition: () => {
         // 特定の時間帯のみアクセス可能（例）
         const hour = new Date().getHours()
         return hour >= 9 && hour <= 18 // 9:00-18:00
@@ -194,19 +194,19 @@ export class AuthorizationEngine {
 // 認可デコレーター関数
 export const requireAuthorization = (
   permission: Permission,
-  getResourceInfo?: () => { type: ResourceType; id: string; ownerId?: string; metadata?: any }
+  getResourceInfo?: () => { type: ResourceType; id: string; ownerId?: string; metadata?: unknown }
 ) => {
-  return (target: any, propertyName: string, descriptor: PropertyDescriptor) => {
+  return (target: unknown, propertyName: string, descriptor: PropertyDescriptor) => {
     const method = descriptor.value
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       const authStore = useAuthStore()
       const engine = AuthorizationEngine.getInstance()
 
       const context: AuthorizationContext = {
         user: authStore.user,
         action: permission,
-        resource: getResourceInfo?.(),
+        resource: getResourceInfo?.() as { type: ResourceType; id: string; ownerId?: string; metadata?: Record<string, unknown> } | undefined,
         clientInfo: {
           timestamp: Date.now()
         }
@@ -232,12 +232,12 @@ export const useAuthorization = () => {
 
   const authorize = (
     permission: Permission,
-    resourceInfo?: { type: ResourceType; id: string; ownerId?: string; metadata?: any }
+    resourceInfo?: { type: ResourceType; id: string; ownerId?: string; metadata?: unknown }
   ): AuthorizationResult => {
     const context: AuthorizationContext = {
       user: authStore.user,
       action: permission,
-      resource: resourceInfo,
+      resource: resourceInfo as { type: ResourceType; id: string; ownerId?: string; metadata?: Record<string, unknown> } | undefined,
       clientInfo: {
         timestamp: Date.now()
       }
@@ -252,7 +252,7 @@ export const useAuthorization = () => {
 
   const checkResourceAccess = (
     permission: Permission,
-    resourceInfo: { type: ResourceType; id: string; ownerId?: string; metadata?: any }
+    resourceInfo: { type: ResourceType; id: string; ownerId?: string; metadata?: unknown }
   ): boolean => {
     return authorize(permission, resourceInfo).granted
   }

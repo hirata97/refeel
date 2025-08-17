@@ -156,7 +156,7 @@ const handleRegister = async () => {
         // ユーザー登録失敗をログに記録
         await logAuthAttempt(false, sanitizedEmail, result.error || 'registration_failed')
       }
-    } catch (innerErr) {
+    } catch {
       // 内部エラーをログに記録
       await logAuthAttempt(false, sanitizedEmail, 'inner_registration_error')
       authStore.setError('認証処理中にエラーが発生しました')

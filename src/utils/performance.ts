@@ -62,7 +62,7 @@ class PerformanceMonitor {
   // メモリ使用量取得
   private getMemoryUsage() {
     if ('memory' in performance) {
-      const memory = (performance as any).memory
+      const memory = (performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory
       return {
         used: memory.usedJSHeapSize,
         total: memory.totalJSHeapSize
@@ -107,11 +107,11 @@ class PerformanceMonitor {
 export const performanceMonitor = new PerformanceMonitor()
 
 // デコレータ関数（関数の実行時間を自動計測）
-export function measurePerformance<T extends (...args: any[]) => any>(
+export function measurePerformance<T extends (...args: unknown[]) => unknown>(
   target: T,
   label?: string
 ): T {
-  return ((...args: any[]) => {
+  return ((...args: unknown[]) => {
     const functionLabel = label || target.name || 'anonymous'
     performanceMonitor.start(functionLabel)
     
@@ -146,26 +146,26 @@ export function usePerformanceMonitor() {
 }
 
 // Debounce ユーティリティ
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): T {
   let timeout: ReturnType<typeof setTimeout>
   
-  return ((...args: any[]) => {
+  return ((...args: unknown[]) => {
     clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
   }) as T
 }
 
 // Throttle ユーティリティ
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): T {
   let inThrottle: boolean
   
-  return ((...args: any[]) => {
+  return ((...args: unknown[]) => {
     if (!inThrottle) {
       func(...args)
       inThrottle = true
@@ -175,7 +175,7 @@ export function throttle<T extends (...args: any[]) => any>(
 }
 
 // メモ化ユーティリティ
-export function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: unknown[]) => unknown>(
   func: T,
   getKey?: (...args: Parameters<T>) => string
 ): T & { cache: Map<string, ReturnType<T>>; clear: () => void } {
@@ -188,7 +188,7 @@ export function memoize<T extends (...args: any[]) => any>(
       return cache.get(key)!
     }
     
-    const result = func(...args)
+    const result = func(...args) as ReturnType<T>
     cache.set(key, result)
     return result
   }) as T & { cache: Map<string, ReturnType<T>>; clear: () => void }
@@ -222,7 +222,7 @@ export function monitorResourceUsage() {
     return null
   }
 
-  const memory = (performance as any).memory
+  const memory = (performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory
   const usage = {
     usedJSHeapSize: memory.usedJSHeapSize,
     totalJSHeapSize: memory.totalJSHeapSize,

@@ -17,10 +17,10 @@
 
 ## Git ワークフロー
 
-- **メインブランチ**: develop
+- **メインブランチ**: main
 - **フィーチャーブランチ**: `feature/機能名` or `issue/番号-説明`
 - **コミットメッセージ**: Conventional Commits形式
-- **PR**: developブランチに向けて作成
+- **PR**: mainブランチに向けて作成
 
 ## 重要な注意点
 

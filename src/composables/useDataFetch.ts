@@ -70,11 +70,11 @@ export function useDataFetch<T>(
   let throttledExecute = execute
 
   if (debounceMs > 0) {
-    debouncedExecute = debounce(execute, debounceMs)
+    debouncedExecute = debounce(execute as (...args: unknown[]) => unknown, debounceMs) as typeof execute
   }
 
   if (throttleMs > 0) {
-    throttledExecute = throttle(execute, throttleMs)
+    throttledExecute = throttle(execute as (...args: unknown[]) => unknown, throttleMs) as typeof execute
   }
 
   const finalExecute = debounceMs > 0 ? debouncedExecute : 

@@ -47,7 +47,7 @@ export interface AuditLogEntry {
   userId?: string
   userEmail?: string
   message: string
-  details?: Record<string, any>
+  details?: Record<string, unknown>
   resource?: {
     type: string
     id: string
@@ -58,7 +58,7 @@ export interface AuditLogEntry {
     userAgent?: string
     sessionId?: string
     requestId?: string
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
@@ -250,7 +250,7 @@ export class AuditLogger {
     level: AuditLevel,
     eventType: AuditEventType,
     message: string,
-    details?: Record<string, any>,
+    details?: Record<string, unknown>,
     resource?: { type: string; id: string; name?: string }
   ): Promise<void> {
     const authStore = useAuthStore()
@@ -283,7 +283,7 @@ export class AuditLogger {
   }
 
   // センシティブデータの暗号化
-  private async encryptSensitiveData(data: Record<string, any>): Promise<Record<string, any>> {
+  private async encryptSensitiveData(data: Record<string, unknown>): Promise<Record<string, unknown>> {
     const sensitiveFields = ['password', 'token', 'secret', 'key']
     const result = { ...data }
 
@@ -356,7 +356,7 @@ export class AuditLogger {
   async logSecurityEvent(
     eventType: AuditEventType,
     message: string,
-    details?: Record<string, any>
+    details?: Record<string, unknown>
   ): Promise<void> {
     await this.log(
       AuditLevel.CRITICAL,
@@ -379,7 +379,7 @@ export class AuditLogger {
 // 便利関数
 export const auditLog = AuditLogger.getInstance()
 
-export const logAuthEvent = (eventType: AuditEventType, message: string, details?: any) => {
+export const logAuthEvent = (eventType: AuditEventType, message: string, details?: Record<string, unknown>) => {
   const level = eventType.includes('failed') || eventType.includes('denied') 
     ? AuditLevel.WARNING 
     : AuditLevel.INFO
@@ -391,7 +391,7 @@ export const logDataOperation = (
   operation: 'create' | 'read' | 'update' | 'delete',
   resourceType: string,
   resourceId: string,
-  details?: any
+  details?: Record<string, unknown>
 ) => {
   const eventTypeMap = {
     create: AuditEventType.DATA_CREATE,
