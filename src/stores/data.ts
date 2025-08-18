@@ -341,6 +341,52 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
+  // IDで特定の日記を取得
+  const getDiaryById = async (id: string, userId: string): Promise<DiaryEntry | null> => {
+    try {
+      setLoading('getDiaryById', true)
+      setError('getDiaryById', null)
+
+      // まずローカル状態から探す
+      const localDiary = diaries.value.find(d => d.id === id && d.user_id === userId)
+      if (localDiary) {
+        return localDiary
+      }
+
+      // ローカルに見つからない場合はSupabaseから取得
+      const { data, error: fetchError } = await supabase
+        .from('diaries')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', userId)
+        .single()
+
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+          // レコードが見つからない場合
+          return null
+        }
+        throw fetchError
+      }
+
+      const diary = data as DiaryEntry
+
+      // ローカル状態に追加（重複チェック）
+      const existingIndex = diaries.value.findIndex(d => d.id === id)
+      if (existingIndex === -1) {
+        diaries.value.push(diary)
+      }
+
+      return diary
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '日記の取得に失敗しました'
+      setError('getDiaryById', errorMessage)
+      throw err
+    } finally {
+      setLoading('getDiaryById', false)
+    }
+  }
+
   // 日記の削除
   const deleteDiary = async (id: string, userId: string): Promise<void> => {
     try {
@@ -437,6 +483,7 @@ export const useDataStore = defineStore('data', () => {
     // データ取得
     fetchDiaries,
     fetchAccounts,
+    getDiaryById,
     
     // データ操作
     createDiary,

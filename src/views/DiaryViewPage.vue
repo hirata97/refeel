@@ -48,6 +48,13 @@
           @click="viewDiary(item)"
         />
         <v-btn
+          icon="mdi-pencil"
+          variant="text"
+          color="warning"
+          size="small"
+          @click="editDiary(item)"
+        />
+        <v-btn
           icon="mdi-delete"
           variant="text"
           color="error"
@@ -97,6 +104,13 @@
           </v-progress-linear>
         </v-card-text>
         <v-card-actions>
+          <v-btn 
+            variant="text" 
+            color="warning" 
+            @click="editDiary(selectedDiary)"
+          >
+            編集
+          </v-btn>
           <v-spacer />
           <v-btn variant="text" @click="showDetailDialog = false">閉じる</v-btn>
         </v-card-actions>
@@ -107,6 +121,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
 import { useDiaries } from '@/composables/useDataFetch'
@@ -114,6 +129,7 @@ import type { DiaryEntry } from '@/stores/data'
 import DiaryFilter from '@/components/DiaryFilter.vue'
 import PaginationComponent from '@/components/PaginationComponent.vue'
 
+const router = useRouter()
 const dataStore = useDataStore()
 const authStore = useAuthStore()
 
@@ -186,7 +202,7 @@ const headers = [
     key: 'actions',
     align: 'center' as const,
     sortable: false,
-    width: '120px',
+    width: '150px',
   },
 ]
 
@@ -205,6 +221,13 @@ const getProgressColor = (progress: number): string => {
 const viewDiary = (diary: DiaryEntry) => {
   selectedDiary.value = diary
   showDetailDialog.value = true
+}
+
+// 日記編集
+const editDiary = (diary: DiaryEntry) => {
+  if (!diary?.id) return
+  showDetailDialog.value = false
+  router.push(`/diaryedit/${diary.id}`)
 }
 
 // 削除処理
