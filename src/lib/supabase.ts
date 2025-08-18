@@ -1,5 +1,4 @@
 import { createClient } from '@supabase/supabase-js'
-import { CSRFProtection } from '@/utils/security'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseKey = import.meta.env.VITE_SUPABASE_KEY || ''
@@ -8,20 +7,20 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Supabase URL or Key is missing')
 }
 
-// CSRFトークンをヘッダーに追加するカスタムヘッダー関数
-const getCustomHeaders = () => {
-  const headers: Record<string, string> = {}
-  
-  // CSRFトークンをヘッダーに追加（一時的に無効化）
-  // const csrfHeaders = CSRFProtection.addTokenToHeaders()
-  // Object.assign(headers, csrfHeaders)
-  
-  // セキュリティヘッダーを追加
-  headers['X-Requested-With'] = 'XMLHttpRequest'
-  headers['Content-Type'] = 'application/json'
-  
-  return headers
-}
+// CSRFトークンをヘッダーに追加するカスタムヘッダー関数（現在未使用）
+// const getCustomHeaders = () => {
+//   const headers: Record<string, string> = {}
+//   
+//   // CSRFトークンをヘッダーに追加（一時的に無効化）
+//   // const csrfHeaders = CSRFProtection.addTokenToHeaders()
+//   // Object.assign(headers, csrfHeaders)
+//   
+//   // セキュリティヘッダーを追加
+//   headers['X-Requested-With'] = 'XMLHttpRequest'
+//   headers['Content-Type'] = 'application/json'
+//   
+//   return headers
+// }
 
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {

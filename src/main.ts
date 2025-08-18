@@ -9,7 +9,7 @@ import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
 import { initializeSecurity } from './utils/security'
-import { AuditLogger, AuditEventType, logAuthEvent } from './utils/audit-logger'
+// import { AuditLogger, AuditEventType, logAuthEvent } from './utils/audit-logger'
 
 const app = createApp(App)
 const pinia = createPinia()
