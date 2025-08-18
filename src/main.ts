@@ -8,6 +8,7 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
+import { initializeSecurity } from './utils/security'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -17,6 +18,9 @@ app
   .use(vuetify)
   .use(router) // Vue Router を登録
   .provide('supabase', supabase) // Supabase インスタンスを provide
+
+// セキュリティ機能の初期化
+initializeSecurity()
 
 // 認証ストアの初期化
 const authStore = useAuthStore()
