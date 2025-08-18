@@ -166,12 +166,15 @@ export const sanitizeFormData = {
     title: string
     content: string
     date: string
-    mood: number
+    mood: number | string
   }) => ({
     title: sanitizeText(data.title).slice(0, 100),
     content: normalizeLineBreaks(sanitizeText(data.content)).slice(0, 5000),
     date: sanitizeText(data.date),
-    mood: isFinite(data.mood) ? Math.max(1, Math.min(5, Math.round(data.mood))) : 1
+    mood: (() => {
+      const moodValue = typeof data.mood === 'string' ? parseFloat(data.mood) : data.mood
+      return isFinite(moodValue) ? Math.max(0, Math.min(100, Math.round(moodValue))) : 0
+    })()
   })
 }
 

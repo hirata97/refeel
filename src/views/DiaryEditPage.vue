@@ -13,28 +13,33 @@
       
       <v-form @submit.prevent="updateDiary" v-if="diary">
         <v-text-field 
-          v-bind="titleField" 
+          v-model="title"
+          :error-messages="titleError ? [titleError] : []"
+          @blur="validateField('title')"
           label="タイトル" 
           outlined 
           required 
         />
         <v-textarea 
-          v-bind="contentField" 
+          v-model="content"
+          :error-messages="contentError ? [contentError] : []"
+          @blur="validateField('content')"
           label="内容" 
           outlined 
           rows="5" 
           required 
         />
         <v-text-field 
-          v-bind="dateField" 
+          v-model="date"
+          :error-messages="dateError ? [dateError] : []"
+          @blur="validateField('date')"
           label="日付" 
           type="date" 
           outlined 
           required 
         />
         <v-slider 
-          :model-value="moodField.modelValue.value" 
-          @update:model-value="moodField['onUpdate:modelValue']" 
+          v-model="mood" 
           label="進捗レベル" 
           :min="0" 
           :max="100" 
@@ -87,7 +92,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDataStore } from '@/stores/data'
 import { usePerformanceMonitor } from '@/utils/performance'
-import { useDiaryValidation } from '@/composables/useValidation'
+import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 import type { DiaryEntry } from '@/stores/data'
 
 const router = useRouter()
@@ -96,15 +101,20 @@ const authStore = useAuthStore()
 const dataStore = useDataStore()
 const performance = usePerformanceMonitor()
 
-// バリデーション機能を使用
+// シンプルなフォーム管理を使用
 const { 
-  titleField, 
-  contentField, 
-  dateField, 
-  moodField, 
-  onSubmit, 
-  isSubmitting
-} = useDiaryValidation()
+  title,
+  content,
+  date,
+  mood,
+  titleError,
+  contentError,
+  dateError,
+  isSubmitting,
+  validateField,
+  handleSubmit,
+  setFormData
+} = useSimpleDiaryForm()
 
 // 状態管理
 const diary = ref<DiaryEntry | null>(null)
@@ -143,10 +153,12 @@ const loadDiary = async () => {
     diary.value = diaryData
     
     // フォームに既存データを設定
-    titleField.value.value = diaryData.title
-    contentField.value.value = diaryData.content
-    dateField.value.value = new Date(diaryData.created_at).toISOString().split('T')[0]
-    moodField.value.value = diaryData.progress_level || 0
+    setFormData({
+      title: diaryData.title,
+      content: diaryData.content,
+      date: new Date(diaryData.created_at).toISOString().split('T')[0],
+      mood: diaryData.progress_level || 0
+    })
     
     performance.end('load_diary_for_edit')
     
@@ -167,7 +179,7 @@ const updateDiary = async (): Promise<void> => {
 
   try {
     // バリデーションとサニタイゼーションを実行
-    const sanitizedData = await onSubmit()
+    const sanitizedData = await handleSubmit()
     if (!sanitizedData) return
 
     performance.start('update_diary')

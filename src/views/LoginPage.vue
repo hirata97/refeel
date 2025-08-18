@@ -16,7 +16,9 @@
 
       <v-text-field
         label="Email"
-        v-bind="emailField"
+        v-model="email"
+        :error-messages="emailError ? [emailError] : []"
+        @blur="validateField('email')"
         variant="outlined"
         class="mb-3"
         required
@@ -27,7 +29,9 @@
       <v-text-field
         label="Password"
         type="password"
-        v-bind="passwordField"
+        v-model="password"
+        :error-messages="passwordError ? [passwordError] : []"
+        @blur="validateField('password')"
         variant="outlined"
         class="mb-4"
         required
@@ -63,13 +67,21 @@ import { useAuthStore } from '@/stores/auth'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
-import { useLoginValidation } from '@/composables/useValidation'
+import { useSimpleLoginForm } from '@/composables/useSimpleForm'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-// バリデーション機能を使用
-const { emailField, passwordField, onSubmit, isSubmitting } = useLoginValidation()
+// シンプルなフォーム管理を使用
+const { 
+  email,
+  password,
+  emailError,
+  passwordError,
+  isSubmitting,
+  validateField,
+  handleSubmit
+} = useSimpleLoginForm()
 
 // 認証ストアからエラー状態とローディング状態を使用
 const showError = computed({
@@ -95,7 +107,7 @@ const handleLogin = async (isValid: boolean) => {
   
   try {
     // バリデーションとサニタイゼーションを実行
-    const sanitizedData = await onSubmit()
+    const sanitizedData = await handleSubmit()
     if (!sanitizedData) return
 
     // 追加のセキュリティ検証（XSSフレームワークによる）
