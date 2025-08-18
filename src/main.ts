@@ -9,7 +9,7 @@ import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
 import { initializeSecurity } from './utils/security'
-// import { AuditLogger, AuditEventType, logAuthEvent } from './utils/audit-logger'
+import { AuditLogger, AuditEventType, logAuthEvent } from './utils/audit-logger'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -26,8 +26,8 @@ initializeSecurity()
 // 認証ストアの初期化
 const authStore = useAuthStore()
 
-// 監査ログサービスの初期化（一時的に無効化）
-// const auditLogger = AuditLogger.getInstance()
+// 監査ログサービスの初期化
+const auditLogger = AuditLogger.getInstance()
 
 // 認証イベントリスナーを設定
 const authSubscription = authStore.setupAuthListener()
@@ -38,8 +38,8 @@ if (typeof authStore.startSessionMonitoring === 'function') {
   sessionMonitoringCleanup = authStore.startSessionMonitoring()
 }
 
-// アプリケーション開始をログに記録（一時的に無効化）
-// logAuthEvent(AuditEventType.SYSTEM_WARNING, 'アプリケーションが開始されました')
+// アプリケーション開始をログに記録
+logAuthEvent(AuditEventType.SYSTEM_WARNING, 'アプリケーションが開始されました')
 
 // アプリケーション終了時の処理
 window.addEventListener('beforeunload', () => {
@@ -51,14 +51,14 @@ window.addEventListener('beforeunload', () => {
     sessionMonitoringCleanup()
   }
   
-  // 監査ログサービスを終了（一時的に無効化）
-  // auditLogger.destroy()
+  // 監査ログサービスを終了
+  auditLogger.destroy()
   
-  // アプリケーション終了をログに記録（一時的に無効化）
-  // logAuthEvent(AuditEventType.SYSTEM_WARNING, 'アプリケーションが終了されました')
+  // アプリケーション終了をログに記録
+  logAuthEvent(AuditEventType.SYSTEM_WARNING, 'アプリケーションが終了されました')
 })
 
-// エラーハンドリング（一時的に無効化）
+// エラーハンドリング
 window.addEventListener('error', (event) => {
   console.error('JavaScriptエラー:', {
     message: event.message,
@@ -68,17 +68,17 @@ window.addEventListener('error', (event) => {
     stack: event.error?.stack
   })
   
-  // auditLogger.logSecurityEvent(
-  //   AuditEventType.SYSTEM_ERROR,
-  //   'JavaScriptエラーが発生しました',
-  //   {
-  //     message: event.message,
-  //     filename: event.filename,
-  //     lineno: event.lineno,
-  //     colno: event.colno,
-  //     stack: event.error?.stack
-  //   }
-  // )
+  auditLogger.logSecurityEvent(
+    AuditEventType.SYSTEM_ERROR,
+    'JavaScriptエラーが発生しました',
+    {
+      message: event.message,
+      filename: event.filename,
+      lineno: event.lineno,
+      colno: event.colno,
+      stack: event.error?.stack
+    }
+  )
 })
 
 // 認証状態を初期化してからアプリをマウント
