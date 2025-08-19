@@ -29,12 +29,14 @@
 - Vuetify（Material Design）
 - Chart.js（データ可視化）
 - Pinia（状態管理）
+- セキュリティ機能（XSS対策、CSRF対策、セキュリティヘッダー、VeeValidate + DOMPurify）
 - Vercel自動デプロイ
 
 ## 📚 ドキュメント構成
 
 ### 開発関連
 - **🛠️ 開発コマンド**: [docs/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT_COMMANDS.md)
+- **🔄 開発ワークフロー**: [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)
 - **🏗️ アーキテクチャ**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **📝 コーディング規則**: [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
 
@@ -42,6 +44,12 @@
 - **⚙️ 環境設定**: [docs/ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md)
 - **🔐 Supabase認証設定**: [docs/SUPABASE_QUICK_SETUP.md](docs/SUPABASE_QUICK_SETUP.md)
 - **📖 認証システム詳細**: [docs/SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md)
+
+### セキュリティ
+- **🛡️ セキュリティガイドライン**: [docs/SECURITY.md](docs/SECURITY.md) - ポリシーと概要
+- **🔧 セキュリティ開発ガイド**: [docs/SECURITY_DEVELOPMENT.md](docs/SECURITY_DEVELOPMENT.md) - 実践的な開発手順
+- **📖 セキュリティ実装詳細**: [docs/SECURITY_IMPLEMENTATION.md](docs/SECURITY_IMPLEMENTATION.md) - 技術的詳細
+- **🔍 セキュリティトラブルシューティング**: [docs/SECURITY_TROUBLESHOOTING.md](docs/SECURITY_TROUBLESHOOTING.md) - 問題解決ガイド
 
 ### プロジェクト管理
 - **🏷️ Issue ラベル体系**: [docs/ISSUE_LABELS.md](docs/ISSUE_LABELS.md)
@@ -79,6 +87,7 @@ npm run create-pr "タイトル" "説明"
 - **TypeScript**: 型エラーは必ず解決してからコミット
 - **テスト**: `npm run lint`, `npm run type-check` を実行してからPR作成
 - **認証**: Supabase環境変数の設定確認が必要
+- **セキュリティ**: 入力値検証・サニタイゼーションの実装必須
 - **Issue管理**: 適切なラベル（priority、size、type）を付与
 
 ## 🔗 関連リンク
@@ -93,3 +102,7 @@ npm run create-pr "タイトル" "説明"
 - 2025-08-17: ドキュメント構造化・分割実施
 - 2025-08-17: Issue #2 認証ロジック実装完了
 - 2025-08-17: Issue #76 データ取得とキャッシング戦略実装完了
+- 2025-08-17: Issue #71 XSS対策とセキュリティヘッダー実装完了
+- 2025-08-17: Issue #72 入力値検証とサニタイゼーション実装完了
+- 2025-08-17: セキュリティドキュメント構造化・実践ガイド追加
+- 2025-08-17: 開発ワークフロードキュメント追加

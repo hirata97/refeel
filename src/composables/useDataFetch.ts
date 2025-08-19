@@ -70,11 +70,11 @@ export function useDataFetch<T>(
   let throttledExecute = execute
 
   if (debounceMs > 0) {
-    debouncedExecute = debounce(execute, debounceMs)
+    debouncedExecute = debounce(execute as (...args: unknown[]) => unknown, debounceMs) as typeof execute
   }
 
   if (throttleMs > 0) {
-    throttledExecute = throttle(execute, throttleMs)
+    throttledExecute = throttle(execute as (...args: unknown[]) => unknown, throttleMs) as typeof execute
   }
 
   const finalExecute = debounceMs > 0 ? debouncedExecute : 
@@ -105,10 +105,57 @@ export function useDataFetch<T>(
   }
 }
 
-// 日記データ専用フック
+// 日記データ専用フック（サーバーサイドページネーション対応）
 export function useDiaries(options: FetchOptions = {}) {
   const dataStore = useDataStore()
   const authStore = useAuthStore()
+
+  // サーバーサイドページネーション状態
+  const serverPagination = ref({
+    page: 1,
+    pageSize: 10,
+    total: 0,
+    totalPages: 0
+  })
+
+  // フィルタリング機能
+  const filter = ref({
+    goal_category: '',
+    date_from: '',
+    date_to: '',
+    search_text: '',
+    progress_level_min: null as number | null,
+    progress_level_max: null as number | null
+  })
+
+  // サーバーサイドでページ付きデータを取得
+  const fetchPaginatedDiaries = async (page = 1, forceRefresh = false) => {
+    if (!authStore.user?.id) {
+      throw new Error('ユーザーが認証されていません')
+    }
+
+    const paginationParams = {
+      page,
+      pageSize: serverPagination.value.pageSize,
+      filters: Object.fromEntries(
+        Object.entries(filter.value).filter(([, value]) => 
+          value !== null && value !== undefined && value !== ''
+        )
+      )
+    }
+
+    const result = await dataStore.fetchDiaries(
+      authStore.user.id, 
+      forceRefresh, 
+      paginationParams
+    )
+
+    serverPagination.value.page = page
+    serverPagination.value.total = result.count
+    serverPagination.value.totalPages = result.totalPages
+
+    return result.data
+  }
 
   const {
     data: diaries,
@@ -119,113 +166,94 @@ export function useDiaries(options: FetchOptions = {}) {
     isStale,
     hasData
   } = useDataFetch(
-    async () => {
-      if (!authStore.user?.id) {
-        throw new Error('ユーザーが認証されていません')
-      }
-      return await dataStore.fetchDiaries(authStore.user.id, options.refresh)
-    },
-    'diaries',
+    () => fetchPaginatedDiaries(serverPagination.value.page, options.refresh),
+    'diaries_paginated',
     options
   )
 
-  // フィルタリング機能
-  const filteredDiaries = ref<DiaryEntry[]>([])
-  const filter = ref({
-    category: '',
-    dateRange: { start: '', end: '' },
-    searchText: ''
-  })
-
-  // フィルター適用
-  const applyFilters = () => {
-    if (!diaries.value) return
-
-    let filtered = [...diaries.value]
-
-    // カテゴリフィルター
-    if (filter.value.category) {
-      filtered = filtered.filter(d => d.goal_category === filter.value.category)
-    }
-
-    // 日付範囲フィルター
-    if (filter.value.dateRange.start) {
-      const startDate = new Date(filter.value.dateRange.start)
-      filtered = filtered.filter(d => new Date(d.created_at) >= startDate)
-    }
-
-    if (filter.value.dateRange.end) {
-      const endDate = new Date(filter.value.dateRange.end)
-      filtered = filtered.filter(d => new Date(d.created_at) <= endDate)
-    }
-
-    // テキスト検索
-    if (filter.value.searchText) {
-      const searchLower = filter.value.searchText.toLowerCase()
-      filtered = filtered.filter(d => 
-        d.title.toLowerCase().includes(searchLower) ||
-        d.content.toLowerCase().includes(searchLower)
-      )
-    }
-
-    filteredDiaries.value = filtered
+  // ページ変更
+  const changePage = async (page: number) => {
+    serverPagination.value.page = page
+    await execute(true)
   }
 
-  // フィルター変更監視
-  watch([() => diaries.value, filter], applyFilters, { deep: true, immediate: true })
+  // ページサイズ変更
+  const changePageSize = async (pageSize: number) => {
+    serverPagination.value.pageSize = pageSize
+    serverPagination.value.page = 1
+    await execute(true)
+  }
 
-  // ページネーション
-  const pagination = ref({
-    page: 1,
-    pageSize: 10,
-    total: computed(() => filteredDiaries.value.length)
-  })
+  // フィルター適用
+  const applyFilters = async () => {
+    serverPagination.value.page = 1
+    await execute(true)
+  }
 
-  const paginatedDiaries = computed(() => {
-    const start = (pagination.value.page - 1) * pagination.value.pageSize
-    const end = start + pagination.value.pageSize
-    return filteredDiaries.value.slice(start, end)
-  })
+  // フィルタークリア
+  const clearFilters = async () => {
+    filter.value = {
+      goal_category: '',
+      date_from: '',
+      date_to: '',
+      search_text: '',
+      progress_level_min: null,
+      progress_level_max: null
+    }
+    await applyFilters()
+  }
 
-  // カテゴリ統計
-  const categoryStats = computed(() => {
-    if (!diaries.value) return {}
-    
-    const stats: Record<string, { count: number; avgProgress: number }> = {}
-    
-    diaries.value.forEach((diary: DiaryEntry) => {
-      if (!stats[diary.goal_category]) {
-        stats[diary.goal_category] = { count: 0, avgProgress: 0 }
-      }
-      stats[diary.goal_category].count++
-      stats[diary.goal_category].avgProgress += diary.progress_level
-    })
+  // カテゴリ統計（全データから計算）
+  const categoryStats = ref<Record<string, { count: number; avgProgress: number }>>({})
+  
+  const fetchCategoryStats = async () => {
+    if (!authStore.user?.id) return
 
-    // 平均値計算
-    Object.keys(stats).forEach(category => {
-      stats[category].avgProgress /= stats[category].count
-    })
+    try {
+      const allData = await dataStore.fetchDiaries(authStore.user.id, false)
+      const stats: Record<string, { count: number; avgProgress: number }> = {}
+      
+      allData.data.forEach((diary: DiaryEntry) => {
+        if (!stats[diary.goal_category]) {
+          stats[diary.goal_category] = { count: 0, avgProgress: 0 }
+        }
+        stats[diary.goal_category].count++
+        stats[diary.goal_category].avgProgress += diary.progress_level
+      })
 
-    return stats
-  })
+      // 平均値計算
+      Object.keys(stats).forEach(category => {
+        stats[category].avgProgress /= stats[category].count
+      })
+
+      categoryStats.value = stats
+    } catch (error) {
+      console.error('カテゴリ統計の取得に失敗:', error)
+    }
+  }
+
+  // 初期統計データ取得
+  fetchCategoryStats()
 
   return {
     // データ
-    diaries: paginatedDiaries,
-    allDiaries: diaries.value,
+    diaries,
     loading,
     error,
     
     // フィルタリング
     filter,
-    filteredDiaries,
     applyFilters,
+    clearFilters,
     
-    // ページネーション
-    pagination,
+    // サーバーサイドページネーション
+    pagination: serverPagination,
+    changePage,
+    changePageSize,
     
     // 統計
     categoryStats,
+    fetchCategoryStats,
     
     // アクション
     execute,

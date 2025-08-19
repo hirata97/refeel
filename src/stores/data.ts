@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
+import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
 
 // データ型定義
 export interface DiaryEntry {
@@ -107,16 +108,22 @@ export const useDataStore = defineStore('data', () => {
     error.value = { ...error.value, [key]: errorMessage }
   }
 
-  // 日記データの取得
-  const fetchDiaries = async (userId: string, forceRefresh = false): Promise<DiaryEntry[]> => {
-    const cacheKey = getCacheKey('diaries', userId)
+  // 日記データの取得（サーバーサイドページネーション対応）
+  const fetchDiaries = async (
+    userId: string, 
+    forceRefresh = false,
+    pagination?: { page: number; pageSize: number; filters?: Record<string, string | number | null> }
+  ): Promise<{ data: DiaryEntry[]; count: number; totalPages: number }> => {
+    const cacheKey = pagination 
+      ? `${getCacheKey('diaries', userId)}_p${pagination.page}_s${pagination.pageSize}_${JSON.stringify(pagination.filters || {})}`
+      : getCacheKey('diaries', userId)
     
-    // キャッシュチェック
-    if (!forceRefresh) {
+    // キャッシュチェック（ページネーション使用時は個別キャッシュ）
+    if (!forceRefresh && !pagination) {
       const cachedData = getCache<DiaryEntry[]>(cacheKey)
       if (cachedData) {
         diaries.value = cachedData
-        return cachedData
+        return { data: cachedData, count: cachedData.length, totalPages: 1 }
       }
     }
 
@@ -124,21 +131,65 @@ export const useDataStore = defineStore('data', () => {
       setLoading('diaries', true)
       setError('diaries', null)
 
-      const { data, error: fetchError } = await supabase
+      let query = supabase
         .from('diaries')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+
+      // フィルター適用
+      if (pagination?.filters) {
+        Object.entries(pagination.filters).forEach(([key, value]) => {
+          if (value !== null && value !== undefined && value !== '') {
+            switch (key) {
+              case 'goal_category':
+                query = query.eq('goal_category', value)
+                break
+              case 'progress_level_min':
+                query = query.gte('progress_level', value)
+                break
+              case 'progress_level_max':
+                query = query.lte('progress_level', value)
+                break
+              case 'date_from':
+                query = query.gte('created_at', value)
+                break
+              case 'date_to':
+                query = query.lte('created_at', value)
+                break
+              case 'search_text':
+                query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`)
+                break
+            }
+          }
+        })
+      }
+
+      // ソート
+      query = query.order('created_at', { ascending: false })
+
+      // ページネーション適用
+      if (pagination) {
+        const offset = (pagination.page - 1) * pagination.pageSize
+        query = query.range(offset, offset + pagination.pageSize - 1)
+      }
+
+      const { data, error: fetchError, count } = await query
 
       if (fetchError) {
         throw fetchError
       }
 
       const diaryData = data || []
-      diaries.value = diaryData
-      setCache(cacheKey, diaryData)
+      const totalCount = count || 0
+      const totalPages = pagination ? Math.ceil(totalCount / pagination.pageSize) : 1
 
-      return diaryData
+      // 全件取得の場合のみ状態を更新
+      if (!pagination) {
+        diaries.value = diaryData
+        setCache(cacheKey, diaryData)
+      }
+
+      return { data: diaryData, count: totalCount, totalPages }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '日記データの取得に失敗しました'
       setError('diaries', errorMessage)
@@ -193,9 +244,24 @@ export const useDataStore = defineStore('data', () => {
       setLoading('createDiary', true)
       setError('createDiary', null)
 
+      // セキュリティチェックを実行
+      const titleCheck = performSecurityCheck(diaryData.title)
+      const contentCheck = performSecurityCheck(diaryData.content)
+
+      if (!titleCheck.isSecure) {
+        throw new Error(`タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`)
+      }
+
+      if (!contentCheck.isSecure) {
+        throw new Error(`内容に不正な内容が含まれています: ${contentCheck.threats.join(', ')}`)
+      }
+
+      // データをサニタイズ
+      const sanitizedData = sanitizeInputData(diaryData) as Omit<DiaryEntry, 'id' | 'created_at' | 'updated_at'>
+
       const { data, error: insertError } = await supabase
         .from('diaries')
-        .insert([diaryData])
+        .insert([sanitizedData])
         .select()
         .single()
 
@@ -226,9 +292,27 @@ export const useDataStore = defineStore('data', () => {
       setLoading('updateDiary', true)
       setError('updateDiary', null)
 
+      // 更新データのセキュリティチェック
+      if (updates.title) {
+        const titleCheck = performSecurityCheck(updates.title)
+        if (!titleCheck.isSecure) {
+          throw new Error(`タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`)
+        }
+      }
+
+      if (updates.content) {
+        const contentCheck = performSecurityCheck(updates.content)
+        if (!contentCheck.isSecure) {
+          throw new Error(`内容に不正な内容が含まれています: ${contentCheck.threats.join(', ')}`)
+        }
+      }
+
+      // データをサニタイズ
+      const sanitizedUpdates = sanitizeInputData(updates) as Partial<DiaryEntry>
+
       const { data, error: updateError } = await supabase
         .from('diaries')
-        .update(updates)
+        .update(sanitizedUpdates)
         .eq('id', id)
         .select()
         .single()
@@ -254,6 +338,52 @@ export const useDataStore = defineStore('data', () => {
       throw err
     } finally {
       setLoading('updateDiary', false)
+    }
+  }
+
+  // IDで特定の日記を取得
+  const getDiaryById = async (id: string, userId: string): Promise<DiaryEntry | null> => {
+    try {
+      setLoading('getDiaryById', true)
+      setError('getDiaryById', null)
+
+      // まずローカル状態から探す
+      const localDiary = diaries.value.find(d => d.id === id && d.user_id === userId)
+      if (localDiary) {
+        return localDiary
+      }
+
+      // ローカルに見つからない場合はSupabaseから取得
+      const { data, error: fetchError } = await supabase
+        .from('diaries')
+        .select('*')
+        .eq('id', id)
+        .eq('user_id', userId)
+        .single()
+
+      if (fetchError) {
+        if (fetchError.code === 'PGRST116') {
+          // レコードが見つからない場合
+          return null
+        }
+        throw fetchError
+      }
+
+      const diary = data as DiaryEntry
+
+      // ローカル状態に追加（重複チェック）
+      const existingIndex = diaries.value.findIndex(d => d.id === id)
+      if (existingIndex === -1) {
+        diaries.value.push(diary)
+      }
+
+      return diary
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '日記の取得に失敗しました'
+      setError('getDiaryById', errorMessage)
+      throw err
+    } finally {
+      setLoading('getDiaryById', false)
     }
   }
 
@@ -353,6 +483,7 @@ export const useDataStore = defineStore('data', () => {
     // データ取得
     fetchDiaries,
     fetchAccounts,
+    getDiaryById,
     
     // データ操作
     createDiary,

@@ -17,10 +17,11 @@
       <v-text-field
         label="Email"
         v-model="email"
+        :error-messages="emailError ? [emailError] : []"
+        @blur="validateField('email')"
         variant="outlined"
         class="mb-3"
         required
-        :rules="[(v) => !!v || 'Email is required']"
         aria-label="Enter your email"
         autofocus
       />
@@ -29,17 +30,18 @@
         label="Password"
         type="password"
         v-model="password"
+        :error-messages="passwordError ? [passwordError] : []"
+        @blur="validateField('password')"
         variant="outlined"
         class="mb-4"
         required
-        :rules="[(v) => !!v || 'Password is required']"
         aria-label="Enter your password"
       />
     </template>
 
     <template #actions>
       <BaseButton
-        :loading="authStore.loading"
+        :loading="authStore.loading || isSubmitting"
         type="submit"
         color="primary"
         block
@@ -59,16 +61,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
+import { InputValidation, XSSProtection } from '@/utils/security'
+import { logAuthAttempt } from '@/utils/auth'
+import { useSimpleLoginForm } from '@/composables/useSimpleForm'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const email = ref('')
-const password = ref('')
+// シンプルなフォーム管理を使用
+const { 
+  email,
+  password,
+  emailError,
+  passwordError,
+  isSubmitting,
+  validateField,
+  handleSubmit
+} = useSimpleLoginForm()
 
 // 認証ストアからエラー状態とローディング状態を使用
 const showError = computed({
@@ -90,22 +103,42 @@ onMounted(() => {
 const handleLogin = async (isValid: boolean) => {
   if (!isValid) return
 
-  const emailTrim = email.value.trim()
-  const passwordTrim = password.value.trim()
+  let sanitizedEmail = 'unknown'
+  
+  try {
+    // バリデーションとサニタイゼーションを実行
+    const sanitizedData = await handleSubmit()
+    if (!sanitizedData) return
 
-  if (!emailTrim || !passwordTrim) {
-    authStore.setError('メールアドレスとパスワードを入力してください')
-    return
+    // 追加のセキュリティ検証（XSSフレームワークによる）
+    sanitizedEmail = XSSProtection.sanitizeText(sanitizedData.email)
+    
+    // メールアドレス形式の検証
+    if (!InputValidation.isValidEmail(sanitizedEmail)) {
+      authStore.setError('有効なメールアドレスを入力してください')
+      await logAuthAttempt(false, sanitizedEmail, 'invalid_email_format')
+      return
+    }
+
+    const result = await authStore.signIn(sanitizedData.email, sanitizedData.password)
+
+    if (result.success) {
+      // ログイン成功をログに記録
+      await logAuthAttempt(true, sanitizedEmail)
+      
+      // ログイン成功時は認証ストアが自動的に状態を更新する
+      // ダッシュボードにリダイレクト
+      router.push('/dashboard')
+    } else {
+      // ログイン失敗をログに記録
+      await logAuthAttempt(false, sanitizedEmail, result.error || 'login_failed')
+    }
+    // エラーの場合は認証ストアが自動的にエラー状態を設定する
+  } catch {
+    // 予期しないエラーをログに記録
+    await logAuthAttempt(false, sanitizedEmail, 'unexpected_error')
+    authStore.setError('ログイン処理中にエラーが発生しました')
   }
-
-  const result = await authStore.signIn(emailTrim, passwordTrim)
-
-  if (result.success) {
-    // ログイン成功時は認証ストアが自動的に状態を更新する
-    // ダッシュボードにリダイレクト
-    router.push('/dashboard')
-  }
-  // エラーの場合は認証ストアが自動的にエラー状態を設定する
 }
 
 // 登録ページからトップページに遷移

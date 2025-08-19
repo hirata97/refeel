@@ -21,6 +21,25 @@ npm run test:unit
 # E2Eテスト（初回のみブラウザインストール）
 npx playwright install
 npm run test:e2e
+
+# 型チェック
+npm run type-check
+```
+
+## セキュリティ関連コマンド
+
+```bash
+# セキュリティチェック（推奨）
+npm run lint && npm run type-check
+
+# 特定ファイルのバリデーション・サニタイゼーション確認
+npx eslint src/utils/validation.ts src/utils/sanitization.ts
+
+# 依存関係の脆弱性チェック
+npm audit
+
+# 脆弱性自動修正（注意して実行）
+npm audit fix
 ```
 
 ## 🚀 自動Issue実装システム

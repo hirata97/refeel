@@ -34,6 +34,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import type { ChartData } from 'chart.js'
 import { supabase } from '@/lib/supabase'
 
 // Chart.jsコンポーネントの登録
@@ -42,12 +43,12 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 const router = useRouter()
 
 // チャートデータの初期状態
-const chartData = ref({
-  labels: [],
+const chartData = ref<ChartData<'line', number[], string>>({
+  labels: [] as string[],
   datasets: [
     {
       label: '気分スコア',
-      data: [],
+      data: [] as number[],
       borderColor: '#4CAF50',
       tension: 0.1,
     },

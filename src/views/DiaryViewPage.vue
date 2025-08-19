@@ -2,55 +2,148 @@
   <v-container class="diary-view-page">
     <v-typography variant="h4" class="mb-4">日記一覧</v-typography>
 
-    <v-tabs v-model="selectedTab" class="mb-4">
-      <v-tab v-for="month in availableMonths" :key="month" :value="month">
-        {{ formatMonthTab(month) }}
-      </v-tab>
-    </v-tabs>
+    <!-- フィルターコンポーネント -->
+    <DiaryFilter
+      :filters="filter"
+      :categories="availableCategories"
+      :loading="loading"
+      @update:filters="filter = $event"
+      @apply-filters="applyFilters"
+      @clear-filters="clearFilters"
+    />
 
-    <v-window v-model="selectedTab">
-      <v-window-item v-for="month in availableMonths" :key="month" :value="month">
-        <v-data-table :headers="headers" :items="getFilteredDiaries(month)" class="mb-4" hover :loading="loading">
-          <template #[`item.date`]="{ item }">
-            {{ formatDate(item.date) }}
-          </template>
-          <template #[`item.actions`]="{ item }">
-            <v-btn
-              icon="mdi-delete"
-              variant="text"
-              color="error"
-              @click="handleDeleteDiary(item)"
-              :loading="isDeleting"
-            />
-          </template>
-        </v-data-table>
-      </v-window-item>
-    </v-window>
+    <!-- データテーブル -->
+    <v-data-table 
+      :headers="headers" 
+      :items="diaries || []" 
+      :loading="loading"
+      hover
+      class="mb-4"
+      hide-default-footer
+    >
+      <template #[`item.created_at`]="{ item }">
+        {{ formatDate(item.created_at) }}
+      </template>
+      <template #[`item.goal_category`]="{ item }">
+        <v-chip size="small" color="primary" variant="outlined">
+          {{ item.goal_category }}
+        </v-chip>
+      </template>
+      <template #[`item.progress_level`]="{ item }">
+        <v-progress-linear
+          :model-value="item.progress_level"
+          height="20"
+          :color="getProgressColor(item.progress_level)"
+          class="progress-bar"
+        >
+          <strong>{{ item.progress_level }}%</strong>
+        </v-progress-linear>
+      </template>
+      <template #[`item.actions`]="{ item }">
+        <v-btn
+          icon="mdi-eye"
+          variant="text"
+          color="primary"
+          size="small"
+          @click="viewDiary(item)"
+        />
+        <v-btn
+          icon="mdi-pencil"
+          variant="text"
+          color="warning"
+          size="small"
+          @click="editDiary(item)"
+        />
+        <v-btn
+          icon="mdi-delete"
+          variant="text"
+          color="error"
+          size="small"
+          @click="handleDeleteDiary(item)"
+          :loading="isDeleting"
+        />
+      </template>
+      
+      <!-- 空の状態 -->
+      <template #no-data>
+        <div class="no-data">
+          <v-icon size="48" color="grey">mdi-notebook-outline</v-icon>
+          <p>該当する日記が見つかりません</p>
+          <v-btn color="primary" @click="clearFilters">フィルターをクリア</v-btn>
+        </div>
+      </template>
+    </v-data-table>
+
+    <!-- ページネーション -->
+    <PaginationComponent
+      :page="pagination.page"
+      :page-size="pagination.pageSize"
+      :total="pagination.total"
+      :total-pages="pagination.totalPages"
+      :loading="loading"
+      @update:page="changePage"
+      @update:page-size="changePageSize"
+    />
+
+    <!-- 詳細ダイアログ -->
+    <v-dialog v-model="showDetailDialog" max-width="600">
+      <v-card v-if="selectedDiary">
+        <v-card-title>{{ selectedDiary.title }}</v-card-title>
+        <v-card-subtitle>
+          {{ formatDate(selectedDiary.created_at) }} | {{ selectedDiary.goal_category }}
+        </v-card-subtitle>
+        <v-card-text>
+          <div class="diary-content">{{ selectedDiary.content }}</div>
+          <v-progress-linear
+            :model-value="selectedDiary.progress_level"
+            height="20"
+            :color="getProgressColor(selectedDiary.progress_level)"
+            class="mt-4"
+          >
+            <strong>進捗: {{ selectedDiary.progress_level }}%</strong>
+          </v-progress-linear>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn 
+            variant="text" 
+            color="warning" 
+            @click="editDiary(selectedDiary)"
+          >
+            編集
+          </v-btn>
+          <v-spacer />
+          <v-btn variant="text" @click="showDetailDialog = false">閉じる</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
 import { useDiaries } from '@/composables/useDataFetch'
-import { usePerformanceMonitor } from '@/utils/performance'
+import type { DiaryEntry } from '@/stores/data'
+import DiaryFilter from '@/components/DiaryFilter.vue'
+import PaginationComponent from '@/components/PaginationComponent.vue'
 
-interface Diary {
-  id?: string
-  date: string
-  title: string
-  content: string
-}
-
+const router = useRouter()
 const dataStore = useDataStore()
 const authStore = useAuthStore()
-const performance = usePerformanceMonitor()
 
-// 最適化されたデータ取得
+// サーバーサイドページネーション対応のデータ取得
 const {
-  diaries: optimizedDiaries,
+  diaries,
   loading,
+  filter,
+  pagination,
+  changePage,
+  changePageSize,
+  applyFilters,
+  clearFilters,
+  categoryStats,
   refresh
 } = useDiaries({
   immediate: true,
@@ -58,121 +151,147 @@ const {
   debounceMs: 300
 })
 
+// UI状態
 const isDeleting = ref(false)
-const selectedTab = ref('')
+const showDetailDialog = ref(false)
+const selectedDiary = ref<DiaryEntry | null>(null)
 
-// メモ化された計算プロパティ
-const availableMonths = computed(() => {
-  if (!optimizedDiaries.value) return []
-  
-  const months = new Set<string>()
-  optimizedDiaries.value.forEach(diary => {
-    const date = new Date(diary.created_at)
-    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    months.add(monthKey)
-  })
-  
-  return Array.from(months).sort().reverse()
+// 利用可能なカテゴリ（統計から取得）
+const availableCategories = computed(() => {
+  return Object.keys(categoryStats.value)
 })
 
-// レガシー互換性のためのdiaries参照
-const diaries = computed(() => {
-  return optimizedDiaries.value?.map(diary => ({
-    id: diary.id,
-    date: diary.created_at,
-    title: diary.title,
-    content: diary.content
-  })) || []
-})
-
+// テーブルヘッダー
 const headers = [
   {
-    title: '日付',
-    key: 'date',
+    title: '作成日',
+    key: 'created_at',
     align: 'start' as const,
-    sortable: true,
+    sortable: false,
     width: '120px',
   },
   {
     title: 'タイトル',
     key: 'title',
     align: 'start' as const,
-    sortable: true,
+    sortable: false,
     width: '200px',
+  },
+  {
+    title: 'カテゴリ',
+    key: 'goal_category',
+    align: 'start' as const,
+    sortable: false,
+    width: '150px',
+  },
+  {
+    title: '進捗',
+    key: 'progress_level',
+    align: 'center' as const,
+    sortable: false,
+    width: '120px',
   },
   {
     title: '内容',
     key: 'content',
     align: 'start' as const,
-    sortable: true,
+    sortable: false,
   },
   {
-    title: '削除',
+    title: '操作',
     key: 'actions',
     align: 'center' as const,
     sortable: false,
-    width: '100px',
+    width: '150px',
   },
 ]
 
+// ユーティリティ関数
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP')
 }
 
-// 月表示用のフォーマット関数
-const formatMonthTab = (monthStr: string): string => {
-  const date = new Date(monthStr + '-01')
-  return new Intl.DateTimeFormat('ja-JP', { year: 'numeric', month: 'long' }).format(date)
+const getProgressColor = (progress: number): string => {
+  if (progress >= 80) return 'success'
+  if (progress >= 50) return 'warning'
+  return 'error'
 }
 
-// 最適化されたフィルタリング（メモ化）
-const getFilteredDiaries = (month: string) => {
-  performance.start('filter_diaries')
-  const filtered = diaries.value.filter((diary) => diary.date.startsWith(month))
-  performance.end('filter_diaries')
-  return filtered
+// 日記詳細表示
+const viewDiary = (diary: DiaryEntry) => {
+  selectedDiary.value = diary
+  showDetailDialog.value = true
 }
 
-// 自動タブ選択（新しいデータが読み込まれた時のみ実行）
-const updateSelectedTab = () => {
-  if (availableMonths.value.length > 0 && !selectedTab.value) {
-    selectedTab.value = availableMonths.value[0]
-  }
+// 日記編集
+const editDiary = (diary: DiaryEntry) => {
+  if (!diary?.id) return
+  showDetailDialog.value = false
+  router.push(`/diaryedit/${diary.id}`)
 }
 
-// レガシー関数は削除（新しいuseDiariesフックを使用）
-
-// 最適化された削除処理
-const handleDeleteDiary = async (item: Diary) => {
+// 削除処理
+const handleDeleteDiary = async (item: DiaryEntry) => {
   if (!item?.id || isDeleting.value || !authStore.user?.id) return
 
   if (!confirm('本当にこの日記を削除しますか？')) return
 
   try {
     isDeleting.value = true
-    performance.start('delete_diary')
     
     await dataStore.deleteDiary(item.id, authStore.user.id)
     
-    // データ再取得（キャッシュ無効化も含む）
+    // データ再取得
     await refresh()
     
-    performance.end('delete_diary')
   } catch (error) {
     console.error('日記削除エラー:', error)
   } finally {
     isDeleting.value = false
   }
 }
-
-// 初期化時にタブ選択を更新
-onMounted(() => {
-  updateSelectedTab()
-})
 </script>
 
 <style scoped>
 .diary-view-page {
   padding: 24px;
+}
+
+.progress-bar {
+  border-radius: 4px;
+}
+
+.no-data {
+  text-align: center;
+  padding: 48px 24px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+}
+
+.no-data p {
+  margin: 16px 0;
+  font-size: 1.1rem;
+}
+
+.diary-content {
+  white-space: pre-wrap;
+  line-height: 1.6;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: rgba(var(--v-theme-surface), 0.5);
+  border-radius: 4px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .diary-view-page {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .diary-view-page {
+    padding: 12px;
+  }
 }
 </style>

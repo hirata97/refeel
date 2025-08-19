@@ -54,10 +54,10 @@ export class XSSProtection {
   }
 
   /**
-   * URLs のサニタイゼーション
+   * URLの検証とサニタイゼーション
    */
-  static sanitizeURL(url: string): string {
-    if (!url || typeof url !== 'string') return ''
+  static sanitizeURL(url: string): string | null {
+    if (!url || typeof url !== 'string') return null
     
     try {
       const urlObj = new URL(url)
@@ -65,12 +65,17 @@ export class XSSProtection {
       const allowedProtocols = ['http:', 'https:', 'mailto:']
       
       if (!allowedProtocols.includes(urlObj.protocol)) {
-        return ''
+        return null
+      }
+
+      // javascript:やdata:などの危険なプロトコルを除外
+      if (urlObj.protocol === 'javascript:' || urlObj.protocol === 'data:') {
+        return null
       }
       
       return urlObj.toString()
     } catch {
-      return ''
+      return null
     }
   }
 
@@ -126,6 +131,8 @@ export class XSSProtection {
  */
 export class CSRFProtection {
   private static tokenStorage = new Map<string, CSRFToken>()
+  private static readonly TOKEN_KEY = 'csrf_token'
+  private static readonly HEADER_NAME = 'X-CSRF-Token'
 
   /**
    * CSRFトークンの生成
@@ -154,15 +161,45 @@ export class CSRFProtection {
   }
 
   /**
-   * HTTPヘッダーにCSRFトークンを追加
+   * CSRFトークンをセッションストレージに保存
    */
-  static addTokenToHeaders(): Record<string, string> {
-    const token = this.generateToken()
-    const config = securityConfig.getConfig()
-    
-    return {
-      [config.csrf.tokenName]: token.token
+  static storeToken(token: string): void {
+    sessionStorage.setItem(this.TOKEN_KEY, token)
+  }
+
+  /**
+   * セッションストレージからCSRFトークンを取得
+   */
+  static getToken(): string | null {
+    return sessionStorage.getItem(this.TOKEN_KEY)
+  }
+
+  /**
+   * CSRFトークンを削除
+   */
+  static removeToken(): void {
+    sessionStorage.removeItem(this.TOKEN_KEY)
+  }
+
+  /**
+   * HTTPリクエストヘッダーにCSRFトークンを設定
+   */
+  static addTokenToHeaders(headers: Record<string, string> = {}): Record<string, string> {
+    const token = this.getToken()
+    if (token) {
+      headers[this.HEADER_NAME] = token
     }
+    return headers
+  }
+
+  /**
+   * フォーム送信時のCSRFトークン検証用の隠しフィールドを作成
+   */
+  static createHiddenField(): string {
+    const token = this.getToken()
+    if (!token) return ''
+    
+    return `<input type="hidden" name="${this.TOKEN_KEY}" value="${token}">`
   }
 
   /**
@@ -251,6 +288,14 @@ export class InputValidation {
   }
 
   /**
+   * メールアドレス形式の検証
+   */
+  static isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email) && email.length <= 254
+  }
+
+  /**
    * メールアドレスの検証
    */
   static validateEmail(email: string): SecurityValidationResult {
@@ -275,7 +320,7 @@ export class InputValidation {
   }
 
   /**
-   * パスワードの検証
+   * パスワード強度の検証
    */
   static validatePassword(password: string): SecurityValidationResult {
     const errors: string[] = []
@@ -314,6 +359,26 @@ export class InputValidation {
       warnings,
       riskLevel
     }
+  }
+
+  /**
+   * 文字列の長さ制限チェック
+   */
+  static validateLength(value: string, maxLength: number, minLength: number = 0): boolean {
+    return value.length >= minLength && value.length <= maxLength
+  }
+
+  /**
+   * SQLインジェクション対策のための基本的な文字列チェック
+   */
+  static checkForSQLInjection(input: string): boolean {
+    const dangerousPatterns = [
+      /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/i,
+      /('|''|--|;|\|)/,
+      /(\b(OR|AND)\b.*=)/i
+    ]
+
+    return !dangerousPatterns.some(pattern => pattern.test(input))
   }
 }
 
@@ -421,9 +486,73 @@ export class SecurityIncidentReporter {
 }
 
 /**
+ * セキュリティレポート
+ */
+export class SecurityReporting {
+  private static readonly REPORT_ENDPOINT = '/api/security-report'
+
+  /**
+   * CSP違反レポートを送信
+   */
+  static async reportCSPViolation(violationReport: Record<string, unknown>): Promise<void> {
+    try {
+      await fetch(this.REPORT_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...CSRFProtection.addTokenToHeaders()
+        },
+        body: JSON.stringify({
+          type: 'csp_violation',
+          report: violationReport,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent
+        })
+      })
+    } catch (error) {
+      console.error('CSP違反レポートの送信に失敗しました:', error)
+    }
+  }
+
+  /**
+   * セキュリティインシデントレポートを送信
+   */
+  static async reportSecurityIncident(
+    incidentType: string,
+    details: Record<string, unknown>
+  ): Promise<void> {
+    try {
+      await fetch(this.REPORT_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...CSRFProtection.addTokenToHeaders()
+        },
+        body: JSON.stringify({
+          type: 'security_incident',
+          incidentType,
+          details,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          url: window.location.href
+        })
+      })
+    } catch (error) {
+      console.error('セキュリティインシデントレポートの送信に失敗しました:', error)
+    }
+  }
+}
+
+/**
  * セキュリティ機能の初期化
  */
 export function initializeSecurity(): void {
+  // CSRFトークンの生成と保存
+  if (!CSRFProtection.getToken()) {
+    const token = CSRFProtection.generateToken()
+    CSRFProtection.storeToken(token.token)
+  }
+
   // CSRFトークンのクリーンアップを定期実行
   setInterval(() => {
     CSRFProtection.cleanupExpiredTokens()
@@ -447,6 +576,33 @@ export function initializeSecurity(): void {
       })
     })
   }
+
+  // CSP違反レポートのリスナー設定
+  document.addEventListener('securitypolicyviolation', (event) => {
+    SecurityReporting.reportCSPViolation({
+      documentURI: event.documentURI,
+      referrer: event.referrer,
+      blockedURI: event.blockedURI,
+      violatedDirective: event.violatedDirective,
+      effectiveDirective: event.effectiveDirective,
+      originalPolicy: event.originalPolicy,
+      disposition: event.disposition,
+      statusCode: event.statusCode
+    })
+  })
+
+  // グローバルエラーハンドラー
+  window.addEventListener('error', (event) => {
+    if (event.error && event.error.name === 'SecurityError') {
+      SecurityReporting.reportSecurityIncident('javascript_security_error', {
+        message: event.message,
+        filename: event.filename,
+        lineno: event.lineno,
+        colno: event.colno,
+        stack: event.error.stack
+      })
+    }
+  })
 
   // 開発環境でのデバッグ情報表示
   if (securityConfig.isDevelopment()) {
