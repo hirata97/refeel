@@ -10,7 +10,6 @@ import { enhancedSessionManager } from '@/utils/enhanced-session-management'
 import { auditLogger, AuditEventType } from '@/utils/audit-logger'
 import type { PasswordValidationResult } from '@/utils/password-policy'
 import type { LockoutStatus } from '@/utils/account-lockout'
-import type { TwoFactorVerificationResult } from '@/utils/two-factor-auth'
 
 export const useAuthStore = defineStore('auth', () => {
   // 状態
@@ -806,6 +805,18 @@ export const useAuthStore = defineStore('auth', () => {
     getUserDevices,
     terminateUserSession,
     terminateAllUserSessions,
+    
+    // セキュリティ
+    checkLockoutStatus: async (email: string) => {
+      try {
+        const status = await accountLockoutManager.checkLockoutStatus(email)
+        lockoutStatus.value = status
+        return status
+      } catch (err) {
+        console.error('ロックアウトステータス確認エラー:', err)
+        return null
+      }
+    },
     
     // ユーティリティ
     getClientIP
