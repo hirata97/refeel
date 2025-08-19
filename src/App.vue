@@ -74,17 +74,17 @@ const items = ref([
   {
     title: 'Diary Register',
     prependIcon: 'mdi-pencil-outline',
-    link: '/diaryregister',
+    link: '/diary-register',
   },
   {
     title: 'Diary View',
     prependIcon: 'mdi-book-open-outline',
-    link: '/diaryview',
+    link: '/diary-view',
   },
   {
     title: 'Diary Report',
     prependIcon: 'mdi-file-chart-outline',
-    link: '/diaryreport',
+    link: '/diary-report',
   },
   {
     title: 'Setting',

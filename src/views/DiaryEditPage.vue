@@ -129,7 +129,7 @@ onMounted(async () => {
   }
 
   if (!diaryId) {
-    router.push('/diaryview')
+    router.push('/diary-view')
     return
   }
 
@@ -201,7 +201,7 @@ const updateDiary = async (): Promise<void> => {
     alert('日記が更新されました！')
     
     // 日記一覧ページにリダイレクト
-    router.push('/diaryview')
+    router.push('/diary-view')
     
   } catch (error: unknown) {
     console.error('日記更新エラー:', error)

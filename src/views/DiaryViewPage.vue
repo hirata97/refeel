@@ -227,7 +227,7 @@ const viewDiary = (diary: DiaryEntry) => {
 const editDiary = (diary: DiaryEntry) => {
   if (!diary?.id) return
   showDetailDialog.value = false
-  router.push(`/diaryedit/${diary.id}`)
+  router.push(`/diary-edit/${diary.id}`)
 }
 
 // 削除処理
