@@ -11,14 +11,14 @@
       <slot name="content" :isValid="isValid" />
       
       <div v-if="$slots.actions" class="form-actions mt-4">
-        <slot name="actions" :isValid="isValid" :submit="handleSubmit" />
+        <slot name="actions" :isValid="isValid" :submit="() => handleSubmit()" />
       </div>
     </v-form>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, type ComputedRef } from 'vue'
 
 interface Props {
   title?: string
@@ -49,11 +49,11 @@ const handleSubmit = async () => {
   }
 }
 
-const validate = async () => {
+const validate = () => {
   if (formRef.value) {
-    return await formRef.value.validate()
+    return formRef.value.validate()
   }
-  return { valid: false }
+  return Promise.resolve({ valid: false })
 }
 
 const reset = () => {
@@ -68,11 +68,17 @@ const resetValidation = () => {
   }
 }
 
+// Vuetify型定義の競合を回避するため、unknown経由で型アサーション
 defineExpose({
   validate,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value)
+} as unknown as {
+  validate: () => Promise<{ valid: boolean }>
+  reset: () => void
+  resetValidation: () => void
+  isValid: ComputedRef<boolean>
 })
 </script>
 
