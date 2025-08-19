@@ -25,7 +25,7 @@
     <!-- ダッシュボードボタン -->
     <footer class="dashboard-actions">
       <BaseButton
-        @click="navigateTo('/diaryregister')"
+        @click="navigateTo('/diary-register')"
         color="primary"
         size="large"
         class="mb-2"

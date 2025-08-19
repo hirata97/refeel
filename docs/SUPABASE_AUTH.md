@@ -170,9 +170,9 @@ const isAuthenticated = computed(() => !!user.value && !!session.value)
 ```typescript
 const protectedRoutes = [
   '/dashboard',
-  '/diaryregister', 
-  '/diaryview',
-  '/diaryreport',
+  '/diary-register', 
+  '/diary-view',
+  '/diary-report',
   '/setting',
   '/help'
 ]
