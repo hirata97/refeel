@@ -49,7 +49,7 @@ const handleSubmit = async () => {
   }
 }
 
-const validate = () => {
+const validate = (): Promise<{ valid: boolean }> | { valid: boolean } => {
   if (formRef.value) {
     return formRef.value.validate()
   }
@@ -69,7 +69,7 @@ const resetValidation = () => {
 }
 
 defineExpose({
-  validate,
+  validate: validate as () => Promise<{ valid: boolean }> | { valid: boolean },
   reset,
   resetValidation,
   isValid: computed(() => isValid.value)
