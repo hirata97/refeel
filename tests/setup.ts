@@ -44,15 +44,78 @@ config.global.stubs = {
     }
   },
   'v-alert': {
-    template: '<div class="v-alert" v-if="show"><slot /></div>',
-    props: ['modelValue'],
-    data() {
-      return { show: this.modelValue !== false }
+    template: `
+      <div 
+        :class="alertClasses" 
+        class="v-alert"
+      >
+        <slot name="title" />
+        <slot />
+        <button v-if="closable" @click="handleClose" class="v-alert__close">Close</button>
+        <slot name="append" />
+      </div>
+    `,
+    props: {
+      type: { type: String, default: 'info' },
+      variant: { type: String, default: 'tonal' },
+      closable: { type: Boolean, default: false },
+      color: String,
+      icon: [String, Boolean]
+    },
+    emits: ['click:close'],
+    computed: {
+      alertClasses() {
+        const classes = ['v-alert']
+        
+        const type = this.type || 'info'
+        const variant = this.variant || 'tonal'
+        
+        classes.push(`v-alert--type-${type}`)
+        classes.push(`v-alert--variant-${variant}`)
+        
+        if (this.color) classes.push(`v-alert--color-${this.color}`)
+        
+        return classes
+      }
+    },
+    methods: {
+      handleClose() {
+        this.$emit('click:close')
+      }
     }
   },
   'v-form': {
-    template: '<form class="v-form" @submit="$emit(\'submit\', $event)"><slot /></form>',
-    emits: ['submit']
+    template: '<form class="v-form" @submit.prevent="handleSubmit" :class="$attrs.class"><slot /></form>',
+    props: {
+      modelValue: { type: Boolean, default: false }
+    },
+    emits: ['submit', 'update:modelValue'],
+    data() {
+      return {
+        isValid: false
+      }
+    },
+    methods: {
+      handleSubmit(event) {
+        this.$emit('submit', event)
+      },
+      async validate() {
+        // バリデーション結果のモック
+        this.isValid = true
+        this.$emit('update:modelValue', this.isValid)
+        return { valid: this.isValid }
+      },
+      reset() {
+        // フォームリセットのモック
+        this.isValid = false
+        this.$emit('update:modelValue', this.isValid)
+      },
+      resetValidation() {
+        // バリデーションリセットのモック
+        this.isValid = false
+        this.$emit('update:modelValue', this.isValid)
+      }
+    }
   },
   'v-card': {
     template: '<div class="v-card"><slot /></div>'
