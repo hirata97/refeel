@@ -8,8 +8,8 @@
       :categories="availableCategories"
       :loading="loading"
       @update:filters="filter = $event"
-      @apply-filters="applyFilters"
-      @clear-filters="clearFilters"
+      @apply-filters="handleApplyFilters"
+      @clear-filters="handleClearFilters"
     />
 
     <!-- データテーブル -->
@@ -76,13 +76,17 @@
 
     <!-- ページネーション -->
     <PaginationComponent
-      :page="pagination.page"
-      :page-size="pagination.pageSize"
-      :total="pagination.total"
-      :total-pages="pagination.totalPages"
-      :loading="loading"
-      @update:page="changePage"
-      @update:page-size="changePageSize"
+      :page="paginationStore.getCurrentState.page"
+      :page-size="paginationStore.getCurrentState.pageSize"
+      :total="paginationStore.getCurrentState.total"
+      :total-pages="paginationStore.getCurrentState.totalPages"
+      :loading="paginationStore.getCurrentLoading"
+      :show-skeleton="showPaginationSkeleton"
+      :error="paginationStore.getCurrentError"
+      @update:page="handlePageChange"
+      @update:page-size="handlePageSizeChange"
+      @dismiss-error="handleDismissError"
+      @retry="handleRetry"
     />
 
     <!-- 詳細ダイアログ -->
@@ -120,10 +124,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
+import { usePaginationStore } from '@/stores/pagination'
 import { useDiaries } from '@/composables/useDataFetch'
 import type { DiaryEntry } from '@/stores/data'
 import DiaryFilter from '@/components/DiaryFilter.vue'
@@ -132,6 +137,19 @@ import PaginationComponent from '@/components/PaginationComponent.vue'
 const router = useRouter()
 const dataStore = useDataStore()
 const authStore = useAuthStore()
+const paginationStore = usePaginationStore()
+
+// ページネーション初期化とデータ読み込み
+onMounted(async () => {
+  paginationStore.initialize()
+  
+  // URLから復元した状態でデータを読み込み
+  await refresh()
+})
+
+onUnmounted(() => {
+  paginationStore.cleanup()
+})
 
 // サーバーサイドページネーション対応のデータ取得
 const {
@@ -146,7 +164,7 @@ const {
   categoryStats,
   refresh
 } = useDiaries({
-  immediate: true,
+  immediate: false, // 手動で初期化
   cache: true,
   debounceMs: 300
 })
@@ -155,6 +173,33 @@ const {
 const isDeleting = ref(false)
 const showDetailDialog = ref(false)
 const selectedDiary = ref<DiaryEntry | null>(null)
+const showPaginationSkeleton = ref(false)
+
+// ページネーション状態とuseDataFetchの同期
+watch(
+  () => paginationStore.getCurrentState,
+  (newState) => {
+    // PaginationStoreの状態をuseDataFetchに反映
+    pagination.value = {
+      ...pagination.value,
+      page: newState.page,
+      pageSize: newState.pageSize,
+      total: newState.total,
+      totalPages: newState.totalPages
+    }
+  },
+  { deep: true, immediate: true }
+)
+
+// フィルター状態の同期
+watch(
+  () => paginationStore.getCurrentFilters,
+  (newFilters) => {
+    // PaginationStoreのフィルターをuseDataFetchに反映
+    Object.assign(filter.value, newFilters)
+  },
+  { deep: true, immediate: true }
+)
 
 // 利用可能なカテゴリ（統計から取得）
 const availableCategories = computed(() => {
@@ -230,6 +275,51 @@ const editDiary = (diary: DiaryEntry) => {
   router.push(`/diary-edit/${diary.id}`)
 }
 
+// 新しいページネーションイベントハンドラー
+const handlePageChange = (page: number) => {
+  paginationStore.changePage(page)
+  changePage(page)
+}
+
+const handlePageSizeChange = (pageSize: number) => {
+  paginationStore.changePageSize(pageSize)
+  changePageSize(pageSize)
+}
+
+const handleDismissError = () => {
+  paginationStore.setError(null)
+}
+
+const handleRetry = async () => {
+  try {
+    paginationStore.setError(null)
+    showPaginationSkeleton.value = true
+    await refresh()
+    
+    // 最新のデータでページネーション状態を更新
+    paginationStore.updateState({
+      total: pagination.value.total,
+      totalPages: pagination.value.totalPages
+    })
+  } catch (err) {
+    console.error('データの再取得に失敗:', err)
+    paginationStore.setError('データの再取得に失敗しました')
+  } finally {
+    showPaginationSkeleton.value = false
+  }
+}
+
+// フィルター適用処理を拡張
+const handleApplyFilters = () => {
+  paginationStore.updateFilters(filter.value)
+  applyFilters()
+}
+
+const handleClearFilters = () => {
+  paginationStore.clearFilters()
+  clearFilters()
+}
+
 // 削除処理
 const handleDeleteDiary = async (item: DiaryEntry) => {
   if (!item?.id || isDeleting.value || !authStore.user?.id) return
@@ -244,8 +334,15 @@ const handleDeleteDiary = async (item: DiaryEntry) => {
     // データ再取得
     await refresh()
     
+    // ページネーション状態を更新
+    paginationStore.updateState({
+      total: pagination.value.total,
+      totalPages: pagination.value.totalPages
+    })
+    
   } catch (error) {
     console.error('日記削除エラー:', error)
+    paginationStore.setError('日記の削除に失敗しました')
   } finally {
     isDeleting.value = false
   }
