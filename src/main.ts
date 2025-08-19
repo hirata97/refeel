@@ -5,7 +5,6 @@ import App from './App.vue'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import vuetify from './plugins/vuetify'
-import validationPlugin from './plugins/validation'
 import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
@@ -18,7 +17,6 @@ const pinia = createPinia()
 app
   .use(pinia)
   .use(vuetify)
-  .use(validationPlugin)
   .use(router) // Vue Router を登録
   .provide('supabase', supabase) // Supabase インスタンスを provide
 
@@ -62,6 +60,14 @@ window.addEventListener('beforeunload', () => {
 
 // エラーハンドリング
 window.addEventListener('error', (event) => {
+  console.error('JavaScriptエラー:', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    stack: event.error?.stack
+  })
+  
   auditLogger.logSecurityEvent(
     AuditEventType.SYSTEM_ERROR,
     'JavaScriptエラーが発生しました',

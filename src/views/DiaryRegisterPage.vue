@@ -4,10 +4,45 @@
     <v-sheet class="form-section pa-4 my-4" elevation="2">
       <h2>新しい日記を追加する</h2>
       <v-form @submit.prevent="addDiary">
-        <v-text-field v-bind="titleField" label="タイトル" outlined required />
-        <v-textarea v-bind="contentField" label="内容" outlined rows="3" required />
-        <v-text-field v-bind="dateField" label="日付" type="date" outlined required />
-        <v-slider :model-value="moodField.modelValue.value" @update:model-value="moodField['onUpdate:modelValue']" label="今日の調子" :min="1" :max="5" :step="1" />
+        <v-text-field 
+          v-model="title"
+          :error-messages="titleError ? [titleError] : []"
+          @blur="validateField('title')"
+          label="タイトル" 
+          outlined 
+          required 
+        />
+        <v-textarea 
+          v-model="content"
+          :error-messages="contentError ? [contentError] : []"
+          @blur="validateField('content')"
+          label="内容" 
+          outlined 
+          rows="3" 
+          required 
+        />
+        <v-text-field 
+          v-model="date"
+          :error-messages="dateError ? [dateError] : []"
+          @blur="validateField('date')"
+          label="日付" 
+          type="date" 
+          outlined 
+          required 
+        />
+        <v-slider 
+          v-model="mood"
+          label="進捗レベル" 
+          :min="0" 
+          :max="100" 
+          :step="5"
+          show-ticks="always"
+          thumb-label
+        >
+          <template #thumb-label="{ modelValue }">
+            {{ modelValue }}%
+          </template>
+        </v-slider>
         <v-btn type="submit" color="primary" block :loading="isSubmitting">日記を追加</v-btn>
       </v-form>
     </v-sheet>
@@ -20,23 +55,27 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDataStore } from '@/stores/data'
 import { usePerformanceMonitor } from '@/utils/performance'
-import { useDiaryValidation } from '@/composables/useValidation'
+import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const dataStore = useDataStore()
 const performance = usePerformanceMonitor()
 
-// バリデーション機能を使用
+// シンプルなフォーム管理を使用
 const { 
-  titleField, 
-  contentField, 
-  dateField, 
-  moodField, 
-  onSubmit, 
+  title,
+  content,
+  date,
+  mood,
+  titleError,
+  contentError,
+  dateError,
   isSubmitting,
-  resetForm 
-} = useDiaryValidation()
+  validateField,
+  handleSubmit,
+  resetForm
+} = useSimpleDiaryForm()
 
 // 古いコードは削除し、バリデーションフィールドを使用
 
@@ -73,7 +112,7 @@ const addDiary = async (): Promise<void> => {
 
   try {
     // バリデーションとサニタイゼーションを実行
-    const sanitizedData = await onSubmit()
+    const sanitizedData = await handleSubmit()
     if (!sanitizedData) return
 
     performance.start('create_diary')
@@ -81,10 +120,10 @@ const addDiary = async (): Promise<void> => {
     // データストアを使用した最適化された作成処理
     const diaryData = {
       user_id: authStore.user.id,
-      title: sanitizedData.title,
-      content: sanitizedData.content,
-      goal_category: 'default', // デフォルトカテゴリ
-      progress_level: sanitizedData.mood
+      title: sanitizedData.title || '',
+      content: sanitizedData.content || '',
+      goal_category: 'general', // デフォルトカテゴリ
+      progress_level: Number(sanitizedData.mood) || 50
     }
 
     await dataStore.createDiary(diaryData)

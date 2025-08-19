@@ -11,6 +11,7 @@ const pages = {
   DiaryRegisterPage: () => import('@/views/DiaryRegisterPage.vue'),
   DiaryreportPage: () => import('@/views/DiaryReportPage.vue'),
   DiaryViewPage: () => import('@/views/DiaryViewPage.vue'),
+  DiaryEditPage: () => import('@/views/DiaryEditPage.vue'),
   DashBoardPage: () => import('@/views/DashBoardPage.vue'),
 }
 
@@ -37,6 +38,12 @@ const routes = [
     path: '/diaryview',
     name: 'Diaryview',
     component: pages.DiaryViewPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/diaryedit/:id',
+    name: 'DiaryEdit',
+    component: pages.DiaryEditPage,
     meta: { requiresAuth: true },
   },
   {

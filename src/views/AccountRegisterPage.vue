@@ -1,6 +1,6 @@
 <template>
   <v-container class="register-container">
-    <v-text class="display-1 mb-4 text-center">アカウント新規登録</v-text>
+    <h1 class="display-1 mb-4 text-center">アカウント新規登録</h1>
 
     <v-form @submit.prevent="handleRegister" class="register-form">
       <v-alert
@@ -15,7 +15,9 @@
 
       <v-text-field
         label="Username"
-        v-bind="usernameField"
+        v-model="username"
+        :error-messages="usernameError ? [usernameError] : []"
+        @blur="validateField('username')"
         outlined
         full-width
         class="mb-3"
@@ -23,7 +25,9 @@
       />
       <v-text-field
         label="Email"
-        v-bind="emailField"
+        v-model="email"
+        :error-messages="emailError ? [emailError] : []"
+        @blur="validateField('email')"
         outlined
         full-width
         class="mb-3"
@@ -33,7 +37,9 @@
       <v-text-field
         label="Password"
         type="password"
-        v-bind="passwordField"
+        v-model="password"
+        :error-messages="passwordError ? [passwordError] : []"
+        @blur="validateField('password')"
         outlined
         full-width
         class="mb-4"
@@ -42,7 +48,9 @@
       <v-text-field
         label="Confirm Password"
         type="password"
-        v-bind="confirmPasswordField"
+        v-model="confirmPassword"
+        :error-messages="confirmPasswordError ? [confirmPasswordError] : []"
+        @blur="validateField('confirmPassword')"
         outlined
         full-width
         class="mb-4"
@@ -63,20 +71,25 @@ import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
-import { useRegisterValidation } from '@/composables/useValidation'
+import { useSimpleRegisterForm } from '@/composables/useSimpleForm'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-// バリデーション機能を使用
+// シンプルなフォーム管理を使用
 const { 
-  usernameField, 
-  emailField, 
-  passwordField, 
-  confirmPasswordField, 
-  onSubmit, 
-  isSubmitting 
-} = useRegisterValidation()
+  username,
+  email,
+  password,
+  confirmPassword,
+  usernameError,
+  emailError,
+  passwordError,
+  confirmPasswordError,
+  isSubmitting,
+  validateField,
+  handleSubmit
+} = useSimpleRegisterForm()
 
 // エラーメッセージやローディング状態
 const errorMessage = computed(() => authStore.error)
@@ -95,7 +108,7 @@ const handleRegister = async () => {
   
   try {
     // バリデーションとサニタイゼーションを実行
-    const sanitizedData = await onSubmit()
+    const sanitizedData = await handleSubmit()
     if (!sanitizedData) return
 
     // 追加のセキュリティ検証（XSSフレームワークによる）
