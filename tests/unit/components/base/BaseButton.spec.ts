@@ -1,34 +1,25 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { createVuetify } from 'vuetify'
 import BaseButton from '@/components/base/BaseButton.vue'
-
-// Vuetifyの設定
-const vuetify = createVuetify()
 
 describe('BaseButton', () => {
   const createWrapper = (props = {}, slots = {}) => {
     return mount(BaseButton, {
       props,
-      slots,
-      global: {
-        plugins: [vuetify]
-      }
+      slots
     })
   }
 
   describe('Props', () => {
     it('デフォルトプロパティが正しく設定される', () => {
       const wrapper = createWrapper()
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      expect(button.props('color')).toBe('primary')
-      expect(button.props('variant')).toBe('elevated')
-      expect(button.props('size')).toBe('default')
-      expect(button.props('loading')).toBe(false)
-      expect(button.props('disabled')).toBe(false)
-      expect(button.props('block')).toBe(false)
-      expect(button.props('type')).toBe('button')
+      expect(button.classes()).toContain('v-btn--color-primary')
+      expect(button.classes()).toContain('v-btn--variant-elevated')
+      expect(button.classes()).toContain('v-btn--size-default')
+      expect(button.attributes('type')).toBe('button')
+      expect(button.attributes('disabled')).toBeUndefined()
     })
 
     it('カスタムプロパティが正しく適用される', () => {
@@ -43,15 +34,15 @@ describe('BaseButton', () => {
       }
       
       const wrapper = createWrapper(props)
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      expect(button.props('color')).toBe('secondary')
-      expect(button.props('variant')).toBe('outlined')
-      expect(button.props('size')).toBe('large')
-      expect(button.props('loading')).toBe(true)
-      expect(button.props('disabled')).toBe(true)
-      expect(button.props('block')).toBe(true)
-      expect(button.props('type')).toBe('submit')
+      expect(button.classes()).toContain('v-btn--color-secondary')
+      expect(button.classes()).toContain('v-btn--variant-outlined')
+      expect(button.classes()).toContain('v-btn--size-large')
+      expect(button.classes()).toContain('v-btn--loading')
+      expect(button.classes()).toContain('v-btn--disabled')
+      expect(button.classes()).toContain('v-btn--block')
+      expect(button.attributes('type')).toBe('submit')
     })
 
     it('color プロパティのバリエーションが適用される', () => {
@@ -59,8 +50,8 @@ describe('BaseButton', () => {
       
       colors.forEach(color => {
         const wrapper = createWrapper({ color })
-        const button = wrapper.findComponent({ name: 'VBtn' })
-        expect(button.props('color')).toBe(color)
+        const button = wrapper.find('.v-btn')
+        expect(button.classes()).toContain(`v-btn--color-${color}`)
       })
     })
 
@@ -69,8 +60,8 @@ describe('BaseButton', () => {
       
       variants.forEach(variant => {
         const wrapper = createWrapper({ variant })
-        const button = wrapper.findComponent({ name: 'VBtn' })
-        expect(button.props('variant')).toBe(variant)
+        const button = wrapper.find('.v-btn')
+        expect(button.classes()).toContain(`v-btn--variant-${variant}`)
       })
     })
 
@@ -79,8 +70,8 @@ describe('BaseButton', () => {
       
       sizes.forEach(size => {
         const wrapper = createWrapper({ size })
-        const button = wrapper.findComponent({ name: 'VBtn' })
-        expect(button.props('size')).toBe(size)
+        const button = wrapper.find('.v-btn')
+        expect(button.classes()).toContain(`v-btn--size-${size}`)
       })
     })
   })
@@ -88,7 +79,7 @@ describe('BaseButton', () => {
   describe('Events', () => {
     it('クリックイベントが正しく発火される', async () => {
       const wrapper = createWrapper()
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
       await button.trigger('click')
       
@@ -99,19 +90,22 @@ describe('BaseButton', () => {
 
     it('disabled状態ではクリックイベントが発火されない', async () => {
       const wrapper = createWrapper({ disabled: true })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      // v-btnのdisabled状態では、クリックイベント自体が無効化される
-      expect(button.props('disabled')).toBe(true)
+      // disabled状態ではクリックイベントが発火されないことを確認
+      await button.trigger('click')
+      expect(wrapper.emitted('click')).toBeUndefined()
+      expect(button.classes()).toContain('v-btn--disabled')
     })
 
     it('loading状態でもクリックイベントは処理される', async () => {
       const wrapper = createWrapper({ loading: true })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
       await button.trigger('click')
       
       expect(wrapper.emitted('click')).toHaveLength(1)
+      expect(button.classes()).toContain('v-btn--loading')
     })
   })
 
@@ -141,16 +135,16 @@ describe('BaseButton', () => {
   describe('Loading State', () => {
     it('loading状態が正しく反映される', () => {
       const wrapper = createWrapper({ loading: true })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      expect(button.props('loading')).toBe(true)
+      expect(button.classes()).toContain('v-btn--loading')
     })
 
     it('loading状態が解除される', () => {
       const wrapper = createWrapper({ loading: false })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      expect(button.props('loading')).toBe(false)
+      expect(button.classes()).not.toContain('v-btn--loading')
     })
   })
 
@@ -160,16 +154,17 @@ describe('BaseButton', () => {
       
       types.forEach(type => {
         const wrapper = createWrapper({ type })
-        const button = wrapper.findComponent({ name: 'VBtn' })
-        expect(button.props('type')).toBe(type)
+        const button = wrapper.find('.v-btn')
+        expect(button.attributes('type')).toBe(type)
       })
     })
 
     it('disabled状態が正しく設定される', () => {
       const wrapper = createWrapper({ disabled: true })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      expect(button.props('disabled')).toBe(true)
+      expect(button.classes()).toContain('v-btn--disabled')
+      expect(button.attributes('disabled')).toBeDefined()
     })
   })
 
@@ -186,26 +181,27 @@ describe('BaseButton', () => {
       }
       
       const wrapper = createWrapper(props, { default: 'Complex Button' })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      const button = wrapper.find('.v-btn')
       
-      expect(button.props('color')).toBe('error')
-      expect(button.props('variant')).toBe('tonal')
-      expect(button.props('size')).toBe('x-small')
-      expect(button.props('loading')).toBe(true)
-      expect(button.props('disabled')).toBe(true)
-      expect(button.props('block')).toBe(true)
-      expect(button.props('type')).toBe('reset')
+      expect(button.classes()).toContain('v-btn--color-error')
+      expect(button.classes()).toContain('v-btn--variant-tonal')
+      expect(button.classes()).toContain('v-btn--size-x-small')
+      expect(button.classes()).toContain('v-btn--loading')
+      expect(button.classes()).toContain('v-btn--disabled')
+      expect(button.classes()).toContain('v-btn--block')
+      expect(button.attributes('type')).toBe('reset')
       expect(wrapper.text()).toContain('Complex Button')
     })
 
     it('プロパティの動的変更に対応する', async () => {
       const wrapper = createWrapper({ loading: false })
-      const button = wrapper.findComponent({ name: 'VBtn' })
+      let button = wrapper.find('.v-btn')
       
-      expect(button.props('loading')).toBe(false)
+      expect(button.classes()).not.toContain('v-btn--loading')
       
       await wrapper.setProps({ loading: true })
-      expect(button.props('loading')).toBe(true)
+      button = wrapper.find('.v-btn')
+      expect(button.classes()).toContain('v-btn--loading')
     })
   })
 })
