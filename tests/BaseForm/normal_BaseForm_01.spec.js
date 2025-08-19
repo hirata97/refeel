@@ -183,7 +183,7 @@ describe('BaseForm - 正常系テスト', () => {
     expect(typeof wrapper.vm.validate).toBe('function')
     expect(typeof wrapper.vm.reset).toBe('function')
     expect(typeof wrapper.vm.resetValidation).toBe('function')
-    expect(typeof wrapper.vm.isValid).toBe('object') // computed なので object
+    expect(typeof wrapper.vm.isValid).toBe('boolean') // computed の値は boolean
   })
 
   it('デフォルトプロパティが正しく設定される', () => {
