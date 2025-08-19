@@ -9,7 +9,7 @@ import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
 import { initializeSecurity } from './utils/security'
-import { AuditLogger, AuditEventType, logAuthEvent } from './utils/audit-logger'
+import { AuditLogger, AuditEventType } from './utils/audit-logger'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -39,7 +39,7 @@ if (typeof authStore.startSessionMonitoring === 'function') {
 }
 
 // アプリケーション開始をログに記録
-logAuthEvent(AuditEventType.SYSTEM_WARNING, 'アプリケーションが開始されました')
+auditLogger.log(AuditEventType.SYSTEM_INFO, 'アプリケーションが開始されました')
 
 // アプリケーション終了時の処理
 window.addEventListener('beforeunload', () => {
@@ -51,11 +51,8 @@ window.addEventListener('beforeunload', () => {
     sessionMonitoringCleanup()
   }
   
-  // 監査ログサービスを終了
-  auditLogger.destroy()
-  
   // アプリケーション終了をログに記録
-  logAuthEvent(AuditEventType.SYSTEM_WARNING, 'アプリケーションが終了されました')
+  auditLogger.log(AuditEventType.SYSTEM_INFO, 'アプリケーションが終了されました')
 })
 
 // エラーハンドリング
@@ -68,7 +65,7 @@ window.addEventListener('error', (event) => {
     stack: event.error?.stack
   })
   
-  auditLogger.logSecurityEvent(
+  auditLogger.log(
     AuditEventType.SYSTEM_ERROR,
     'JavaScriptエラーが発生しました',
     {

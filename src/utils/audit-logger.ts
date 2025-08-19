@@ -1,243 +1,85 @@
-import { useAuthStore } from '@/stores/auth'
-import { supabase } from '@/lib/supabase'
+/**
+ * 監査ログ機能の実装
+ * Issue #70: 認証・認可システムの強化実装
+ */
 
-// 監査ログのレベル
-export enum AuditLevel {
-  INFO = 'info',
-  WARNING = 'warning',
-  ERROR = 'error',
+export enum AuditEventType {
+  // 認証関連
+  AUTH_LOGIN = 'auth_login',
+  AUTH_LOGOUT = 'auth_logout',
+  AUTH_FAILED_LOGIN = 'auth_failed_login',
+  AUTH_SESSION_CREATED = 'auth_session_created',
+  AUTH_SESSION_TERMINATED = 'auth_session_terminated',
+  AUTH_MASS_LOGOUT = 'auth_mass_logout',
+  AUTH_FAILED_2FA = 'auth_failed_2fa',
+
+  // セキュリティ関連
+  SECURITY_LOCKOUT = 'security_lockout',
+  SECURITY_UNLOCK = 'security_unlock',
+  SECURITY_2FA_SETUP = 'security_2fa_setup',
+  SECURITY_2FA_ENABLED = 'security_2fa_enabled',
+  SECURITY_2FA_DISABLED = 'security_2fa_disabled',
+  SECURITY_BACKUP_CODE_USED = 'security_backup_code_used',
+  SECURITY_BACKUP_CODES_REGENERATED = 'security_backup_codes_regenerated',
+  SECURITY_DEVICE_TRUST_CHANGED = 'security_device_trust_changed',
+  SECURITY_VIOLATION = 'security_violation',
+  SECURITY_ALERT = 'security_alert',
+
+  // パスワード関連
+  PASSWORD_CHANGED = 'password_changed',
+  PASSWORD_RESET_REQUESTED = 'password_reset_requested',
+  PASSWORD_RESET_COMPLETED = 'password_reset_completed',
+  PASSWORD_POLICY_VIOLATION = 'password_policy_violation',
+
+  // システム関連
+  SYSTEM_ERROR = 'system_error',
+  SYSTEM_WARNING = 'system_warning',
+  SYSTEM_INFO = 'system_info'
+}
+
+export enum AuditEventSeverity {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
   CRITICAL = 'critical'
 }
 
-// イベントタイプ
-export enum AuditEventType {
-  // 認証関連
-  AUTH_LOGIN = 'auth.login',
-  AUTH_LOGOUT = 'auth.logout',
-  AUTH_FAILED_LOGIN = 'auth.failed_login',
-  AUTH_SESSION_EXPIRED = 'auth.session_expired',
-  AUTH_PASSWORD_CHANGED = 'auth.password_changed',
-  
-  // アクセス制御
-  ACCESS_GRANTED = 'access.granted',
-  ACCESS_DENIED = 'access.denied',
-  PERMISSION_CHECK = 'permission.check',
-  
-  // データ操作
-  DATA_CREATE = 'data.create',
-  DATA_READ = 'data.read',
-  DATA_UPDATE = 'data.update',
-  DATA_DELETE = 'data.delete',
-  
-  // セキュリティ
-  SECURITY_THREAT = 'security.threat',
-  SECURITY_VIOLATION = 'security.violation',
-  
-  // システム
-  SYSTEM_ERROR = 'system.error',
-  SYSTEM_WARNING = 'system.warning'
-}
-
-// 監査ログエントリ
 export interface AuditLogEntry {
-  id?: string
-  timestamp: string
-  level: AuditLevel
+  id: string
+  timestamp: Date
   eventType: AuditEventType
-  userId?: string
-  userEmail?: string
+  severity: AuditEventSeverity
   message: string
-  details?: Record<string, unknown>
-  resource?: {
-    type: string
-    id: string
-    name?: string
-  }
-  metadata?: {
-    ip?: string
-    userAgent?: string
-    sessionId?: string
-    requestId?: string
-    [key: string]: unknown
-  }
-}
-
-// ログストレージインターface
-interface LogStorage {
-  store(entry: AuditLogEntry): Promise<void>
-  query(filters: LogQueryFilters): Promise<AuditLogEntry[]>
-}
-
-// ログクエリフィルター
-export interface LogQueryFilters {
   userId?: string
-  eventType?: AuditEventType[]
-  level?: AuditLevel[]
-  fromDate?: Date
-  toDate?: Date
+  sessionId?: string
+  ipAddress?: string
+  userAgent?: string
+  metadata?: Record<string, any>
+  source: string
+}
+
+export interface AuditLogFilter {
+  eventTypes?: AuditEventType[]
+  severities?: AuditEventSeverity[]
+  userId?: string
+  dateFrom?: Date
+  dateTo?: Date
   limit?: number
-  offset?: number
 }
 
-// Supabaseログストレージ実装
-class SupabaseLogStorage implements LogStorage {
-  async store(entry: AuditLogEntry): Promise<void> {
-    try {
-      const { error } = await supabase
-        .from('audit_logs')
-        .insert([{
-          level: entry.level,
-          event_type: entry.eventType,
-          user_id: entry.userId,
-          user_email: entry.userEmail,
-          message: entry.message,
-          details: entry.details,
-          resource: entry.resource,
-          metadata: entry.metadata,
-          created_at: entry.timestamp
-        }])
-
-      if (error) {
-        console.error('監査ログの保存に失敗:', error)
-        // フォールバックとしてローカルストレージに保存
-        this.storeLocally(entry)
-      }
-    } catch (err) {
-      console.error('監査ログエラー:', err)
-      this.storeLocally(entry)
-    }
-  }
-
-  private storeLocally(entry: AuditLogEntry) {
-    try {
-      const logs = JSON.parse(localStorage.getItem('audit_logs') || '[]')
-      logs.push(entry)
-      
-      // 最大1000件まで保存
-      if (logs.length > 1000) {
-        logs.splice(0, logs.length - 1000)
-      }
-      
-      localStorage.setItem('audit_logs', JSON.stringify(logs))
-    } catch (err) {
-      console.error('ローカル監査ログエラー:', err)
-    }
-  }
-
-  async query(filters: LogQueryFilters): Promise<AuditLogEntry[]> {
-    try {
-      let query = supabase
-        .from('audit_logs')
-        .select('*')
-
-      if (filters.userId) {
-        query = query.eq('user_id', filters.userId)
-      }
-
-      if (filters.eventType?.length) {
-        query = query.in('event_type', filters.eventType)
-      }
-
-      if (filters.level?.length) {
-        query = query.in('level', filters.level)
-      }
-
-      if (filters.fromDate) {
-        query = query.gte('created_at', filters.fromDate.toISOString())
-      }
-
-      if (filters.toDate) {
-        query = query.lte('created_at', filters.toDate.toISOString())
-      }
-
-      query = query
-        .order('created_at', { ascending: false })
-        .limit(filters.limit || 100)
-
-      if (filters.offset) {
-        query = query.range(filters.offset, filters.offset + (filters.limit || 100) - 1)
-      }
-
-      const { data, error } = await query
-
-      if (error) {
-        throw error
-      }
-
-      return data?.map(row => ({
-        id: row.id,
-        timestamp: row.created_at,
-        level: row.level,
-        eventType: row.event_type,
-        userId: row.user_id,
-        userEmail: row.user_email,
-        message: row.message,
-        details: row.details,
-        resource: row.resource,
-        metadata: row.metadata
-      })) || []
-
-    } catch (err) {
-      console.error('監査ログクエリエラー:', err)
-      return []
-    }
-  }
-}
-
-// 暗号化ユーティリティ
-class EncryptionUtil {
-  private static async generateKey(): Promise<CryptoKey> {
-    return await crypto.subtle.generateKey(
-      {
-        name: 'AES-GCM',
-        length: 256
-      },
-      true,
-      ['encrypt', 'decrypt']
-    )
-  }
-
-  static async encrypt(data: string): Promise<string> {
-    try {
-      const key = await this.generateKey()
-      const encoder = new TextEncoder()
-      const dataUint8 = encoder.encode(data)
-      
-      const iv = crypto.getRandomValues(new Uint8Array(12))
-      
-      const encryptedData = await crypto.subtle.encrypt(
-        {
-          name: 'AES-GCM',
-          iv: iv
-        },
-        key,
-        dataUint8
-      )
-
-      // キー、IV、暗号化データを結合
-      const result = new Uint8Array(key.algorithm.name.length + iv.length + encryptedData.byteLength)
-      // 実際の実装では、キーを安全に管理する必要があります
-      
-      return btoa(String.fromCharCode(...result))
-    } catch (err) {
-      console.error('暗号化エラー:', err)
-      return data // フォールバック
-    }
-  }
-}
-
-// 監査ログサービス
+/**
+ * 監査ログ管理クラス
+ */
 export class AuditLogger {
   private static instance: AuditLogger
-  private storage: LogStorage
-  private buffer: AuditLogEntry[] = []
-  private flushInterval: number | null = null
+  private readonly maxLogEntries = 10000 // 最大保存ログ数
+  private readonly storageKey = 'audit_logs'
 
-  constructor() {
-    this.storage = new SupabaseLogStorage()
-    this.startBufferFlush()
-  }
+  private constructor() {}
 
+  /**
+   * シングルトンインスタンスを取得
+   */
   static getInstance(): AuditLogger {
     if (!AuditLogger.instance) {
       AuditLogger.instance = new AuditLogger()
@@ -245,180 +87,291 @@ export class AuditLogger {
     return AuditLogger.instance
   }
 
-  // ログエントリの作成
+  /**
+   * 監査ログの記録
+   */
   async log(
-    level: AuditLevel,
     eventType: AuditEventType,
     message: string,
-    details?: Record<string, unknown>,
-    resource?: { type: string; id: string; name?: string }
+    metadata?: Record<string, any>
   ): Promise<void> {
-    const authStore = useAuthStore()
-    const user = authStore.user
-
     const entry: AuditLogEntry = {
-      timestamp: new Date().toISOString(),
-      level,
+      id: this.generateLogId(),
+      timestamp: new Date(),
       eventType,
-      userId: user?.id,
-      userEmail: user?.email,
+      severity: this.determineSeverity(eventType),
       message,
-      details: details ? await this.encryptSensitiveData(details) : undefined,
-      resource,
-      metadata: {
-        sessionId: authStore.session?.access_token?.substring(0, 8),
-        userAgent: navigator.userAgent,
-        url: window.location.href,
-        timestamp: Date.now()
-      }
+      metadata,
+      source: 'web_app',
+      // 実際の実装ではセッション情報から取得
+      userId: metadata?.userId,
+      sessionId: metadata?.sessionId,
+      ipAddress: metadata?.ipAddress,
+      userAgent: metadata?.userAgent
     }
 
-    // バッファに追加
-    this.buffer.push(entry)
+    // ログエントリを保存
+    this.saveLogEntry(entry)
 
-    // クリティカルレベルは即座に保存
-    if (level === AuditLevel.CRITICAL) {
-      await this.flush()
+    // 重要度が高い場合はコンソールにも出力
+    if (entry.severity === AuditEventSeverity.HIGH || entry.severity === AuditEventSeverity.CRITICAL) {
+      console.warn(`[AUDIT] ${entry.severity.toUpperCase()}: ${message}`, metadata)
+    } else {
+      console.log(`[AUDIT] ${eventType}: ${message}`)
+    }
+
+    // 実際の実装では、重要なイベントをサーバーに送信
+    if (entry.severity === AuditEventSeverity.CRITICAL) {
+      await this.sendToServer(entry)
     }
   }
 
-  // センシティブデータの暗号化
-  private async encryptSensitiveData(data: Record<string, unknown>): Promise<Record<string, unknown>> {
-    const sensitiveFields = ['password', 'token', 'secret', 'key']
-    const result = { ...data }
-
-    for (const [key, value] of Object.entries(result)) {
-      if (sensitiveFields.some(field => key.toLowerCase().includes(field))) {
-        if (typeof value === 'string') {
-          result[key] = await EncryptionUtil.encrypt(value)
+  /**
+   * 監査ログの検索
+   */
+  searchLogs(filter: AuditLogFilter = {}): AuditLogEntry[] {
+    const logs = this.getAllLogs()
+    
+    return logs
+      .filter(log => {
+        // イベントタイプフィルター
+        if (filter.eventTypes && !filter.eventTypes.includes(log.eventType)) {
+          return false
         }
-      }
-    }
 
-    return result
+        // 重要度フィルター
+        if (filter.severities && !filter.severities.includes(log.severity)) {
+          return false
+        }
+
+        // ユーザーIDフィルター
+        if (filter.userId && log.userId !== filter.userId) {
+          return false
+        }
+
+        // 日付範囲フィルター
+        if (filter.dateFrom && log.timestamp < filter.dateFrom) {
+          return false
+        }
+        if (filter.dateTo && log.timestamp > filter.dateTo) {
+          return false
+        }
+
+        return true
+      })
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()) // 新しい順
+      .slice(0, filter.limit || 1000)
   }
 
-  // バッファのフラッシュ
-  private async flush(): Promise<void> {
-    if (this.buffer.length === 0) return
+  /**
+   * 指定ユーザーの監査ログを取得
+   */
+  getUserLogs(userId: string, limit: number = 100): AuditLogEntry[] {
+    return this.searchLogs({
+      userId,
+      limit
+    })
+  }
 
-    const entries = [...this.buffer]
-    this.buffer = []
+  /**
+   * 重要なセキュリティイベントのログを取得
+   */
+  getSecurityLogs(limit: number = 500): AuditLogEntry[] {
+    const securityEventTypes = [
+      AuditEventType.AUTH_FAILED_LOGIN,
+      AuditEventType.AUTH_FAILED_2FA,
+      AuditEventType.SECURITY_LOCKOUT,
+      AuditEventType.SECURITY_VIOLATION,
+      AuditEventType.SECURITY_ALERT
+    ]
 
+    return this.searchLogs({
+      eventTypes: securityEventTypes,
+      limit
+    })
+  }
+
+  /**
+   * ログ統計の取得
+   */
+  getLogStatistics(hours: number = 24): {
+    totalEvents: number
+    criticalEvents: number
+    securityEvents: number
+    failedLogins: number
+    eventTypeBreakdown: Record<string, number>
+  } {
+    const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000)
+    const recentLogs = this.getAllLogs().filter(log => log.timestamp > cutoffTime)
+
+    const stats = {
+      totalEvents: recentLogs.length,
+      criticalEvents: 0,
+      securityEvents: 0,
+      failedLogins: 0,
+      eventTypeBreakdown: {} as Record<string, number>
+    }
+
+    recentLogs.forEach(log => {
+      // 重要度別カウント
+      if (log.severity === AuditEventSeverity.CRITICAL) {
+        stats.criticalEvents++
+      }
+
+      // セキュリティイベントカウント
+      if (log.eventType.startsWith('security_')) {
+        stats.securityEvents++
+      }
+
+      // ログイン失敗カウント
+      if (log.eventType === AuditEventType.AUTH_FAILED_LOGIN) {
+        stats.failedLogins++
+      }
+
+      // イベントタイプ別カウント
+      stats.eventTypeBreakdown[log.eventType] = (stats.eventTypeBreakdown[log.eventType] || 0) + 1
+    })
+
+    return stats
+  }
+
+  /**
+   * ログのエクスポート（CSV形式）
+   */
+  exportLogs(filter: AuditLogFilter = {}): string {
+    const logs = this.searchLogs(filter)
+    const headers = [
+      'Timestamp', 'Event Type', 'Severity', 'Message', 
+      'User ID', 'IP Address', 'Source', 'Metadata'
+    ].join(',')
+
+    const rows = logs.map(log => [
+      log.timestamp.toISOString(),
+      log.eventType,
+      log.severity,
+      `"${log.message.replace(/"/g, '""')}"`, // CSV形式でエスケープ
+      log.userId || '',
+      log.ipAddress || '',
+      log.source,
+      `"${JSON.stringify(log.metadata || {})}"`
+    ].join(','))
+
+    return [headers, ...rows].join('\n')
+  }
+
+  /**
+   * ログのクリア（管理者機能）
+   */
+  clearLogs(olderThan?: Date): void {
+    if (olderThan) {
+      // 指定日時より古いログを削除
+      const logs = this.getAllLogs().filter(log => log.timestamp >= olderThan)
+      this.saveLogs(logs)
+    } else {
+      // 全ログをクリア
+      localStorage.removeItem(this.storageKey)
+    }
+
+    // クリア操作自体をログに記録
+    this.log(
+      AuditEventType.SYSTEM_INFO,
+      `監査ログクリア実行${olderThan ? ` (${olderThan.toISOString()}より古いログ)` : ' (全ログ)'}`,
+      { clearTimestamp: new Date().toISOString() }
+    )
+  }
+
+  // プライベートメソッド
+
+  private generateLogId(): string {
+    return `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  }
+
+  private determineSeverity(eventType: AuditEventType): AuditEventSeverity {
+    const criticalEvents = [
+      AuditEventType.SECURITY_VIOLATION,
+      AuditEventType.SYSTEM_ERROR
+    ]
+
+    const highEvents = [
+      AuditEventType.AUTH_FAILED_2FA,
+      AuditEventType.SECURITY_LOCKOUT,
+      AuditEventType.SECURITY_ALERT,
+      AuditEventType.PASSWORD_POLICY_VIOLATION
+    ]
+
+    const mediumEvents = [
+      AuditEventType.AUTH_FAILED_LOGIN,
+      AuditEventType.SECURITY_2FA_DISABLED,
+      AuditEventType.SECURITY_BACKUP_CODE_USED,
+      AuditEventType.AUTH_MASS_LOGOUT
+    ]
+
+    if (criticalEvents.includes(eventType)) {
+      return AuditEventSeverity.CRITICAL
+    } else if (highEvents.includes(eventType)) {
+      return AuditEventSeverity.HIGH
+    } else if (mediumEvents.includes(eventType)) {
+      return AuditEventSeverity.MEDIUM
+    } else {
+      return AuditEventSeverity.LOW
+    }
+  }
+
+  private saveLogEntry(entry: AuditLogEntry): void {
     try {
-      await Promise.all(entries.map(entry => this.storage.store(entry)))
-    } catch (err) {
-      console.error('監査ログフラッシュエラー:', err)
-      // エラーの場合はバッファに戻す
-      this.buffer.unshift(...entries)
-    }
-  }
+      const logs = this.getAllLogs()
+      logs.push(entry)
 
-  // 定期的なバッファフラッシュを開始
-  private startBufferFlush(): void {
-    this.flushInterval = window.setInterval(() => {
-      this.flush()
-    }, 30000) // 30秒ごと
-  }
-
-  // ログクエリ
-  async query(filters: LogQueryFilters): Promise<AuditLogEntry[]> {
-    return await this.storage.query(filters)
-  }
-
-  // リソースへのアクセスをログ
-  async logResourceAccess(
-    resourceType: string,
-    resourceId: string,
-    action: string,
-    granted: boolean,
-    reason?: string
-  ): Promise<void> {
-    await this.log(
-      granted ? AuditLevel.INFO : AuditLevel.WARNING,
-      granted ? AuditEventType.ACCESS_GRANTED : AuditEventType.ACCESS_DENIED,
-      `リソースアクセス: ${action} ${resourceType}`,
-      {
-        resourceType,
-        resourceId,
-        action,
-        granted,
-        reason
-      },
-      {
-        type: resourceType,
-        id: resourceId
+      // ログ数制限
+      if (logs.length > this.maxLogEntries) {
+        logs.splice(0, logs.length - this.maxLogEntries)
       }
-    )
-  }
 
-  // セキュリティイベントのログ
-  async logSecurityEvent(
-    eventType: AuditEventType,
-    message: string,
-    details?: Record<string, unknown>
-  ): Promise<void> {
-    await this.log(
-      AuditLevel.CRITICAL,
-      eventType,
-      message,
-      details
-    )
-  }
-
-  // 破棄処理
-  destroy(): void {
-    if (this.flushInterval) {
-      clearInterval(this.flushInterval)
-      this.flushInterval = null
+      this.saveLogs(logs)
+    } catch (error) {
+      console.error('監査ログの保存に失敗:', error)
     }
-    this.flush() // 最後のフラッシュ
+  }
+
+  private getAllLogs(): AuditLogEntry[] {
+    try {
+      const stored = localStorage.getItem(this.storageKey)
+      if (!stored) return []
+
+      const logs = JSON.parse(stored)
+      return logs.map((log: any) => ({
+        ...log,
+        timestamp: new Date(log.timestamp)
+      }))
+    } catch (error) {
+      console.error('監査ログの取得に失敗:', error)
+      return []
+    }
+  }
+
+  private saveLogs(logs: AuditLogEntry[]): void {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(logs))
+    } catch (error) {
+      console.error('監査ログの保存に失敗:', error)
+    }
+  }
+
+  private async sendToServer(entry: AuditLogEntry): Promise<void> {
+    // 実際の実装では、重要なログをサーバーに送信
+    try {
+      // fetch('/api/audit-logs', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(entry)
+      // })
+      
+      console.log('重要なログをサーバーに送信（実装待ち）:', entry)
+    } catch (error) {
+      console.error('サーバーへのログ送信に失敗:', error)
+    }
   }
 }
 
-// 便利関数
-export const auditLog = AuditLogger.getInstance()
-
-export const logAuthEvent = (eventType: AuditEventType, message: string, details?: Record<string, unknown>) => {
-  const level = eventType.includes('failed') || eventType.includes('denied') 
-    ? AuditLevel.WARNING 
-    : AuditLevel.INFO
-  
-  return auditLog.log(level, eventType, message, details)
-}
-
-export const logDataOperation = (
-  operation: 'create' | 'read' | 'update' | 'delete',
-  resourceType: string,
-  resourceId: string,
-  details?: Record<string, unknown>
-) => {
-  const eventTypeMap = {
-    create: AuditEventType.DATA_CREATE,
-    read: AuditEventType.DATA_READ,
-    update: AuditEventType.DATA_UPDATE,
-    delete: AuditEventType.DATA_DELETE
-  }
-
-  return auditLog.log(
-    AuditLevel.INFO,
-    eventTypeMap[operation],
-    `${operation} ${resourceType}`,
-    details,
-    { type: resourceType, id: resourceId }
-  )
-}
-
-// Vue Composable
-export const useAuditLogger = () => {
-  const logger = AuditLogger.getInstance()
-
-  return {
-    log: logger.log.bind(logger),
-    logResourceAccess: logger.logResourceAccess.bind(logger),
-    logSecurityEvent: logger.logSecurityEvent.bind(logger),
-    query: logger.query.bind(logger),
-    logAuthEvent,
-    logDataOperation
-  }
-}
+// エクスポート用インスタンス
+export const auditLogger = AuditLogger.getInstance()
