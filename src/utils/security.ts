@@ -1,35 +1,51 @@
-/**
- * セキュリティユーティリティ
- * XSS対策、CSRF対策、入力値検証などのセキュリティ機能を提供
- */
-
 import DOMPurify from 'dompurify'
+import { securityConfig } from '@/config/security'
+import type { 
+  SecurityIncidentData, 
+  SecurityValidationResult, 
+  SecurityHeaders as SecurityHeadersType,
+  CSRFToken,
+  SecurityThreatLevel 
+} from '@/types/security'
 
 /**
- * XSS対策: HTMLコンテンツのサニタイゼーション
+ * XSS Protection Utility
+ * PRレビューで指摘された一貫性問題を解決
  */
 export class XSSProtection {
-  /**
-   * HTMLコンテンツをサニタイズ
-   * @param content サニタイズ対象のHTMLコンテンツ
-   * @returns サニタイズされたHTMLコンテンツ
-   */
-  static sanitizeHTML(content: string): string {
-    return DOMPurify.sanitize(content, {
-      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'p', 'br', 'ul', 'ol', 'li'],
+  private static config = DOMPurify
+
+  static {
+    // DOMPurifyの設定を強化
+    this.config.setConfig({
+      ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'br', 'p'],
       ALLOWED_ATTR: [],
-      ALLOW_DATA_ATTR: false,
-      FORBID_TAGS: ['script', 'object', 'embed', 'link', 'style', 'img', 'video', 'audio'],
+      KEEP_CONTENT: false,
+      RETURN_DOM: false,
+      RETURN_DOM_FRAGMENT: false,
+      SANITIZE_DOM: true,
+      SANITIZE_NAMED_PROPS: true,
+      FORCE_BODY: false
     })
   }
 
   /**
-   * ユーザー入力テキストの基本的なサニタイゼーション
-   * @param input ユーザー入力テキスト
-   * @returns サニタイズされたテキスト
+   * HTMLコンテンツのサニタイゼーション（表示用）
+   */
+  static sanitizeHTML(input: string): string {
+    if (!input || typeof input !== 'string') return ''
+    return this.config.sanitize(input, { RETURN_TRUSTED_TYPE: false })
+  }
+
+  /**
+   * プレーンテキストのサニタイゼーション（入力用）
    */
   static sanitizeText(input: string): string {
+    if (!input || typeof input !== 'string') return ''
+    
+    // HTMLエンティティのエスケープ
     return input
+      .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
@@ -39,15 +55,15 @@ export class XSSProtection {
 
   /**
    * URLの検証とサニタイゼーション
-   * @param url 検証対象のURL
-   * @returns 安全なURLまたはnull
    */
   static sanitizeURL(url: string): string | null {
+    if (!url || typeof url !== 'string') return null
+    
     try {
       const urlObj = new URL(url)
-      
       // 許可されたプロトコルのみ
       const allowedProtocols = ['http:', 'https:', 'mailto:']
+      
       if (!allowedProtocols.includes(urlObj.protocol)) {
         return null
       }
@@ -56,34 +72,96 @@ export class XSSProtection {
       if (urlObj.protocol === 'javascript:' || urlObj.protocol === 'data:') {
         return null
       }
-
+      
       return urlObj.toString()
     } catch {
       return null
     }
   }
+
+  /**
+   * 表示時の統一的なXSS対策
+   * PRレビューで指摘された一貫性問題を解決
+   */
+  static secureDisplay(content: string, allowHTML = false): string {
+    if (!content || typeof content !== 'string') return ''
+    
+    if (allowHTML) {
+      // HTML許可時は制限付きサニタイゼーション
+      return this.sanitizeHTML(content)
+    } else {
+      // プレーンテキスト時は完全エスケープ
+      return this.sanitizeText(content)
+    }
+  }
+
+  /**
+   * フォーム入力値の統一的なXSS対策
+   */
+  static secureInput(input: string): string {
+    return this.sanitizeText(input)
+  }
+
+  /**
+   * XSS攻撃試行の検出
+   */
+  static detectXSSAttempt(input: string): boolean {
+    if (!input || typeof input !== 'string') return false
+    
+    const xssPatterns = [
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      /javascript:/gi,
+      /vbscript:/gi,
+      /onload\s*=/gi,
+      /onerror\s*=/gi,
+      /onclick\s*=/gi,
+      /onmouseover\s*=/gi,
+      /<iframe\b/gi,
+      /<object\b/gi,
+      /<embed\b/gi,
+      /<form\b/gi
+    ]
+    
+    return xssPatterns.some(pattern => pattern.test(input))
+  }
 }
 
 /**
- * CSRF対策
+ * CSRF Protection Utility
  */
 export class CSRFProtection {
+  private static tokenStorage = new Map<string, CSRFToken>()
   private static readonly TOKEN_KEY = 'csrf_token'
   private static readonly HEADER_NAME = 'X-CSRF-Token'
 
   /**
-   * CSRFトークンを生成
-   * @returns 生成されたCSRFトークン
+   * CSRFトークンの生成
    */
-  static generateToken(): string {
-    const array = new Uint8Array(32)
-    crypto.getRandomValues(array)
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+  static generateToken(): CSRFToken {
+    const token = securityConfig.generateCSRFToken()
+    this.tokenStorage.set(token.token, token)
+    return token
+  }
+
+  /**
+   * CSRFトークンの検証
+   */
+  static validateToken(tokenString: string): boolean {
+    const token = this.tokenStorage.get(tokenString)
+    if (!token) return false
+    
+    const isValid = securityConfig.validateCSRFToken(token)
+    
+    // 無効なトークンは削除
+    if (!isValid) {
+      this.tokenStorage.delete(tokenString)
+    }
+    
+    return isValid
   }
 
   /**
    * CSRFトークンをセッションストレージに保存
-   * @param token CSRFトークン
    */
   static storeToken(token: string): void {
     sessionStorage.setItem(this.TOKEN_KEY, token)
@@ -91,7 +169,6 @@ export class CSRFProtection {
 
   /**
    * セッションストレージからCSRFトークンを取得
-   * @returns CSRFトークンまたはnull
    */
   static getToken(): string | null {
     return sessionStorage.getItem(this.TOKEN_KEY)
@@ -106,8 +183,6 @@ export class CSRFProtection {
 
   /**
    * HTTPリクエストヘッダーにCSRFトークンを設定
-   * @param headers 既存のヘッダーオブジェクト
-   * @returns CSRFトークン付きヘッダー
    */
   static addTokenToHeaders(headers: Record<string, string> = {}): Record<string, string> {
     const token = this.getToken()
@@ -119,7 +194,6 @@ export class CSRFProtection {
 
   /**
    * フォーム送信時のCSRFトークン検証用の隠しフィールドを作成
-   * @returns CSRFトークンを含む隠しフィールドのHTML
    */
   static createHiddenField(): string {
     const token = this.getToken()
@@ -127,16 +201,94 @@ export class CSRFProtection {
     
     return `<input type="hidden" name="${this.TOKEN_KEY}" value="${token}">`
   }
+
+  /**
+   * 期限切れトークンのクリーンアップ
+   */
+  static cleanupExpiredTokens(): void {
+    const now = Date.now()
+    for (const [tokenString, token] of this.tokenStorage.entries()) {
+      if (now >= token.expires) {
+        this.tokenStorage.delete(tokenString)
+      }
+    }
+  }
+
+  /**
+   * すべてのトークンをクリア
+   */
+  static clearAllTokens(): void {
+    this.tokenStorage.clear()
+  }
 }
 
 /**
- * 入力値検証
+ * Input Validation Utility
  */
 export class InputValidation {
   /**
+   * 包括的な入力値検証
+   */
+  static validateInput(
+    input: string, 
+    options: {
+      maxLength?: number
+      minLength?: number
+      allowHTML?: boolean
+      allowSpecialChars?: boolean
+    } = {}
+  ): SecurityValidationResult {
+    const errors: string[] = []
+    const warnings: string[] = []
+    let riskLevel: SecurityThreatLevel = 'low'
+
+    // 基本的な検証
+    if (!input || typeof input !== 'string') {
+      errors.push('Invalid input type')
+      riskLevel = 'medium'
+    } else {
+      // 長さチェック
+      if (options.maxLength && input.length > options.maxLength) {
+        errors.push(`Input exceeds maximum length of ${options.maxLength}`)
+        riskLevel = 'medium'
+      }
+      
+      if (options.minLength && input.length < options.minLength) {
+        errors.push(`Input is shorter than minimum length of ${options.minLength}`)
+      }
+
+      // XSS検出
+      if (XSSProtection.detectXSSAttempt(input)) {
+        errors.push('Potential XSS attack detected')
+        riskLevel = 'critical'
+      }
+
+      // 特殊文字チェック
+      if (!options.allowSpecialChars) {
+        const hasSpecialChars = /[<>\"'&]/.test(input)
+        if (hasSpecialChars && !options.allowHTML) {
+          warnings.push('Input contains special characters')
+          if (riskLevel === 'low') riskLevel = 'medium'
+        }
+      }
+
+      // HTML許可設定との整合性チェック
+      if (!options.allowHTML && /<[^>]*>/.test(input)) {
+        errors.push('HTML tags not allowed')
+        riskLevel = 'high'
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings,
+      riskLevel
+    }
+  }
+
+  /**
    * メールアドレス形式の検証
-   * @param email 検証対象のメールアドレス
-   * @returns 有効な場合true
    */
   static isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -144,52 +296,73 @@ export class InputValidation {
   }
 
   /**
-   * パスワード強度の検証
-   * @param password 検証対象のパスワード
-   * @returns 検証結果オブジェクト
+   * メールアドレスの検証
    */
-  static validatePassword(password: string): {
-    isValid: boolean
-    errors: string[]
-  } {
+  static validateEmail(email: string): SecurityValidationResult {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const errors: string[] = []
+    
+    if (!emailRegex.test(email)) {
+      errors.push('Invalid email format')
+    }
+    
+    // XSS検出
+    if (XSSProtection.detectXSSAttempt(email)) {
+      errors.push('Potential XSS attack in email')
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors,
+      warnings: [],
+      riskLevel: errors.length > 0 ? 'medium' : 'low'
+    }
+  }
+
+  /**
+   * パスワード強度の検証
+   */
+  static validatePassword(password: string): SecurityValidationResult {
+    const errors: string[] = []
+    const warnings: string[] = []
+    let riskLevel: SecurityThreatLevel = 'low'
 
     if (password.length < 8) {
-      errors.push('パスワードは8文字以上である必要があります')
+      errors.push('Password must be at least 8 characters long')
+      riskLevel = 'medium'
+    }
+
+    if (!/(?=.*[a-z])/.test(password)) {
+      errors.push('Password must contain at least one lowercase letter')
+    }
+
+    if (!/(?=.*[A-Z])/.test(password)) {
+      errors.push('Password must contain at least one uppercase letter')
+    }
+
+    if (!/(?=.*\d)/.test(password)) {
+      errors.push('Password must contain at least one number')
+    }
+
+    if (!/(?=.*[@$!%*?&])/.test(password)) {
+      errors.push('Password must contain at least one special character')
     }
 
     if (password.length > 128) {
-      errors.push('パスワードは128文字以下である必要があります')
-    }
-
-    if (!/[a-z]/.test(password)) {
-      errors.push('パスワードには小文字を含める必要があります')
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      errors.push('パスワードには大文字を含める必要があります')
-    }
-
-    if (!/[0-9]/.test(password)) {
-      errors.push('パスワードには数字を含める必要があります')
-    }
-
-    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-      errors.push('パスワードには特殊文字を含める必要があります')
+      errors.push('Password is too long')
+      riskLevel = 'medium'
     }
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
+      warnings,
+      riskLevel
     }
   }
 
   /**
    * 文字列の長さ制限チェック
-   * @param value 検証対象の文字列
-   * @param maxLength 最大長
-   * @param minLength 最小長（デフォルト: 0）
-   * @returns 有効な場合true
    */
   static validateLength(value: string, maxLength: number, minLength: number = 0): boolean {
     return value.length >= minLength && value.length <= maxLength
@@ -197,8 +370,6 @@ export class InputValidation {
 
   /**
    * SQLインジェクション対策のための基本的な文字列チェック
-   * @param input 検証対象の文字列
-   * @returns 危険な文字列が含まれている場合false
    */
   static checkForSQLInjection(input: string): boolean {
     const dangerousPatterns = [
@@ -212,6 +383,109 @@ export class InputValidation {
 }
 
 /**
+ * Security Headers Utility
+ */
+export class SecurityHeadersUtil {
+  /**
+   * セキュリティヘッダーの取得
+   */
+  static getHeaders(): SecurityHeadersType {
+    return securityConfig.getSecurityHeaders()
+  }
+
+  /**
+   * CSPヘッダーの取得
+   */
+  static getCSPHeader(): string {
+    return securityConfig.getCSPHeader()
+  }
+
+  /**
+   * レスポンスヘッダーにセキュリティヘッダーを追加
+   */
+  static addSecurityHeaders(headers: Record<string, string>): Record<string, string> {
+    const secHeaders = this.getHeaders()
+    return { ...headers, ...secHeaders }
+  }
+}
+
+/**
+ * Security Incident Reporter
+ */
+export class SecurityIncidentReporter {
+  private static incidents: SecurityIncidentData[] = []
+
+  /**
+   * セキュリティインシデントの報告
+   */
+  static reportIncident(incident: Omit<SecurityIncidentData, 'timestamp'>): void {
+    const fullIncident: SecurityIncidentData = {
+      ...incident,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      sessionId: this.getSessionId()
+    }
+
+    this.incidents.push(fullIncident)
+    
+    // 重要度が高い場合は即座にアラート
+    if (incident.severity === 'critical' || incident.severity === 'high') {
+      this.sendImmediateAlert(fullIncident)
+    }
+
+    // ローカルストレージに保存（一時的）
+    this.persistIncident(fullIncident)
+  }
+
+  /**
+   * インシデントの取得
+   */
+  static getIncidents(): SecurityIncidentData[] {
+    return [...this.incidents]
+  }
+
+  /**
+   * インシデントのクリア
+   */
+  static clearIncidents(): void {
+    this.incidents = []
+    localStorage.removeItem('security_incidents')
+  }
+
+  private static getSessionId(): string {
+    let sessionId = sessionStorage.getItem('security_session_id')
+    if (!sessionId) {
+      sessionId = crypto.randomUUID()
+      sessionStorage.setItem('security_session_id', sessionId)
+    }
+    return sessionId
+  }
+
+  private static sendImmediateAlert(incident: SecurityIncidentData): void {
+    // 開発環境では console.warn で表示
+    if (securityConfig.isDevelopment()) {
+      console.warn('🚨 Security Alert:', incident)
+    }
+    
+    // プロダクション環境では外部サービスに送信
+    // TODO: 実際の監視サービスとの連携を実装
+  }
+
+  private static persistIncident(incident: SecurityIncidentData): void {
+    try {
+      const existingIncidents = JSON.parse(localStorage.getItem('security_incidents') || '[]')
+      existingIncidents.push(incident)
+      
+      // 最新50件のみ保持
+      const limitedIncidents = existingIncidents.slice(-50)
+      localStorage.setItem('security_incidents', JSON.stringify(limitedIncidents))
+    } catch (error) {
+      console.error('Failed to persist security incident:', error)
+    }
+  }
+}
+
+/**
  * セキュリティレポート
  */
 export class SecurityReporting {
@@ -219,7 +493,6 @@ export class SecurityReporting {
 
   /**
    * CSP違反レポートを送信
-   * @param violationReport CSP違反レポート
    */
   static async reportCSPViolation(violationReport: Record<string, unknown>): Promise<void> {
     try {
@@ -243,8 +516,6 @@ export class SecurityReporting {
 
   /**
    * セキュリティインシデントレポートを送信
-   * @param incidentType インシデントタイプ
-   * @param details 詳細情報
    */
   static async reportSecurityIncident(
     incidentType: string,
@@ -273,13 +544,37 @@ export class SecurityReporting {
 }
 
 /**
- * セキュリティ設定の初期化
+ * セキュリティ機能の初期化
  */
 export function initializeSecurity(): void {
   // CSRFトークンの生成と保存
   if (!CSRFProtection.getToken()) {
     const token = CSRFProtection.generateToken()
-    CSRFProtection.storeToken(token)
+    CSRFProtection.storeToken(token.token)
+  }
+
+  // CSRFトークンのクリーンアップを定期実行
+  setInterval(() => {
+    CSRFProtection.cleanupExpiredTokens()
+  }, 300000) // 5分間隔
+
+  // セキュリティヘッダーの設定
+  const headers = SecurityHeadersUtil.getHeaders()
+  
+  // CSP違反の監視
+  if ('securitypolicyviolation' in window) {
+    window.addEventListener('securitypolicyviolation', (event) => {
+      SecurityIncidentReporter.reportIncident({
+        type: 'csrf_violation',
+        severity: 'medium',
+        details: {
+          blockedURI: event.blockedURI,
+          violatedDirective: event.violatedDirective,
+          originalPolicy: event.originalPolicy,
+          documentURI: event.documentURI
+        }
+      })
+    })
   }
 
   // CSP違反レポートのリスナー設定
@@ -308,4 +603,19 @@ export function initializeSecurity(): void {
       })
     }
   })
+
+  // 開発環境でのデバッグ情報表示
+  if (securityConfig.isDevelopment()) {
+    console.log('🔒 Security initialized:', {
+      environment: securityConfig.getCurrentEnvironment(),
+      config: securityConfig.getConfig(),
+      headers
+    })
+  }
 }
+
+// デフォルトエクスポート
+export {
+  securityConfig,
+  SecurityConfigManager
+} from '@/config/security'
