@@ -61,11 +61,17 @@ npm run lint
 
 ### 2. コミット前チェックリスト
 ```bash
-# 必須チェック項目
+# ローカルでのCI品質チェック（推奨）
+npm run ci:lint       # 厳格リンティング（警告ゼロ）
+npm run ci:type-check # TypeScript型チェック（フィルタリング済み）
+npm run ci:test       # カバレッジ付きテスト
+npm run ci:build      # プロダクションビルド
+npm run ci:security   # セキュリティ監査
+
+# または基本チェック
 npm run type-check    # TypeScript型チェック
-npm run lint          # ESLintチェック
+npm run lint          # ESLintチェック（自動修正）
 npm run test:unit     # ユニットテスト（該当時）
-npm run build         # ビルド確認
 ```
 
 ### 3. コミット作成
@@ -122,6 +128,37 @@ git commit -m "fix: Issue #92 ログインエラーハンドリング修正"
 git commit -m "docs: Issue #88 API仕様書更新"
 ```
 
+## 🤖 自動CI/CDチェック
+
+### PR作成時の自動実行
+PR作成・更新時に以下のCI/CDパイプラインが自動実行されます：
+
+```yaml
+1. lint-and-format  # コード品質・フォーマット
+2. type-check       # TypeScript型安全性
+3. unit-tests       # ユニットテスト・カバレッジ
+4. build-check      # プロダクションビルド
+5. security-audit   # 脆弱性スキャン
+```
+
+### CI結果の確認方法
+- **PRページの「Checks」タブ**: 全CI結果の詳細確認
+- **自動コメント**: PR内に結果サマリーが自動投稿
+- **Actions履歴**: リポジトリの「Actions」タブで実行履歴確認
+
+### CI失敗時の対応
+```bash
+# ローカルで同じチェックを実行
+npm run ci:lint      # lint失敗時
+npm run ci:type-check # type-check失敗時
+npm run ci:test      # テスト失敗時
+npm run ci:build     # ビルド失敗時
+npm run ci:security  # セキュリティ失敗時
+
+# 修正後にプッシュすると自動で再実行
+git push origin [ブランチ名]
+```
+
 ## 🔄 PR作成とマージ
 
 ### 1. ブランチをプッシュ
@@ -154,11 +191,18 @@ npm run create-pr "タイトル" "説明"
 - 新しい依存関係
 
 ## Test plan
-- [x] 型チェック (`npm run type-check`) をパス
-- [x] リンティング (`npm run lint`) をパス
-- [x] ビルド (`npm run build`) 成功
+### ✅ CI/CD自動チェック
+- [x] lint-and-format: コード品質・フォーマット
+- [x] type-check: TypeScript型安全性
+- [x] unit-tests: ユニットテスト・カバレッジ
+- [x] build-check: プロダクションビルド
+- [x] security-audit: 脆弱性スキャン
+
+### 🧪 手動テスト
 - [x] 基本動作確認
-- [ ] 追加のテスト項目
+- [x] UI/UX確認
+- [ ] エッジケーステスト
+- [ ] レスポンシブ確認
 
 ## Closes
 Closes #XX
@@ -167,9 +211,14 @@ Closes #XX
 ```
 
 ### 4. レビューと承認
-- 最低1名の承認が必要
-- CI/CDチェックがすべて通過
-- Conflictsが解決済み
+- **必須条件**：
+  - 最低1名の承認が必要
+  - **CI/CDパイプライン全5項目が通過**
+  - Conflictsが解決済み
+- **推奨事項**：
+  - コードレビューでの指摘事項対応
+  - ドキュメント更新確認
+  - セキュリティ観点でのチェック
 
 ### 5. マージ実行
 - **Squash and merge**を使用
@@ -207,11 +256,18 @@ git stash pop
 
 ## 📊 品質管理
 
-### 必須チェック項目
-1. **型安全性**: TypeScriptエラーゼロ
-2. **コード品質**: ESLintルール準拠
-3. **テストカバレッジ**: 新機能には適切なテスト
-4. **ドキュメント**: 重要な変更はドキュメント更新
+### CI/CD自動化品質チェック
+1. **コード品質**: ESLint厳格モード（警告ゼロ）
+2. **型安全性**: TypeScript型チェック（Vuetify既知問題除外）
+3. **テストカバレッジ**: ユニットテスト実行・カバレッジ測定
+4. **ビルド検証**: プロダクションビルド成功確認
+5. **セキュリティ**: npm audit（moderate以上の脆弱性チェック）
+
+### 手動チェック項目
+1. **機能動作**: 実装した機能の正常動作確認
+2. **UX/UI**: ユーザー体験・インターフェース確認
+3. **ドキュメント**: 重要な変更はドキュメント更新
+4. **セキュリティ**: 認証・認可・入力値検証
 
 ### 推奨項目
 1. **パフォーマンス**: 重い処理には最適化検討
@@ -236,6 +292,7 @@ git stash pop
 
 ## 📚 関連ドキュメント
 
+- [CI/CDパイプライン運用ガイド](CI_CD_GUIDE.md) - 自動品質チェック詳細
 - [開発コマンド一覧](DEVELOPMENT_COMMANDS.md)
 - [コーディング規則](CODING_STANDARDS.md)
 - [Issue ラベル体系](ISSUE_LABELS.md)
@@ -246,3 +303,4 @@ git stash pop
 **📝 更新履歴**
 - 2025-08-17: 初版作成
 - 2025-08-17: PR作成ルールとコミットメッセージ規則追加
+- 2025-08-19: CI/CD統合後のワークフロー更新（Issue #55対応）

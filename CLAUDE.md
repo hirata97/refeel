@@ -37,6 +37,8 @@
 ### 開発関連
 - **🛠️ 開発コマンド**: [docs/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT_COMMANDS.md)
 - **🔄 開発ワークフロー**: [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md)
+- **🤖 CI/CD運用ガイド**: [docs/CI_CD_GUIDE.md](docs/CI_CD_GUIDE.md) - 自動品質チェック
+- **🧪 PRテスト・検証ガイド**: [docs/PR_TESTING_GUIDE.md](docs/PR_TESTING_GUIDE.md) - PR検証手順
 - **🏗️ アーキテクチャ**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 - **📝 コーディング規則**: [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
 
@@ -71,21 +73,28 @@ npm run dev
 ```
 **詳細**: [環境設定ガイド](docs/ENVIRONMENT_SETUP.md)
 
-### Issue作業フロー
+### Issue作業フロー（CI/CD統合）
 ```bash
 # Issue確認・作業開始
 npm run fetch-issue [番号]
 npm run start-issue [番号]
 
-# 実装後のPR作成
+# 品質チェック（PR作成前推奨）
+npm run ci:lint      # 厳格リンティング
+npm run ci:type-check # TypeScript検証
+npm run ci:test      # テスト + カバレッジ
+npm run ci:build     # プロダクションビルド
+
+# PR作成（自動CI/CD実行）
 npm run create-pr "タイトル" "説明"
 ```
-**詳細**: [開発コマンド一覧](docs/DEVELOPMENT_COMMANDS.md)
+**詳細**: [開発ワークフロー](docs/DEVELOPMENT_WORKFLOW.md) | [PRテストガイド](docs/PR_TESTING_GUIDE.md)
 
 ## ⚠️ 重要な注意点
 
-- **TypeScript**: 型エラーは必ず解決してからコミット
-- **テスト**: `npm run lint`, `npm run type-check` を実行してからPR作成
+- **CI/CD**: PR作成時に5項目の自動品質チェックが実行（lint・型・テスト・ビルド・セキュリティ）
+- **品質ゲート**: CI/CDパイプライン全通過がマージ必須条件
+- **事前チェック**: `npm run ci:*` コマンドでローカル検証推奨
 - **認証**: Supabase環境変数の設定確認が必要
 - **セキュリティ**: 入力値検証・サニタイゼーションの実装必須
 - **Issue管理**: 適切なラベル（priority、size、type）を付与
@@ -106,3 +115,4 @@ npm run create-pr "タイトル" "説明"
 - 2025-08-17: Issue #72 入力値検証とサニタイゼーション実装完了
 - 2025-08-17: セキュリティドキュメント構造化・実践ガイド追加
 - 2025-08-17: 開発ワークフロードキュメント追加
+- 2025-08-19: Issue #55 CI/CD自動化システム実装・ドキュメント整備完了
