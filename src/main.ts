@@ -11,6 +11,7 @@ import { useAuthStore } from './stores/auth'
 import { useThemeStore } from './stores/theme'
 import { initializeSecurity } from './utils/security'
 import { AuditLogger, AuditEventType } from './utils/audit-logger'
+import { useTheme } from 'vuetify'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -92,7 +93,13 @@ window.addEventListener('error', (event) => {
 
 // 認証状態を初期化してからアプリをマウント
 authStore.initialize().finally(() => {
+  // アプリをマウント
+  app.mount('#app')
+  
+  // アプリマウント後にVuetifyテーマインスタンスをテーマストアに設定
+  const vuetifyThemeInstance = useTheme()
+  themeStore.setVuetifyTheme(vuetifyThemeInstance)
+  
   // テーマストアを初期化
   themeListenerCleanup = themeStore.initialize()
-  app.mount('#app')
 })
