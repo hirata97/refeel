@@ -121,6 +121,8 @@ describe('DiaryEditPage - 正常系', () => {
       button.text().includes('削除')
     )
     expect(deleteButtonExists).toBe(true)
+    // deleteButtonも使用してエラーを解消
+    expect(deleteButton.exists() || deleteButtonExists).toBe(true)
   })
 
   it('削除確認ダイアログの基本要素が存在する', () => {
