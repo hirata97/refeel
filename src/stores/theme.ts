@@ -16,7 +16,7 @@ export const useThemeStore = defineStore('theme', () => {
   const lastChanged = ref<number>(Date.now())
   
   // Vuetifyテーマインスタンス（後で設定される）
-  let vuetifyTheme: any = null
+  let vuetifyTheme: { global: { name: { value: string } } } | null = null
 
   // 計算プロパティ
   const isDarkMode = computed(() => {
@@ -50,7 +50,7 @@ export const useThemeStore = defineStore('theme', () => {
   }))
 
   // Vuetifyテーマインスタンスを設定
-  const setVuetifyTheme = (theme: any) => {
+  const setVuetifyTheme = (theme: { global: { name: { value: string } } }) => {
     vuetifyTheme = theme
   }
 
@@ -144,7 +144,7 @@ export const useThemeStore = defineStore('theme', () => {
 
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       
-      const handleSystemThemeChange = (e: MediaQueryListEvent) => {
+      const handleSystemThemeChange = () => {
         try {
           if (selectedTheme.value === 'auto') {
             applyThemeToVuetify('auto')
