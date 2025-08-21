@@ -9,7 +9,7 @@
       <!-- ステップ表示 -->
       <v-stepper v-model="currentStep" :items="stepItems" class="mb-4">
         <!-- ステップ1: 説明 -->
-        <template #item.1>
+        <template v-slot:[`item.1`]>
           <v-card flat>
             <v-card-text>
               <div class="text-h6 mb-3">2要素認証について</div>
@@ -40,7 +40,7 @@
         </template>
 
         <!-- ステップ2: QRコードスキャン -->
-        <template #item.2>
+        <template v-slot:[`item.2`]>
           <v-card flat>
             <v-card-text class="text-center">
               <div class="text-h6 mb-4">認証アプリでQRコードをスキャン</div>
@@ -103,7 +103,7 @@
         </template>
 
         <!-- ステップ3: 確認コード入力 -->
-        <template #item.3>
+        <template v-slot:[`item.3`]>
           <v-card flat>
             <v-card-text>
               <div class="text-h6 mb-4 text-center">確認コードを入力</div>
@@ -135,7 +135,7 @@
         </template>
 
         <!-- ステップ4: バックアップコード -->
-        <template #item.4>
+        <template v-slot:[`item.4`]>
           <v-card flat>
             <v-card-text>
               <div class="text-h6 mb-4 text-center">バックアップコード</div>

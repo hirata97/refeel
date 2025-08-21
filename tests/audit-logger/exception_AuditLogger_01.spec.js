@@ -14,7 +14,6 @@ import {
 describe('AuditLogger - 異常系', () => {
   let logger
   let consoleErrorSpy
-  let consoleWarnSpy
 
   beforeEach(() => {
     localStorage.clear()
@@ -22,7 +21,6 @@ describe('AuditLogger - 異常系', () => {
     
     // コンソール出力をスパイ
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'log').mockImplementation(() => {})
   })
 

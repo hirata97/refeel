@@ -27,7 +27,7 @@ const consoleSpy = {
 
 describe('AccountLockoutManager - 異常系・エラーハンドリングテスト', () => {
   let lockoutManager: AccountLockoutManager
-  let mockAuditLogger: any
+  let mockAuditLogger: Partial<AuditLogger>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -161,7 +161,7 @@ describe('AccountLockoutManager - 異常系・エラーハンドリングテス�
       ).resolves.not.toThrow()
 
       await expect(
-        lockoutManager.recordLoginAttempt(email, true, null as any, null as any)
+        lockoutManager.recordLoginAttempt(email, true, undefined, undefined)
       ).resolves.not.toThrow()
     })
 
@@ -338,7 +338,7 @@ describe('AccountLockoutManager - 異常系・エラーハンドリングテス�
       
       // setItemが呼ばれるたびに異なるデータが返される状況をシミュレート
       let callCount = 0
-      localStorage.setItem = vi.fn().mockImplementation((key, value) => {
+      localStorage.setItem = vi.fn().mockImplementation(() => {
         callCount++
         if (callCount > 1) {
           // 2回目以降は競合状態をシミュレート

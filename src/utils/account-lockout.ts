@@ -300,7 +300,7 @@ export class AccountLockoutManager {
       const allAttempts = localStorage.getItem('login_attempts')
       if (allAttempts) {
         const parsed = JSON.parse(allAttempts)
-        totalFailed = Object.values(parsed).flat().filter((attempt: any) => {
+        totalFailed = Object.values(parsed as Record<string, LoginAttempt[]>).flat().filter((attempt: LoginAttempt) => {
           return !attempt.success && new Date(attempt.timestamp) > yesterday
         }).length
       }
@@ -332,7 +332,7 @@ export class AccountLockoutManager {
       // 古いエントリを削除（30日以上前）
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       attempts[attempt.email] = attempts[attempt.email].filter(
-        (a: any) => new Date(a.timestamp) > thirtyDaysAgo
+        (a: LoginAttempt) => new Date(a.timestamp) > thirtyDaysAgo
       )
       
       localStorage.setItem(key, JSON.stringify(attempts))
@@ -356,7 +356,7 @@ export class AccountLockoutManager {
       const attempts = JSON.parse(stored)
       const userAttempts = attempts[email] || []
       
-      return userAttempts.map((attempt: any) => ({
+      return userAttempts.map((attempt: Partial<LoginAttempt> & { timestamp: string }) => ({
         ...attempt,
         timestamp: new Date(attempt.timestamp)
       }))
@@ -374,7 +374,7 @@ export class AccountLockoutManager {
       const attempts = JSON.parse(stored)
       if (attempts[email]) {
         // 失敗した試行のみを削除し、成功した試行は保持
-        attempts[email] = attempts[email].filter((attempt: any) => attempt.success)
+        attempts[email] = attempts[email].filter((attempt: LoginAttempt) => attempt.success)
         localStorage.setItem('login_attempts', JSON.stringify(attempts))
       }
     } catch (error) {
@@ -422,7 +422,7 @@ export class AccountLockoutManager {
       if (!stored) return []
       
       const lockouts = JSON.parse(stored)
-      return Object.values(lockouts).map((lockout: any) => ({
+      return Object.values(lockouts as Record<string, LockoutInfo & { lockoutStart: string; lockoutEnd: string }>).map((lockout) => ({
         ...lockout,
         lockoutStart: new Date(lockout.lockoutStart),
         lockoutEnd: new Date(lockout.lockoutEnd)
@@ -448,4 +448,4 @@ export class AccountLockoutManager {
 }
 
 // エクスポート用インスタンス
-export const accountLockoutManager = new AccountLockoutManager()
+export const accountLockoutManager = new AccountLockoutManager();

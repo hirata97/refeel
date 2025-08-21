@@ -257,7 +257,7 @@ export class EnhancedSessionManager {
       if (!stored) return []
       
       const devices = JSON.parse(stored)
-      return devices.map((device: any) => ({
+      return devices.map((device: Partial<DeviceInfo> & { firstSeen: string; lastSeen: string }) => ({
         ...device,
         firstSeen: new Date(device.firstSeen),
         lastSeen: new Date(device.lastSeen)
@@ -551,7 +551,7 @@ export class EnhancedSessionManager {
       if (!stored) return []
       
       const sessions = JSON.parse(stored)
-      return sessions.map((session: any) => ({
+      return sessions.map((session: Partial<SessionInfo> & { createdAt: string; lastActivity: string; expiresAt: string }) => ({
         ...session,
         createdAt: new Date(session.createdAt),
         lastActivity: new Date(session.lastActivity),
@@ -579,7 +579,7 @@ export class EnhancedSessionManager {
       if (!stored) return []
       
       const alerts = JSON.parse(stored)
-      return alerts.map((alert: any) => ({
+      return alerts.map((alert: Partial<SecurityAlert> & { timestamp: string }) => ({
         ...alert,
         timestamp: new Date(alert.timestamp)
       }))
@@ -591,4 +591,4 @@ export class EnhancedSessionManager {
 }
 
 // エクスポート用インスタンス
-export const enhancedSessionManager = new EnhancedSessionManager()
+export const enhancedSessionManager = new EnhancedSessionManager();

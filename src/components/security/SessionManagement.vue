@@ -63,7 +63,7 @@
         class="mb-6"
         density="compact"
       >
-        <template #item.device="{ item }">
+        <template v-slot:[`item.device`]="{ item }">
           <div class="d-flex align-center">
             <v-icon :class="getDeviceIcon(item.userAgent).class" class="me-2">
               {{ getDeviceIcon(item.userAgent).icon }}
@@ -79,7 +79,7 @@
           </div>
         </template>
 
-        <template #item.status="{ item }">
+        <template v-slot:[`item.status`]="{ item }">
           <v-chip 
             :color="item.isActive ? 'success' : 'error'"
             size="small"
@@ -88,7 +88,7 @@
           </v-chip>
         </template>
 
-        <template #item.lastActivity="{ item }">
+        <template v-slot:[`item.lastActivity`]="{ item }">
           <div>
             <div class="text-body-2">
               {{ formatDate(item.lastActivity) }}
@@ -99,7 +99,7 @@
           </div>
         </template>
 
-        <template #item.current="{ item }">
+        <template v-slot:[`item.current`]="{ item }">
           <v-chip 
             v-if="isCurrentSession(item)"
             color="primary"
@@ -109,7 +109,7 @@
           </v-chip>
         </template>
 
-        <template #item.actions="{ item }">
+        <template v-slot:[`item.actions`]="{ item }">
           <v-btn
             v-if="!isCurrentSession(item)"
             icon="mdi-close"
