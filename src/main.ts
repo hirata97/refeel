@@ -8,6 +8,7 @@ import vuetify from './plugins/vuetify'
 import router from './router'
 import { supabase } from './lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
+import { useThemeStore } from './stores/theme'
 import { initializeSecurity } from './utils/security'
 import { AuditLogger, AuditEventType } from './utils/audit-logger'
 
@@ -26,6 +27,9 @@ initializeSecurity()
 // 認証ストアの初期化
 const authStore = useAuthStore()
 
+// テーマストアの初期化
+const themeStore = useThemeStore()
+
 // 監査ログサービスの初期化
 const auditLogger = AuditLogger.getInstance()
 
@@ -38,6 +42,9 @@ if (typeof authStore.startSessionMonitoring === 'function') {
   sessionMonitoringCleanup = authStore.startSessionMonitoring()
 }
 
+// テーマストアを初期化（システムテーマリスナーを設定）
+let themeListenerCleanup: (() => void) | null = null
+
 // アプリケーション開始をログに記録
 auditLogger.log(AuditEventType.SYSTEM_INFO, 'アプリケーションが開始されました')
 
@@ -49,6 +56,11 @@ window.addEventListener('beforeunload', () => {
   // セッション監視を停止
   if (sessionMonitoringCleanup) {
     sessionMonitoringCleanup()
+  }
+  
+  // テーマリスナーを解除
+  if (themeListenerCleanup) {
+    themeListenerCleanup()
   }
   
   // アプリケーション終了をログに記録
@@ -80,5 +92,7 @@ window.addEventListener('error', (event) => {
 
 // 認証状態を初期化してからアプリをマウント
 authStore.initialize().finally(() => {
+  // テーマストアを初期化
+  themeListenerCleanup = themeStore.initialize()
   app.mount('#app')
 })
