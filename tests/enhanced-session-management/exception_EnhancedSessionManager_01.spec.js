@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { EnhancedSessionManager, DEFAULT_SESSION_SETTINGS } from '../../src/utils/enhanced-session-management.ts'
+import { EnhancedSessionManager } from '../../src/utils/enhanced-session-management.ts'
 import { AuditLogger } from '../../src/utils/audit-logger.ts'
 
 // global objects のモック
@@ -42,7 +42,7 @@ const consoleSpy = {
 
 describe('EnhancedSessionManager - 異常系・エラーハンドリングテスト', () => {
   let sessionManager: EnhancedSessionManager
-  let mockAuditLogger: any
+  let mockAuditLogger: Partial<AuditLogger>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -173,10 +173,10 @@ describe('EnhancedSessionManager - 異常系・エラーハンドリングテス
       localStorage.getItem = vi.fn().mockReturnValue(null)
       localStorage.setItem = vi.fn()
 
-      const sessionInfo1 = await sessionManager.createSession(userId, sessionId + '1', undefined as any, undefined as any)
+      const sessionInfo1 = await sessionManager.createSession(userId, sessionId + '1', '', '')
       expect(sessionInfo1).toBeDefined()
 
-      const sessionInfo2 = await sessionManager.createSession(userId, sessionId + '2', null as any, null as any)
+      const sessionInfo2 = await sessionManager.createSession(userId, sessionId + '2', '', '')
       expect(sessionInfo2).toBeDefined()
     })
 
@@ -380,7 +380,7 @@ describe('EnhancedSessionManager - 異常系・エラーハンドリングテス
       
       // setItemが呼ばれるたびに異なる動作をする状況をシミュレート
       let callCount = 0
-      localStorage.setItem = vi.fn().mockImplementation((key, value) => {
+      localStorage.setItem = vi.fn().mockImplementation(() => {
         callCount++
         if (callCount > 2) {
           // 3回目以降は競合状態をシミュレート

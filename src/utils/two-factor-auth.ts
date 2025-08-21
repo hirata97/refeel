@@ -117,7 +117,7 @@ class HMAC {
 /**
  * TOTP (Time-based One-Time Password) 実装
  */
-class TOTPGenerator {
+export class TOTPGenerator {
   private options: TOTPOptions
 
   constructor(options: Partial<TOTPOptions> = {}) {

@@ -54,7 +54,7 @@ export interface AuditLogEntry {
   sessionId?: string
   ipAddress?: string
   userAgent?: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   source: string
 }
 
@@ -93,7 +93,7 @@ export class AuditLogger {
   async log(
     eventType: AuditEventType,
     message: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     const entry: AuditLogEntry = {
       id: this.generateLogId(),
@@ -104,10 +104,10 @@ export class AuditLogger {
       metadata,
       source: 'web_app',
       // 実際の実装ではセッション情報から取得
-      userId: metadata?.userId,
-      sessionId: metadata?.sessionId,
-      ipAddress: metadata?.ipAddress,
-      userAgent: metadata?.userAgent
+      userId: metadata?.userId as string | undefined,
+      sessionId: metadata?.sessionId as string | undefined,
+      ipAddress: metadata?.ipAddress as string | undefined,
+      userAgent: metadata?.userAgent as string | undefined
     }
 
     // ログエントリを保存
@@ -339,7 +339,7 @@ export class AuditLogger {
       if (!stored) return []
 
       const logs = JSON.parse(stored)
-      return logs.map((log: any) => ({
+      return logs.map((log: Partial<AuditLogEntry> & { timestamp: string }) => ({
         ...log,
         timestamp: new Date(log.timestamp)
       }))

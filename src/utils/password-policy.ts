@@ -52,7 +52,7 @@ const COMMON_PASSWORDS = [
 ]
 
 // 特殊文字の定義
-const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?'
+export const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?'
 
 /**
  * パスワード強度チェッククラス
@@ -180,7 +180,12 @@ export class PasswordValidator {
 
     const lowerPassword = password.toLowerCase()
     
-    if (COMMON_PASSWORDS.some(common => lowerPassword.includes(common.toLowerCase()))) {
+    // 完全一致または長い一般的パスワードが含まれる場合のみ拒否
+    if (COMMON_PASSWORDS.some(common => {
+      const lowerCommon = common.toLowerCase()
+      return lowerPassword === lowerCommon || 
+             (lowerCommon.length >= 6 && lowerPassword.includes(lowerCommon))
+    })) {
       result.errors.push('このパスワードは一般的すぎるため使用できません')
     }
 
@@ -206,8 +211,11 @@ export class PasswordValidator {
   private calculateStrengthScore(password: string): number {
     let score = 0
 
-    // 長さによるスコア（最大30点）
-    score += Math.min(password.length * 2, 30)
+    // 基本長さスコア（最大25点）
+    if (password.length >= 8) score += 10
+    if (password.length >= 12) score += 5
+    if (password.length >= 16) score += 5
+    if (password.length >= 20) score += 5
 
     // 文字種類による加点
     if (/[a-z]/.test(password)) score += 10
@@ -215,14 +223,23 @@ export class PasswordValidator {
     if (/\d/.test(password)) score += 10
     if (new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password)) score += 15
 
-    // 多様性による加点
+    // 多様性による加点（最大20点）
     const uniqueChars = new Set(password).size
-    score += Math.min(uniqueChars * 2, 20)
+    score += Math.min(uniqueChars * 1.5, 20)
+
+    // 長さボーナス（12文字以上で追加点）
+    if (password.length >= 12) {
+      score += Math.min((password.length - 12) * 2, 10)
+    }
 
     // パターン分析による減点
     if (/(.)\1{2,}/.test(password)) score -= 10
     if (/123|234|345|456|567|678|789|890/.test(password)) score -= 15
     if (/qwerty|asdf|zxcv/i.test(password)) score -= 15
+
+    // 短いパスワードへの追加ペナルティ
+    if (password.length < 8) score -= 20
+    if (password.length < 6) score -= 30
 
     return Math.max(0, Math.min(100, score))
   }
@@ -334,7 +351,7 @@ export class PasswordHistoryManager {
       if (!stored) return []
       
       const history = JSON.parse(stored)
-      return history.map((entry: any) => ({
+      return history.map((entry: Partial<PasswordHistoryEntry> & { createdAt: string }) => ({
         ...entry,
         createdAt: new Date(entry.createdAt)
       }))

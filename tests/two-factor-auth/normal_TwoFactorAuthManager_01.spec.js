@@ -8,8 +8,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { 
   TwoFactorAuthManager,
   twoFactorAuthManager,
-  TOTPGenerator,
-  DEFAULT_TOTP_OPTIONS
+  TOTPGenerator
 } from '@/utils/two-factor-auth'
 
 // Crypto API のモック（Node.js環境用）
@@ -65,7 +64,7 @@ describe('TwoFactorAuthManager - 正常系', () => {
       
       expect(typeof result.secret).toBe('string')
       expect(result.secret.length).toBeGreaterThan(0)
-      expect(result.qrCodeUrl).toContain('otpauth://totp/')
+      expect(result.qrCodeUrl).toContain(encodeURIComponent('otpauth://totp/'))
       expect(Array.isArray(result.backupCodes)).toBe(true)
       expect(result.backupCodes).toHaveLength(8)
       expect(typeof result.manualEntryKey).toBe('string')
@@ -74,7 +73,7 @@ describe('TwoFactorAuthManager - 正常系', () => {
     it('QRコードURLが正しい形式で生成されること', async () => {
       const result = await manager.setup2FA(testUserId, testUserEmail)
       
-      expect(result.qrCodeUrl).toContain('otpauth://totp/')
+      expect(result.qrCodeUrl).toContain(encodeURIComponent('otpauth://totp/'))
       expect(result.qrCodeUrl).toContain(encodeURIComponent(testUserEmail))
       expect(result.qrCodeUrl).toContain('Goal%20Categorization%20Diary')
       expect(result.qrCodeUrl).toContain('secret=')
