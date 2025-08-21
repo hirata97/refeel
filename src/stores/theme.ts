@@ -1,6 +1,5 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { useTheme } from 'vuetify'
 
 export type ThemeName = 'light' | 'dark' | 'auto'
 
@@ -15,6 +14,9 @@ export const useThemeStore = defineStore('theme', () => {
   const selectedTheme = ref<ThemeName>('light')
   const systemPreference = ref<boolean>(false)
   const lastChanged = ref<number>(Date.now())
+  
+  // Vuetifyテーマインスタンス（後で設定される）
+  let vuetifyTheme: any = null
 
   // 計算プロパティ
   const isDarkMode = computed(() => {
@@ -47,20 +49,21 @@ export const useThemeStore = defineStore('theme', () => {
     lastChanged: lastChanged.value,
   }))
 
-  // アクション
-  const setTheme = (theme: ThemeName) => {
-    selectedTheme.value = theme
-    lastChanged.value = Date.now()
+  // Vuetifyテーマインスタンスを設定
+  const setVuetifyTheme = (theme: any) => {
+    vuetifyTheme = theme
+  }
+
+  // テーマをVuetifyに反映
+  const applyThemeToVuetify = (theme: ThemeName) => {
+    if (!vuetifyTheme) return
     
     try {
-      // Vuetifyテーマに反映
-      const vuetifyTheme = useTheme()
       if (theme === 'auto') {
         if (typeof window !== 'undefined' && window.matchMedia) {
           const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
           vuetifyTheme.global.name.value = mediaQuery.matches ? 'dark' : 'light'
         } else {
-          // fallback to light theme if matchMedia is not available
           vuetifyTheme.global.name.value = 'light'
         }
       } else {
@@ -69,6 +72,15 @@ export const useThemeStore = defineStore('theme', () => {
     } catch (error) {
       console.warn('テーマ設定の反映に失敗しました:', error)
     }
+  }
+
+  // アクション
+  const setTheme = (theme: ThemeName) => {
+    selectedTheme.value = theme
+    lastChanged.value = Date.now()
+    
+    // Vuetifyテーマに反映
+    applyThemeToVuetify(theme)
     
     // ローカルストレージに保存
     saveToLocalStorage()
@@ -114,13 +126,7 @@ export const useThemeStore = defineStore('theme', () => {
         lastChanged.value = preferences.lastChanged || Date.now()
         
         // Vuetifyテーマに即座に反映
-        const vuetifyTheme = useTheme()
-        if (selectedTheme.value === 'auto') {
-          const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-          vuetifyTheme.global.name.value = mediaQuery.matches ? 'dark' : 'light'
-        } else {
-          vuetifyTheme.global.name.value = selectedTheme.value
-        }
+        applyThemeToVuetify(selectedTheme.value)
       }
     } catch (error) {
       console.warn('テーマ設定の読み込みに失敗しました:', error)
@@ -141,8 +147,7 @@ export const useThemeStore = defineStore('theme', () => {
       const handleSystemThemeChange = (e: MediaQueryListEvent) => {
         try {
           if (selectedTheme.value === 'auto') {
-            const vuetifyTheme = useTheme()
-            vuetifyTheme.global.name.value = e.matches ? 'dark' : 'light'
+            applyThemeToVuetify('auto')
           }
         } catch (error) {
           console.warn('システムテーマ変更の処理に失敗しました:', error)
@@ -233,5 +238,7 @@ export const useThemeStore = defineStore('theme', () => {
     initialize,
     getThemeOptions,
     updateCSSVariables,
+    setVuetifyTheme,
+    applyThemeToVuetify,
   }
 })

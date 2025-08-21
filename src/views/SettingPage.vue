@@ -64,10 +64,12 @@ import { onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore, type ThemeName } from '@/stores/theme'
+import { useTheme } from 'vuetify'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
+const vuetifyTheme = useTheme()
 
 // テーマオプション
 const themeOptions = computed(() => themeStore.getThemeOptions())
@@ -92,6 +94,9 @@ onMounted(() => {
     router.push('/login')
     return
   }
+  
+  // Vuetifyテーマインスタンスをテーマストアに設定
+  themeStore.setVuetifyTheme(vuetifyTheme)
   
   // テーマストアを初期化
   cleanupThemeListener = themeStore.initialize()
