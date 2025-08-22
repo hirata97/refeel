@@ -28,7 +28,9 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: process.env.CI 
+    ? [['html'], ['github'], ['list']]
+    : [['html'], ['list']],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
@@ -44,7 +46,23 @@ export default defineConfig({
   },
 
   /* Configure projects for major browsers */
-  projects: [
+  projects: process.env.CI ? [
+    // CI環境では軽量なテスト構成
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+      },
+    },
+    {
+      name: 'Mobile Chrome',
+      use: {
+        ...devices['Pixel 5'],
+      },
+    },
+  ] : [
+    // ローカル環境では包括的なテスト構成
+    // Desktop browsers
     {
       name: 'chromium',
       use: {
@@ -64,33 +82,66 @@ export default defineConfig({
       },
     },
 
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: {
-    //     ...devices['Pixel 5'],
-    //   },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: {
-    //     ...devices['iPhone 12'],
-    //   },
-    // },
+    // Mobile viewports
+    {
+      name: 'Mobile Chrome',
+      use: {
+        ...devices['Pixel 5'],
+      },
+    },
+    {
+      name: 'Mobile Safari',
+      use: {
+        ...devices['iPhone 12'],
+      },
+    },
 
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: {
-    //     channel: 'msedge',
-    //   },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: {
-    //     channel: 'chrome',
-    //   },
-    // },
+    // Tablet viewports
+    {
+      name: 'Tablet Chrome',
+      use: {
+        ...devices['Galaxy Tab S4'],
+      },
+    },
+    {
+      name: 'iPad',
+      use: {
+        ...devices['iPad Pro'],
+      },
+    },
+
+    // Branded browsers (enabled for comprehensive testing)
+    {
+      name: 'Microsoft Edge',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'msedge',
+      },
+    },
+    {
+      name: 'Google Chrome',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+      },
+    },
+
+    // Custom test configurations
+    {
+      name: 'High DPI',
+      use: {
+        ...devices['Desktop Chrome'],
+        deviceScaleFactor: 2,
+        viewport: { width: 1920, height: 1080 },
+      },
+    },
+    {
+      name: 'Low Resolution',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1024, height: 768 },
+      },
+    },
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */
