@@ -327,7 +327,7 @@ test.describe('認証システム', () => {
       
       // 認証が必要なページにアクセスしようとする
       await authHelper.page.goto('/dashboard')
-      await authHelper.page.waitForLoadState('networkidle')
+      await authHelper.page.waitForLoadState('domcontentloaded')
       
       // ログインページにリダイレクトされることを確認
       await expect(authHelper.page).toHaveURL(/\/login/)
@@ -421,16 +421,13 @@ test.describe('認証システム', () => {
   })
 })
 
-test.describe('2要素認証フロー (未実装)', () => {
-  // 2要素認証のテストは実装状況に応じてskipまたは有効化
-  
-  test.skip('2FA有効時のログインフロー', async () => {
-    // 2要素認証が有効な場合のログインフローをテスト
-    // 実装完了後に有効化
-  })
-
-  test.skip('2FAコード入力とタイムアウト', async () => {
-    // 2FAコードの入力とタイムアウト処理をテスト
-    // 実装完了後に有効化
-  })
-})
+// TODO: 2要素認証フロー実装時に有効化
+// test.describe('2要素認証フロー (未実装)', () => {
+//   test('2FA有効時のログインフロー', async ({ page }) => {
+//     // 2要素認証が有効な場合のログインフローをテスト
+//   })
+//
+//   test('2FAコード入力とタイムアウト', async ({ page }) => {
+//     // 2FAコードの入力とタイムアウト処理をテスト
+//   })
+// })
