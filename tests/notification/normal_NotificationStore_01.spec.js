@@ -49,7 +49,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('成功通知を正常に表示できる', () => {
-    const id = notificationStore.showSuccess('成功', '処理が完了しました')
+    /*const id =*/ notificationStore.showSuccess('成功', '処理が完了しました')
 
     expect(id).toBeDefined()
     expect(notificationStore.notifications).toHaveLength(1)
@@ -61,7 +61,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('エラー通知を正常に表示できる', () => {
-    const id = notificationStore.showError('エラー', '処理に失敗しました')
+    /*const id =*/ notificationStore.showError('エラー', '処理に失敗しました')
 
     expect(id).toBeDefined()
     expect(notificationStore.notifications).toHaveLength(1)
@@ -74,7 +74,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('警告通知を正常に表示できる', () => {
-    const id = notificationStore.showWarning('警告', '注意が必要です')
+    /*const id =*/ notificationStore.showWarning('警告', '注意が必要です')
 
     expect(id).toBeDefined()
     expect(notificationStore.notifications).toHaveLength(1)
@@ -87,7 +87,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('情報通知を正常に表示できる', () => {
-    const id = notificationStore.showInfo('情報', 'お知らせです')
+    /*const id =*/ notificationStore.showInfo('情報', 'お知らせです')
 
     expect(id).toBeDefined()
     expect(notificationStore.notifications).toHaveLength(1)
@@ -99,7 +99,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('通知を手動で削除できる', () => {
-    const id = notificationStore.addNotification({
+    /*const id =*/ notificationStore.addNotification({
       type: 'info',
       title: 'テスト通知'
     })
@@ -145,7 +145,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('自動削除が設定された通知が時間経過後に削除される', () => {
-    const id = notificationStore.addNotification({
+    /*const id =*/ notificationStore.addNotification({
       type: 'info',
       title: 'テスト通知',
       timeout: 1000
@@ -160,7 +160,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('persistentな通知は自動削除されない', () => {
-    const id = notificationStore.addNotification({
+    /*const id =*/ notificationStore.addNotification({
       type: 'warning',
       title: '永続通知',
       persistent: true,
@@ -179,7 +179,7 @@ describe('NotificationStore - 正常系テスト', () => {
   it('アクションを含む通知を正常に作成できる', () => {
     const mockAction = vi.fn()
     
-    const id = notificationStore.addNotification({
+    /*const id =*/ notificationStore.addNotification({
       type: 'error',
       title: 'エラー',
       message: 'リトライできます',
@@ -199,7 +199,7 @@ describe('NotificationStore - 正常系テスト', () => {
   })
 
   it('カスタムオプションで通知をオーバーライドできる', () => {
-    const id = notificationStore.showSuccess(
+    /*const id =*/ notificationStore.showSuccess(
       '成功',
       'カスタム設定',
       {

@@ -31,7 +31,7 @@ withDefaults(defineProps<Props>(), {
   loading: false,
   disabled: false,
   block: false,
-  type: 'button'
+  type: 'button',
 })
 
 defineEmits<{

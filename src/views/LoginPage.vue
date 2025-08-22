@@ -7,7 +7,7 @@
   >
     <template #content>
       <!-- アカウントロックアウト警告 -->
-      <v-alert 
+      <v-alert
         v-if="lockoutInfo"
         type="error"
         class="mb-4"
@@ -26,9 +26,9 @@
         <div v-else-if="lockoutInfo.failedAttempts > 0">
           <strong>ログイン失敗警告</strong>
           <div class="text-body-2 mt-1">
-            失敗回数: {{ lockoutInfo.failedAttempts }}回
-            <br>残り試行回数: {{ lockoutInfo.remainingAttempts }}回
-            <br>制限に達するとアカウントが一時的にロックされます。
+            失敗回数: {{ lockoutInfo.failedAttempts }}回 <br />残り試行回数:
+            {{ lockoutInfo.remainingAttempts }}回
+            <br />制限に達するとアカウントが一時的にロックされます。
           </div>
         </div>
       </v-alert>
@@ -51,9 +51,7 @@
       >
         <v-icon class="me-2">mdi-shield-key</v-icon>
         <strong>2要素認証が必要です</strong>
-        <div class="text-body-2 mt-1">
-          セキュリティのため、2要素認証コードの入力が必要です。
-        </div>
+        <div class="text-body-2 mt-1">セキュリティのため、2要素認証コードの入力が必要です。</div>
       </v-alert>
 
       <!-- メールアドレス入力 -->
@@ -98,7 +96,11 @@
       </div>
 
       <!-- セキュリティヒント -->
-      <v-expansion-panels v-if="!show2FAVerification && !lockoutInfo?.isLocked" variant="accordion" class="mb-4">
+      <v-expansion-panels
+        v-if="!show2FAVerification && !lockoutInfo?.isLocked"
+        variant="accordion"
+        class="mb-4"
+      >
         <v-expansion-panel>
           <v-expansion-panel-title>
             <v-icon class="me-2">mdi-information</v-icon>
@@ -142,11 +144,7 @@
       >
         Login
       </BaseButton>
-      <BaseButton
-        color="secondary"
-        block
-        @click="navigateToTopPage"
-      >
+      <BaseButton color="secondary" block @click="navigateToTopPage">
         トップページに戻る
       </BaseButton>
     </template>
@@ -172,15 +170,8 @@ const show2FAVerification = ref(false)
 const lockoutCheckInterval = ref<NodeJS.Timeout | null>(null)
 
 // シンプルなフォーム管理を使用
-const { 
-  email,
-  password,
-  emailError,
-  passwordError,
-  isSubmitting,
-  validateField,
-  handleSubmit
-} = useSimpleLoginForm()
+const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit } =
+  useSimpleLoginForm()
 
 // アカウントロックアウト情報を取得
 const lockoutInfo = computed(() => authStore.lockoutStatus)
@@ -199,7 +190,7 @@ const showError = computed({
     if (!value) {
       authStore.clearError()
     }
-  }
+  },
 })
 
 // エラークリア関数
@@ -221,7 +212,7 @@ const startLockoutStatusCheck = (email: string) => {
   if (lockoutCheckInterval.value) {
     clearInterval(lockoutCheckInterval.value)
   }
-  
+
   lockoutCheckInterval.value = setInterval(async () => {
     if (lockoutInfo.value?.isLocked) {
       await authStore.checkLockoutStatus(email)
@@ -283,7 +274,7 @@ const handleLogin = async (isValid: boolean) => {
   if (!isValid || lockoutInfo.value?.isLocked) return
 
   let sanitizedEmail = 'unknown'
-  
+
   try {
     // バリデーションとサニタイゼーションを実行
     const sanitizedData = await handleSubmit()
@@ -291,7 +282,7 @@ const handleLogin = async (isValid: boolean) => {
 
     // 追加のセキュリティ検証（XSSフレームワークによる）
     sanitizedEmail = XSSProtection.sanitizeText(sanitizedData.email)
-    
+
     // メールアドレス形式の検証
     if (!InputValidation.isValidEmail(sanitizedEmail)) {
       authStore.setError('有効なメールアドレスを入力してください')
@@ -304,7 +295,7 @@ const handleLogin = async (isValid: boolean) => {
     if (result.success) {
       // ログイン成功をログに記録
       await logAuthAttempt(true, sanitizedEmail)
-      
+
       // ログイン成功時は認証ストアが自動的に状態を更新する
       // ダッシュボードにリダイレクト
       router.push('/dashboard')
@@ -316,7 +307,7 @@ const handleLogin = async (isValid: boolean) => {
     } else {
       // ログイン失敗をログに記録
       await logAuthAttempt(false, sanitizedEmail, result.error || 'login_failed')
-      
+
       // ロックアウト関連のUI更新のため、ステータスを再取得
       await authStore.checkLockoutStatus(sanitizedEmail)
       if (lockoutInfo.value?.failedAttempts || lockoutInfo.value?.isLocked) {

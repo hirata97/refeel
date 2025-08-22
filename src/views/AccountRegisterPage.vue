@@ -77,7 +77,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // シンプルなフォーム管理を使用
-const { 
+const {
   username,
   email,
   password,
@@ -88,7 +88,7 @@ const {
   confirmPasswordError,
   isSubmitting,
   validateField,
-  handleSubmit
+  handleSubmit,
 } = useSimpleRegisterForm()
 
 // エラーメッセージやローディング状態
@@ -105,7 +105,7 @@ onMounted(() => {
 // フォーム送信時の処理
 const handleRegister = async () => {
   let sanitizedEmail = 'unknown'
-  
+
   try {
     // バリデーションとサニタイゼーションを実行
     const sanitizedData = await handleSubmit()
@@ -126,9 +126,9 @@ const handleRegister = async () => {
     }
 
     try {
-      // ユーザー登録成功をログに記録  
+      // ユーザー登録成功をログに記録
       await logAuthAttempt(true, sanitizedEmail)
-      
+
       // 認証ストアを使用してユーザー登録
       const result = await authStore.signUp(sanitizedData.email, sanitizedData.password)
 
@@ -151,7 +151,9 @@ const handleRegister = async () => {
 
           // 確認メールが必要な場合
           if (result.needsConfirmation) {
-            authStore.setError('確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。')
+            authStore.setError(
+              '確認メールを送信しました。メールを確認してアカウントをアクティブ化してください。',
+            )
             // エラーではないので、ログインページに移動
             setTimeout(() => {
               router.push('/login')

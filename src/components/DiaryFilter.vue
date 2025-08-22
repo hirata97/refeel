@@ -4,13 +4,7 @@
       <v-icon>mdi-filter</v-icon>
       フィルター
       <v-spacer />
-      <v-btn
-        variant="text"
-        size="small"
-        @click="clearAllFilters"
-      >
-        クリア
-      </v-btn>
+      <v-btn variant="text" size="small" @click="clearAllFilters"> クリア </v-btn>
     </v-card-title>
 
     <v-card-text>
@@ -104,20 +98,12 @@
         <!-- フィルター適用ボタン -->
         <v-col cols="12" md="6" lg="6">
           <div class="filter-actions">
-            <v-btn
-              color="primary"
-              variant="elevated"
-              :loading="loading"
-              @click="applyFilters"
-            >
+            <v-btn color="primary" variant="elevated" :loading="loading" @click="applyFilters">
               <v-icon>mdi-filter-check</v-icon>
               フィルター適用
             </v-btn>
-            
-            <v-btn
-              variant="outlined"
-              @click="clearAllFilters"
-            >
+
+            <v-btn variant="outlined" @click="clearAllFilters">
               <v-icon>mdi-filter-remove</v-icon>
               リセット
             </v-btn>
@@ -172,7 +158,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   categories: () => [],
-  loading: false
+  loading: false,
 })
 
 const emit = defineEmits<Emits>()
@@ -183,67 +169,67 @@ const localFilters = ref<FilterValues>({ ...props.filters })
 // カテゴリオプション
 const categoryOptions = computed(() => [
   { title: 'すべて', value: '' },
-  ...props.categories.map(cat => ({ title: cat, value: cat }))
+  ...props.categories.map((cat) => ({ title: cat, value: cat })),
 ])
 
 // アクティブフィルターの計算
 const hasActiveFilters = computed(() => {
-  return Object.values(localFilters.value).some(value => 
-    value !== null && value !== undefined && value !== ''
+  return Object.values(localFilters.value).some(
+    (value) => value !== null && value !== undefined && value !== '',
   )
 })
 
 const activeFiltersList = computed(() => {
   const filters = []
-  
+
   if (localFilters.value.goal_category) {
     filters.push({
       key: 'goal_category',
       label: 'カテゴリ',
-      value: localFilters.value.goal_category
+      value: localFilters.value.goal_category,
     })
   }
-  
+
   if (localFilters.value.search_text) {
     filters.push({
       key: 'search_text',
       label: '検索',
-      value: localFilters.value.search_text
+      value: localFilters.value.search_text,
     })
   }
-  
+
   if (localFilters.value.progress_level_min !== null) {
     filters.push({
       key: 'progress_level_min',
       label: '進捗最小',
-      value: `${localFilters.value.progress_level_min}%`
+      value: `${localFilters.value.progress_level_min}%`,
     })
   }
-  
+
   if (localFilters.value.progress_level_max !== null) {
     filters.push({
       key: 'progress_level_max',
       label: '進捗最大',
-      value: `${localFilters.value.progress_level_max}%`
+      value: `${localFilters.value.progress_level_max}%`,
     })
   }
-  
+
   if (localFilters.value.date_from) {
     filters.push({
       key: 'date_from',
       label: '開始日',
-      value: localFilters.value.date_from
+      value: localFilters.value.date_from,
     })
   }
-  
+
   if (localFilters.value.date_to) {
     filters.push({
       key: 'date_to',
       label: '終了日',
-      value: localFilters.value.date_to
+      value: localFilters.value.date_to,
     })
   }
-  
+
   return filters
 })
 
@@ -267,7 +253,7 @@ const clearAllFilters = () => {
     date_to: '',
     search_text: '',
     progress_level_min: null,
-    progress_level_max: null
+    progress_level_max: null,
   }
   emit('update:filters', { ...localFilters.value })
   emit('clear-filters')
@@ -279,8 +265,12 @@ const removeFilter = (key: string) => {
     localFilters.value[filterKey] = null
   } else {
     // 文字列型のプロパティに対して空文字を設定
-    if (filterKey === 'goal_category' || filterKey === 'date_from' || 
-        filterKey === 'date_to' || filterKey === 'search_text') {
+    if (
+      filterKey === 'goal_category' ||
+      filterKey === 'date_from' ||
+      filterKey === 'date_to' ||
+      filterKey === 'search_text'
+    ) {
       localFilters.value[filterKey] = ''
     }
   }
@@ -289,9 +279,13 @@ const removeFilter = (key: string) => {
 }
 
 // プロパティ変更の監視
-watch(() => props.filters, (newFilters) => {
-  localFilters.value = { ...newFilters }
-}, { deep: true })
+watch(
+  () => props.filters,
+  (newFilters) => {
+    localFilters.value = { ...newFilters }
+  },
+  { deep: true },
+)
 </script>
 
 <style scoped>
@@ -365,16 +359,16 @@ watch(() => props.filters, (newFilters) => {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .range-separator {
     transform: rotate(90deg);
   }
-  
+
   .filter-actions {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .filter-actions .v-btn {
     width: 100%;
   }
@@ -386,7 +380,7 @@ watch(() => props.filters, (newFilters) => {
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .filter-chips {
     flex-direction: column;
   }

@@ -12,9 +12,9 @@
     <template v-if="$slots.title" #title>
       <slot name="title" />
     </template>
-    
+
     <slot>{{ message }}</slot>
-    
+
     <template v-if="$slots.append" #append>
       <slot name="append" />
     </template>
@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<Props>(), {
   closable: false,
   modelValue: true,
   autoHide: false,
-  autoHideDelay: 3000
+  autoHideDelay: 3000,
 })
 
 const emit = defineEmits<{
@@ -52,9 +52,12 @@ const emit = defineEmits<{
 
 const show = ref(props.modelValue)
 
-watch(() => props.modelValue, (newValue) => {
-  show.value = newValue
-})
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    show.value = newValue
+  },
+)
 
 watch(show, (newValue) => {
   emit('update:modelValue', newValue)

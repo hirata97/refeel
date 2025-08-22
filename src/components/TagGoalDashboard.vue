@@ -13,7 +13,7 @@
               </v-card-text>
             </v-card>
           </v-col>
-          
+
           <v-col cols="12" sm="6" md="3">
             <v-card color="success" variant="tonal">
               <v-card-text class="text-center">
@@ -23,7 +23,7 @@
               </v-card-text>
             </v-card>
           </v-col>
-          
+
           <v-col cols="12" sm="6" md="3">
             <v-card color="info" variant="tonal">
               <v-card-text class="text-center">
@@ -33,7 +33,7 @@
               </v-card-text>
             </v-card>
           </v-col>
-          
+
           <v-col cols="12" sm="6" md="3">
             <v-card color="warning" variant="tonal">
               <v-card-text class="text-center">
@@ -51,12 +51,7 @@
         <v-card>
           <v-card-title class="d-flex align-center justify-space-between">
             <span>カテゴリ別進捗状況</span>
-            <v-btn-toggle
-              v-model="viewMode"
-              variant="outlined"
-              density="compact"
-              mandatory
-            >
+            <v-btn-toggle v-model="viewMode" variant="outlined" density="compact" mandatory>
               <v-btn value="grid" size="small">
                 <v-icon>mdi-view-grid</v-icon>
               </v-btn>
@@ -154,7 +149,7 @@
                       :color="getProgressColor(analysis.averageProgress)"
                       height="4"
                       class="mt-1"
-                      style="width: 80px;"
+                      style="width: 80px"
                     />
                   </div>
                 </template>
@@ -195,11 +190,7 @@
               <v-card-title>期限の近い目標</v-card-title>
               <v-card-text>
                 <v-list v-if="upcomingGoals.length > 0" density="compact">
-                  <v-list-item
-                    v-for="goal in upcomingGoals"
-                    :key="goal.id"
-                    class="pa-2"
-                  >
+                  <v-list-item v-for="goal in upcomingGoals" :key="goal.id" class="pa-2">
                     <v-list-item-title class="text-body-2">
                       {{ goal.title }}
                     </v-list-item-title>
@@ -250,14 +241,9 @@
     </v-row>
 
     <!-- タグフィルター結果ダイアログ -->
-    <v-dialog
-      v-model="showTagFilterDialog"
-      max-width="600px"
-    >
+    <v-dialog v-model="showTagFilterDialog" max-width="600px">
       <v-card v-if="selectedTag">
-        <v-card-title>
-          タグ「{{ selectedTag.name }}」の詳細
-        </v-card-title>
+        <v-card-title> タグ「{{ selectedTag.name }}」の詳細 </v-card-title>
         <v-card-text>
           <div class="mb-4">
             <v-chip :color="selectedTag.color" variant="elevated">
@@ -272,10 +258,7 @@
           <div v-if="getGoalsForTag(selectedTag.id).length > 0">
             <h4 class="mb-2">関連目標</h4>
             <v-list density="compact">
-              <v-list-item
-                v-for="goal in getGoalsForTag(selectedTag.id)"
-                :key="goal.id"
-              >
+              <v-list-item v-for="goal in getGoalsForTag(selectedTag.id)" :key="goal.id">
                 <v-list-item-title>{{ goal.title }}</v-list-item-title>
                 <v-list-item-subtitle>{{ goal.category }}</v-list-item-subtitle>
                 <template #append>
@@ -292,9 +275,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showTagFilterDialog = false">
-            閉じる
-          </v-btn>
+          <v-btn variant="text" @click="showTagFilterDialog = false"> 閉じる </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -306,7 +287,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useTagGoalStore } from '@/stores/tagGoal'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
-import type { Tag } from '@/types/tags'
+import type { Tag, Goal, DiaryTag } from '@/types/tags'
 
 // ストア
 const tagGoalStore = useTagGoalStore()
@@ -325,21 +306,24 @@ const selectedTag = ref<Tag | null>(null)
 // 計算プロパティ
 const averageProgress = computed(() => {
   if (activeGoals.length === 0) return 0
-  return activeGoals.reduce((acc: number, goal: any) => 
-    acc + (goal.current_value / goal.target_value) * 100, 0
-  ) / activeGoals.length
+  return (
+    activeGoals.reduce(
+      (acc: number, goal: Goal) => acc + (goal.current_value / goal.target_value) * 100,
+      0,
+    ) / activeGoals.length
+  )
 })
 
 const categoryAnalyses = computed(() => {
   const analyses: Record<string, ReturnType<typeof tagGoalStore.analyzeCategory>> = {}
-  
+
   // 各カテゴリの分析を計算
-  const categories = [...new Set(goals.map((g: any) => g.category))]
-  
+  const categories = [...new Set(goals.map((g: Goal) => g.category))]
+
   categories.forEach((category: string) => {
     analyses[category] = tagGoalStore.analyzeCategory(category, diaries)
   })
-  
+
   return analyses
 })
 
@@ -347,9 +331,9 @@ const popularTags = computed(() => {
   // タグの使用頻度でソート
   return tags
     .slice()
-    .sort((a: any, b: any) => {
-      const aUsage = getTagUsageCount()
-      const bUsage = getTagUsageCount()
+    .sort((a: Tag, b: Tag) => {
+      const aUsage = getTagUsageCount(a.id)
+      const bUsage = getTagUsageCount(b.id)
       return bUsage - aUsage
     })
     .slice(0, 10)
@@ -358,11 +342,11 @@ const popularTags = computed(() => {
 const upcomingGoals = computed(() => {
   const now = new Date()
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
-  
+
   return activeGoals
-    .filter((goal: any) => goal.target_date && new Date(goal.target_date) <= thirtyDaysFromNow)
-    .sort((a: any, b: any) => 
-      new Date(a.target_date!).getTime() - new Date(b.target_date!).getTime()
+    .filter((goal: Goal) => goal.target_date && new Date(goal.target_date) <= thirtyDaysFromNow)
+    .sort(
+      (a: Goal, b: Goal) => new Date(a.target_date!).getTime() - new Date(b.target_date!).getTime(),
     )
     .slice(0, 5)
 })
@@ -383,7 +367,7 @@ const getCategoryColor = (category: string): string => {
     learning: '#2196F3',
     hobby: '#9C27B0',
     relationship: '#E91E63',
-    finance: '#795548'
+    finance: '#795548',
   }
   return colors[category] || '#607D8B'
 }
@@ -396,18 +380,21 @@ const getCategoryIcon = (category: string): string => {
     learning: 'mdi-school',
     hobby: 'mdi-palette',
     relationship: 'mdi-account-group',
-    finance: 'mdi-currency-usd'
+    finance: 'mdi-currency-usd',
   }
   return icons[category] || 'mdi-folder'
 }
 
-const getTagUsageCount = (): number => {
-  // TODO: 実際の使用回数を計算
-  return Math.floor(Math.random() * 20) + 1
+const getTagUsageCount = (tagId?: string): number => {
+  if (!tagId) return 0
+
+  // 実際の使用回数を計算
+  const usageCount = tagGoalStore.diaryTags.filter((dt: DiaryTag) => dt.tag_id === tagId).length
+  return usageCount
 }
 
-const getTagSize = (): string => {
-  const usageCount = getTagUsageCount()
+const getTagSize = (tagId?: string): string => {
+  const usageCount = getTagUsageCount(tagId)
   if (usageCount > 15) return 'large'
   if (usageCount > 10) return 'default'
   if (usageCount > 5) return 'small'
@@ -417,7 +404,7 @@ const getTagSize = (): string => {
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP', {
     month: 'short',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 

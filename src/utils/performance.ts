@@ -23,7 +23,7 @@ class PerformanceMonitor {
     this.metrics.set(label, {
       label,
       startTime,
-      memory: this.getMemoryUsage()
+      memory: this.getMemoryUsage(),
     })
   }
 
@@ -44,13 +44,14 @@ class PerformanceMonitor {
       ...metric,
       endTime,
       duration,
-      memory: this.getMemoryUsage()
+      memory: this.getMemoryUsage(),
     }
 
     this.metrics.set(label, finalMetric)
-    
+
     // 開発環境でのログ出力
-    if (duration > 100) { // 100ms以上の場合のみ警告
+    if (duration > 100) {
+      // 100ms以上の場合のみ警告
       console.warn(`⚠️ Slow operation: ${label} took ${duration.toFixed(2)}ms`)
     } else {
       console.log(`✅ ${label}: ${duration.toFixed(2)}ms`)
@@ -62,10 +63,12 @@ class PerformanceMonitor {
   // メモリ使用量取得
   private getMemoryUsage() {
     if ('memory' in performance) {
-      const memory = (performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory
+      const memory = (
+        performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }
+      ).memory
       return {
         used: memory.usedJSHeapSize,
-        total: memory.totalJSHeapSize
+        total: memory.totalJSHeapSize,
       }
     }
     return { used: 0, total: 0 }
@@ -90,9 +93,9 @@ class PerformanceMonitor {
     report += '==================\n\n'
 
     metrics
-      .filter(m => m.duration !== undefined)
+      .filter((m) => m.duration !== undefined)
       .sort((a, b) => (b.duration || 0) - (a.duration || 0))
-      .forEach(metric => {
+      .forEach((metric) => {
         report += `${metric.label}: ${metric.duration?.toFixed(2)}ms\n`
         if (metric.memory && metric.memory.used > 0) {
           report += `  Memory: ${(metric.memory.used / 1024 / 1024).toFixed(2)}MB\n`
@@ -109,22 +112,22 @@ export const performanceMonitor = new PerformanceMonitor()
 // デコレータ関数（関数の実行時間を自動計測）
 export function measurePerformance<T extends (...args: unknown[]) => unknown>(
   target: T,
-  label?: string
+  label?: string,
 ): T {
   return ((...args: unknown[]) => {
     const functionLabel = label || target.name || 'anonymous'
     performanceMonitor.start(functionLabel)
-    
+
     try {
       const result = target(...args)
-      
+
       // Promise の場合は非同期で計測終了
       if (result instanceof Promise) {
         return result.finally(() => {
           performanceMonitor.end(functionLabel)
         })
       }
-      
+
       performanceMonitor.end(functionLabel)
       return result
     } catch (error) {
@@ -141,17 +144,14 @@ export function usePerformanceMonitor() {
     end: (label: string) => performanceMonitor.end(label),
     measure: measurePerformance,
     getReport: () => performanceMonitor.generateReport(),
-    clear: () => performanceMonitor.clear()
+    clear: () => performanceMonitor.clear(),
   }
 }
 
 // Debounce ユーティリティ
-export function debounce<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  wait: number
-): T {
+export function debounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number): T {
   let timeout: ReturnType<typeof setTimeout>
-  
+
   return ((...args: unknown[]) => {
     clearTimeout(timeout)
     timeout = setTimeout(() => func(...args), wait)
@@ -159,17 +159,14 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 }
 
 // Throttle ユーティリティ
-export function throttle<T extends (...args: unknown[]) => unknown>(
-  func: T,
-  limit: number
-): T {
+export function throttle<T extends (...args: unknown[]) => unknown>(func: T, limit: number): T {
   let inThrottle: boolean
-  
+
   return ((...args: unknown[]) => {
     if (!inThrottle) {
       func(...args)
       inThrottle = true
-      setTimeout(() => inThrottle = false, limit)
+      setTimeout(() => (inThrottle = false), limit)
     }
   }) as T
 }
@@ -177,25 +174,25 @@ export function throttle<T extends (...args: unknown[]) => unknown>(
 // メモ化ユーティリティ
 export function memoize<T extends (...args: unknown[]) => unknown>(
   func: T,
-  getKey?: (...args: Parameters<T>) => string
+  getKey?: (...args: Parameters<T>) => string,
 ): T & { cache: Map<string, ReturnType<T>>; clear: () => void } {
   const cache = new Map<string, ReturnType<T>>()
-  
+
   const memoized = ((...args: Parameters<T>) => {
     const key = getKey ? getKey(...args) : JSON.stringify(args)
-    
+
     if (cache.has(key)) {
       return cache.get(key)!
     }
-    
+
     const result = func(...args) as ReturnType<T>
     cache.set(key, result)
     return result
   }) as T & { cache: Map<string, ReturnType<T>>; clear: () => void }
-  
+
   memoized.cache = cache
   memoized.clear = () => cache.clear()
-  
+
   return memoized
 }
 
@@ -203,16 +200,15 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
 export function batchProcess<T, R>(
   items: T[],
   processor: (batch: T[]) => Promise<R[]>,
-  batchSize: number = 10
+  batchSize: number = 10,
 ): Promise<R[]> {
   const batches: T[][] = []
-  
+
   for (let i = 0; i < items.length; i += batchSize) {
     batches.push(items.slice(i, i + batchSize))
   }
-  
-  return Promise.all(batches.map(batch => processor(batch)))
-    .then(results => results.flat())
+
+  return Promise.all(batches.map((batch) => processor(batch))).then((results) => results.flat())
 }
 
 // リソース使用量監視
@@ -222,12 +218,16 @@ export function monitorResourceUsage() {
     return null
   }
 
-  const memory = (performance as unknown as { memory: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number } }).memory
+  const memory = (
+    performance as unknown as {
+      memory: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number }
+    }
+  ).memory
   const usage = {
     usedJSHeapSize: memory.usedJSHeapSize,
     totalJSHeapSize: memory.totalJSHeapSize,
     jsHeapSizeLimit: memory.jsHeapSizeLimit,
-    usagePercentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100
+    usagePercentage: (memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100,
   }
 
   if (usage.usagePercentage > 80) {

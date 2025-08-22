@@ -1,22 +1,17 @@
 <template>
-  <v-card
-    :elevation="elevation"
-    :variant="variant"
-    :color="color"
-    class="base-card"
-  >
+  <v-card :elevation="elevation" :variant="variant" :color="color" class="base-card">
     <v-card-title v-if="title || $slots.title" class="base-card-title">
       <slot name="title">{{ title }}</slot>
     </v-card-title>
-    
+
     <v-card-subtitle v-if="subtitle || $slots.subtitle" class="base-card-subtitle">
       <slot name="subtitle">{{ subtitle }}</slot>
     </v-card-subtitle>
-    
+
     <v-card-text v-if="$slots.default" class="base-card-content">
       <slot />
     </v-card-text>
-    
+
     <v-card-actions v-if="$slots.actions" class="base-card-actions">
       <slot name="actions" />
     </v-card-actions>
@@ -34,7 +29,7 @@ interface Props {
 
 withDefaults(defineProps<Props>(), {
   elevation: 2,
-  variant: 'elevated'
+  variant: 'elevated',
 })
 </script>
 

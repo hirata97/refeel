@@ -25,7 +25,10 @@
     "auto-issue": "./scripts/auto-issue.sh",
     "auto-implement": "node scripts/auto-implement.js",
     "auto-cycle": "./scripts/auto-cycle.sh",
-    "close-issues": "./scripts/close-linked-issues.sh"
+    "close-issues": "./scripts/close-linked-issues.sh",
+    "setup-branch-protection": "./scripts/setup-branch-protection.sh",
+    "ci:all": "npm run ci:lint && npm run ci:type-check && npm run ci:test && npm run ci:build && npm run ci:security",
+    "ci:quality-gate": "npm run ci:lint && npm run ci:type-check && npm run ci:build"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

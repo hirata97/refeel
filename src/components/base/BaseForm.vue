@@ -1,15 +1,10 @@
 <template>
   <v-container :class="containerClass">
-    <v-form
-      ref="formRef"
-      v-model="isValid"
-      @submit.prevent="handleSubmit"
-      :class="formClass"
-    >
+    <v-form ref="formRef" v-model="isValid" @submit.prevent="handleSubmit" :class="formClass">
       <h1 v-if="title" class="form-title mb-4 text-center">{{ title }}</h1>
-      
+
       <slot name="content" :isValid="isValid" />
-      
+
       <div v-if="$slots.actions" class="form-actions mt-4">
         <slot name="actions" :isValid="isValid" :submit="() => handleSubmit()" />
       </div>
@@ -30,7 +25,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   containerClass: '',
   formClass: '',
-  validateOnSubmit: true
+  validateOnSubmit: true,
 })
 
 const emit = defineEmits<{
@@ -73,7 +68,7 @@ defineExpose({
   validate: validate as () => Promise<{ valid: boolean }> | { valid: boolean },
   reset,
   resetValidation,
-  isValid: computed(() => isValid.value)
+  isValid: computed(() => isValid.value),
 } as unknown as {
   validate: () => Promise<{ valid: boolean }>
   reset: () => void

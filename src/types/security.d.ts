@@ -1,7 +1,7 @@
 // セキュリティ関連の型定義
-export type SecurityEventType = 
+export type SecurityEventType =
   | 'auth_failure'
-  | 'xss_attempt' 
+  | 'xss_attempt'
   | 'csrf_violation'
   | 'suspicious_activity'
   | 'input_validation_error'
@@ -9,11 +9,7 @@ export type SecurityEventType =
 
 export type SecurityThreatLevel = 'low' | 'medium' | 'high' | 'critical'
 
-export type SecurityActionType = 
-  | 'alert' 
-  | 'block' 
-  | 'monitor' 
-  | 'log'
+export type SecurityActionType = 'alert' | 'block' | 'monitor' | 'log'
 
 export interface SecurityIncidentData {
   type: SecurityEventType

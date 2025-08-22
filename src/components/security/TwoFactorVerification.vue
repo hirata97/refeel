@@ -31,7 +31,7 @@
         :error="!!error"
         :error-messages="error"
         class="mb-4"
-        style="text-align: center; font-size: 1.2em; letter-spacing: 0.2em;"
+        style="text-align: center; font-size: 1.2em; letter-spacing: 0.2em"
         @input="formatVerificationCode"
         @keyup.enter="verify"
         autofocus
@@ -39,12 +39,7 @@
 
       <!-- バックアップコード切り替え -->
       <div class="text-center mb-4">
-        <v-btn
-          variant="text"
-          color="primary"
-          size="small"
-          @click="toggleBackupMode"
-        >
+        <v-btn variant="text" color="primary" size="small" @click="toggleBackupMode">
           {{ useBackupCode ? '認証アプリコードを使用' : 'バックアップコードを使用' }}
         </v-btn>
       </div>
@@ -62,15 +57,14 @@
             :loading="verifying"
             :disabled="verifying"
             class="mb-4"
-            style="text-align: center; font-size: 1.1em; letter-spacing: 0.1em;"
+            style="text-align: center; font-size: 1.1em; letter-spacing: 0.1em"
             @input="formatBackupCode"
             @keyup.enter="verify"
           />
-          
+
           <v-alert type="info" variant="tonal" class="mb-4">
             <div class="text-body-2">
-              バックアップコードは1回のみ使用可能です。
-              使用後は残りのコード数が減ります。
+              バックアップコードは1回のみ使用可能です。 使用後は残りのコード数が減ります。
             </div>
           </v-alert>
         </div>
@@ -86,15 +80,10 @@
     </v-card-text>
 
     <v-card-actions class="pa-4">
-      <v-btn
-        variant="outlined"
-        @click="cancel"
-        :disabled="verifying"
-        class="flex-grow-1"
-      >
+      <v-btn variant="outlined" @click="cancel" :disabled="verifying" class="flex-grow-1">
         キャンセル
       </v-btn>
-      
+
       <v-btn
         color="primary"
         @click="verify"
@@ -119,7 +108,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  timeoutSeconds: 300 // 5分
+  timeoutSeconds: 300, // 5分
 })
 
 const emit = defineEmits<{
@@ -159,7 +148,7 @@ const codeRules = [
   (value: string) => {
     if (useBackupCode.value) return true
     return /^\d{6}$/.test(value) || '数字のみ入力してください'
-  }
+  },
 ]
 
 const backupCodeRules = [
@@ -170,7 +159,7 @@ const backupCodeRules = [
   (value: string) => {
     if (!useBackupCode.value) return true
     return value.length >= 6 || '6桁以上のコードを入力してください'
-  }
+  },
 ]
 
 // Methods
@@ -183,7 +172,10 @@ const formatVerificationCode = (event: Event) => {
 
 const formatBackupCode = (event: Event) => {
   const input = event.target as HTMLInputElement
-  const value = input.value.replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase()
+  const value = input.value
+    .replace(/[^A-Za-z0-9]/g, '')
+    .slice(0, 8)
+    .toUpperCase()
   backupCode.value = value
   error.value = null
 }
@@ -230,7 +222,7 @@ const formatTime = (seconds: number): string => {
 const startTimeout = () => {
   timeoutInterval = setInterval(() => {
     timeRemaining.value--
-    
+
     if (timeRemaining.value <= 0) {
       stopTimeout()
       emit('timeout')

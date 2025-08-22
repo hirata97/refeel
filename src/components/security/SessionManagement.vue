@@ -4,10 +4,7 @@
       <v-icon class="me-2">mdi-monitor-multiple</v-icon>
       アクティブセッション
       <v-spacer />
-      <v-chip 
-        :color="activeSessions.length > 0 ? 'success' : 'warning'"
-        size="small"
-      >
+      <v-chip :color="activeSessions.length > 0 ? 'success' : 'warning'" size="small">
         {{ activeSessions.length }} 個
       </v-chip>
     </v-card-title>
@@ -31,7 +28,10 @@
         </v-col>
         <v-col cols="12" sm="4">
           <v-card variant="outlined" class="text-center pa-3">
-            <div class="text-h4" :class="securityStats?.pendingAlerts ? 'text-warning' : 'text-success'">
+            <div
+              class="text-h4"
+              :class="securityStats?.pendingAlerts ? 'text-warning' : 'text-success'"
+            >
               {{ securityStats?.pendingAlerts || 0 }}
             </div>
             <div class="text-body-2">セキュリティアラート</div>
@@ -55,7 +55,7 @@
 
       <!-- アクティブセッション一覧 -->
       <div class="text-h6 mb-3">アクティブセッション</div>
-      
+
       <v-data-table
         :headers="sessionHeaders"
         :items="activeSessions"
@@ -80,10 +80,7 @@
         </template>
 
         <template v-slot:[`item.status`]="{ item }">
-          <v-chip 
-            :color="item.isActive ? 'success' : 'error'"
-            size="small"
-          >
+          <v-chip :color="item.isActive ? 'success' : 'error'" size="small">
             {{ item.isActive ? 'アクティブ' : '非アクティブ' }}
           </v-chip>
         </template>
@@ -100,11 +97,7 @@
         </template>
 
         <template v-slot:[`item.current`]="{ item }">
-          <v-chip 
-            v-if="isCurrentSession(item)"
-            color="primary"
-            size="small"
-          >
+          <v-chip v-if="isCurrentSession(item)" color="primary" size="small">
             現在のセッション
           </v-chip>
         </template>
@@ -131,7 +124,7 @@
 
       <!-- デバイス履歴 -->
       <div class="text-h6 mb-3">デバイス履歴</div>
-      
+
       <v-list>
         <v-list-item
           v-for="device in devices"
@@ -141,7 +134,7 @@
           <v-list-item-title>
             {{ device.name }}
           </v-list-item-title>
-          
+
           <v-list-item-subtitle>
             <div>IP: {{ device.ipAddress }}</div>
             <div>初回: {{ formatDate(device.firstSeen) }}</div>
@@ -149,11 +142,7 @@
           </v-list-item-subtitle>
 
           <template v-slot:append>
-            <v-chip
-              v-if="device.isCurrentDevice"
-              color="primary"
-              size="small"
-            >
+            <v-chip v-if="device.isCurrentDevice" color="primary" size="small">
               現在のデバイス
             </v-chip>
           </template>
@@ -179,15 +168,14 @@
           <v-icon class="me-2 text-warning">mdi-alert</v-icon>
           全セッション終了の確認
         </v-card-title>
-        
+
         <v-card-text>
           <v-alert type="warning" class="mb-4">
             <strong>注意:</strong> 現在のセッション以外のすべてのセッションが終了されます。
           </v-alert>
 
           <div class="text-body-2">
-            他のデバイスからログアウトされ、再度ログインが必要になります。
-            続行しますか？
+            他のデバイスからログアウトされ、再度ログインが必要になります。 続行しますか？
           </div>
 
           <div class="mt-3">
@@ -204,11 +192,7 @@
           >
             キャンセル
           </v-btn>
-          <v-btn
-            color="warning"
-            @click="confirmTerminateAll"
-            :loading="terminatingAll"
-          >
+          <v-btn color="warning" @click="confirmTerminateAll" :loading="terminatingAll">
             すべて終了
           </v-btn>
         </v-card-actions>
@@ -240,12 +224,16 @@ const sessionHeaders = [
   { title: 'ステータス', key: 'status', sortable: false },
   { title: '最終アクティビティ', key: 'lastActivity', sortable: true },
   { title: '', key: 'current', sortable: false },
-  { title: '', key: 'actions', sortable: false, width: '80px' }
+  { title: '', key: 'actions', sortable: false, width: '80px' },
 ]
 
 // Methods
 const getDeviceIcon = (userAgent: string) => {
-  if (userAgent.includes('Mobile') || userAgent.includes('Android') || userAgent.includes('iPhone')) {
+  if (
+    userAgent.includes('Mobile') ||
+    userAgent.includes('Android') ||
+    userAgent.includes('iPhone')
+  ) {
     return { icon: 'mdi-cellphone', class: 'text-blue' }
   } else if (userAgent.includes('Tablet') || userAgent.includes('iPad')) {
     return { icon: 'mdi-tablet', class: 'text-purple' }
@@ -273,7 +261,7 @@ const formatDate = (date: Date): string => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date)
 }
 
@@ -314,7 +302,7 @@ const confirmTerminateAll = async () => {
     error.value = null
 
     const terminatedCount = await authStore.terminateAllUserSessions()
-    
+
     if (terminatedCount > 0) {
       showTerminateAllDialog.value = false
       await loadSessions()
@@ -330,11 +318,10 @@ const loadSessions = async () => {
   try {
     loading.value = true
     error.value = null
-    
+
     // セッションとデバイス情報を更新
     // 実際の実装では必要に応じてデータの再取得
-    await new Promise(resolve => setTimeout(resolve, 500)) // 模擬遅延
-    
+    await new Promise((resolve) => setTimeout(resolve, 500)) // 模擬遅延
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'セッション情報の読み込みに失敗しました'
   } finally {

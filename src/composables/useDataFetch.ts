@@ -17,14 +17,9 @@ interface FetchOptions {
 export function useDataFetch<T>(
   fetcher: () => Promise<T>,
   key: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
 ) {
-  const {
-    immediate = true,
-    refresh = false,
-    debounceMs = 0,
-    throttleMs = 0
-  } = options
+  const { immediate = true, refresh = false, debounceMs = 0, throttleMs = 0 } = options
 
   const data = ref<T | null>(null)
   const loading = ref(false)
@@ -47,14 +42,14 @@ export function useDataFetch<T>(
     try {
       loading.value = true
       error.value = null
-      
+
       performanceMonitor.start(`fetch_${key}`)
-      
+
       const result = await fetcher()
-      
+
       data.value = result
       lastFetched.value = new Date()
-      
+
       return result
     } catch (err) {
       handleError(err)
@@ -70,15 +65,21 @@ export function useDataFetch<T>(
   let throttledExecute = execute
 
   if (debounceMs > 0) {
-    debouncedExecute = debounce(execute as (...args: unknown[]) => unknown, debounceMs) as typeof execute
+    debouncedExecute = debounce(
+      execute as (...args: unknown[]) => unknown,
+      debounceMs,
+    ) as typeof execute
   }
 
   if (throttleMs > 0) {
-    throttledExecute = throttle(execute as (...args: unknown[]) => unknown, throttleMs) as typeof execute
+    throttledExecute = throttle(
+      execute as (...args: unknown[]) => unknown,
+      throttleMs,
+    ) as typeof execute
   }
 
-  const finalExecute = debounceMs > 0 ? debouncedExecute : 
-                      throttleMs > 0 ? throttledExecute : execute
+  const finalExecute =
+    debounceMs > 0 ? debouncedExecute : throttleMs > 0 ? throttledExecute : execute
 
   // 初期実行
   if (immediate) {
@@ -101,7 +102,7 @@ export function useDataFetch<T>(
     execute: finalExecute,
     refresh: () => finalExecute(true),
     isStale,
-    hasData
+    hasData,
   }
 }
 
@@ -115,7 +116,7 @@ export function useDiaries(options: FetchOptions = {}) {
     page: 1,
     pageSize: 10,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   })
 
   // フィルタリング機能
@@ -125,7 +126,7 @@ export function useDiaries(options: FetchOptions = {}) {
     date_to: '',
     search_text: '',
     progress_level_min: null as number | null,
-    progress_level_max: null as number | null
+    progress_level_max: null as number | null,
   })
 
   // サーバーサイドでページ付きデータを取得
@@ -138,17 +139,13 @@ export function useDiaries(options: FetchOptions = {}) {
       page,
       pageSize: serverPagination.value.pageSize,
       filters: Object.fromEntries(
-        Object.entries(filter.value).filter(([, value]) => 
-          value !== null && value !== undefined && value !== ''
-        )
-      )
+        Object.entries(filter.value).filter(
+          ([, value]) => value !== null && value !== undefined && value !== '',
+        ),
+      ),
     }
 
-    const result = await dataStore.fetchDiaries(
-      authStore.user.id, 
-      forceRefresh, 
-      paginationParams
-    )
+    const result = await dataStore.fetchDiaries(authStore.user.id, forceRefresh, paginationParams)
 
     serverPagination.value.page = page
     serverPagination.value.total = result.count
@@ -164,11 +161,11 @@ export function useDiaries(options: FetchOptions = {}) {
     execute,
     refresh,
     isStale,
-    hasData
+    hasData,
   } = useDataFetch(
     () => fetchPaginatedDiaries(serverPagination.value.page, options.refresh),
     'diaries_paginated',
-    options
+    options,
   )
 
   // ページ変更
@@ -198,21 +195,21 @@ export function useDiaries(options: FetchOptions = {}) {
       date_to: '',
       search_text: '',
       progress_level_min: null,
-      progress_level_max: null
+      progress_level_max: null,
     }
     await applyFilters()
   }
 
   // カテゴリ統計（全データから計算）
   const categoryStats = ref<Record<string, { count: number; avgProgress: number }>>({})
-  
+
   const fetchCategoryStats = async () => {
     if (!authStore.user?.id) return
 
     try {
       const allData = await dataStore.fetchDiaries(authStore.user.id, false)
       const stats: Record<string, { count: number; avgProgress: number }> = {}
-      
+
       allData.data.forEach((diary: DiaryEntry) => {
         if (!stats[diary.goal_category]) {
           stats[diary.goal_category] = { count: 0, avgProgress: 0 }
@@ -222,7 +219,7 @@ export function useDiaries(options: FetchOptions = {}) {
       })
 
       // 平均値計算
-      Object.keys(stats).forEach(category => {
+      Object.keys(stats).forEach((category) => {
         stats[category].avgProgress /= stats[category].count
       })
 
@@ -240,28 +237,28 @@ export function useDiaries(options: FetchOptions = {}) {
     diaries,
     loading,
     error,
-    
+
     // フィルタリング
     filter,
     applyFilters,
     clearFilters,
-    
+
     // サーバーサイドページネーション
     pagination: serverPagination,
     changePage,
     changePageSize,
-    
+
     // 統計
     categoryStats,
     fetchCategoryStats,
-    
+
     // アクション
     execute,
     refresh,
-    
+
     // 状態
     isStale,
-    hasData
+    hasData,
   }
 }
 
@@ -278,7 +275,7 @@ export function useAccounts(options: FetchOptions = {}) {
       return await dataStore.fetchAccounts(authStore.user.id, options.refresh)
     },
     'accounts',
-    options
+    options,
   )
 }
 
@@ -288,7 +285,8 @@ export function useRealtimeData() {
   const authStore = useAuthStore()
   const updateInterval = ref<NodeJS.Timeout | null>(null)
 
-  const startPolling = (intervalMs = 30000) => { // 30秒間隔
+  const startPolling = (intervalMs = 30000) => {
+    // 30秒間隔
     if (updateInterval.value) {
       clearInterval(updateInterval.value)
     }
@@ -312,13 +310,17 @@ export function useRealtimeData() {
   }
 
   // 認証状態変更の監視
-  watch(() => authStore.isAuthenticated, (isAuth) => {
-    if (isAuth) {
-      startPolling()
-    } else {
-      stopPolling()
-    }
-  }, { immediate: true })
+  watch(
+    () => authStore.isAuthenticated,
+    (isAuth) => {
+      if (isAuth) {
+        startPolling()
+      } else {
+        stopPolling()
+      }
+    },
+    { immediate: true },
+  )
 
   // クリーンアップ
   onUnmounted(() => {
@@ -328,7 +330,7 @@ export function useRealtimeData() {
   return {
     startPolling,
     stopPolling,
-    isPolling: computed(() => updateInterval.value !== null)
+    isPolling: computed(() => updateInterval.value !== null),
   }
 }
 
@@ -366,7 +368,10 @@ export function useBackgroundSync() {
             await dataStore.createDiary(item.data as Parameters<typeof dataStore.createDiary>[0])
             break
           case 'diary_update':
-            const updateData = item.data as { id: string; updates: Parameters<typeof dataStore.updateDiary>[1] }
+            const updateData = item.data as {
+              id: string
+              updates: Parameters<typeof dataStore.updateDiary>[1]
+            }
             await dataStore.updateDiary(updateData.id, updateData.updates)
             break
           case 'diary_delete':
@@ -397,7 +402,7 @@ export function useBackgroundSync() {
     syncQueue.value.push({
       type,
       data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -412,6 +417,6 @@ export function useBackgroundSync() {
     isSyncing,
     sync,
     addToQueue,
-    queueSize: computed(() => syncQueue.value.length)
+    queueSize: computed(() => syncQueue.value.length),
   }
 }

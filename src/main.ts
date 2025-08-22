@@ -53,17 +53,17 @@ auditLogger.log(AuditEventType.SYSTEM_INFO, 'アプリケーションが開始�
 window.addEventListener('beforeunload', () => {
   // 認証リスナーを解除
   authSubscription.unsubscribe()
-  
+
   // セッション監視を停止
   if (sessionMonitoringCleanup) {
     sessionMonitoringCleanup()
   }
-  
+
   // テーマリスナーを解除
   if (themeListenerCleanup) {
     themeListenerCleanup()
   }
-  
+
   // アプリケーション終了をログに記録
   auditLogger.log(AuditEventType.SYSTEM_INFO, 'アプリケーションが終了されました')
 })
@@ -75,31 +75,27 @@ window.addEventListener('error', (event) => {
     filename: event.filename,
     lineno: event.lineno,
     colno: event.colno,
-    stack: event.error?.stack
+    stack: event.error?.stack,
   })
-  
-  auditLogger.log(
-    AuditEventType.SYSTEM_ERROR,
-    'JavaScriptエラーが発生しました',
-    {
-      message: event.message,
-      filename: event.filename,
-      lineno: event.lineno,
-      colno: event.colno,
-      stack: event.error?.stack
-    }
-  )
+
+  auditLogger.log(AuditEventType.SYSTEM_ERROR, 'JavaScriptエラーが発生しました', {
+    message: event.message,
+    filename: event.filename,
+    lineno: event.lineno,
+    colno: event.colno,
+    stack: event.error?.stack,
+  })
 })
 
 // 認証状態を初期化してからアプリをマウント
 authStore.initialize().finally(() => {
   // アプリをマウント
   app.mount('#app')
-  
+
   // アプリマウント後にVuetifyテーマインスタンスをテーマストアに設定
   const vuetifyThemeInstance = useTheme()
   themeStore.setVuetifyTheme(vuetifyThemeInstance)
-  
+
   // テーマストアを初期化
   themeListenerCleanup = themeStore.initialize()
 })

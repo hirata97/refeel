@@ -20,7 +20,7 @@ export const useAuthStore = defineStore('auth', () => {
   const sessionExpiresAt = ref<number | null>(null)
   const lastActivity = ref<number>(Date.now())
   const sessionTimeout = ref<number>(30 * 60 * 1000) // 30分のタイムアウト
-  
+
   // セキュリティ状態
   const lockoutStatus = ref<LockoutStatus | null>(null)
   const passwordValidationResult = ref<PasswordValidationResult | null>(null)
@@ -29,23 +29,25 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 計算プロパティ
   const isAuthenticated = computed(() => {
-    return !!user.value && 
-           !!session.value && 
-           !isSessionExpired.value && 
-           !twoFactorRequired.value &&
-           !lockoutStatus.value?.isLocked
+    return (
+      !!user.value &&
+      !!session.value &&
+      !isSessionExpired.value &&
+      !twoFactorRequired.value &&
+      !lockoutStatus.value?.isLocked
+    )
   })
-  
+
   const userProfile = computed(() => {
     if (!user.value) return null
     return {
       id: user.value.id,
       email: user.value.email,
       lastSignIn: user.value.last_sign_in_at,
-      createdAt: user.value.created_at
+      createdAt: user.value.created_at,
     }
   })
-  
+
   const isSessionExpired = computed(() => {
     if (!sessionExpiresAt.value) return false
     return Date.now() > sessionExpiresAt.value
@@ -58,12 +60,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   // セキュリティ関連の計算プロパティ
   const isAccountLocked = computed(() => lockoutStatus.value?.isLocked || false)
-  
+
   const is2FAEnabled = computed(() => {
     if (!user.value?.id) return false
     return twoFactorAuthManager.is2FAEnabled(user.value.id)
   })
-  
+
   const securityStats = computed(() => {
     if (!user.value?.id) return null
     return enhancedSessionManager.getSecurityStats(user.value.id)
@@ -100,8 +102,8 @@ export const useAuthStore = defineStore('auth', () => {
     if (newSession?.user) {
       user.value = newSession.user
       // セッション有効期限を設定（Supabaseのexpires_atを使用、またはデフォルト値）
-      const expiresAt = newSession.expires_at 
-        ? newSession.expires_at * 1000 
+      const expiresAt = newSession.expires_at
+        ? newSession.expires_at * 1000
         : Date.now() + sessionTimeout.value
       sessionExpiresAt.value = expiresAt
     } else {
@@ -146,7 +148,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       // 新しいセッションを要求
       const { data, error } = await supabase.auth.refreshSession()
-      
+
       if (error) {
         throw error
       }
@@ -186,8 +188,11 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // Supabaseセッションの有効性確認
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser()
+
       if (error || !user) {
         console.log('Supabaseセッションが無効です')
         await invalidateSession()
@@ -208,7 +213,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       setLoading(true)
       clearError()
-      
+
       // 保存された最終活動時間を復元
       const savedActivity = localStorage.getItem('lastActivity')
       if (savedActivity) {
@@ -216,8 +221,11 @@ export const useAuthStore = defineStore('auth', () => {
       }
 
       // 現在のセッションを取得
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession()
+
       if (sessionError) {
         throw sessionError
       }
@@ -254,14 +262,16 @@ export const useAuthStore = defineStore('auth', () => {
       // アカウントロックアウト状態をチェック
       const lockStatus = await accountLockoutManager.checkLockoutStatus(email)
       lockoutStatus.value = lockStatus
-      
+
       if (lockStatus.isLocked) {
         await auditLogger.log(
           AuditEventType.AUTH_FAILED_LOGIN,
           `ロックアウト中のアカウントによるログイン試行: ${email}`,
-          { email, ipAddress: clientIP, userAgent }
+          { email, ipAddress: clientIP, userAgent },
         )
-        throw new Error(`アカウントがロックされています。${lockStatus.lockoutEnd ? `解除まで残り時間: ${Math.ceil((lockStatus.lockoutEnd.getTime() - Date.now()) / 60000)}分` : ''}`)
+        throw new Error(
+          `アカウントがロックされています。${lockStatus.lockoutEnd ? `解除まで残り時間: ${Math.ceil((lockStatus.lockoutEnd.getTime() - Date.now()) / 60000)}分` : ''}`,
+        )
       }
 
       // セキュリティチェックを実行
@@ -269,22 +279,26 @@ export const useAuthStore = defineStore('auth', () => {
       const passwordCheck = performSecurityCheck(password)
 
       if (!emailCheck.isSecure) {
-        throw new Error(`メールアドレスに不正な内容が含まれています: ${emailCheck.threats.join(', ')}`)
+        throw new Error(
+          `メールアドレスに不正な内容が含まれています: ${emailCheck.threats.join(', ')}`,
+        )
       }
 
       if (!passwordCheck.isSecure) {
-        throw new Error(`パスワードに不正な内容が含まれています: ${passwordCheck.threats.join(', ')}`)
+        throw new Error(
+          `パスワードに不正な内容が含まれています: ${passwordCheck.threats.join(', ')}`,
+        )
       }
 
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
       })
 
       if (signInError) {
         // ログイン失敗を記録
         await accountLockoutManager.recordLoginAttempt(email, false, clientIP, userAgent)
-        
+
         // ロックアウトが必要かチェック
         if (await accountLockoutManager.shouldLockAccount(email)) {
           const newLockStatus = await accountLockoutManager.checkLockoutStatus(email)
@@ -298,44 +312,43 @@ export const useAuthStore = defineStore('auth', () => {
       if (data.session && data.user) {
         // ログイン成功を記録
         await accountLockoutManager.recordLoginAttempt(email, true, clientIP, userAgent)
-        
+
         // 2FA確認が必要かチェック
         const requires2FA = twoFactorAuthManager.is2FAEnabled(data.user.id)
-        
+
         if (requires2FA && !twoFactorCode) {
           // 2FAが有効で、コードが提供されていない場合
           twoFactorRequired.value = true
           pendingTwoFactorSessionId.value = data.session.access_token
-          return { 
-            success: false, 
+          return {
+            success: false,
             requires2FA: true,
-            message: '2要素認証が必要です' 
+            message: '2要素認証が必要です',
           }
         }
 
         if (requires2FA && twoFactorCode) {
           // 2FAコードの検証
-          const verificationResult = await twoFactorAuthManager.verify2FACode(data.user.id, twoFactorCode)
-          
+          const verificationResult = await twoFactorAuthManager.verify2FACode(
+            data.user.id,
+            twoFactorCode,
+          )
+
           if (!verificationResult.isValid) {
-            await auditLogger.log(
-              AuditEventType.AUTH_FAILED_2FA,
-              `2FA認証失敗: ${email}`,
-              { email, userId: data.user.id, ipAddress: clientIP }
-            )
+            await auditLogger.log(AuditEventType.AUTH_FAILED_2FA, `2FA認証失敗: ${email}`, {
+              email,
+              userId: data.user.id,
+              ipAddress: clientIP,
+            })
             throw new Error('2要素認証コードが正しくありません')
           }
-          
-          await auditLogger.log(
-            AuditEventType.AUTH_LOGIN,
-            `2FA認証成功: ${email}`,
-            { 
-              email, 
-              userId: data.user.id, 
-              ipAddress: clientIP,
-              method: verificationResult.method
-            }
-          )
+
+          await auditLogger.log(AuditEventType.AUTH_LOGIN, `2FA認証成功: ${email}`, {
+            email,
+            userId: data.user.id,
+            ipAddress: clientIP,
+            method: verificationResult.method,
+          })
         }
 
         // セッション作成と管理
@@ -344,31 +357,27 @@ export const useAuthStore = defineStore('auth', () => {
           data.user.id,
           data.session.access_token,
           userAgent,
-          clientIP
+          clientIP,
         )
-        
+
         // セッションIDを再生成（セキュリティ強化）
         await regenerateSession()
-        
+
         // 最終活動時間を保存
         localStorage.setItem('lastActivity', lastActivity.value.toString())
-        
+
         // 2FA状態をクリア
         twoFactorRequired.value = false
         pendingTwoFactorSessionId.value = null
-        
-        await auditLogger.log(
-          AuditEventType.AUTH_LOGIN,
-          `ログイン成功: ${email}`,
-          { 
-            email, 
-            userId: data.user.id, 
-            ipAddress: clientIP, 
-            userAgent,
-            sessionId: data.session.access_token
-          }
-        )
-        
+
+        await auditLogger.log(AuditEventType.AUTH_LOGIN, `ログイン成功: ${email}`, {
+          email,
+          userId: data.user.id,
+          ipAddress: clientIP,
+          userAgent,
+          sessionId: data.session.access_token,
+        })
+
         console.log('ログイン成功、セッションを作成しました')
         return { success: true, user: data.user }
       }
@@ -397,11 +406,15 @@ export const useAuthStore = defineStore('auth', () => {
       const passwordCheck = performSecurityCheck(password)
 
       if (!emailCheck.isSecure) {
-        throw new Error(`メールアドレスに不正な内容が含まれています: ${emailCheck.threats.join(', ')}`)
+        throw new Error(
+          `メールアドレスに不正な内容が含まれています: ${emailCheck.threats.join(', ')}`,
+        )
       }
 
       if (!passwordCheck.isSecure) {
-        throw new Error(`パスワードに不正な内容が含まれています: ${passwordCheck.threats.join(', ')}`)
+        throw new Error(
+          `パスワードに不正な内容が含まれています: ${passwordCheck.threats.join(', ')}`,
+        )
       }
 
       // パスワードポリシーの検証
@@ -414,15 +427,16 @@ export const useAuthStore = defineStore('auth', () => {
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
-        password
+        password,
       })
 
       if (signUpError) {
-        await auditLogger.log(
-          AuditEventType.AUTH_FAILED_LOGIN,
-          `ユーザー登録失敗: ${email}`,
-          { email, ipAddress: clientIP, userAgent, error: signUpError.message }
-        )
+        await auditLogger.log(AuditEventType.AUTH_FAILED_LOGIN, `ユーザー登録失敗: ${email}`, {
+          email,
+          ipAddress: clientIP,
+          userAgent,
+          error: signUpError.message,
+        })
         throw signUpError
       }
 
@@ -441,31 +455,27 @@ export const useAuthStore = defineStore('auth', () => {
             data.user.id,
             data.session.access_token,
             userAgent,
-            clientIP
+            clientIP,
           )
           localStorage.setItem('lastActivity', lastActivity.value.toString())
         }
 
-        await auditLogger.log(
-          AuditEventType.AUTH_LOGIN,
-          `ユーザー登録成功: ${email}`,
-          { 
-            email, 
-            userId: data.user.id, 
-            ipAddress: clientIP, 
-            userAgent,
-            needsConfirmation: !data.session
-          }
-        )
+        await auditLogger.log(AuditEventType.AUTH_LOGIN, `ユーザー登録成功: ${email}`, {
+          email,
+          userId: data.user.id,
+          ipAddress: clientIP,
+          userAgent,
+          needsConfirmation: !data.session,
+        })
 
-        return { 
-          success: true, 
-          user: data.user, 
+        return {
+          success: true,
+          user: data.user,
           needsConfirmation: !data.session,
           passwordStrength: {
             score: passwordValidation.score,
-            label: passwordValidator.getStrengthLabel(passwordValidation.score)
-          }
+            label: passwordValidator.getStrengthLabel(passwordValidation.score),
+          },
         }
       }
 
@@ -492,7 +502,7 @@ export const useAuthStore = defineStore('auth', () => {
       if (userId && sessionId) {
         // セッション終了
         await enhancedSessionManager.terminateSession(sessionId, 'user_logout')
-        
+
         // 全セッション終了の場合
         if (terminateAllSessions) {
           await enhancedSessionManager.terminateAllUserSessions(userId)
@@ -501,12 +511,12 @@ export const useAuthStore = defineStore('auth', () => {
         await auditLogger.log(
           AuditEventType.AUTH_LOGOUT,
           `ログアウト${terminateAllSessions ? '（全セッション終了）' : ''}: ${user.value?.email}`,
-          { 
-            userId, 
-            sessionId, 
+          {
+            userId,
+            sessionId,
             ipAddress: clientIP,
-            terminateAll: terminateAllSessions
-          }
+            terminateAll: terminateAllSessions,
+          },
         )
       }
 
@@ -524,7 +534,7 @@ export const useAuthStore = defineStore('auth', () => {
       passwordValidationResult.value = null
       twoFactorRequired.value = false
       pendingTwoFactorSessionId.value = null
-      
+
       // ローカルストレージもクリア
       localStorage.removeItem('user')
       localStorage.removeItem('lastActivity')
@@ -543,8 +553,11 @@ export const useAuthStore = defineStore('auth', () => {
   // セッションの有効性確認
   const refreshSession = async () => {
     try {
-      const { data: { session }, error } = await supabase.auth.refreshSession()
-      
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.refreshSession()
+
       if (error) {
         throw error
       }
@@ -555,14 +568,14 @@ export const useAuthStore = defineStore('auth', () => {
         console.log('セッションを更新しました')
         return true
       }
-      
+
       // セッションが無効な場合は状態をクリア
       await invalidateSession()
       return false
     } catch (err) {
       console.error('セッション更新エラー:', err)
       setError(err instanceof Error ? err.message : 'セッションの更新に失敗しました')
-      
+
       // エラーの場合も状態をクリア
       await invalidateSession()
       return false
@@ -571,9 +584,11 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 認証状態変更リスナーの設定
   const setupAuthListener = () => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('認証状態変更:', event, session)
-      
+
       switch (event) {
         case 'SIGNED_IN':
           if (session) {
@@ -601,7 +616,7 @@ export const useAuthStore = defineStore('auth', () => {
           }
           break
       }
-      
+
       setLoading(false)
     })
 
@@ -621,7 +636,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // セキュリティ関連のメソッド
-  
+
   // パスワード変更
   const changePassword = async (currentPassword: string, newPassword: string) => {
     try {
@@ -634,9 +649,9 @@ export const useAuthStore = defineStore('auth', () => {
 
       // パスワードポリシーの検証
       const passwordValidation = passwordValidator.validatePassword(
-        newPassword, 
-        user.value.email, 
-        user.value.user_metadata?.name
+        newPassword,
+        user.value.email,
+        user.value.user_metadata?.name,
       )
 
       if (!passwordValidation.isValid) {
@@ -646,13 +661,13 @@ export const useAuthStore = defineStore('auth', () => {
       // パスワード再利用チェック
       const newPasswordHash = await passwordValidator.hashPassword(newPassword)
       const isReused = await passwordHistoryManager.isPasswordReused(user.value.id, newPasswordHash)
-      
+
       if (isReused) {
         throw new Error('過去に使用したパスワードは使用できません')
       }
 
       const { error } = await supabase.auth.updateUser({
-        password: newPassword
+        password: newPassword,
       })
 
       if (error) {
@@ -665,15 +680,15 @@ export const useAuthStore = defineStore('auth', () => {
       await auditLogger.log(
         AuditEventType.PASSWORD_CHANGED,
         `パスワード変更: ${user.value.email}`,
-        { userId: user.value.id, email: user.value.email }
+        { userId: user.value.id, email: user.value.email },
       )
 
-      return { 
+      return {
         success: true,
         passwordStrength: {
           score: passwordValidation.score,
-          label: passwordValidator.getStrengthLabel(passwordValidation.score)
-        }
+          label: passwordValidator.getStrengthLabel(passwordValidation.score),
+        },
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'パスワード変更に失敗しました'
@@ -703,7 +718,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value.email!,
       secret,
       verificationCode,
-      backupCodes
+      backupCodes,
     )
   }
 
@@ -712,11 +727,7 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('ユーザーが認証されていません')
     }
 
-    return await twoFactorAuthManager.disable2FA(
-      user.value.id,
-      user.value.email!,
-      verificationCode
-    )
+    return await twoFactorAuthManager.disable2FA(user.value.id, user.value.email!, verificationCode)
   }
 
   const regenerateBackupCodes = async () => {
@@ -724,10 +735,7 @@ export const useAuthStore = defineStore('auth', () => {
       throw new Error('ユーザーが認証されていません')
     }
 
-    return await twoFactorAuthManager.regenerateBackupCodes(
-      user.value.id,
-      user.value.email!
-    )
+    return await twoFactorAuthManager.regenerateBackupCodes(user.value.id, user.value.email!)
   }
 
   // セッション管理メソッド
@@ -749,8 +757,8 @@ export const useAuthStore = defineStore('auth', () => {
   const terminateAllUserSessions = async () => {
     if (!user.value) return 0
     return await enhancedSessionManager.terminateAllUserSessions(
-      user.value.id, 
-      session.value?.access_token
+      user.value.id,
+      session.value?.access_token,
     )
   }
 
@@ -763,13 +771,13 @@ export const useAuthStore = defineStore('auth', () => {
     sessionExpiresAt,
     lastActivity,
     sessionTimeout,
-    
+
     // セキュリティ状態
     lockoutStatus,
     passwordValidationResult,
     twoFactorRequired,
     pendingTwoFactorSessionId,
-    
+
     // 計算プロパティ
     isAuthenticated,
     userProfile,
@@ -778,7 +786,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAccountLocked,
     is2FAEnabled,
     securityStats,
-    
+
     // 基本認証アクション
     initialize,
     signIn,
@@ -794,7 +802,7 @@ export const useAuthStore = defineStore('auth', () => {
     regenerateSession,
     validateSession,
     startSessionMonitoring,
-    
+
     // セキュリティアクション
     changePassword,
     setup2FA,
@@ -805,7 +813,7 @@ export const useAuthStore = defineStore('auth', () => {
     getUserDevices,
     terminateUserSession,
     terminateAllUserSessions,
-    
+
     // セキュリティ
     checkLockoutStatus: async (email: string) => {
       try {
@@ -817,8 +825,8 @@ export const useAuthStore = defineStore('auth', () => {
         return null
       }
     },
-    
+
     // ユーティリティ
-    getClientIP
+    getClientIP,
   }
 })

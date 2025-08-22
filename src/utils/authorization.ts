@@ -52,18 +52,18 @@ export class AuthorizationEngine {
       condition: (context) => {
         const role = getUserRole(context.user)
         if (role === UserRole.GUEST) return false
-        
+
         // ユーザーは1日10個まで目標作成可能（例）
         return true // 実際の実装では制限チェック
       },
-      message: '目標作成の上限に達しています'
+      message: '目標作成の上限に達しています',
     })
 
     // 日記編集の条件
     this.addConditionalRule(Permission.UPDATE_DIARY, {
       condition: (context) => {
         if (!context.resource) return false
-        
+
         // 作成から24時間以内のみ編集可能（例）
         const createdAt = context.resource.metadata?.created_at as string | undefined
         if (createdAt) {
@@ -72,7 +72,7 @@ export class AuthorizationEngine {
         }
         return true
       },
-      message: '作成から24時間を超えた日記は編集できません'
+      message: '作成から24時間を超えた日記は編集できません',
     })
 
     // 管理者パネルアクセスの条件
@@ -82,7 +82,7 @@ export class AuthorizationEngine {
         const hour = new Date().getHours()
         return hour >= 9 && hour <= 18 // 9:00-18:00
       },
-      message: '管理者パネルは営業時間内（9:00-18:00）のみアクセス可能です'
+      message: '管理者パネルは営業時間内（9:00-18:00）のみアクセス可能です',
     })
   }
 
@@ -101,7 +101,7 @@ export class AuthorizationEngine {
     if (!user) {
       return {
         granted: false,
-        reason: '認証が必要です'
+        reason: '認証が必要です',
       }
     }
 
@@ -110,7 +110,7 @@ export class AuthorizationEngine {
     if (!this.hasBasicPermission(role, action)) {
       return {
         granted: false,
-        reason: `権限が不足しています: ${action}`
+        reason: `権限が不足しています: ${action}`,
       }
     }
 
@@ -118,7 +118,7 @@ export class AuthorizationEngine {
     if (resource && !this.checkResourceAccess(user, resource, action)) {
       return {
         granted: false,
-        reason: 'リソースへのアクセス権限がありません'
+        reason: 'リソースへのアクセス権限がありません',
       }
     }
 
@@ -128,7 +128,7 @@ export class AuthorizationEngine {
       if (!rule.condition(context)) {
         return {
           granted: false,
-          reason: rule.message
+          reason: rule.message,
         }
       }
     }
@@ -137,8 +137,8 @@ export class AuthorizationEngine {
       granted: true,
       metadata: {
         role,
-        checkedAt: new Date().toISOString()
-      }
+        checkedAt: new Date().toISOString(),
+      },
     }
   }
 
@@ -157,12 +157,9 @@ export class AuthorizationEngine {
         Permission.DELETE_DIARY,
         Permission.READ_USER_PROFILE,
         Permission.UPDATE_USER_PROFILE,
-        Permission.DELETE_USER_ACCOUNT
+        Permission.DELETE_USER_ACCOUNT,
       ],
-      [UserRole.GUEST]: [
-        Permission.READ_GOAL,
-        Permission.READ_DIARY
-      ]
+      [UserRole.GUEST]: [Permission.READ_GOAL, Permission.READ_DIARY],
     }
 
     return rolePermissions[role]?.includes(action) || false
@@ -171,10 +168,10 @@ export class AuthorizationEngine {
   private checkResourceAccess(
     user: User,
     resource: { type: ResourceType; id: string; ownerId?: string },
-    action: Permission
+    action: Permission,
   ): boolean {
     const role = getUserRole(user)
-    
+
     // 管理者は全リソースアクセス可能
     if (role === UserRole.ADMIN) {
       return true
@@ -194,7 +191,7 @@ export class AuthorizationEngine {
 // 認可デコレーター関数
 export const requireAuthorization = (
   permission: Permission,
-  getResourceInfo?: () => { type: ResourceType; id: string; ownerId?: string; metadata?: unknown }
+  getResourceInfo?: () => { type: ResourceType; id: string; ownerId?: string; metadata?: unknown },
 ) => {
   return (target: unknown, propertyName: string, descriptor: PropertyDescriptor) => {
     const method = descriptor.value
@@ -206,14 +203,16 @@ export const requireAuthorization = (
       const context: AuthorizationContext = {
         user: authStore.user,
         action: permission,
-        resource: getResourceInfo?.() as { type: ResourceType; id: string; ownerId?: string; metadata?: Record<string, unknown> } | undefined,
+        resource: getResourceInfo?.() as
+          | { type: ResourceType; id: string; ownerId?: string; metadata?: Record<string, unknown> }
+          | undefined,
         clientInfo: {
-          timestamp: Date.now()
-        }
+          timestamp: Date.now(),
+        },
       }
 
       const result = engine.authorize(context)
-      
+
       if (!result.granted) {
         throw new Error(`認可エラー: ${result.reason}`)
       }
@@ -232,15 +231,17 @@ export const useAuthorization = () => {
 
   const authorize = (
     permission: Permission,
-    resourceInfo?: { type: ResourceType; id: string; ownerId?: string; metadata?: unknown }
+    resourceInfo?: { type: ResourceType; id: string; ownerId?: string; metadata?: unknown },
   ): AuthorizationResult => {
     const context: AuthorizationContext = {
       user: authStore.user,
       action: permission,
-      resource: resourceInfo as { type: ResourceType; id: string; ownerId?: string; metadata?: Record<string, unknown> } | undefined,
+      resource: resourceInfo as
+        | { type: ResourceType; id: string; ownerId?: string; metadata?: Record<string, unknown> }
+        | undefined,
       clientInfo: {
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     }
 
     return engine.authorize(context)
@@ -252,7 +253,7 @@ export const useAuthorization = () => {
 
   const checkResourceAccess = (
     permission: Permission,
-    resourceInfo: { type: ResourceType; id: string; ownerId?: string; metadata?: unknown }
+    resourceInfo: { type: ResourceType; id: string; ownerId?: string; metadata?: unknown },
   ): boolean => {
     return authorize(permission, resourceInfo).granted
   }
@@ -262,6 +263,6 @@ export const useAuthorization = () => {
     checkPermission,
     checkResourceAccess,
     addConditionalRule: (permission: Permission, rule: ConditionalRule) =>
-      engine.addConditionalRule(permission, rule)
+      engine.addConditionalRule(permission, rule),
   }
 }

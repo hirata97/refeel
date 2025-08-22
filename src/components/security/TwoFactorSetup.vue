@@ -19,7 +19,7 @@
                   アカウントのセキュリティが大幅に向上します。
                 </div>
               </v-alert>
-              
+
               <div class="mb-3">
                 <v-icon class="me-2 text-green">mdi-check-circle</v-icon>
                 <strong>推奨認証アプリ:</strong>
@@ -44,21 +44,16 @@
           <v-card flat>
             <v-card-text class="text-center">
               <div class="text-h6 mb-4">認証アプリでQRコードをスキャン</div>
-              
-              <v-progress-circular
-                v-if="loading"
-                indeterminate
-                color="primary"
-                class="mb-4"
-              />
-              
+
+              <v-progress-circular v-if="loading" indeterminate color="primary" class="mb-4" />
+
               <div v-else-if="setupResult">
                 <!-- QRコード表示 -->
                 <div class="mb-4">
-                  <img 
-                    :src="setupResult.qrCodeUrl" 
+                  <img
+                    :src="setupResult.qrCodeUrl"
                     alt="2FA QRコード"
-                    style="max-width: 200px; max-height: 200px;"
+                    style="max-width: 200px; max-height: 200px"
                     class="mx-auto d-block"
                   />
                 </div>
@@ -89,7 +84,7 @@
 
                 <v-alert type="info" variant="tonal" class="text-start">
                   <div class="text-body-2">
-                    1. 認証アプリでQRコードをスキャンするか、手動でキーを入力<br>
+                    1. 認証アプリでQRコードをスキャンするか、手動でキーを入力<br />
                     2. アプリに表示される6桁のコードを次のステップで入力
                   </div>
                 </v-alert>
@@ -107,7 +102,7 @@
           <v-card flat>
             <v-card-text>
               <div class="text-h6 mb-4 text-center">確認コードを入力</div>
-              
+
               <v-text-field
                 v-model="verificationCode"
                 label="認証アプリの6桁コード"
@@ -118,7 +113,7 @@
                 :loading="verifying"
                 :disabled="verifying"
                 class="text-center"
-                style="font-size: 1.2em; letter-spacing: 0.2em;"
+                style="font-size: 1.2em; letter-spacing: 0.2em"
                 @input="formatVerificationCode"
               />
 
@@ -139,7 +134,7 @@
           <v-card flat>
             <v-card-text>
               <div class="text-h6 mb-4 text-center">バックアップコード</div>
-              
+
               <v-alert type="warning" class="mb-4">
                 <div class="text-body-2">
                   <strong>重要:</strong> これらのバックアップコードは安全な場所に保存してください。
@@ -148,13 +143,11 @@
               </v-alert>
 
               <v-card variant="outlined" class="pa-3 mb-4">
-                <div class="text-subtitle-2 mb-2">バックアップコード（各コードは1回のみ使用可能）</div>
+                <div class="text-subtitle-2 mb-2">
+                  バックアップコード（各コードは1回のみ使用可能）
+                </div>
                 <v-row v-if="setupResult?.backupCodes" density="compact">
-                  <v-col 
-                    v-for="(code, index) in setupResult.backupCodes" 
-                    :key="index"
-                    cols="6"
-                  >
+                  <v-col v-for="(code, index) in setupResult.backupCodes" :key="index" cols="6">
                     <div class="text-body-2 font-weight-medium text-center pa-1">
                       {{ code }}
                     </div>
@@ -200,18 +193,13 @@
       >
         戻る
       </v-btn>
-      
+
       <v-spacer />
-      
-      <v-btn
-        v-if="currentStep === 1"
-        color="primary"
-        @click="startSetup"
-        :loading="loading"
-      >
+
+      <v-btn v-if="currentStep === 1" color="primary" @click="startSetup" :loading="loading">
         設定開始
       </v-btn>
-      
+
       <v-btn
         v-else-if="currentStep === 2"
         color="primary"
@@ -220,7 +208,7 @@
       >
         次へ
       </v-btn>
-      
+
       <v-btn
         v-else-if="currentStep === 3"
         color="primary"
@@ -230,14 +218,8 @@
       >
         確認して有効化
       </v-btn>
-      
-      <v-btn
-        v-else-if="currentStep === 4"
-        color="success"
-        @click="finish"
-      >
-        完了
-      </v-btn>
+
+      <v-btn v-else-if="currentStep === 4" color="success" @click="finish"> 完了 </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -268,7 +250,7 @@ const stepItems = [
   { title: '説明', value: 1 },
   { title: 'QRコード', value: 2 },
   { title: '確認', value: 3 },
-  { title: '完了', value: 4 }
+  { title: '完了', value: 4 },
 ]
 
 const isValidCode = computed(() => {
@@ -278,7 +260,7 @@ const isValidCode = computed(() => {
 const codeRules = [
   (value: string) => !!value || '確認コードを入力してください',
   (value: string) => value.length === 6 || '6桁のコードを入力してください',
-  (value: string) => /^\d{6}$/.test(value) || '数字のみ入力してください'
+  (value: string) => /^\d{6}$/.test(value) || '数字のみ入力してください',
 ]
 
 // Methods
@@ -286,7 +268,7 @@ const startSetup = async () => {
   try {
     loading.value = true
     error.value = null
-    
+
     setupResult.value = await authStore.setup2FA()
     nextStep()
   } catch (err) {
@@ -319,7 +301,7 @@ const verifyAndEnable = async () => {
     const success = await authStore.enable2FA(
       verificationCode.value,
       setupResult.value.secret,
-      setupResult.value.backupCodes
+      setupResult.value.backupCodes,
     )
 
     if (success) {
@@ -352,7 +334,7 @@ const copyToClipboard = async (text: string) => {
 
 const copyBackupCodes = async () => {
   if (!setupResult.value?.backupCodes) return
-  
+
   const codesText = setupResult.value.backupCodes.join('\n')
   await copyToClipboard(codesText)
 }
@@ -367,7 +349,7 @@ const downloadBackupCodes = () => {
     '重要: これらのコードは安全な場所に保管してください',
     '各コードは1回のみ使用可能です',
     '',
-    ...setupResult.value.backupCodes.map((code, index) => `${index + 1}. ${code}`)
+    ...setupResult.value.backupCodes.map((code, index) => `${index + 1}. ${code}`),
   ].join('\n')
 
   const blob = new Blob([codesText], { type: 'text/plain' })

@@ -53,7 +53,7 @@ const DEFAULT_SESSION_SETTINGS: SessionSecuritySettings = {
   absoluteTimeout: 24 * 60, // 24時間
   requireReauthForSensitive: true,
   trackDevices: true,
-  notifyNewDevice: true
+  notifyNewDevice: true,
 }
 
 /**
@@ -75,11 +75,11 @@ export class EnhancedSessionManager {
     userId: string,
     sessionId: string,
     userAgent: string,
-    ipAddress: string
+    ipAddress: string,
   ): Promise<SessionInfo> {
     const deviceId = this.generateDeviceFingerprint(userAgent, ipAddress)
     const now = new Date()
-    
+
     const sessionInfo: SessionInfo = {
       id: sessionId,
       userId,
@@ -89,7 +89,7 @@ export class EnhancedSessionManager {
       expiresAt: new Date(now.getTime() + this.settings.sessionTimeout * 60 * 1000),
       ipAddress,
       userAgent,
-      isActive: true
+      isActive: true,
     }
 
     // デバイス情報の更新
@@ -111,8 +111,8 @@ export class EnhancedSessionManager {
         deviceId,
         ipAddress,
         userAgent: this.sanitizeUserAgent(userAgent),
-        timestamp: now.toISOString()
-      }
+        timestamp: now.toISOString(),
+      },
     )
 
     return sessionInfo
@@ -128,12 +128,12 @@ export class EnhancedSessionManager {
     }
 
     const now = new Date()
-    
+
     // 絶対的タイムアウトチェック
     const absoluteExpiry = new Date(
-      sessionInfo.createdAt.getTime() + this.settings.absoluteTimeout * 60 * 1000
+      sessionInfo.createdAt.getTime() + this.settings.absoluteTimeout * 60 * 1000,
     )
-    
+
     if (now > absoluteExpiry) {
       await this.terminateSession(sessionId, 'absolute_timeout')
       return false
@@ -142,7 +142,7 @@ export class EnhancedSessionManager {
     // セッションを更新
     sessionInfo.lastActivity = now
     sessionInfo.expiresAt = new Date(now.getTime() + this.settings.sessionTimeout * 60 * 1000)
-    
+
     this.saveSessionInfo(sessionInfo)
 
     // デバイス情報も更新
@@ -161,7 +161,7 @@ export class EnhancedSessionManager {
     }
 
     const now = new Date()
-    
+
     // 有効期限チェック
     if (now > sessionInfo.expiresAt) {
       await this.terminateSession(sessionId, 'timeout')
@@ -170,9 +170,9 @@ export class EnhancedSessionManager {
 
     // 絶対的タイムアウトチェック
     const absoluteExpiry = new Date(
-      sessionInfo.createdAt.getTime() + this.settings.absoluteTimeout * 60 * 1000
+      sessionInfo.createdAt.getTime() + this.settings.absoluteTimeout * 60 * 1000,
     )
-    
+
     if (now > absoluteExpiry) {
       await this.terminateSession(sessionId, 'absolute_timeout')
       return false
@@ -206,8 +206,8 @@ export class EnhancedSessionManager {
         sessionId,
         reason,
         duration: Date.now() - sessionInfo.createdAt.getTime(),
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     )
   }
 
@@ -226,16 +226,12 @@ export class EnhancedSessionManager {
     }
 
     if (terminatedCount > 0) {
-      await this.auditLogger.log(
-        AuditEventType.AUTH_MASS_LOGOUT,
-        `全セッション終了: ${userId}`,
-        {
-          userId,
-          terminatedCount,
-          excludedSession: excludeSessionId,
-          timestamp: new Date().toISOString()
-        }
-      )
+      await this.auditLogger.log(AuditEventType.AUTH_MASS_LOGOUT, `全セッション終了: ${userId}`, {
+        userId,
+        terminatedCount,
+        excludedSession: excludeSessionId,
+        timestamp: new Date().toISOString(),
+      })
     }
 
     return terminatedCount
@@ -245,7 +241,7 @@ export class EnhancedSessionManager {
    * アクティブセッション一覧の取得
    */
   getActiveUserSessions(userId: string): SessionInfo[] {
-    return this.getUserSessions(userId).filter(session => session.isActive)
+    return this.getUserSessions(userId).filter((session) => session.isActive)
   }
 
   /**
@@ -255,13 +251,15 @@ export class EnhancedSessionManager {
     try {
       const stored = localStorage.getItem(`devices_${userId}`)
       if (!stored) return []
-      
+
       const devices = JSON.parse(stored)
-      return devices.map((device: Partial<DeviceInfo> & { firstSeen: string; lastSeen: string }) => ({
-        ...device,
-        firstSeen: new Date(device.firstSeen),
-        lastSeen: new Date(device.lastSeen)
-      }))
+      return devices.map(
+        (device: Partial<DeviceInfo> & { firstSeen: string; lastSeen: string }) => ({
+          ...device,
+          firstSeen: new Date(device.firstSeen),
+          lastSeen: new Date(device.lastSeen),
+        }),
+      )
     } catch (error) {
       console.error('デバイス情報の取得に失敗:', error)
       return []
@@ -284,8 +282,8 @@ export class EnhancedSessionManager {
         userId,
         deviceId,
         trusted,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     )
   }
 
@@ -294,19 +292,19 @@ export class EnhancedSessionManager {
    */
   async detectNewDevice(userId: string, deviceId: string): Promise<boolean> {
     const devices = this.getUserDevices(userId)
-    const existingDevice = devices.find(device => device.id === deviceId)
-    
+    const existingDevice = devices.find((device) => device.id === deviceId)
+
     if (!existingDevice && this.settings.notifyNewDevice) {
       // 新しいデバイスを検出
       await this.createSecurityAlert(userId, {
         type: 'new_device',
         message: '新しいデバイスからのアクセスが検出されました',
-        severity: 'medium'
+        severity: 'medium',
       })
-      
+
       return true
     }
-    
+
     return false
   }
 
@@ -315,13 +313,13 @@ export class EnhancedSessionManager {
    */
   async createSecurityAlert(
     userId: string,
-    alert: Omit<SecurityAlert, 'id' | 'timestamp' | 'resolved'>
+    alert: Omit<SecurityAlert, 'id' | 'timestamp' | 'resolved'>,
   ): Promise<void> {
     const securityAlert: SecurityAlert = {
       id: this.generateAlertId(),
       timestamp: new Date(),
       resolved: false,
-      ...alert
+      ...alert,
     }
 
     // アラートを保存
@@ -337,8 +335,8 @@ export class EnhancedSessionManager {
           alertId: securityAlert.id,
           type: alert.type,
           severity: alert.severity,
-          timestamp: securityAlert.timestamp.toISOString()
-        }
+          timestamp: securityAlert.timestamp.toISOString(),
+        },
       )
     }
   }
@@ -354,20 +352,21 @@ export class EnhancedSessionManager {
   } {
     const activeSessions = this.getActiveUserSessions(userId).length
     const devices = this.getUserDevices(userId)
-    const alerts = this.getSecurityAlerts(userId).filter(alert => !alert.resolved)
-    
-    const lastActivity = devices.length > 0 
-      ? devices.reduce((latest, device) => 
-          device.lastSeen > latest ? device.lastSeen : latest, 
-          devices[0].lastSeen
-        )
-      : null
+    const alerts = this.getSecurityAlerts(userId).filter((alert) => !alert.resolved)
+
+    const lastActivity =
+      devices.length > 0
+        ? devices.reduce(
+            (latest, device) => (device.lastSeen > latest ? device.lastSeen : latest),
+            devices[0].lastSeen,
+          )
+        : null
 
     return {
       activeSessions,
       totalDevices: devices.length,
       pendingAlerts: alerts.length,
-      lastActivity
+      lastActivity,
     }
   }
 
@@ -382,7 +381,7 @@ export class EnhancedSessionManager {
     let hash = 0
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i)
-      hash = ((hash << 5) - hash) + char
+      hash = (hash << 5) - hash + char
       hash = hash & hash // 32bit整数に変換
     }
     return Math.abs(hash).toString(16)
@@ -394,22 +393,21 @@ export class EnhancedSessionManager {
 
   private sanitizeUserAgent(userAgent: string): string {
     // ユーザーエージェントから個人識別可能な情報を削除
-    return userAgent.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '[IP]')
-                    .substring(0, 200) // 長さ制限
+    return userAgent.replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '[IP]').substring(0, 200) // 長さ制限
   }
 
   private async updateDeviceInfo(
     userId: string,
     deviceId: string,
     userAgent: string,
-    ipAddress: string
+    ipAddress: string,
   ): Promise<void> {
     const devices = this.getUserDevices(userId)
-    const existingIndex = devices.findIndex(device => device.id === deviceId)
-    
+    const existingIndex = devices.findIndex((device) => device.id === deviceId)
+
     const now = new Date()
     const deviceName = this.extractDeviceName(userAgent)
-    
+
     if (existingIndex >= 0) {
       // 既存デバイスの更新
       devices[existingIndex].lastSeen = now
@@ -424,17 +422,17 @@ export class EnhancedSessionManager {
         ipAddress,
         firstSeen: now,
         lastSeen: now,
-        isCurrentDevice: true
+        isCurrentDevice: true,
       }
-      
+
       devices.push(newDevice)
-      
+
       // 新しいデバイスを検出
       await this.detectNewDevice(userId, deviceId)
     }
 
     // すべてのデバイスをcurrentではないに設定してから、現在のデバイスのみtrueに
-    devices.forEach(device => {
+    devices.forEach((device) => {
       device.isCurrentDevice = device.id === deviceId
     })
 
@@ -444,8 +442,8 @@ export class EnhancedSessionManager {
 
   private async updateDeviceLastSeen(userId: string, deviceId: string): Promise<void> {
     const devices = this.getUserDevices(userId)
-    const device = devices.find(d => d.id === deviceId)
-    
+    const device = devices.find((d) => d.id === deviceId)
+
     if (device) {
       device.lastSeen = new Date()
       localStorage.setItem(`devices_${userId}`, JSON.stringify(devices))
@@ -464,20 +462,20 @@ export class EnhancedSessionManager {
 
   private async enforceSessionLimits(userId: string, newSessionId: string): Promise<void> {
     const activeSessions = this.getActiveUserSessions(userId)
-    
+
     if (activeSessions.length >= this.settings.maxConcurrentSessions) {
       // 最も古いセッションを終了
       const oldestSession = activeSessions
-        .filter(session => session.id !== newSessionId)
+        .filter((session) => session.id !== newSessionId)
         .sort((a, b) => a.lastActivity.getTime() - b.lastActivity.getTime())[0]
-      
+
       if (oldestSession) {
         await this.terminateSession(oldestSession.id, 'session_limit_exceeded')
-        
+
         await this.createSecurityAlert(userId, {
           type: 'concurrent_sessions',
           message: 'セッション上限により古いセッションが終了されました',
-          severity: 'low'
+          severity: 'low',
         })
       }
     }
@@ -486,9 +484,11 @@ export class EnhancedSessionManager {
   private async detectSuspiciousActivity(sessionInfo: SessionInfo): Promise<boolean> {
     // IP アドレスの変更チェック（簡易版）
     const previousSessions = this.getUserSessions(sessionInfo.userId)
-      .filter(session => session.id !== sessionInfo.id && session.deviceId === sessionInfo.deviceId)
+      .filter(
+        (session) => session.id !== sessionInfo.id && session.deviceId === sessionInfo.deviceId,
+      )
       .sort((a, b) => b.lastActivity.getTime() - a.lastActivity.getTime())
-    
+
     if (previousSessions.length > 0) {
       const lastSession = previousSessions[0]
       if (lastSession.ipAddress !== sessionInfo.ipAddress) {
@@ -496,31 +496,31 @@ export class EnhancedSessionManager {
         await this.createSecurityAlert(sessionInfo.userId, {
           type: 'suspicious_location',
           message: '異なる場所からのアクセスが検出されました',
-          severity: 'medium'
+          severity: 'medium',
         })
-        
+
         return false // すぐには無効にしない、アラートのみ
       }
     }
-    
+
     return false
   }
 
   private saveSessionInfo(sessionInfo: SessionInfo): void {
     try {
       localStorage.setItem(`session_${sessionInfo.id}`, JSON.stringify(sessionInfo))
-      
+
       // ユーザー別セッションインデックスも更新
       const userSessionsKey = `user_sessions_${sessionInfo.userId}`
       const userSessions = this.getUserSessions(sessionInfo.userId)
-      const existingIndex = userSessions.findIndex(session => session.id === sessionInfo.id)
-      
+      const existingIndex = userSessions.findIndex((session) => session.id === sessionInfo.id)
+
       if (existingIndex >= 0) {
         userSessions[existingIndex] = sessionInfo
       } else {
         userSessions.push(sessionInfo)
       }
-      
+
       localStorage.setItem(userSessionsKey, JSON.stringify(userSessions))
     } catch (error) {
       console.error('セッション情報の保存に失敗:', error)
@@ -531,13 +531,13 @@ export class EnhancedSessionManager {
     try {
       const stored = localStorage.getItem(`session_${sessionId}`)
       if (!stored) return null
-      
+
       const session = JSON.parse(stored)
       return {
         ...session,
         createdAt: new Date(session.createdAt),
         lastActivity: new Date(session.lastActivity),
-        expiresAt: new Date(session.expiresAt)
+        expiresAt: new Date(session.expiresAt),
       }
     } catch (error) {
       console.error('セッション情報の取得に失敗:', error)
@@ -549,14 +549,22 @@ export class EnhancedSessionManager {
     try {
       const stored = localStorage.getItem(`user_sessions_${userId}`)
       if (!stored) return []
-      
+
       const sessions = JSON.parse(stored)
-      return sessions.map((session: Partial<SessionInfo> & { createdAt: string; lastActivity: string; expiresAt: string }) => ({
-        ...session,
-        createdAt: new Date(session.createdAt),
-        lastActivity: new Date(session.lastActivity),
-        expiresAt: new Date(session.expiresAt)
-      }))
+      return sessions.map(
+        (
+          session: Partial<SessionInfo> & {
+            createdAt: string
+            lastActivity: string
+            expiresAt: string
+          },
+        ) => ({
+          ...session,
+          createdAt: new Date(session.createdAt),
+          lastActivity: new Date(session.lastActivity),
+          expiresAt: new Date(session.expiresAt),
+        }),
+      )
     } catch (error) {
       console.error('ユーザーセッション一覧の取得に失敗:', error)
       return []
@@ -577,11 +585,11 @@ export class EnhancedSessionManager {
     try {
       const stored = localStorage.getItem(`security_alerts_${userId}`)
       if (!stored) return []
-      
+
       const alerts = JSON.parse(stored)
       return alerts.map((alert: Partial<SecurityAlert> & { timestamp: string }) => ({
         ...alert,
-        timestamp: new Date(alert.timestamp)
+        timestamp: new Date(alert.timestamp),
       }))
     } catch (error) {
       console.error('セキュリティアラートの取得に失敗:', error)
@@ -591,4 +599,4 @@ export class EnhancedSessionManager {
 }
 
 // エクスポート用インスタンス
-export const enhancedSessionManager = new EnhancedSessionManager();
+export const enhancedSessionManager = new EnhancedSessionManager()

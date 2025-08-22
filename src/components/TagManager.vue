@@ -3,21 +3,11 @@
     <v-card-title class="d-flex align-center justify-space-between">
       <span>タグ管理</span>
       <div class="d-flex gap-2">
-        <v-btn
-          color="secondary"
-          variant="text"
-          size="small"
-          @click="refreshTags"
-        >
+        <v-btn color="secondary" variant="text" size="small" @click="refreshTags">
           <v-icon start>mdi-refresh</v-icon>
           更新
         </v-btn>
-        <v-btn
-          color="primary"
-          variant="outlined"
-          size="small"
-          @click="showCreateDialog = true"
-        >
+        <v-btn color="primary" variant="outlined" size="small" @click="showCreateDialog = true">
           <v-icon start>mdi-plus</v-icon>
           新規タグ
         </v-btn>
@@ -29,7 +19,7 @@
       <!-- <div class="mb-2 text-caption">
         デバッグ: タグ数 = {{ tags.length }}
       </div> -->
-      
+
       <!-- タグ一覧 -->
       <div v-if="tags.length > 0" class="tag-list">
         <v-chip
@@ -45,7 +35,7 @@
           {{ tag.name }}
         </v-chip>
       </div>
-      
+
       <v-alert
         v-else
         type="info"
@@ -67,11 +57,7 @@
     </v-card-text>
 
     <!-- タグ作成/編集ダイアログ -->
-    <v-dialog
-      v-model="showCreateDialog"
-      max-width="500px"
-      persistent
-    >
+    <v-dialog v-model="showCreateDialog" max-width="500px" persistent>
       <v-card>
         <v-card-title>
           {{ editingTag ? 'タグ編集' : '新規タグ作成' }}
@@ -83,9 +69,10 @@
               v-model="tagFormData.name"
               label="タグ名"
               :rules="[
-                v => !!v || 'タグ名は必須です',
-                v => (v && v.length >= 1 && v.length <= 50) || 'タグ名は1-50文字で入力してください',
-                v => !isDuplicateTagName(v) || '同じ名前のタグが既に存在します'
+                (v) => !!v || 'タグ名は必須です',
+                (v) =>
+                  (v && v.length >= 1 && v.length <= 50) || 'タグ名は1-50文字で入力してください',
+                (v) => !isDuplicateTagName(v) || '同じ名前のタグが既に存在します',
               ]"
               variant="outlined"
               density="comfortable"
@@ -95,9 +82,7 @@
             <v-text-field
               v-model="tagFormData.description"
               label="説明（任意）"
-              :rules="[
-                v => !v || v.length <= 200 || '説明は200文字以内で入力してください'
-              ]"
+              :rules="[(v) => !v || v.length <= 200 || '説明は200文字以内で入力してください']"
               variant="outlined"
               density="comfortable"
             />
@@ -130,10 +115,7 @@
                 <v-label>プレビュー:</v-label>
               </v-col>
               <v-col>
-                <v-chip
-                  :color="tagFormData.color"
-                  variant="elevated"
-                >
+                <v-chip :color="tagFormData.color" variant="elevated">
                   {{ tagFormData.name || 'タグ名' }}
                 </v-chip>
               </v-col>
@@ -143,12 +125,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            variant="text"
-            @click="cancelTagForm"
-          >
-            キャンセル
-          </v-btn>
+          <v-btn variant="text" @click="cancelTagForm"> キャンセル </v-btn>
           <v-btn
             color="primary"
             variant="elevated"
@@ -162,24 +139,19 @@
     </v-dialog>
 
     <!-- 削除確認ダイアログ -->
-    <v-dialog
-      v-model="showDeleteDialog"
-      max-width="400px"
-    >
+    <v-dialog v-model="showDeleteDialog" max-width="400px">
       <v-card>
         <v-card-title>タグ削除の確認</v-card-title>
         <v-card-text>
           タグ「{{ deletingTag?.name }}」を削除しますか？
-          <br>
+          <br />
           <v-alert type="warning" variant="tonal" class="mt-2">
             このタグに関連する目標との連携も削除されます。
           </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDeleteDialog = false">
-            キャンセル
-          </v-btn>
+          <v-btn variant="text" @click="showDeleteDialog = false"> キャンセル </v-btn>
           <v-btn
             color="error"
             variant="elevated"
@@ -219,7 +191,7 @@ const tagForm = ref()
 const tagFormData = ref({
   name: '',
   description: '',
-  color: '#2196F3'
+  color: '#2196F3',
 })
 
 // 定義済みカラーパレット
@@ -233,15 +205,14 @@ const predefinedColors = [
   '#795548', // Brown
   '#E91E63', // Pink
   '#00BCD4', // Cyan
-  '#8BC34A'  // Light Green
+  '#8BC34A', // Light Green
 ]
 
 // 計算プロパティ
 const isDuplicateTagName = (name: string): boolean => {
   if (!name) return false
-  return tags.value.some((tag: Tag) => 
-    tag.name.toLowerCase() === name.toLowerCase() && 
-    tag.id !== editingTag.value?.id
+  return tags.value.some(
+    (tag: Tag) => tag.name.toLowerCase() === name.toLowerCase() && tag.id !== editingTag.value?.id,
   )
 }
 
@@ -254,10 +225,10 @@ const clearErrors = (): void => {
 
 const refreshTags = async (): Promise<void> => {
   const userId = authStore.user?.id
-  
+
   if (userId) {
     try {
-      await tagGoalStore.fetchTags(userId, true)
+      await tagGoalStore.fetchTags(userId)
     } catch (err) {
       console.error('Manual refresh error:', err)
     }
@@ -268,7 +239,7 @@ const resetTagForm = (): void => {
   tagFormData.value = {
     name: '',
     description: '',
-    color: '#2196F3'
+    color: '#2196F3',
   }
   editingTag.value = null
   if (tagForm.value) {
@@ -281,7 +252,7 @@ const editTag = (tag: Tag): void => {
   tagFormData.value = {
     name: tag.name,
     description: tag.description || '',
-    color: tag.color
+    color: tag.color,
   }
   showCreateDialog.value = true
 }
@@ -296,15 +267,15 @@ const submitTag = async (): Promise<void> => {
   if (!tagFormData.value.name || tagFormData.value.name.trim().length === 0) {
     return
   }
-  
+
   if (tagFormData.value.name.length > 50) {
     return
   }
-  
+
   if (isDuplicateTagName(tagFormData.value.name)) {
     return
   }
-  
+
   // Vuetifyバリデーション
   if (tagForm.value) {
     try {
@@ -312,14 +283,14 @@ const submitTag = async (): Promise<void> => {
       if (!validation.valid) {
         return
       }
-    } catch (validationError) {
+    } catch {
       return
     }
   }
 
   try {
     const userId = authStore.user?.id
-    
+
     if (!userId) {
       const error = new Error('ユーザーが認証されていません')
       throw error
@@ -334,7 +305,7 @@ const submitTag = async (): Promise<void> => {
         user_id: userId,
         name: tagFormData.value.name.trim(),
         description: tagFormData.value.description.trim() || undefined,
-        color: tagFormData.value.color
+        color: tagFormData.value.color,
       })
     }
 
@@ -369,10 +340,10 @@ const confirmDeleteTag = async (): Promise<void> => {
 // ライフサイクル
 onMounted(async () => {
   const userId = authStore.user?.id
-  
+
   if (userId) {
     try {
-      await tagGoalStore.fetchTags(userId, true)
+      await tagGoalStore.fetchTags(userId)
     } catch (err) {
       console.error('タグ取得エラー:', err)
     }
@@ -382,7 +353,7 @@ onMounted(async () => {
       const delayedUserId = authStore.user?.id
       if (delayedUserId) {
         try {
-          await tagGoalStore.fetchTags(delayedUserId, true)
+          await tagGoalStore.fetchTags(delayedUserId)
         } catch (err) {
           console.error('Delayed fetch error:', err)
         }

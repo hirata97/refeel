@@ -38,7 +38,7 @@ export const usePaginationStore = defineStore('pagination', () => {
     page: 1,
     pageSize: 10,
     total: 0,
-    totalPages: 1
+    totalPages: 1,
   })
 
   // 現在のページの状態を取得
@@ -77,7 +77,7 @@ export const usePaginationStore = defineStore('pagination', () => {
     const newState = {
       ...getDefaultState(),
       page: pageFromQuery,
-      pageSize: pageSizeFromQuery
+      pageSize: pageSizeFromQuery,
     }
 
     states.value[pageKey] = newState
@@ -99,7 +99,7 @@ export const usePaginationStore = defineStore('pagination', () => {
     const pageKey = getCurrentPageKey()
     const currentState = states.value[pageKey]
     const currentFilters = filters.value[pageKey]
-    
+
     if (!currentState) return
 
     const query: Record<string, string | string[]> = {}
@@ -115,8 +115,16 @@ export const usePaginationStore = defineStore('pagination', () => {
     // フィルター情報をクエリに追加
     if (currentFilters) {
       if (currentFilters.goal_category) query.category = currentFilters.goal_category
-      if (currentFilters.progress_level_min !== undefined && currentFilters.progress_level_min !== null) query.progress_min = currentFilters.progress_level_min.toString()
-      if (currentFilters.progress_level_max !== undefined && currentFilters.progress_level_max !== null) query.progress_max = currentFilters.progress_level_max.toString()
+      if (
+        currentFilters.progress_level_min !== undefined &&
+        currentFilters.progress_level_min !== null
+      )
+        query.progress_min = currentFilters.progress_level_min.toString()
+      if (
+        currentFilters.progress_level_max !== undefined &&
+        currentFilters.progress_level_max !== null
+      )
+        query.progress_max = currentFilters.progress_level_max.toString()
       if (currentFilters.date_from) query.date_from = currentFilters.date_from
       if (currentFilters.date_to) query.date_to = currentFilters.date_to
       if (currentFilters.search_text) query.search = currentFilters.search_text
@@ -132,10 +140,10 @@ export const usePaginationStore = defineStore('pagination', () => {
   const updateState = (newState: Partial<PaginationState>) => {
     const pageKey = getCurrentPageKey()
     const currentState = states.value[pageKey] || getDefaultState()
-    
+
     states.value[pageKey] = {
       ...currentState,
-      ...newState
+      ...newState,
     }
 
     // URL同期
@@ -145,10 +153,10 @@ export const usePaginationStore = defineStore('pagination', () => {
   // フィルターの更新
   const updateFilters = (newFilters: Partial<PaginationFilters>) => {
     const pageKey = getCurrentPageKey()
-    
+
     filters.value[pageKey] = {
       ...filters.value[pageKey],
-      ...newFilters
+      ...newFilters,
     }
 
     // フィルター変更時は1ページ目に戻る
@@ -191,7 +199,7 @@ export const usePaginationStore = defineStore('pagination', () => {
     filters.value[key] = {}
     loading.value[key] = false
     error.value[key] = null
-    
+
     // URL同期
     syncToUrlQuery()
   }
@@ -207,9 +215,9 @@ export const usePaginationStore = defineStore('pagination', () => {
     const stateData = {
       state: states.value[pageKey],
       filters: filters.value[pageKey],
-      timestamp: Date.now()
+      timestamp: Date.now(),
     }
-    
+
     try {
       localStorage.setItem(`pagination_${pageKey}`, JSON.stringify(stateData))
     } catch (error) {
@@ -220,12 +228,12 @@ export const usePaginationStore = defineStore('pagination', () => {
   // ローカルストレージからの復元
   const restoreState = () => {
     const pageKey = getCurrentPageKey()
-    
+
     try {
       const stored = localStorage.getItem(`pagination_${pageKey}`)
       if (stored) {
         const { state, filters: storedFilters, timestamp } = JSON.parse(stored)
-        
+
         // 1時間以内のデータのみ復元
         if (Date.now() - timestamp < 60 * 60 * 1000) {
           states.value[pageKey] = { ...getDefaultState(), ...state }
@@ -265,7 +273,7 @@ export const usePaginationStore = defineStore('pagination', () => {
     loading: loading.value,
     error: error.value,
     currentPageKey: getCurrentPageKey(),
-    urlQuery: route.query
+    urlQuery: route.query,
   }))
 
   return {
@@ -284,16 +292,16 @@ export const usePaginationStore = defineStore('pagination', () => {
     setLoading,
     setError,
     resetState,
-    
+
     // URL同期
     loadFromUrlQuery,
     syncToUrlQuery,
-    
+
     // ライフサイクル
     initialize,
     cleanup,
 
     // ユーティリティ
-    getDebugInfo
+    getDebugInfo,
   }
 })
