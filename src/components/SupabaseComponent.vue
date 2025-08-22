@@ -4,8 +4,8 @@ import { SupabaseClient } from '@supabase/supabase-js'
 
 // データベースレコードの型定義
 interface DatabaseRecord {
-  id: string | number;
-  [key: string]: unknown;
+  id: string | number
+  [key: string]: unknown
 }
 
 export default defineComponent({

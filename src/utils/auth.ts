@@ -3,7 +3,7 @@ import { SecurityReporting } from './security'
 
 /**
  * 認証関連のユーティリティ関数
- * 
+ *
  * 注意: ルートガードやコンポーネントでは直接 useAuthStore() を使用することを推奨します。
  * このファイルは後方互換性と共通ロジックのために提供されています。
  */
@@ -14,12 +14,12 @@ import { SecurityReporting } from './security'
  */
 export const requireAuth = (): boolean => {
   const authStore = useAuthStore()
-  
+
   if (!authStore.isAuthenticated) {
     console.warn('認証が必要です')
     return false
   }
-  
+
   return true
 }
 
@@ -29,12 +29,12 @@ export const requireAuth = (): boolean => {
  */
 export const requireGuest = (): boolean => {
   const authStore = useAuthStore()
-  
+
   if (authStore.isAuthenticated) {
     console.warn('すでにログインしています')
     return false
   }
-  
+
   return true
 }
 
@@ -64,9 +64,9 @@ export const isAuthenticated = (): boolean => {
  * @param reason 失敗理由（失敗時のみ）
  */
 export const logAuthAttempt = async (
-  isSuccess: boolean, 
-  email: string, 
-  reason?: string
+  isSuccess: boolean,
+  email: string,
+  reason?: string,
 ): Promise<void> => {
   const attemptData = {
     email: email.toLowerCase(),
@@ -74,18 +74,18 @@ export const logAuthAttempt = async (
     reason,
     ip: await getClientIP(),
     userAgent: navigator.userAgent,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 
   if (!isSuccess) {
     await SecurityReporting.reportSecurityIncident('auth_failure', attemptData)
-    
+
     // 連続失敗の監視
     const failureCount = incrementFailureCount(email)
     if (failureCount >= 5) {
       await SecurityReporting.reportSecurityIncident('brute_force_attempt', {
         ...attemptData,
-        failureCount
+        failureCount,
       })
     }
   } else {
@@ -102,13 +102,13 @@ const getClientIP = async (): Promise<string> => {
   try {
     // WebRTC経由でローカルIPを取得する試み
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+      iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
     })
-    
+
     return new Promise((resolve) => {
       pc.createDataChannel('')
-      pc.createOffer().then(offer => pc.setLocalDescription(offer))
-      
+      pc.createOffer().then((offer) => pc.setLocalDescription(offer))
+
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           const candidate = event.candidate.candidate
@@ -119,7 +119,7 @@ const getClientIP = async (): Promise<string> => {
           }
         }
       }
-      
+
       // フォールバック
       setTimeout(() => {
         resolve('unknown')
@@ -164,7 +164,7 @@ const getFailureCounts = (): Record<string, number> => {
  */
 export const validateSession = async (): Promise<boolean> => {
   const authStore = useAuthStore()
-  
+
   if (!authStore.isAuthenticated) {
     return false
   }
@@ -178,12 +178,12 @@ export const validateSession = async (): Promise<boolean> => {
 
     const expiresAt = new Date(sessionData.expires_at * 1000)
     const now = new Date()
-    
+
     if (now >= expiresAt) {
       await SecurityReporting.reportSecurityIncident('session_expired', {
         user_id: authStore.user?.id,
         expires_at: expiresAt.toISOString(),
-        current_time: now.toISOString()
+        current_time: now.toISOString(),
       })
       return false
     }
@@ -191,7 +191,7 @@ export const validateSession = async (): Promise<boolean> => {
     return true
   } catch (err) {
     await SecurityReporting.reportSecurityIncident('session_validation_error', {
-      error: err instanceof Error ? err.message : 'Unknown error'
+      error: err instanceof Error ? err.message : 'Unknown error',
     })
     return false
   }

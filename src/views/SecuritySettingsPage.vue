@@ -21,7 +21,7 @@
                 <v-icon class="me-2">mdi-shield-check</v-icon>
                 <span class="text-h6">セキュリティスコア</span>
                 <v-spacer />
-                <v-chip 
+                <v-chip
                   :color="getSecurityScoreColor(securityScore)"
                   :prepend-icon="getSecurityScoreIcon(securityScore)"
                 >
@@ -40,10 +40,7 @@
               <v-row density="compact">
                 <v-col cols="12" sm="3">
                   <div class="text-center">
-                    <v-icon 
-                      size="24" 
-                      :color="authStore.is2FAEnabled ? 'success' : 'warning'"
-                    >
+                    <v-icon size="24" :color="authStore.is2FAEnabled ? 'success' : 'warning'">
                       {{ authStore.is2FAEnabled ? 'mdi-check-circle' : 'mdi-alert-circle' }}
                     </v-icon>
                     <div class="text-body-2 mt-1">2要素認証</div>
@@ -51,10 +48,7 @@
                 </v-col>
                 <v-col cols="12" sm="3">
                   <div class="text-center">
-                    <v-icon 
-                      size="24" 
-                      :color="hasStrongPassword ? 'success' : 'warning'"
-                    >
+                    <v-icon size="24" :color="hasStrongPassword ? 'success' : 'warning'">
                       {{ hasStrongPassword ? 'mdi-check-circle' : 'mdi-alert-circle' }}
                     </v-icon>
                     <div class="text-body-2 mt-1">強固なパスワード</div>
@@ -62,10 +56,7 @@
                 </v-col>
                 <v-col cols="12" sm="3">
                   <div class="text-center">
-                    <v-icon 
-                      size="24" 
-                      :color="activeSessions <= 2 ? 'success' : 'warning'"
-                    >
+                    <v-icon size="24" :color="activeSessions <= 2 ? 'success' : 'warning'">
                       {{ activeSessions <= 2 ? 'mdi-check-circle' : 'mdi-alert-circle' }}
                     </v-icon>
                     <div class="text-body-2 mt-1">セッション管理</div>
@@ -73,10 +64,7 @@
                 </v-col>
                 <v-col cols="12" sm="3">
                   <div class="text-center">
-                    <v-icon 
-                      size="24" 
-                      :color="pendingAlerts === 0 ? 'success' : 'warning'"
-                    >
+                    <v-icon size="24" :color="pendingAlerts === 0 ? 'success' : 'warning'">
                       {{ pendingAlerts === 0 ? 'mdi-check-circle' : 'mdi-alert-circle' }}
                     </v-icon>
                     <div class="text-body-2 mt-1">セキュリティアラート</div>
@@ -149,18 +137,15 @@
                   :class="recommendation.completed ? 'text-success' : ''"
                 >
                   <template v-slot:prepend>
-                    <v-icon 
-                      :color="recommendation.completed ? 'success' : 'warning'"
-                      size="20"
-                    >
+                    <v-icon :color="recommendation.completed ? 'success' : 'warning'" size="20">
                       {{ recommendation.completed ? 'mdi-check-circle' : 'mdi-alert-circle' }}
                     </v-icon>
                   </template>
-                  
+
                   <v-list-item-title class="text-body-2">
                     {{ recommendation.title }}
                   </v-list-item-title>
-                  
+
                   <v-list-item-subtitle v-if="!recommendation.completed">
                     {{ recommendation.description }}
                   </v-list-item-subtitle>
@@ -179,10 +164,7 @@
             <v-divider />
             <v-card-text>
               <v-list density="compact" class="bg-transparent">
-                <v-list-item
-                  v-for="activity in recentActivities"
-                  :key="activity.id"
-                >
+                <v-list-item v-for="activity in recentActivities" :key="activity.id">
                   <template v-slot:prepend>
                     <v-avatar size="24" :color="getActivityColor(activity.type)">
                       <v-icon size="16" color="white">
@@ -190,11 +172,11 @@
                       </v-icon>
                     </v-avatar>
                   </template>
-                  
+
                   <v-list-item-title class="text-body-2">
                     {{ activity.description }}
                   </v-list-item-title>
-                  
+
                   <v-list-item-subtitle>
                     {{ formatDateTime(activity.timestamp) }}
                   </v-list-item-subtitle>
@@ -230,10 +212,10 @@ const isAdvancedUser = ref(false) // 将来的に管理者権限で制御
 // Computed
 const securityScore = computed(() => {
   let score = 50 // ベーススコア
-  
+
   if (authStore.is2FAEnabled) score += 30
   if (hasStrongPassword.value) score += 20
-  
+
   return Math.min(100, score)
 })
 
@@ -255,26 +237,26 @@ const securityRecommendations = computed(() => [
     id: 1,
     title: '2要素認証を有効にする',
     description: 'アカウントのセキュリティを大幅に向上させます',
-    completed: authStore.is2FAEnabled
+    completed: authStore.is2FAEnabled,
   },
   {
     id: 2,
     title: '強固なパスワードを設定する',
     description: '12文字以上の複雑なパスワードを使用してください',
-    completed: hasStrongPassword.value
+    completed: hasStrongPassword.value,
   },
   {
     id: 3,
     title: 'セッションを管理する',
     description: '不要なセッションは定期的に終了してください',
-    completed: activeSessions.value <= 2
+    completed: activeSessions.value <= 2,
   },
   {
     id: 4,
     title: 'セキュリティアラートを確認する',
     description: '未解決のアラートを確認・対処してください',
-    completed: pendingAlerts.value === 0
-  }
+    completed: pendingAlerts.value === 0,
+  },
 ])
 
 const recentActivities = ref([
@@ -282,20 +264,20 @@ const recentActivities = ref([
     id: 1,
     type: 'login',
     description: 'ログインしました',
-    timestamp: new Date(Date.now() - 30 * 60 * 1000) // 30分前
+    timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30分前
   },
   {
     id: 2,
     type: 'password',
     description: 'パスワードを変更しました',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) // 2日前
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2日前
   },
   {
     id: 3,
     type: '2fa',
     description: '2要素認証を有効にしました',
-    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) // 1週間前
-  }
+    timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 1週間前
+  },
 ])
 
 // Methods
@@ -315,21 +297,31 @@ const getSecurityScoreIcon = (score: number): string => {
 
 const getActivityColor = (type: string): string => {
   switch (type) {
-    case 'login': return 'info'
-    case 'password': return 'warning'
-    case '2fa': return 'success'
-    case 'security': return 'error'
-    default: return 'grey'
+    case 'login':
+      return 'info'
+    case 'password':
+      return 'warning'
+    case '2fa':
+      return 'success'
+    case 'security':
+      return 'error'
+    default:
+      return 'grey'
   }
 }
 
 const getActivityIcon = (type: string): string => {
   switch (type) {
-    case 'login': return 'mdi-login'
-    case 'password': return 'mdi-lock-reset'
-    case '2fa': return 'mdi-shield-key'
-    case 'security': return 'mdi-alert'
-    default: return 'mdi-information'
+    case 'login':
+      return 'mdi-login'
+    case 'password':
+      return 'mdi-lock-reset'
+    case '2fa':
+      return 'mdi-shield-key'
+    case 'security':
+      return 'mdi-alert'
+    default:
+      return 'mdi-information'
   }
 }
 
@@ -338,7 +330,7 @@ const formatDateTime = (date: Date): string => {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date)
 }
 
@@ -352,7 +344,7 @@ const AuditLogViewer = {
         この機能は開発中です。近日公開予定です。
       </div>
     </v-card-text>
-  `
+  `,
 }
 
 // Lifecycle
@@ -368,9 +360,11 @@ onMounted(() => {
 }
 
 .security-overview-card {
-  background: linear-gradient(135deg, 
-    rgba(var(--v-theme-primary), 0.05) 0%, 
-    rgba(var(--v-theme-surface), 1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-primary), 0.05) 0%,
+    rgba(var(--v-theme-surface), 1) 100%
+  );
 }
 
 .v-tabs {
@@ -386,7 +380,7 @@ onMounted(() => {
   .v-container {
     padding: 16px 8px;
   }
-  
+
   .text-h4 {
     font-size: 1.75rem !important;
   }
@@ -396,7 +390,7 @@ onMounted(() => {
   .v-tabs {
     overflow-x: auto;
   }
-  
+
   .v-tab {
     min-width: 120px;
   }

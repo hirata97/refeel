@@ -34,14 +34,14 @@ export enum AuditEventType {
   // システム関連
   SYSTEM_ERROR = 'system_error',
   SYSTEM_WARNING = 'system_warning',
-  SYSTEM_INFO = 'system_info'
+  SYSTEM_INFO = 'system_info',
 }
 
 export enum AuditEventSeverity {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  CRITICAL = 'critical'
+  CRITICAL = 'critical',
 }
 
 export interface AuditLogEntry {
@@ -93,7 +93,7 @@ export class AuditLogger {
   async log(
     eventType: AuditEventType,
     message: string,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     const entry: AuditLogEntry = {
       id: this.generateLogId(),
@@ -107,14 +107,17 @@ export class AuditLogger {
       userId: metadata?.userId as string | undefined,
       sessionId: metadata?.sessionId as string | undefined,
       ipAddress: metadata?.ipAddress as string | undefined,
-      userAgent: metadata?.userAgent as string | undefined
+      userAgent: metadata?.userAgent as string | undefined,
     }
 
     // ログエントリを保存
     this.saveLogEntry(entry)
 
     // 重要度が高い場合はコンソールにも出力
-    if (entry.severity === AuditEventSeverity.HIGH || entry.severity === AuditEventSeverity.CRITICAL) {
+    if (
+      entry.severity === AuditEventSeverity.HIGH ||
+      entry.severity === AuditEventSeverity.CRITICAL
+    ) {
       console.warn(`[AUDIT] ${entry.severity.toUpperCase()}: ${message}`, metadata)
     } else {
       console.log(`[AUDIT] ${eventType}: ${message}`)
@@ -131,9 +134,9 @@ export class AuditLogger {
    */
   searchLogs(filter: AuditLogFilter = {}): AuditLogEntry[] {
     const logs = this.getAllLogs()
-    
+
     return logs
-      .filter(log => {
+      .filter((log) => {
         // イベントタイプフィルター
         if (filter.eventTypes && !filter.eventTypes.includes(log.eventType)) {
           return false
@@ -169,7 +172,7 @@ export class AuditLogger {
   getUserLogs(userId: string, limit: number = 100): AuditLogEntry[] {
     return this.searchLogs({
       userId,
-      limit
+      limit,
     })
   }
 
@@ -182,12 +185,12 @@ export class AuditLogger {
       AuditEventType.AUTH_FAILED_2FA,
       AuditEventType.SECURITY_LOCKOUT,
       AuditEventType.SECURITY_VIOLATION,
-      AuditEventType.SECURITY_ALERT
+      AuditEventType.SECURITY_ALERT,
     ]
 
     return this.searchLogs({
       eventTypes: securityEventTypes,
-      limit
+      limit,
     })
   }
 
@@ -202,17 +205,17 @@ export class AuditLogger {
     eventTypeBreakdown: Record<string, number>
   } {
     const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000)
-    const recentLogs = this.getAllLogs().filter(log => log.timestamp > cutoffTime)
+    const recentLogs = this.getAllLogs().filter((log) => log.timestamp > cutoffTime)
 
     const stats = {
       totalEvents: recentLogs.length,
       criticalEvents: 0,
       securityEvents: 0,
       failedLogins: 0,
-      eventTypeBreakdown: {} as Record<string, number>
+      eventTypeBreakdown: {} as Record<string, number>,
     }
 
-    recentLogs.forEach(log => {
+    recentLogs.forEach((log) => {
       // 重要度別カウント
       if (log.severity === AuditEventSeverity.CRITICAL) {
         stats.criticalEvents++
@@ -241,20 +244,28 @@ export class AuditLogger {
   exportLogs(filter: AuditLogFilter = {}): string {
     const logs = this.searchLogs(filter)
     const headers = [
-      'Timestamp', 'Event Type', 'Severity', 'Message', 
-      'User ID', 'IP Address', 'Source', 'Metadata'
+      'Timestamp',
+      'Event Type',
+      'Severity',
+      'Message',
+      'User ID',
+      'IP Address',
+      'Source',
+      'Metadata',
     ].join(',')
 
-    const rows = logs.map(log => [
-      log.timestamp.toISOString(),
-      log.eventType,
-      log.severity,
-      `"${log.message.replace(/"/g, '""')}"`, // CSV形式でエスケープ
-      log.userId || '',
-      log.ipAddress || '',
-      log.source,
-      `"${JSON.stringify(log.metadata || {})}"`
-    ].join(','))
+    const rows = logs.map((log) =>
+      [
+        log.timestamp.toISOString(),
+        log.eventType,
+        log.severity,
+        `"${log.message.replace(/"/g, '""')}"`, // CSV形式でエスケープ
+        log.userId || '',
+        log.ipAddress || '',
+        log.source,
+        `"${JSON.stringify(log.metadata || {})}"`,
+      ].join(','),
+    )
 
     return [headers, ...rows].join('\n')
   }
@@ -265,7 +276,7 @@ export class AuditLogger {
   clearLogs(olderThan?: Date): void {
     if (olderThan) {
       // 指定日時より古いログを削除
-      const logs = this.getAllLogs().filter(log => log.timestamp >= olderThan)
+      const logs = this.getAllLogs().filter((log) => log.timestamp >= olderThan)
       this.saveLogs(logs)
     } else {
       // 全ログをクリア
@@ -276,7 +287,7 @@ export class AuditLogger {
     this.log(
       AuditEventType.SYSTEM_INFO,
       `監査ログクリア実行${olderThan ? ` (${olderThan.toISOString()}より古いログ)` : ' (全ログ)'}`,
-      { clearTimestamp: new Date().toISOString() }
+      { clearTimestamp: new Date().toISOString() },
     )
   }
 
@@ -287,23 +298,20 @@ export class AuditLogger {
   }
 
   private determineSeverity(eventType: AuditEventType): AuditEventSeverity {
-    const criticalEvents = [
-      AuditEventType.SECURITY_VIOLATION,
-      AuditEventType.SYSTEM_ERROR
-    ]
+    const criticalEvents = [AuditEventType.SECURITY_VIOLATION, AuditEventType.SYSTEM_ERROR]
 
     const highEvents = [
       AuditEventType.AUTH_FAILED_2FA,
       AuditEventType.SECURITY_LOCKOUT,
       AuditEventType.SECURITY_ALERT,
-      AuditEventType.PASSWORD_POLICY_VIOLATION
+      AuditEventType.PASSWORD_POLICY_VIOLATION,
     ]
 
     const mediumEvents = [
       AuditEventType.AUTH_FAILED_LOGIN,
       AuditEventType.SECURITY_2FA_DISABLED,
       AuditEventType.SECURITY_BACKUP_CODE_USED,
-      AuditEventType.AUTH_MASS_LOGOUT
+      AuditEventType.AUTH_MASS_LOGOUT,
     ]
 
     if (criticalEvents.includes(eventType)) {
@@ -341,7 +349,7 @@ export class AuditLogger {
       const logs = JSON.parse(stored)
       return logs.map((log: Partial<AuditLogEntry> & { timestamp: string }) => ({
         ...log,
-        timestamp: new Date(log.timestamp)
+        timestamp: new Date(log.timestamp),
       }))
     } catch (error) {
       console.error('監査ログの取得に失敗:', error)
@@ -365,7 +373,7 @@ export class AuditLogger {
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify(entry)
       // })
-      
+
       console.log('重要なログをサーバーに送信（実装待ち）:', entry)
     } catch (error) {
       console.error('サーバーへのログ送信に失敗:', error)

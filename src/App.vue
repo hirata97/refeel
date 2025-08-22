@@ -35,7 +35,12 @@
 
           <v-menu activator="parent">
             <v-list density="compact" nav>
-              <v-list-item append-icon="mdi-cog-outline" link title="Settings" @click="goToSettings" />
+              <v-list-item
+                append-icon="mdi-cog-outline"
+                link
+                title="Settings"
+                @click="goToSettings"
+              />
               <v-list-item append-icon="mdi-logout" link title="Logout" @click="handleLogout" />
             </v-list>
           </v-menu>

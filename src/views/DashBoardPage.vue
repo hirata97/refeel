@@ -7,37 +7,21 @@
     </header>
 
     <section class="dashboard-grid">
-      <BaseCard
-        title="最近の日記"
-        class="dashboard-card"
-      >
+      <BaseCard title="最近の日記" class="dashboard-card">
         <p>ここに最近の日記エントリーのプレビューを表示します。</p>
       </BaseCard>
 
-      <BaseCard
-        title="感情の統計"
-        class="dashboard-card"
-      >
+      <BaseCard title="感情の統計" class="dashboard-card">
         <p>ここに最近の感情の傾向を示すグラフを表示します。</p>
       </BaseCard>
     </section>
 
     <!-- ダッシュボードボタン -->
     <footer class="dashboard-actions">
-      <BaseButton
-        @click="navigateTo('/diary-register')"
-        color="primary"
-        size="large"
-        class="mb-2"
-      >
+      <BaseButton @click="navigateTo('/diary-register')" color="primary" size="large" class="mb-2">
         新しい日記を書く
       </BaseButton>
-      <BaseButton
-        @click="navigateTo('/setting')"
-        color="secondary"
-        variant="outlined"
-        size="large"
-      >
+      <BaseButton @click="navigateTo('/setting')" color="secondary" variant="outlined" size="large">
         設定
       </BaseButton>
     </footer>

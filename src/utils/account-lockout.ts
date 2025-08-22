@@ -41,7 +41,7 @@ export const DEFAULT_LOCKOUT_POLICY: LockoutPolicy = {
   maxFailedAttempts: 5,
   lockoutDuration: 15, // 15分
   attemptWindow: 30, // 30分以内の失敗回数をカウント
-  progressiveLockout: true
+  progressiveLockout: true,
 }
 
 /**
@@ -63,14 +63,14 @@ export class AccountLockoutManager {
     email: string,
     success: boolean,
     ipAddress?: string,
-    userAgent?: string
+    userAgent?: string,
   ): Promise<void> {
     const attempt: LoginAttempt = {
       email: email.toLowerCase(),
       timestamp: new Date(),
       success,
       ipAddress,
-      userAgent
+      userAgent,
     }
 
     // ローカルストレージに記録
@@ -84,8 +84,8 @@ export class AccountLockoutManager {
         email,
         ipAddress,
         userAgent,
-        timestamp: attempt.timestamp.toISOString()
-      }
+        timestamp: attempt.timestamp.toISOString(),
+      },
     )
 
     // 成功した場合は失敗カウントをリセット
@@ -99,10 +99,10 @@ export class AccountLockoutManager {
    */
   async checkLockoutStatus(email: string): Promise<LockoutStatus> {
     const normalizedEmail = email.toLowerCase()
-    
+
     // 現在のロックアウト情報を取得
     const lockoutInfo = this.getLockoutInfo(normalizedEmail)
-    
+
     if (lockoutInfo && new Date() < lockoutInfo.lockoutEnd) {
       // まだロックアウト期間中
       return {
@@ -110,7 +110,7 @@ export class AccountLockoutManager {
         lockoutEnd: lockoutInfo.lockoutEnd,
         failedAttempts: lockoutInfo.attemptCount,
         remainingAttempts: 0,
-        nextAttemptAllowed: lockoutInfo.lockoutEnd
+        nextAttemptAllowed: lockoutInfo.lockoutEnd,
       }
     }
 
@@ -127,7 +127,7 @@ export class AccountLockoutManager {
       isLocked: false,
       failedAttempts: failedAttempts.length,
       remainingAttempts,
-      nextAttemptAllowed: undefined
+      nextAttemptAllowed: undefined,
     }
   }
 
@@ -136,18 +136,18 @@ export class AccountLockoutManager {
    */
   async lockAccount(email: string, attemptCount: number): Promise<LockoutInfo> {
     const normalizedEmail = email.toLowerCase()
-    
+
     // 前回のロックアウト情報を取得
     const previousLockout = this.getLockoutInfo(normalizedEmail)
     let lockoutLevel = 1
-    
+
     if (previousLockout && this.policy.progressiveLockout) {
       lockoutLevel = previousLockout.lockoutLevel + 1
     }
 
     // 段階的ロックアウト時間の計算
     const baseDuration = this.policy.lockoutDuration
-    const actualDuration = this.policy.progressiveLockout 
+    const actualDuration = this.policy.progressiveLockout
       ? baseDuration * Math.pow(2, lockoutLevel - 1) // 指数的増加
       : baseDuration
 
@@ -159,7 +159,7 @@ export class AccountLockoutManager {
       lockoutStart,
       lockoutEnd,
       attemptCount,
-      lockoutLevel
+      lockoutLevel,
     }
 
     // ロックアウト情報を保存
@@ -174,8 +174,8 @@ export class AccountLockoutManager {
         lockoutDuration: actualDuration,
         lockoutLevel,
         attemptCount,
-        lockoutEnd: lockoutEnd.toISOString()
-      }
+        lockoutEnd: lockoutEnd.toISOString(),
+      },
     )
 
     console.warn(`アカウント ${email} が${actualDuration}分間ロックアウトされました`)
@@ -188,20 +188,16 @@ export class AccountLockoutManager {
    */
   async unlockAccount(email: string, adminUserId?: string): Promise<void> {
     const normalizedEmail = email.toLowerCase()
-    
+
     this.clearLockout(normalizedEmail)
     this.clearFailedAttempts(normalizedEmail)
 
     // 監査ログに記録
-    await this.auditLogger.log(
-      AuditEventType.SECURITY_UNLOCK,
-      `アカウントロック解除: ${email}`,
-      {
-        email: normalizedEmail,
-        adminUserId: adminUserId || 'system',
-        timestamp: new Date().toISOString()
-      }
-    )
+    await this.auditLogger.log(AuditEventType.SECURITY_UNLOCK, `アカウントロック解除: ${email}`, {
+      email: normalizedEmail,
+      adminUserId: adminUserId || 'system',
+      timestamp: new Date().toISOString(),
+    })
 
     console.info(`アカウント ${email} のロックが解除されました`)
   }
@@ -232,9 +228,9 @@ export class AccountLockoutManager {
 
     // 短時間での大量アクセス
     const recentAttempts = attempts.filter(
-      attempt => new Date().getTime() - attempt.timestamp.getTime() < 5 * 60 * 1000 // 5分以内
+      (attempt) => new Date().getTime() - attempt.timestamp.getTime() < 5 * 60 * 1000, // 5分以内
     )
-    
+
     if (recentAttempts.length >= 10) {
       isSuspicious = true
       reasons.push('短時間での大量ログイン試行')
@@ -242,18 +238,16 @@ export class AccountLockoutManager {
 
     // 複数IPアドレスからのアクセス
     const uniqueIPs = new Set(
-      recentAttempts
-        .filter(attempt => attempt.ipAddress)
-        .map(attempt => attempt.ipAddress)
+      recentAttempts.filter((attempt) => attempt.ipAddress).map((attempt) => attempt.ipAddress),
     )
-    
+
     if (uniqueIPs.size >= 3) {
       isSuspicious = true
       reasons.push('複数のIPアドレスからの同時アクセス')
     }
 
     // 異常な失敗パターン
-    const failedAttempts = attempts.filter(attempt => !attempt.success)
+    const failedAttempts = attempts.filter((attempt) => !attempt.success)
     if (failedAttempts.length >= 15) {
       isSuspicious = true
       reasons.push('異常に多い失敗回数')
@@ -261,17 +255,13 @@ export class AccountLockoutManager {
 
     if (isSuspicious) {
       // 不正アクセス検知を監査ログに記録
-      await this.auditLogger.log(
-        AuditEventType.SECURITY_VIOLATION,
-        `不正アクセス検知: ${email}`,
-        {
-          email: normalizedEmail,
-          reasons,
-          recentAttemptCount: recentAttempts.length,
-          uniqueIPCount: uniqueIPs.size,
-          totalFailedAttempts: failedAttempts.length
-        }
-      )
+      await this.auditLogger.log(AuditEventType.SECURITY_VIOLATION, `不正アクセス検知: ${email}`, {
+        email: normalizedEmail,
+        reasons,
+        recentAttemptCount: recentAttempts.length,
+        uniqueIPCount: uniqueIPs.size,
+        totalFailedAttempts: failedAttempts.length,
+      })
     }
 
     return { isSuspicious, reasons }
@@ -287,22 +277,24 @@ export class AccountLockoutManager {
   } {
     const allLockouts = this.getAllLockouts()
     const currentTime = new Date()
-    
+
     const activeLockedAccounts = allLockouts.filter(
-      lockout => currentTime < lockout.lockoutEnd
+      (lockout) => currentTime < lockout.lockoutEnd,
     ).length
 
     // 失敗試行の総数を計算（過去24時間）
     const yesterday = new Date(currentTime.getTime() - 24 * 60 * 60 * 1000)
     let totalFailed = 0
-    
+
     try {
       const allAttempts = localStorage.getItem('login_attempts')
       if (allAttempts) {
         const parsed = JSON.parse(allAttempts)
-        totalFailed = Object.values(parsed as Record<string, LoginAttempt[]>).flat().filter((attempt: LoginAttempt) => {
-          return !attempt.success && new Date(attempt.timestamp) > yesterday
-        }).length
+        totalFailed = Object.values(parsed as Record<string, LoginAttempt[]>)
+          .flat()
+          .filter((attempt: LoginAttempt) => {
+            return !attempt.success && new Date(attempt.timestamp) > yesterday
+          }).length
       }
     } catch (error) {
       console.warn('統計情報の取得に失敗:', error)
@@ -311,7 +303,7 @@ export class AccountLockoutManager {
     return {
       totalLockedAccounts: activeLockedAccounts,
       totalFailedAttempts: totalFailed,
-      suspiciousActivities: 0 // 実装に応じて追加
+      suspiciousActivities: 0, // 実装に応じて追加
     }
   }
 
@@ -322,19 +314,19 @@ export class AccountLockoutManager {
       const key = 'login_attempts'
       const stored = localStorage.getItem(key)
       const attempts = stored ? JSON.parse(stored) : {}
-      
+
       if (!attempts[attempt.email]) {
         attempts[attempt.email] = []
       }
-      
+
       attempts[attempt.email].push(attempt)
-      
+
       // 古いエントリを削除（30日以上前）
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       attempts[attempt.email] = attempts[attempt.email].filter(
-        (a: LoginAttempt) => new Date(a.timestamp) > thirtyDaysAgo
+        (a: LoginAttempt) => new Date(a.timestamp) > thirtyDaysAgo,
       )
-      
+
       localStorage.setItem(key, JSON.stringify(attempts))
     } catch (error) {
       console.warn('ログイン試行の保存に失敗:', error)
@@ -344,7 +336,7 @@ export class AccountLockoutManager {
   private getRecentFailedAttempts(email: string): LoginAttempt[] {
     const windowStart = new Date(Date.now() - this.policy.attemptWindow * 60 * 1000)
     return this.getAllAttempts(email).filter(
-      attempt => !attempt.success && attempt.timestamp > windowStart
+      (attempt) => !attempt.success && attempt.timestamp > windowStart,
     )
   }
 
@@ -352,13 +344,13 @@ export class AccountLockoutManager {
     try {
       const stored = localStorage.getItem('login_attempts')
       if (!stored) return []
-      
+
       const attempts = JSON.parse(stored)
       const userAttempts = attempts[email] || []
-      
+
       return userAttempts.map((attempt: Partial<LoginAttempt> & { timestamp: string }) => ({
         ...attempt,
-        timestamp: new Date(attempt.timestamp)
+        timestamp: new Date(attempt.timestamp),
       }))
     } catch (error) {
       console.warn('ログイン試行履歴の取得に失敗:', error)
@@ -370,7 +362,7 @@ export class AccountLockoutManager {
     try {
       const stored = localStorage.getItem('login_attempts')
       if (!stored) return
-      
+
       const attempts = JSON.parse(stored)
       if (attempts[email]) {
         // 失敗した試行のみを削除し、成功した試行は保持
@@ -387,7 +379,7 @@ export class AccountLockoutManager {
       const key = 'account_lockouts'
       const stored = localStorage.getItem(key)
       const lockouts = stored ? JSON.parse(stored) : {}
-      
+
       lockouts[lockoutInfo.email] = lockoutInfo
       localStorage.setItem(key, JSON.stringify(lockouts))
     } catch (error) {
@@ -399,16 +391,16 @@ export class AccountLockoutManager {
     try {
       const stored = localStorage.getItem('account_lockouts')
       if (!stored) return null
-      
+
       const lockouts = JSON.parse(stored)
       const lockoutData = lockouts[email]
-      
+
       if (!lockoutData) return null
-      
+
       return {
         ...lockoutData,
         lockoutStart: new Date(lockoutData.lockoutStart),
-        lockoutEnd: new Date(lockoutData.lockoutEnd)
+        lockoutEnd: new Date(lockoutData.lockoutEnd),
       }
     } catch (error) {
       console.warn('ロックアウト情報の取得に失敗:', error)
@@ -420,12 +412,14 @@ export class AccountLockoutManager {
     try {
       const stored = localStorage.getItem('account_lockouts')
       if (!stored) return []
-      
+
       const lockouts = JSON.parse(stored)
-      return Object.values(lockouts as Record<string, LockoutInfo & { lockoutStart: string; lockoutEnd: string }>).map((lockout) => ({
+      return Object.values(
+        lockouts as Record<string, LockoutInfo & { lockoutStart: string; lockoutEnd: string }>,
+      ).map((lockout) => ({
         ...lockout,
         lockoutStart: new Date(lockout.lockoutStart),
-        lockoutEnd: new Date(lockout.lockoutEnd)
+        lockoutEnd: new Date(lockout.lockoutEnd),
       }))
     } catch (error) {
       console.warn('全ロックアウト情報の取得に失敗:', error)
@@ -437,7 +431,7 @@ export class AccountLockoutManager {
     try {
       const stored = localStorage.getItem('account_lockouts')
       if (!stored) return
-      
+
       const lockouts = JSON.parse(stored)
       delete lockouts[email]
       localStorage.setItem('account_lockouts', JSON.stringify(lockouts))
@@ -448,4 +442,4 @@ export class AccountLockoutManager {
 }
 
 // エクスポート用インスタンス
-export const accountLockoutManager = new AccountLockoutManager();
+export const accountLockoutManager = new AccountLockoutManager()

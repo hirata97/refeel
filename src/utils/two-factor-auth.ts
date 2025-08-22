@@ -15,7 +15,7 @@ export interface TwoFactorConfig {
 
 export interface TOTPOptions {
   window: number // 許容する時間窓（通常は1 = ±30秒）
-  step: number   // 時間ステップ（秒、通常は30）
+  step: number // 時間ステップ（秒、通常は30）
   digits: number // コード桁数（通常は6）
 }
 
@@ -42,7 +42,7 @@ export interface TwoFactorVerificationResult {
 const DEFAULT_TOTP_OPTIONS: TOTPOptions = {
   window: 1,
   step: 30,
-  digits: 6
+  digits: 6,
 }
 
 /**
@@ -108,7 +108,7 @@ class HMAC {
       key,
       { name: 'HMAC', hash: 'SHA-1' },
       false,
-      ['sign']
+      ['sign'],
     )
     return crypto.subtle.sign('HMAC', cryptoKey, data)
   }
@@ -139,7 +139,7 @@ export class TOTPGenerator {
   async generateTOTP(secret: string, timestamp?: number): Promise<string> {
     const time = timestamp || Date.now()
     const timeStep = Math.floor(time / 1000 / this.options.step)
-    
+
     return this.generateTOTPForStep(secret, timeStep)
   }
 
@@ -149,25 +149,25 @@ export class TOTPGenerator {
   private async generateTOTPForStep(secret: string, timeStep: number): Promise<string> {
     // 秘密鍵をデコード
     const key = Base32.decode(secret)
-    
+
     // タイムステップをバイト配列に変換（Big-endian 64bit）
     const timeBuffer = new ArrayBuffer(8)
     const timeView = new DataView(timeBuffer)
     timeView.setUint32(4, timeStep, false) // Big-endian
-    
+
     // HMAC-SHA1計算
     const hmac = await HMAC.sha1(key, timeBuffer)
     const hmacArray = new Uint8Array(hmac)
-    
+
     // Dynamic truncation
     const offset = hmacArray[hmacArray.length - 1] & 0x0f
-    const code = (
-      ((hmacArray[offset] & 0x7f) << 24) |
-      ((hmacArray[offset + 1] & 0xff) << 16) |
-      ((hmacArray[offset + 2] & 0xff) << 8) |
-      (hmacArray[offset + 3] & 0xff)
-    ) % Math.pow(10, this.options.digits)
-    
+    const code =
+      (((hmacArray[offset] & 0x7f) << 24) |
+        ((hmacArray[offset + 1] & 0xff) << 16) |
+        ((hmacArray[offset + 2] & 0xff) << 8) |
+        (hmacArray[offset + 3] & 0xff)) %
+      Math.pow(10, this.options.digits)
+
     return code.toString().padStart(this.options.digits, '0')
   }
 
@@ -177,17 +177,17 @@ export class TOTPGenerator {
   async verifyTOTP(secret: string, token: string, timestamp?: number): Promise<boolean> {
     const time = timestamp || Date.now()
     const currentStep = Math.floor(time / 1000 / this.options.step)
-    
+
     // 時間窓内での検証
     for (let i = -this.options.window; i <= this.options.window; i++) {
       const stepToCheck = currentStep + i
       const expectedCode = await this.generateTOTPForStep(secret, stepToCheck)
-      
+
       if (expectedCode === token) {
         return true
       }
     }
-    
+
     return false
   }
 
@@ -200,9 +200,9 @@ export class TOTPGenerator {
       issuer,
       algorithm: 'SHA1',
       digits: this.options.digits.toString(),
-      period: this.options.step.toString()
+      period: this.options.step.toString(),
     })
-    
+
     const otpauthUrl = `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?${params}`
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauthUrl)}`
   }
@@ -226,36 +226,32 @@ export class TwoFactorAuthManager {
   async setup2FA(userId: string, userEmail: string): Promise<TwoFactorSetupResult> {
     // 秘密鍵生成
     const secret = this.totpGenerator.generateSecret()
-    
+
     // バックアップコード生成
     const backupCodes = this.generateBackupCodes()
-    
+
     // QRコードURL生成
     const qrCodeUrl = this.totpGenerator.generateQRCodeUrl(
       secret,
       userEmail,
-      'Goal Categorization Diary'
+      'Goal Categorization Diary',
     )
-    
+
     // 手動入力用フォーマット
     const manualEntryKey = secret.match(/.{1,4}/g)?.join(' ') || secret
-    
+
     // 監査ログに記録
-    await this.auditLogger.log(
-      AuditEventType.SECURITY_2FA_SETUP,
-      `2FA設定開始: ${userEmail}`,
-      {
-        userId,
-        email: userEmail,
-        timestamp: new Date().toISOString()
-      }
-    )
+    await this.auditLogger.log(AuditEventType.SECURITY_2FA_SETUP, `2FA設定開始: ${userEmail}`, {
+      userId,
+      email: userEmail,
+      timestamp: new Date().toISOString(),
+    })
 
     return {
       secret,
       qrCodeUrl,
       backupCodes,
-      manualEntryKey
+      manualEntryKey,
     }
   }
 
@@ -267,16 +263,16 @@ export class TwoFactorAuthManager {
     userEmail: string,
     secret: string,
     verificationCode: string,
-    backupCodes: string[]
+    backupCodes: string[],
   ): Promise<boolean> {
     // 設定確認のためにコードを検証
     const isValid = await this.totpGenerator.verifyTOTP(secret, verificationCode)
-    
+
     if (!isValid) {
       await this.auditLogger.log(
         AuditEventType.AUTH_FAILED_2FA,
         `2FA有効化失敗（無効なコード）: ${userEmail}`,
-        { userId, email: userEmail }
+        { userId, email: userEmail },
       )
       return false
     }
@@ -284,24 +280,20 @@ export class TwoFactorAuthManager {
     // 2FA設定を保存
     const config: TwoFactorConfig = {
       secret,
-      backupCodes: backupCodes.map(code => code),
+      backupCodes: backupCodes.map((code) => code),
       isEnabled: true,
-      setupAt: new Date()
+      setupAt: new Date(),
     }
 
     this.save2FAConfig(userId, config)
 
     // 監査ログに記録
-    await this.auditLogger.log(
-      AuditEventType.SECURITY_2FA_ENABLED,
-      `2FA有効化完了: ${userEmail}`,
-      {
-        userId,
-        email: userEmail,
-        backupCodesCount: backupCodes.length,
-        timestamp: new Date().toISOString()
-      }
-    )
+    await this.auditLogger.log(AuditEventType.SECURITY_2FA_ENABLED, `2FA有効化完了: ${userEmail}`, {
+      userId,
+      email: userEmail,
+      backupCodesCount: backupCodes.length,
+      timestamp: new Date().toISOString(),
+    })
 
     return true
   }
@@ -317,12 +309,12 @@ export class TwoFactorAuthManager {
 
     // 現在のTOTPコードまたはバックアップコードで検証
     const verificationResult = await this.verify2FACode(userId, verificationCode)
-    
+
     if (!verificationResult.isValid) {
       await this.auditLogger.log(
         AuditEventType.AUTH_FAILED_2FA,
         `2FA無効化失敗（無効なコード）: ${userEmail}`,
-        { userId, email: userEmail }
+        { userId, email: userEmail },
       )
       return false
     }
@@ -337,8 +329,8 @@ export class TwoFactorAuthManager {
       {
         userId,
         email: userEmail,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     )
 
     return true
@@ -349,34 +341,34 @@ export class TwoFactorAuthManager {
    */
   async verify2FACode(userId: string, code: string): Promise<TwoFactorVerificationResult> {
     const config = this.get2FAConfig(userId)
-    
+
     if (!config || !config.isEnabled) {
       return { isValid: false, method: null }
     }
 
     // TOTPコードで検証
     const isTOTPValid = await this.totpGenerator.verifyTOTP(config.secret, code)
-    
+
     if (isTOTPValid) {
       config.lastUsedAt = new Date()
       this.save2FAConfig(userId, config)
-      
-      return { 
-        isValid: true, 
+
+      return {
+        isValid: true,
         method: 'totp',
-        remainingBackupCodes: config.backupCodes.length
+        remainingBackupCodes: config.backupCodes.length,
       }
     }
 
     // バックアップコードで検証
-    const backupCodeIndex = config.backupCodes.findIndex(backupCode => backupCode === code)
-    
+    const backupCodeIndex = config.backupCodes.findIndex((backupCode) => backupCode === code)
+
     if (backupCodeIndex !== -1) {
       // バックアップコードを使用済みにマーク
       config.backupCodes.splice(backupCodeIndex, 1)
       config.lastUsedAt = new Date()
       this.save2FAConfig(userId, config)
-      
+
       // 監査ログに記録
       await this.auditLogger.log(
         AuditEventType.SECURITY_BACKUP_CODE_USED,
@@ -384,14 +376,14 @@ export class TwoFactorAuthManager {
         {
           userId,
           remainingCodes: config.backupCodes.length,
-          timestamp: new Date().toISOString()
-        }
+          timestamp: new Date().toISOString(),
+        },
       )
 
-      return { 
-        isValid: true, 
+      return {
+        isValid: true,
         method: 'backup',
-        remainingBackupCodes: config.backupCodes.length
+        remainingBackupCodes: config.backupCodes.length,
       }
     }
 
@@ -416,7 +408,7 @@ export class TwoFactorAuthManager {
     backupCodesCount: number
   } {
     const config = this.get2FAConfig(userId)
-    
+
     if (!config) {
       return { isEnabled: false, backupCodesCount: 0 }
     }
@@ -425,7 +417,7 @@ export class TwoFactorAuthManager {
       isEnabled: config.isEnabled,
       setupAt: config.setupAt,
       lastUsedAt: config.lastUsedAt,
-      backupCodesCount: config.backupCodes.length
+      backupCodesCount: config.backupCodes.length,
     }
   }
 
@@ -450,8 +442,8 @@ export class TwoFactorAuthManager {
         userId,
         email: userEmail,
         codesCount: newBackupCodes.length,
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     )
 
     return newBackupCodes
@@ -464,21 +456,21 @@ export class TwoFactorAuthManager {
    */
   private generateBackupCodes(): string[] {
     const codes: string[] = []
-    
+
     for (let i = 0; i < 8; i++) {
       const bytes = new Uint8Array(5)
       crypto.getRandomValues(bytes)
-      
+
       // 読みやすい形式で生成（8文字の英数字）
       const code = Array.from(bytes)
-        .map(byte => byte.toString(36))
+        .map((byte) => byte.toString(36))
         .join('')
         .substring(0, 8)
         .toUpperCase()
-      
+
       codes.push(code)
     }
-    
+
     return codes
   }
 
@@ -501,12 +493,12 @@ export class TwoFactorAuthManager {
     try {
       const stored = localStorage.getItem(`2fa_config_${userId}`)
       if (!stored) return null
-      
+
       const config = JSON.parse(stored)
       return {
         ...config,
         setupAt: new Date(config.setupAt),
-        lastUsedAt: config.lastUsedAt ? new Date(config.lastUsedAt) : undefined
+        lastUsedAt: config.lastUsedAt ? new Date(config.lastUsedAt) : undefined,
       }
     } catch (error) {
       console.error('2FA設定の取得に失敗:', error)

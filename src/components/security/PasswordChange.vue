@@ -42,11 +42,14 @@
         <div v-if="passwordValidation" class="mb-4">
           <div class="d-flex justify-between align-center mb-2">
             <span class="text-body-2">パスワード強度</span>
-            <span class="text-body-2 font-weight-medium" :class="getStrengthColor(passwordValidation.score)">
+            <span
+              class="text-body-2 font-weight-medium"
+              :class="getStrengthColor(passwordValidation.score)"
+            >
               {{ getStrengthLabel(passwordValidation.score) }}
             </span>
           </div>
-          
+
           <v-progress-linear
             :model-value="passwordValidation.score"
             :color="getStrengthColor(passwordValidation.score).replace('text-', '')"
@@ -56,14 +59,14 @@
           />
 
           <!-- エラーメッセージ -->
-          <v-alert 
-            v-if="passwordValidation.errors.length > 0" 
-            type="error" 
-            variant="tonal" 
+          <v-alert
+            v-if="passwordValidation.errors.length > 0"
+            type="error"
+            variant="tonal"
             class="mb-2"
             density="compact"
           >
-            <ul class="ma-0 pa-0" style="list-style-position: inside;">
+            <ul class="ma-0 pa-0" style="list-style-position: inside">
               <li v-for="error in passwordValidation.errors" :key="error">
                 {{ error }}
               </li>
@@ -71,14 +74,14 @@
           </v-alert>
 
           <!-- 警告メッセージ -->
-          <v-alert 
-            v-if="passwordValidation.warnings.length > 0" 
-            type="warning" 
-            variant="tonal" 
+          <v-alert
+            v-if="passwordValidation.warnings.length > 0"
+            type="warning"
+            variant="tonal"
             class="mb-2"
             density="compact"
           >
-            <ul class="ma-0 pa-0" style="list-style-position: inside;">
+            <ul class="ma-0 pa-0" style="list-style-position: inside">
               <li v-for="warning in passwordValidation.warnings" :key="warning">
                 {{ warning }}
               </li>
@@ -86,15 +89,15 @@
           </v-alert>
 
           <!-- 改善提案 -->
-          <v-alert 
-            v-if="passwordValidation.suggestions.length > 0" 
-            type="info" 
-            variant="tonal" 
+          <v-alert
+            v-if="passwordValidation.suggestions.length > 0"
+            type="info"
+            variant="tonal"
             class="mb-2"
             density="compact"
           >
             <div class="text-body-2 mb-1">改善提案:</div>
-            <ul class="ma-0 pa-0" style="list-style-position: inside;">
+            <ul class="ma-0 pa-0" style="list-style-position: inside">
               <li v-for="suggestion in passwordValidation.suggestions" :key="suggestion">
                 {{ suggestion }}
               </li>
@@ -176,13 +179,7 @@
 
     <v-card-actions class="pa-4">
       <v-spacer />
-      <v-btn
-        variant="outlined"
-        @click="resetForm"
-        :disabled="loading"
-      >
-        リセット
-      </v-btn>
+      <v-btn variant="outlined" @click="resetForm" :disabled="loading"> リセット </v-btn>
       <v-btn
         color="primary"
         type="submit"
@@ -221,26 +218,26 @@ const passwordValidation = ref<PasswordValidationResult | null>(null)
 
 // Computed
 const canSubmit = computed(() => {
-  return currentPassword.value.length > 0 &&
-         newPassword.value.length > 0 &&
-         confirmPassword.value.length > 0 &&
-         newPassword.value === confirmPassword.value &&
-         passwordValidation.value?.isValid
+  return (
+    currentPassword.value.length > 0 &&
+    newPassword.value.length > 0 &&
+    confirmPassword.value.length > 0 &&
+    newPassword.value === confirmPassword.value &&
+    passwordValidation.value?.isValid
+  )
 })
 
 // Validation rules
-const currentPasswordRules = [
-  (value: string) => !!value || '現在のパスワードを入力してください'
-]
+const currentPasswordRules = [(value: string) => !!value || '現在のパスワードを入力してください']
 
 const newPasswordRules = [
   (value: string) => !!value || '新しいパスワードを入力してください',
-  () => passwordValidation.value?.isValid || '無効なパスワードです'
+  () => passwordValidation.value?.isValid || '無効なパスワードです',
 ]
 
 const confirmPasswordRules = [
   (value: string) => !!value || 'パスワードの確認を入力してください',
-  (value: string) => value === newPassword.value || 'パスワードが一致しません'
+  (value: string) => value === newPassword.value || 'パスワードが一致しません',
 ]
 
 // Methods
@@ -249,12 +246,12 @@ const onPasswordInput = () => {
     passwordValidation.value = passwordValidator.validatePassword(
       newPassword.value,
       authStore.user?.email,
-      authStore.user?.user_metadata?.name
+      authStore.user?.user_metadata?.name,
     )
   } else {
     passwordValidation.value = null
   }
-  
+
   // 成功状態をリセット
   if (success.value) {
     success.value = false
@@ -285,11 +282,11 @@ const changePassword = async () => {
     success.value = false
 
     const result = await authStore.changePassword(currentPassword.value, newPassword.value)
-    
+
     if (result.success) {
       success.value = true
       resetForm()
-      
+
       // 成功メッセージを3秒後に自動で隠す
       setTimeout(() => {
         success.value = false

@@ -35,49 +35,43 @@ export class SecurityConfigManager {
           'script-src': [
             "'self'",
             "'unsafe-inline'", // Vue.js requires inline scripts
-            'https://cdn.jsdelivr.net'
+            'https://cdn.jsdelivr.net',
           ],
           'style-src': [
             "'self'",
             "'unsafe-inline'", // Vuetify requires inline styles
             'https://cdn.jsdelivr.net',
-            'https://fonts.googleapis.com'
+            'https://fonts.googleapis.com',
           ],
-          'font-src': [
-            "'self'",
-            'https://cdn.jsdelivr.net',
-            'https://fonts.gstatic.com'
-          ],
-          'img-src': [
-            "'self'",
-            'data:',
-            'https:'
-          ],
+          'font-src': ["'self'", 'https://cdn.jsdelivr.net', 'https://fonts.gstatic.com'],
+          'img-src': ["'self'", 'data:', 'https:'],
           'connect-src': [
             "'self'",
             'https://*.supabase.co',
-            ...(this.environment === 'development' ? ['ws://localhost:*', 'http://localhost:*'] : [])
+            ...(this.environment === 'development'
+              ? ['ws://localhost:*', 'http://localhost:*']
+              : []),
           ],
           'frame-ancestors': ["'none'"],
           'base-uri': ["'self'"],
-          'form-action': ["'self'"]
-        }
+          'form-action': ["'self'"],
+        },
       },
       csrf: {
         enabled: true,
         tokenName: 'X-CSRF-Token',
-        timeout: 3600000 // 1 hour
+        timeout: 3600000, // 1 hour
       },
       rateLimit: {
         enabled: this.environment === 'production',
         maxRequests: this.environment === 'production' ? 100 : 1000,
-        windowMs: 900000 // 15 minutes
+        windowMs: 900000, // 15 minutes
       },
       monitoring: {
         enabled: true,
         alertThreshold: this.environment === 'production' ? 5 : 50,
-        reportingInterval: this.environment === 'production' ? 300000 : 60000 // 5 min / 1 min
-      }
+        reportingInterval: this.environment === 'production' ? 300000 : 60000, // 5 min / 1 min
+      },
     }
 
     return baseConfig
@@ -104,12 +98,12 @@ export class SecurityConfigManager {
       'X-XSS-Protection': '1; mode=block',
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-      'X-Requested-With': 'XMLHttpRequest'
+      'X-Requested-With': 'XMLHttpRequest',
     }
 
     if (this.config.csp.enabled) {
-      const cspHeaderName = this.config.csp.reportOnly 
-        ? 'Content-Security-Policy-Report-Only' 
+      const cspHeaderName = this.config.csp.reportOnly
+        ? 'Content-Security-Policy-Report-Only'
         : 'Content-Security-Policy'
       headers[cspHeaderName as keyof SecurityHeaders] = this.getCSPHeader()
     }
@@ -125,12 +119,12 @@ export class SecurityConfigManager {
     const timestamp = Date.now()
     const randomBytes = new Uint8Array(32)
     crypto.getRandomValues(randomBytes)
-    const token = Array.from(randomBytes, byte => byte.toString(16).padStart(2, '0')).join('')
+    const token = Array.from(randomBytes, (byte) => byte.toString(16).padStart(2, '0')).join('')
 
     return {
       token,
       timestamp,
-      expires: timestamp + this.config.csrf.timeout
+      expires: timestamp + this.config.csrf.timeout,
     }
   }
 

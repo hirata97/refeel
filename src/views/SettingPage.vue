@@ -32,23 +32,30 @@
                 </v-list-item>
               </template>
             </v-select>
-            
+
             <!-- 現在のテーマ状態表示 -->
             <v-chip
               :color="themeStore.isDarkMode ? 'secondary' : 'primary'"
               variant="outlined"
               class="mt-3"
             >
-              <v-icon start :icon="themeStore.isDarkMode ? 'mdi-moon-waning-crescent' : 'mdi-white-balance-sunny'"></v-icon>
+              <v-icon
+                start
+                :icon="
+                  themeStore.isDarkMode ? 'mdi-moon-waning-crescent' : 'mdi-white-balance-sunny'
+                "
+              ></v-icon>
               現在: {{ themeStore.isDarkMode ? 'ダークモード' : 'ライトモード' }}
             </v-chip>
           </v-card-text>
-          
+
           <v-card-actions>
             <v-btn
               variant="text"
               @click="toggleTheme"
-              :prepend-icon="themeStore.isDarkMode ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent'"
+              :prepend-icon="
+                themeStore.isDarkMode ? 'mdi-white-balance-sunny' : 'mdi-moon-waning-crescent'
+              "
             >
               {{ themeStore.isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え' }}
             </v-btn>
@@ -109,10 +116,10 @@ onMounted(() => {
     router.push('/login')
     return
   }
-  
+
   // Vuetifyテーマインスタンスをテーマストアに設定
   themeStore.setVuetifyTheme(vuetifyTheme)
-  
+
   // テーマストアを初期化
   cleanupThemeListener = themeStore.initialize()
 })
@@ -123,7 +130,6 @@ onUnmounted(() => {
     cleanupThemeListener()
   }
 })
-
 </script>
 
 <style scoped>
@@ -142,10 +148,14 @@ onUnmounted(() => {
 
 /* テーマ切り替えアニメーション */
 .v-card {
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
 }
 
 .v-chip {
-  transition: color 0.3s ease, background-color 0.3s ease;
+  transition:
+    color 0.3s ease,
+    background-color 0.3s ease;
 }
 </style>

@@ -14,7 +14,7 @@ export const useThemeStore = defineStore('theme', () => {
   const selectedTheme = ref<ThemeName>('light')
   const systemPreference = ref<boolean>(false)
   const lastChanged = ref<number>(Date.now())
-  
+
   // Vuetifyテーマインスタンス（後で設定される）
   let vuetifyTheme: { global: { name: { value: string } } } | null = null
 
@@ -40,14 +40,18 @@ export const useThemeStore = defineStore('theme', () => {
       }
       return 'light' // fallback
     }
-    return selectedTheme.value === 'dark' || selectedTheme.value === 'light' ? selectedTheme.value : 'light'
+    return selectedTheme.value === 'dark' || selectedTheme.value === 'light'
+      ? selectedTheme.value
+      : 'light'
   })
 
-  const themePreferences = computed((): ThemePreferences => ({
-    selectedTheme: selectedTheme.value,
-    systemPreference: systemPreference.value,
-    lastChanged: lastChanged.value,
-  }))
+  const themePreferences = computed(
+    (): ThemePreferences => ({
+      selectedTheme: selectedTheme.value,
+      systemPreference: systemPreference.value,
+      lastChanged: lastChanged.value,
+    }),
+  )
 
   // Vuetifyテーマインスタンスを設定
   const setVuetifyTheme = (theme: { global: { name: { value: string } } }) => {
@@ -57,7 +61,7 @@ export const useThemeStore = defineStore('theme', () => {
   // テーマをVuetifyに反映
   const applyThemeToVuetify = (theme: ThemeName) => {
     if (!vuetifyTheme) return
-    
+
     try {
       if (theme === 'auto') {
         if (typeof window !== 'undefined' && window.matchMedia) {
@@ -78,10 +82,10 @@ export const useThemeStore = defineStore('theme', () => {
   const setTheme = (theme: ThemeName) => {
     selectedTheme.value = theme
     lastChanged.value = Date.now()
-    
+
     // Vuetifyテーマに反映
     applyThemeToVuetify(theme)
-    
+
     // ローカルストレージに保存
     saveToLocalStorage()
   }
@@ -124,7 +128,7 @@ export const useThemeStore = defineStore('theme', () => {
         selectedTheme.value = preferences.selectedTheme || 'light'
         systemPreference.value = preferences.systemPreference || false
         lastChanged.value = preferences.lastChanged || Date.now()
-        
+
         // Vuetifyテーマに即座に反映
         applyThemeToVuetify(selectedTheme.value)
       }
@@ -143,7 +147,7 @@ export const useThemeStore = defineStore('theme', () => {
       }
 
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      
+
       const handleSystemThemeChange = () => {
         try {
           if (selectedTheme.value === 'auto') {
@@ -199,10 +203,10 @@ export const useThemeStore = defineStore('theme', () => {
       if (typeof document === 'undefined' || !document.documentElement) {
         return // サーバーサイドレンダリングやテスト環境では何もしない
       }
-      
+
       const root = document.documentElement
       const currentTheme = effectiveTheme.value
-      
+
       if (currentTheme === 'dark') {
         root.style.setProperty('--app-background', '#121212')
         root.style.setProperty('--app-surface', '#1E1E1E')
@@ -222,12 +226,12 @@ export const useThemeStore = defineStore('theme', () => {
     selectedTheme,
     systemPreference,
     lastChanged,
-    
+
     // 計算プロパティ
     isDarkMode,
     effectiveTheme,
     themePreferences,
-    
+
     // アクション
     setTheme,
     toggleTheme,

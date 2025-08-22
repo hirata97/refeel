@@ -2,14 +2,14 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
-import type { 
-  Tag, 
-  Goal, 
-  TagGoal, 
-  GoalProgress, 
+import type {
+  Tag,
+  Goal,
+  TagGoal,
+  GoalProgress,
   DiaryTag,
   ProgressCalculation,
-  CategoryAnalysis
+  CategoryAnalysis,
 } from '@/types/tags'
 import type { DiaryEntry } from '@/stores/data'
 
@@ -26,16 +26,16 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
   // 計算プロパティ
   const tagsByCategory = computed(() => {
     const grouped: Record<string, Tag[]> = {}
-    tags.value.forEach(tag => {
+    tags.value.forEach((tag) => {
       // タグに関連する目標を取得
       const relatedGoals = getGoalsForTag(tag.id)
-      const categories = [...new Set(relatedGoals.map(goal => goal.category))]
-      
-      categories.forEach(category => {
+      const categories = [...new Set(relatedGoals.map((goal) => goal.category))]
+
+      categories.forEach((category) => {
         if (!grouped[category]) {
           grouped[category] = []
         }
-        if (!grouped[category].some(t => t.id === tag.id)) {
+        if (!grouped[category].some((t) => t.id === tag.id)) {
           grouped[category].push(tag)
         }
       })
@@ -45,7 +45,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
 
   const goalsByCategory = computed(() => {
     const grouped: Record<string, Goal[]> = {}
-    goals.value.forEach(goal => {
+    goals.value.forEach((goal) => {
       if (!grouped[goal.category]) {
         grouped[goal.category] = []
       }
@@ -54,9 +54,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
     return grouped
   })
 
-  const activeGoals = computed(() => 
-    goals.value.filter(goal => goal.status === 'active')
-  )
+  const activeGoals = computed(() => goals.value.filter((goal) => goal.status === 'active'))
 
   // ヘルパー関数
   const setLoading = (key: string, isLoading: boolean): void => {
@@ -69,18 +67,18 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
 
   const getGoalsForTag = (tagId: string): Goal[] => {
     const relatedGoalIds = tagGoals.value
-      .filter(tg => tg.tag_id === tagId)
-      .map(tg => tg.goal_id)
-    
-    return goals.value.filter(goal => relatedGoalIds.includes(goal.id))
+      .filter((tg) => tg.tag_id === tagId)
+      .map((tg) => tg.goal_id)
+
+    return goals.value.filter((goal) => relatedGoalIds.includes(goal.id))
   }
 
   const getTagsForGoal = (goalId: string): Tag[] => {
     const relatedTagIds = tagGoals.value
-      .filter(tg => tg.goal_id === goalId)
-      .map(tg => tg.tag_id)
-    
-    return tags.value.filter(tag => relatedTagIds.includes(tag.id))
+      .filter((tg) => tg.goal_id === goalId)
+      .map((tg) => tg.tag_id)
+
+    return tags.value.filter((tag) => relatedTagIds.includes(tag.id))
   }
 
   // タグ操作
@@ -100,11 +98,11 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       }
 
       const tagData = data || []
-      
+
       // リアクティブ更新を確実にするため配列を完全に再作成
       tags.value.length = 0
       tags.value.push(...tagData)
-      
+
       return tagData
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'タグの取得に失敗しました'
@@ -115,7 +113,9 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
     }
   }
 
-  const createTag = async (tagData: Omit<Tag, 'id' | 'created_at' | 'updated_at'>): Promise<Tag> => {
+  const createTag = async (
+    tagData: Omit<Tag, 'id' | 'created_at' | 'updated_at'>,
+  ): Promise<Tag> => {
     try {
       setLoading('createTag', true)
       setError('createTag', null)
@@ -134,7 +134,10 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       }
 
       // データをサニタイズ
-      const sanitizedData = sanitizeInputData(tagData) as Omit<Tag, 'id' | 'created_at' | 'updated_at'>
+      const sanitizedData = sanitizeInputData(tagData) as Omit<
+        Tag,
+        'id' | 'created_at' | 'updated_at'
+      >
 
       const { data, error: insertError } = await supabase
         .from('tags')
@@ -147,12 +150,12 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       }
 
       const newTag = data as Tag
-      
+
       // リアクティブ更新を確実にするため、配列を完全に再作成
       const currentTags = [...tags.value]
       currentTags.push(newTag)
       tags.value = currentTags
-      
+
       return newTag
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'タグの作成に失敗しました'
@@ -191,7 +194,9 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
     }
   }
 
-  const createGoal = async (goalData: Omit<Goal, 'id' | 'created_at' | 'updated_at'>): Promise<Goal> => {
+  const createGoal = async (
+    goalData: Omit<Goal, 'id' | 'created_at' | 'updated_at'>,
+  ): Promise<Goal> => {
     try {
       setLoading('createGoal', true)
       setError('createGoal', null)
@@ -199,11 +204,16 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       // セキュリティチェック
       const titleCheck = performSecurityCheck(goalData.title)
       if (!titleCheck.isSecure) {
-        throw new Error(`目標タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`)
+        throw new Error(
+          `目標タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`,
+        )
       }
 
       // データをサニタイズ
-      const sanitizedData = sanitizeInputData(goalData) as Omit<Goal, 'id' | 'created_at' | 'updated_at'>
+      const sanitizedData = sanitizeInputData(goalData) as Omit<
+        Goal,
+        'id' | 'created_at' | 'updated_at'
+      >
 
       const { data, error: insertError } = await supabase
         .from('goals')
@@ -236,7 +246,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       const linkData = {
         tag_id: tagId,
         goal_id: goalId,
-        weight
+        weight,
       }
 
       const { data, error: insertError } = await supabase
@@ -269,7 +279,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
 
       const linkData = {
         diary_id: diaryId,
-        tag_id: tagId
+        tag_id: tagId,
       }
 
       const { data, error: insertError } = await supabase
@@ -295,7 +305,11 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
   }
 
   // 進捗記録
-  const recordProgress = async (goalId: string, diaryId: string, progressValue: number): Promise<GoalProgress> => {
+  const recordProgress = async (
+    goalId: string,
+    diaryId: string,
+    progressValue: number,
+  ): Promise<GoalProgress> => {
     try {
       setLoading('recordProgress', true)
       setError('recordProgress', null)
@@ -303,7 +317,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       const progressData = {
         goal_id: goalId,
         diary_id: diaryId,
-        progress_value: progressValue
+        progress_value: progressValue,
       }
 
       const { data, error: insertError } = await supabase
@@ -320,10 +334,10 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       goalProgress.value.push(newProgress)
 
       // 目標の現在値を更新
-      const goal = goals.value.find(g => g.id === goalId)
+      const goal = goals.value.find((g) => g.id === goalId)
       if (goal) {
         goal.current_value = Math.min(goal.current_value + progressValue, goal.target_value)
-        
+
         // 目標達成チェック
         if (goal.current_value >= goal.target_value && goal.status === 'active') {
           await updateGoal(goalId, { status: 'completed' })
@@ -350,7 +364,9 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       if (updates.title) {
         const titleCheck = performSecurityCheck(updates.title)
         if (!titleCheck.isSecure) {
-          throw new Error(`目標タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`)
+          throw new Error(
+            `目標タイトルに不正な内容が含まれています: ${titleCheck.threats.join(', ')}`,
+          )
         }
       }
 
@@ -368,7 +384,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       }
 
       const updatedGoal = data as Goal
-      const index = goals.value.findIndex(g => g.id === goalId)
+      const index = goals.value.findIndex((g) => g.id === goalId)
       if (index !== -1) {
         goals.value[index] = updatedGoal
       }
@@ -385,12 +401,12 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
 
   // 進捗計算
   const calculateProgress = (goalId: string): ProgressCalculation => {
-    const goal = goals.value.find(g => g.id === goalId)
+    const goal = goals.value.find((g) => g.id === goalId)
     if (!goal) {
       throw new Error('目標が見つかりません')
     }
 
-    const progressEntries = goalProgress.value.filter(p => p.goal_id === goalId)
+    const progressEntries = goalProgress.value.filter((p) => p.goal_id === goalId)
     const progressPercentage = (goal.current_value / goal.target_value) * 100
 
     // 日次平均進捗を計算
@@ -414,37 +430,39 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       targetProgress: goal.target_value,
       progressPercentage: Math.min(progressPercentage, 100),
       estimatedCompletionDate,
-      dailyAverageProgress
+      dailyAverageProgress,
     }
   }
 
   // カテゴリ分析
   const analyzeCategory = (category: string, diaries: DiaryEntry[]): CategoryAnalysis => {
-    const categoryDiaries = diaries.filter(d => d.goal_category === category)
-    const averageProgress = categoryDiaries.length > 0
-      ? categoryDiaries.reduce((acc, d) => acc + d.progress_level, 0) / categoryDiaries.length
-      : 0
+    const categoryDiaries = diaries.filter((d) => d.goal_category === category)
+    const averageProgress =
+      categoryDiaries.length > 0
+        ? categoryDiaries.reduce((acc, d) => acc + d.progress_level, 0) / categoryDiaries.length
+        : 0
 
     // カテゴリに関連するタグ使用状況
-    const categoryTags = tags.value.filter(tag => {
+    const categoryTags = tags.value.filter((tag) => {
       const relatedGoals = getGoalsForTag(tag.id)
-      return relatedGoals.some(goal => goal.category === category)
+      return relatedGoals.some((goal) => goal.category === category)
     })
 
-    const tagUsage = categoryTags.map(tag => {
+    const tagUsage = categoryTags.map((tag) => {
       const tagDiaries = diaryTags.value
-        .filter(dt => dt.tag_id === tag.id)
-        .map(dt => categoryDiaries.find(d => d.id === dt.diary_id))
+        .filter((dt) => dt.tag_id === tag.id)
+        .map((dt) => categoryDiaries.find((d) => d.id === dt.diary_id))
         .filter(Boolean) as DiaryEntry[]
 
-      const avgProgress = tagDiaries.length > 0
-        ? tagDiaries.reduce((acc, d) => acc + d.progress_level, 0) / tagDiaries.length
-        : 0
+      const avgProgress =
+        tagDiaries.length > 0
+          ? tagDiaries.reduce((acc, d) => acc + d.progress_level, 0) / tagDiaries.length
+          : 0
 
       return {
         tag,
         usageCount: tagDiaries.length,
-        averageProgress: avgProgress
+        averageProgress: avgProgress,
       }
     })
 
@@ -452,15 +470,13 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-    const recentDiaries = categoryDiaries.filter(d => 
-      new Date(d.created_at) >= thirtyDaysAgo
-    )
+    const recentDiaries = categoryDiaries.filter((d) => new Date(d.created_at) >= thirtyDaysAgo)
 
     const progressTrend = recentDiaries
       .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
-      .map(d => ({
+      .map((d) => ({
         date: d.created_at.split('T')[0],
-        value: d.progress_level
+        value: d.progress_level,
       }))
 
     return {
@@ -468,23 +484,20 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       totalDiaries: categoryDiaries.length,
       averageProgress,
       tags: tagUsage,
-      progressTrend
+      progressTrend,
     }
   }
 
   // データ初期化
   const initializeTagGoalData = async (userId: string): Promise<void> => {
     try {
-      await Promise.all([
-        fetchTags(userId),
-        fetchGoals(userId)
-      ])
+      await Promise.all([fetchTags(userId), fetchGoals(userId)])
 
       // 関連データを取得
       const [tagGoalsData, progressData, diaryTagsData] = await Promise.all([
         supabase.from('tag_goals').select('*'),
         supabase.from('goal_progress').select('*'),
-        supabase.from('diary_tags').select('*')
+        supabase.from('diary_tags').select('*'),
       ])
 
       if (tagGoalsData.data) tagGoals.value = tagGoalsData.data
@@ -545,6 +558,6 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
     initializeTagGoalData,
     resetState,
     setError,
-    setLoading
+    setLoading,
   }
 })

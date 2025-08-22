@@ -62,7 +62,7 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // セッション監視を開始（初回のみ）
   if (!authStore.session && typeof authStore.startSessionMonitoring === 'function') {
     authStore.startSessionMonitoring()
@@ -70,7 +70,7 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     // 認証が必要なルート
-    
+
     // セッションの有効性を確認
     if (authStore.session && typeof authStore.validateSession === 'function') {
       const isValid = await authStore.validateSession()
@@ -78,15 +78,15 @@ router.beforeEach(async (to, from, next) => {
         // セッションが無効な場合はログインページへリダイレクト
         next({
           path: '/login',
-          query: { 
+          query: {
             redirect: to.fullPath,
-            reason: 'session_expired'
-          }
+            reason: 'session_expired',
+          },
         })
         return
       }
     }
-    
+
     // 認証状態をチェック
     if (!authStore.isAuthenticated) {
       next({

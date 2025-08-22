@@ -13,9 +13,9 @@
     />
 
     <!-- データテーブル -->
-    <v-data-table 
-      :headers="headers" 
-      :items="diaries || []" 
+    <v-data-table
+      :headers="headers"
+      :items="diaries || []"
       :loading="loading"
       hover
       class="mb-4"
@@ -63,7 +63,7 @@
           :loading="isDeleting"
         />
       </template>
-      
+
       <!-- 空の状態 -->
       <template #no-data>
         <div class="no-data">
@@ -108,13 +108,7 @@
           </v-progress-linear>
         </v-card-text>
         <v-card-actions>
-          <v-btn 
-            variant="text" 
-            color="warning" 
-            @click="editDiary(selectedDiary)"
-          >
-            編集
-          </v-btn>
+          <v-btn variant="text" color="warning" @click="editDiary(selectedDiary)"> 編集 </v-btn>
           <v-spacer />
           <v-btn variant="text" @click="showDetailDialog = false">閉じる</v-btn>
         </v-card-actions>
@@ -142,7 +136,7 @@ const paginationStore = usePaginationStore()
 // ページネーション初期化とデータ読み込み
 onMounted(async () => {
   paginationStore.initialize()
-  
+
   // URLから復元した状態でデータを読み込み
   await refresh()
 })
@@ -162,11 +156,11 @@ const {
   applyFilters,
   clearFilters,
   categoryStats,
-  refresh
+  refresh,
 } = useDiaries({
   immediate: false, // 手動で初期化
   cache: true,
-  debounceMs: 300
+  debounceMs: 300,
 })
 
 // UI状態
@@ -185,10 +179,10 @@ watch(
       page: newState.page,
       pageSize: newState.pageSize,
       total: newState.total,
-      totalPages: newState.totalPages
+      totalPages: newState.totalPages,
     }
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 )
 
 // フィルター状態の同期
@@ -198,7 +192,7 @@ watch(
     // PaginationStoreのフィルターをuseDataFetchに反映
     Object.assign(filter.value, newFilters)
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 )
 
 // 利用可能なカテゴリ（統計から取得）
@@ -295,11 +289,11 @@ const handleRetry = async () => {
     paginationStore.setError(null)
     showPaginationSkeleton.value = true
     await refresh()
-    
+
     // 最新のデータでページネーション状態を更新
     paginationStore.updateState({
       total: pagination.value.total,
-      totalPages: pagination.value.totalPages
+      totalPages: pagination.value.totalPages,
     })
   } catch (err) {
     console.error('データの再取得に失敗:', err)
@@ -328,18 +322,17 @@ const handleDeleteDiary = async (item: DiaryEntry) => {
 
   try {
     isDeleting.value = true
-    
+
     await dataStore.deleteDiary(item.id, authStore.user.id)
-    
+
     // データ再取得
     await refresh()
-    
+
     // ページネーション状態を更新
     paginationStore.updateState({
       total: pagination.value.total,
-      totalPages: pagination.value.totalPages
+      totalPages: pagination.value.totalPages,
     })
-    
   } catch (error) {
     console.error('日記削除エラー:', error)
     paginationStore.setError('日記の削除に失敗しました')

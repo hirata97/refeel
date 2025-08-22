@@ -41,14 +41,25 @@ export const DEFAULT_PASSWORD_POLICY: PasswordPolicy = {
   prohibitCommonPasswords: true,
   prohibitUserInfo: true,
   maxAttempts: 5,
-  lockoutDuration: 15 // 15分
+  lockoutDuration: 15, // 15分
 }
 
 // よく使われる危険なパスワードのリスト（一部）
 const COMMON_PASSWORDS = [
-  'password', '123456', '123456789', 'qwerty', 'abc123',
-  'password123', 'admin', 'letmein', 'welcome', '123123',
-  'Password1', 'password1', 'Password@1', 'qwerty123'
+  'password',
+  '123456',
+  '123456789',
+  'qwerty',
+  'abc123',
+  'password123',
+  'admin',
+  'letmein',
+  'welcome',
+  '123123',
+  'Password1',
+  'password1',
+  'Password@1',
+  'qwerty123',
 ]
 
 // 特殊文字の定義
@@ -68,21 +79,21 @@ export class PasswordValidator {
    * パスワードの包括的な検証
    */
   validatePassword(
-    password: string, 
+    password: string,
     userEmail?: string,
-    userName?: string
+    userName?: string,
   ): PasswordValidationResult {
     const result: PasswordValidationResult = {
       isValid: false,
       score: 0,
       errors: [],
       warnings: [],
-      suggestions: []
+      suggestions: [],
     }
 
     // 基本的なバリデーション
     this.validateBasicRequirements(password, result)
-    
+
     // ユーザー情報との関連チェック
     if (userEmail || userName) {
       this.validateUserInfoProhibition(password, result, userEmail, userName)
@@ -106,10 +117,7 @@ export class PasswordValidator {
   /**
    * 基本要件の検証
    */
-  private validateBasicRequirements(
-    password: string, 
-    result: PasswordValidationResult
-  ): void {
+  private validateBasicRequirements(password: string, result: PasswordValidationResult): void {
     // 長さチェック
     if (password.length < this.policy.minLength) {
       result.errors.push(`パスワードは${this.policy.minLength}文字以上である必要があります`)
@@ -134,7 +142,10 @@ export class PasswordValidator {
     }
 
     // 特殊文字チェック
-    if (this.policy.requireSpecialChars && !new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password)) {
+    if (
+      this.policy.requireSpecialChars &&
+      !new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password)
+    ) {
       result.errors.push(`特殊文字（${SPECIAL_CHARS}）を1文字以上含む必要があります`)
     }
   }
@@ -146,7 +157,7 @@ export class PasswordValidator {
     password: string,
     result: PasswordValidationResult,
     userEmail?: string,
-    userName?: string
+    userName?: string,
   ): void {
     if (!this.policy.prohibitUserInfo) return
 
@@ -155,7 +166,7 @@ export class PasswordValidator {
     if (userEmail) {
       const emailParts = userEmail.toLowerCase().split('@')
       const localPart = emailParts[0]
-      
+
       if (lowerPassword.includes(localPart) && localPart.length > 3) {
         result.errors.push('パスワードにメールアドレスの一部を含めることはできません')
       }
@@ -172,20 +183,21 @@ export class PasswordValidator {
   /**
    * 一般的なパスワード禁止チェック
    */
-  private validateCommonPasswords(
-    password: string,
-    result: PasswordValidationResult
-  ): void {
+  private validateCommonPasswords(password: string, result: PasswordValidationResult): void {
     if (!this.policy.prohibitCommonPasswords) return
 
     const lowerPassword = password.toLowerCase()
-    
+
     // 完全一致または長い一般的パスワードが含まれる場合のみ拒否
-    if (COMMON_PASSWORDS.some(common => {
-      const lowerCommon = common.toLowerCase()
-      return lowerPassword === lowerCommon || 
-             (lowerCommon.length >= 6 && lowerPassword.includes(lowerCommon))
-    })) {
+    if (
+      COMMON_PASSWORDS.some((common) => {
+        const lowerCommon = common.toLowerCase()
+        return (
+          lowerPassword === lowerCommon ||
+          (lowerCommon.length >= 6 && lowerPassword.includes(lowerCommon))
+        )
+      })
+    ) {
       result.errors.push('このパスワードは一般的すぎるため使用できません')
     }
 
@@ -221,7 +233,8 @@ export class PasswordValidator {
     if (/[a-z]/.test(password)) score += 10
     if (/[A-Z]/.test(password)) score += 10
     if (/\d/.test(password)) score += 10
-    if (new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password)) score += 15
+    if (new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password))
+      score += 15
 
     // 多様性による加点（最大20点）
     const uniqueChars = new Set(password).size
@@ -247,10 +260,7 @@ export class PasswordValidator {
   /**
    * 改善提案の生成
    */
-  private generateSuggestions(
-    password: string,
-    result: PasswordValidationResult
-  ): void {
+  private generateSuggestions(password: string, result: PasswordValidationResult): void {
     if (result.score < 50) {
       result.suggestions.push('パスワードをより長く、複雑にすることをお勧めします')
     }
@@ -271,7 +281,9 @@ export class PasswordValidator {
       result.suggestions.push('数字を追加してください')
     }
 
-    if (!new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password)) {
+    if (
+      !new RegExp(`[${SPECIAL_CHARS.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}]`).test(password)
+    ) {
       result.suggestions.push('特殊文字を追加してください')
     }
 
@@ -302,7 +314,7 @@ export class PasswordValidator {
     const data = encoder.encode(password + 'salt')
     const hashBuffer = await crypto.subtle.digest('SHA-256', data)
     const hashArray = Array.from(new Uint8Array(hashBuffer))
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('')
   }
 }
 
@@ -317,12 +329,12 @@ export class PasswordHistoryManager {
    */
   async addToHistory(userId: string, passwordHash: string): Promise<void> {
     const history = this.getHistory(userId)
-    
+
     // 新しいエントリを追加
     history.unshift({
       userId,
       passwordHash,
-      createdAt: new Date()
+      createdAt: new Date(),
     })
 
     // 履歴サイズ制限
@@ -339,7 +351,7 @@ export class PasswordHistoryManager {
    */
   async isPasswordReused(userId: string, passwordHash: string): Promise<boolean> {
     const history = this.getHistory(userId)
-    return history.some(entry => entry.passwordHash === passwordHash)
+    return history.some((entry) => entry.passwordHash === passwordHash)
   }
 
   /**
@@ -349,11 +361,11 @@ export class PasswordHistoryManager {
     try {
       const stored = localStorage.getItem(`pwd_history_${userId}`)
       if (!stored) return []
-      
+
       const history = JSON.parse(stored)
       return history.map((entry: Partial<PasswordHistoryEntry> & { createdAt: string }) => ({
         ...entry,
-        createdAt: new Date(entry.createdAt)
+        createdAt: new Date(entry.createdAt),
       }))
     } catch (error) {
       console.warn('パスワード履歴の取得に失敗:', error)

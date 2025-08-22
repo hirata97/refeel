@@ -11,15 +11,15 @@ if (!supabaseUrl || !supabaseKey) {
 // CSRFトークンをヘッダーに追加するカスタムヘッダー関数（型安全性のため一時的にコメントアウト）
 // const getCustomHeaders = () => {
 //   const headers: Record<string, string> = {}
-//   
+//
 //   // CSRFトークンをヘッダーに追加
 //   const csrfHeaders = CSRFProtection.addTokenToHeaders()
 //   Object.assign(headers, csrfHeaders)
-//   
+//
 //   // セキュリティヘッダーを追加
 //   headers['X-Requested-With'] = 'XMLHttpRequest'
 //   headers['Content-Type'] = 'application/json'
-//   
+//
 //   return headers
 // }
 
@@ -45,6 +45,6 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
 //       ...getCustomHeaders(),
 //     },
 //   }
-//   
+//
 //   return originalRpc.call(this, fn, args, enhancedOptions)
 // }

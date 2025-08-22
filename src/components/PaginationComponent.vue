@@ -3,14 +3,8 @@
     <!-- ローディング状態のスケルトン -->
     <template v-if="showSkeleton">
       <div class="pagination-skeleton">
-        <v-skeleton-loader
-          type="text@3"
-          class="skeleton-controls"
-        />
-        <v-skeleton-loader
-          type="text"
-          class="skeleton-pagination"
-        />
+        <v-skeleton-loader type="text@3" class="skeleton-controls" />
+        <v-skeleton-loader type="text" class="skeleton-pagination" />
       </div>
     </template>
 
@@ -31,13 +25,7 @@
           <p>{{ error }}</p>
         </div>
         <template #append>
-          <v-btn
-            variant="text"
-            size="small"
-            @click="$emit('retry')"
-          >
-            再試行
-          </v-btn>
+          <v-btn variant="text" size="small" @click="$emit('retry')"> 再試行 </v-btn>
         </template>
       </v-alert>
     </template>
@@ -57,14 +45,10 @@
           aria-label="1ページに表示するアイテム数を選択"
           @update:model-value="handlePageSizeChange"
         />
-        
+
         <div class="pagination-info" role="status" aria-live="polite">
-          <template v-if="total > 0">
-            {{ startIndex }} - {{ endIndex }} / {{ total }} 件
-          </template>
-          <template v-else>
-            データがありません
-          </template>
+          <template v-if="total > 0"> {{ startIndex }} - {{ endIndex }} / {{ total }} 件 </template>
+          <template v-else> データがありません </template>
         </div>
 
         <!-- ローディングインジケーター -->
@@ -104,7 +88,7 @@
               <v-icon start>mdi-page-first</v-icon>
               最初
             </v-btn>
-            
+
             <v-btn
               :disabled="localPage === 1 || loading"
               size="small"
@@ -178,9 +162,7 @@
             前へ
           </v-btn>
 
-          <div class="mobile-page-info">
-            {{ localPage }} / {{ totalPages }}
-          </div>
+          <div class="mobile-page-info">{{ localPage }} / {{ totalPages }}</div>
 
           <v-btn
             :disabled="localPage === totalPages || loading"
@@ -232,7 +214,7 @@ const props = withDefaults(defineProps<Props>(), {
   showSkeleton: false,
   error: null,
   pageSizeOptions: () => [5, 10, 20, 50, 100],
-  visiblePages: 7
+  visiblePages: 7,
 })
 
 const emit = defineEmits<Emits>()
@@ -267,8 +249,11 @@ const responsiveVisiblePages = computed(() => {
 
 // ジャンプ入力の妥当性チェック
 const isValidJump = computed(() => {
-  return jumpToPage.value >= 1 && jumpToPage.value <= props.totalPages && 
-         jumpToPage.value !== localPage.value
+  return (
+    jumpToPage.value >= 1 &&
+    jumpToPage.value <= props.totalPages &&
+    jumpToPage.value !== localPage.value
+  )
 })
 
 // スクロール位置の保存と復元
@@ -280,7 +265,7 @@ const restoreScrollPosition = () => {
   if (scrollPosition.value > 0) {
     window.scrollTo({
       top: scrollPosition.value,
-      behavior: 'smooth'
+      behavior: 'smooth',
     })
   }
 }
@@ -288,11 +273,11 @@ const restoreScrollPosition = () => {
 // イベントハンドラー
 const handlePageChange = (page: number) => {
   saveScrollPosition()
-  
+
   localPage.value = page
   jumpToPage.value = page
   emit('update:page', page)
-  
+
   // ページ変更後にスクロール位置を復元（少し遅延させる）
   setTimeout(restoreScrollPosition, 100)
 }
@@ -305,7 +290,7 @@ const handlePageSizeChange = (pageSize: number) => {
   jumpToPage.value = newPage
   emit('update:page-size', pageSize)
   emit('update:page', newPage)
-  
+
   // トップにスクロール
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
@@ -354,7 +339,7 @@ const goToNextPage = () => {
 // キーボードナビゲーション
 const handleKeydown = (event: KeyboardEvent) => {
   if (props.loading || props.showSkeleton || props.error) return
-  
+
   // Alt+矢印キーでページナビゲーション
   if (event.altKey) {
     switch (event.key) {
@@ -379,23 +364,29 @@ const handleKeydown = (event: KeyboardEvent) => {
 }
 
 // プロパティ変更の監視
-watch(() => props.page, (newPage) => {
-  if (newPage !== localPage.value) {
-    localPage.value = newPage
-    jumpToPage.value = newPage
-  }
-})
+watch(
+  () => props.page,
+  (newPage) => {
+    if (newPage !== localPage.value) {
+      localPage.value = newPage
+      jumpToPage.value = newPage
+    }
+  },
+)
 
-watch(() => props.pageSize, (newPageSize) => {
-  if (newPageSize !== localPageSize.value) {
-    localPageSize.value = newPageSize
-  }
-})
+watch(
+  () => props.pageSize,
+  (newPageSize) => {
+    if (newPageSize !== localPageSize.value) {
+      localPageSize.value = newPageSize
+    }
+  },
+)
 
 // ライフサイクル
 onMounted(() => {
   jumpToPage.value = localPage.value
-  
+
   // キーボードイベントリスナーを追加
   document.addEventListener('keydown', handleKeydown)
 })
@@ -413,7 +404,11 @@ onUnmounted(() => {
   gap: 20px;
   align-items: center;
   padding: 20px;
-  background: linear-gradient(135deg, rgba(var(--v-theme-surface)), rgba(var(--v-theme-surface-variant), 0.1));
+  background: linear-gradient(
+    135deg,
+    rgba(var(--v-theme-surface)),
+    rgba(var(--v-theme-surface-variant), 0.1)
+  );
   border-radius: 12px;
   border: 1px solid rgba(var(--v-theme-outline), 0.2);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -564,7 +559,7 @@ onUnmounted(() => {
   .quick-navigation {
     display: none;
   }
-  
+
   .mobile-navigation {
     display: flex;
   }
@@ -576,18 +571,18 @@ onUnmounted(() => {
     padding: 16px;
     border-radius: 8px;
   }
-  
+
   .pagination-controls {
     flex-direction: column;
     gap: 12px;
     align-items: stretch;
   }
-  
+
   .page-size-select {
     min-width: auto;
     max-width: none;
   }
-  
+
   .pagination-info {
     text-align: center;
     font-size: 0.85rem;
@@ -599,16 +594,16 @@ onUnmounted(() => {
     padding: 12px;
     gap: 12px;
   }
-  
+
   .pagination-controls {
     gap: 8px;
   }
-  
+
   .pagination-info {
     padding: 6px 10px;
     font-size: 0.8rem;
   }
-  
+
   .mobile-page-info {
     margin: 0 8px;
     padding: 6px 12px;
@@ -622,7 +617,7 @@ onUnmounted(() => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     border-color: rgba(var(--v-theme-outline), 0.3);
   }
-  
+
   .navigation-buttons {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
@@ -635,7 +630,7 @@ onUnmounted(() => {
     border: 1px solid #ccc;
     background: white;
   }
-  
+
   .quick-navigation,
   .mobile-navigation {
     display: none;
@@ -647,7 +642,7 @@ onUnmounted(() => {
   .pagination-wrapper {
     border: 2px solid;
   }
-  
+
   .pagination-info {
     border: 2px solid;
   }

@@ -1,11 +1,11 @@
 import DOMPurify from 'dompurify'
 import { securityConfig } from '@/config/security'
-import type { 
-  SecurityIncidentData, 
-  SecurityValidationResult, 
+import type {
+  SecurityIncidentData,
+  SecurityValidationResult,
   SecurityHeaders as SecurityHeadersType,
   CSRFToken,
-  SecurityThreatLevel 
+  SecurityThreatLevel,
 } from '@/types/security'
 
 /**
@@ -25,7 +25,7 @@ export class XSSProtection {
       RETURN_DOM_FRAGMENT: false,
       SANITIZE_DOM: true,
       SANITIZE_NAMED_PROPS: true,
-      FORCE_BODY: false
+      FORCE_BODY: false,
     })
   }
 
@@ -42,7 +42,7 @@ export class XSSProtection {
    */
   static sanitizeText(input: string): string {
     if (!input || typeof input !== 'string') return ''
-    
+
     // HTMLエンティティのエスケープ
     return input
       .replace(/&/g, '&amp;')
@@ -58,12 +58,12 @@ export class XSSProtection {
    */
   static sanitizeURL(url: string): string | null {
     if (!url || typeof url !== 'string') return null
-    
+
     try {
       const urlObj = new URL(url)
       // 許可されたプロトコルのみ
       const allowedProtocols = ['http:', 'https:', 'mailto:']
-      
+
       if (!allowedProtocols.includes(urlObj.protocol)) {
         return null
       }
@@ -72,7 +72,7 @@ export class XSSProtection {
       if (urlObj.protocol === 'javascript:' || urlObj.protocol === 'data:') {
         return null
       }
-      
+
       return urlObj.toString()
     } catch {
       return null
@@ -85,7 +85,7 @@ export class XSSProtection {
    */
   static secureDisplay(content: string, allowHTML = false): string {
     if (!content || typeof content !== 'string') return ''
-    
+
     if (allowHTML) {
       // HTML許可時は制限付きサニタイゼーション
       return this.sanitizeHTML(content)
@@ -107,7 +107,7 @@ export class XSSProtection {
    */
   static detectXSSAttempt(input: string): boolean {
     if (!input || typeof input !== 'string') return false
-    
+
     const xssPatterns = [
       /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
       /javascript:/gi,
@@ -119,10 +119,10 @@ export class XSSProtection {
       /<iframe\b/gi,
       /<object\b/gi,
       /<embed\b/gi,
-      /<form\b/gi
+      /<form\b/gi,
     ]
-    
-    return xssPatterns.some(pattern => pattern.test(input))
+
+    return xssPatterns.some((pattern) => pattern.test(input))
   }
 }
 
@@ -149,14 +149,14 @@ export class CSRFProtection {
   static validateToken(tokenString: string): boolean {
     const token = this.tokenStorage.get(tokenString)
     if (!token) return false
-    
+
     const isValid = securityConfig.validateCSRFToken(token)
-    
+
     // 無効なトークンは削除
     if (!isValid) {
       this.tokenStorage.delete(tokenString)
     }
-    
+
     return isValid
   }
 
@@ -198,7 +198,7 @@ export class CSRFProtection {
   static createHiddenField(): string {
     const token = this.getToken()
     if (!token) return ''
-    
+
     return `<input type="hidden" name="${this.TOKEN_KEY}" value="${token}">`
   }
 
@@ -230,13 +230,13 @@ export class InputValidation {
    * 包括的な入力値検証
    */
   static validateInput(
-    input: string, 
+    input: string,
     options: {
       maxLength?: number
       minLength?: number
       allowHTML?: boolean
       allowSpecialChars?: boolean
-    } = {}
+    } = {},
   ): SecurityValidationResult {
     const errors: string[] = []
     const warnings: string[] = []
@@ -252,7 +252,7 @@ export class InputValidation {
         errors.push(`Input exceeds maximum length of ${options.maxLength}`)
         riskLevel = 'medium'
       }
-      
+
       if (options.minLength && input.length < options.minLength) {
         errors.push(`Input is shorter than minimum length of ${options.minLength}`)
       }
@@ -283,7 +283,7 @@ export class InputValidation {
       isValid: errors.length === 0,
       errors,
       warnings,
-      riskLevel
+      riskLevel,
     }
   }
 
@@ -301,21 +301,21 @@ export class InputValidation {
   static validateEmail(email: string): SecurityValidationResult {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     const errors: string[] = []
-    
+
     if (!emailRegex.test(email)) {
       errors.push('Invalid email format')
     }
-    
+
     // XSS検出
     if (XSSProtection.detectXSSAttempt(email)) {
       errors.push('Potential XSS attack in email')
     }
-    
+
     return {
       isValid: errors.length === 0,
       errors,
       warnings: [],
-      riskLevel: errors.length > 0 ? 'medium' : 'low'
+      riskLevel: errors.length > 0 ? 'medium' : 'low',
     }
   }
 
@@ -357,7 +357,7 @@ export class InputValidation {
       isValid: errors.length === 0,
       errors,
       warnings,
-      riskLevel
+      riskLevel,
     }
   }
 
@@ -375,10 +375,10 @@ export class InputValidation {
     const dangerousPatterns = [
       /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC|UNION)\b)/i,
       /('|''|--|;|\|)/,
-      /(\b(OR|AND)\b.*=)/i
+      /(\b(OR|AND)\b.*=)/i,
     ]
 
-    return !dangerousPatterns.some(pattern => pattern.test(input))
+    return !dangerousPatterns.some((pattern) => pattern.test(input))
   }
 }
 
@@ -423,11 +423,11 @@ export class SecurityIncidentReporter {
       ...incident,
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
-      sessionId: this.getSessionId()
+      sessionId: this.getSessionId(),
     }
 
     this.incidents.push(fullIncident)
-    
+
     // 重要度が高い場合は即座にアラート
     if (incident.severity === 'critical' || incident.severity === 'high') {
       this.sendImmediateAlert(fullIncident)
@@ -466,7 +466,7 @@ export class SecurityIncidentReporter {
     if (securityConfig.isDevelopment()) {
       console.warn('🚨 Security Alert:', incident)
     }
-    
+
     // プロダクション環境では外部サービスに送信
     // TODO: 実際の監視サービスとの連携を実装
   }
@@ -475,7 +475,7 @@ export class SecurityIncidentReporter {
     try {
       const existingIncidents = JSON.parse(localStorage.getItem('security_incidents') || '[]')
       existingIncidents.push(incident)
-      
+
       // 最新50件のみ保持
       const limitedIncidents = existingIncidents.slice(-50)
       localStorage.setItem('security_incidents', JSON.stringify(limitedIncidents))
@@ -500,14 +500,14 @@ export class SecurityReporting {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...CSRFProtection.addTokenToHeaders()
+          ...CSRFProtection.addTokenToHeaders(),
         },
         body: JSON.stringify({
           type: 'csp_violation',
           report: violationReport,
           timestamp: new Date().toISOString(),
-          userAgent: navigator.userAgent
-        })
+          userAgent: navigator.userAgent,
+        }),
       })
     } catch (error) {
       console.error('CSP違反レポートの送信に失敗しました:', error)
@@ -519,14 +519,14 @@ export class SecurityReporting {
    */
   static async reportSecurityIncident(
     incidentType: string,
-    details: Record<string, unknown>
+    details: Record<string, unknown>,
   ): Promise<void> {
     try {
       await fetch(this.REPORT_ENDPOINT, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...CSRFProtection.addTokenToHeaders()
+          ...CSRFProtection.addTokenToHeaders(),
         },
         body: JSON.stringify({
           type: 'security_incident',
@@ -534,8 +534,8 @@ export class SecurityReporting {
           details,
           timestamp: new Date().toISOString(),
           userAgent: navigator.userAgent,
-          url: window.location.href
-        })
+          url: window.location.href,
+        }),
       })
     } catch (error) {
       console.error('セキュリティインシデントレポートの送信に失敗しました:', error)
@@ -560,7 +560,7 @@ export function initializeSecurity(): void {
 
   // セキュリティヘッダーの設定
   const headers = SecurityHeadersUtil.getHeaders()
-  
+
   // CSP違反の監視
   if ('securitypolicyviolation' in window) {
     window.addEventListener('securitypolicyviolation', (event) => {
@@ -571,8 +571,8 @@ export function initializeSecurity(): void {
           blockedURI: event.blockedURI,
           violatedDirective: event.violatedDirective,
           originalPolicy: event.originalPolicy,
-          documentURI: event.documentURI
-        }
+          documentURI: event.documentURI,
+        },
       })
     })
   }
@@ -587,7 +587,7 @@ export function initializeSecurity(): void {
       effectiveDirective: event.effectiveDirective,
       originalPolicy: event.originalPolicy,
       disposition: event.disposition,
-      statusCode: event.statusCode
+      statusCode: event.statusCode,
     })
   })
 
@@ -599,7 +599,7 @@ export function initializeSecurity(): void {
         filename: event.filename,
         lineno: event.lineno,
         colno: event.colno,
-        stack: event.error.stack
+        stack: event.error.stack,
       })
     }
   })
@@ -609,13 +609,10 @@ export function initializeSecurity(): void {
     console.log('🔒 Security initialized:', {
       environment: securityConfig.getCurrentEnvironment(),
       config: securityConfig.getConfig(),
-      headers
+      headers,
     })
   }
 }
 
 // デフォルトエクスポート
-export {
-  securityConfig,
-  SecurityConfigManager
-} from '@/config/security'
+export { securityConfig, SecurityConfigManager } from '@/config/security'

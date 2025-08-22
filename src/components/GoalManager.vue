@@ -2,12 +2,7 @@
   <v-card class="goal-manager">
     <v-card-title class="d-flex align-center justify-space-between">
       <span>目標管理</span>
-      <v-btn
-        color="primary"
-        variant="outlined"
-        size="small"
-        @click="showCreateDialog = true"
-      >
+      <v-btn color="primary" variant="outlined" size="small" @click="showCreateDialog = true">
         <v-icon start>mdi-target</v-icon>
         新規目標
       </v-btn>
@@ -54,14 +49,15 @@
                 <p v-if="goal.description" class="text-body-2 mb-2">
                   {{ goal.description }}
                 </p>
-                
+
                 <!-- 進捗表示 -->
                 <div class="mb-2">
                   <div class="d-flex justify-space-between align-center mb-1">
                     <span class="text-caption">進捗</span>
                     <span class="text-caption">
-                      {{ goal.current_value }} / {{ goal.target_value }}
-                      ({{ Math.round((goal.current_value / goal.target_value) * 100) }}%)
+                      {{ goal.current_value }} / {{ goal.target_value }} ({{
+                        Math.round((goal.current_value / goal.target_value) * 100)
+                      }}%)
                     </span>
                   </div>
                   <v-progress-linear
@@ -77,19 +73,10 @@
                   <v-chip size="x-small" :color="getCategoryColor(goal.category)">
                     {{ goal.category }}
                   </v-chip>
-                  <v-chip 
-                    size="x-small" 
-                    :color="getStatusColor(goal.status)"
-                    variant="tonal"
-                  >
+                  <v-chip size="x-small" :color="getStatusColor(goal.status)" variant="tonal">
                     {{ getStatusLabel(goal.status) }}
                   </v-chip>
-                  <v-chip 
-                    v-if="goal.target_date"
-                    size="x-small"
-                    color="grey"
-                    variant="outlined"
-                  >
+                  <v-chip v-if="goal.target_date" size="x-small" color="grey" variant="outlined">
                     期限: {{ formatDate(goal.target_date) }}
                   </v-chip>
                 </div>
@@ -125,12 +112,7 @@
         </v-card>
       </div>
 
-      <v-alert
-        v-else
-        type="info"
-        variant="tonal"
-        text="条件に一致する目標がありません。"
-      />
+      <v-alert v-else type="info" variant="tonal" text="条件に一致する目標がありません。" />
 
       <!-- エラー表示 -->
       <v-alert
@@ -146,11 +128,7 @@
     </v-card-text>
 
     <!-- 目標作成/編集ダイアログ -->
-    <v-dialog
-      v-model="showCreateDialog"
-      max-width="600px"
-      persistent
-    >
+    <v-dialog v-model="showCreateDialog" max-width="600px" persistent>
       <v-card>
         <v-card-title>
           {{ editingGoal ? '目標編集' : '新規目標作成' }}
@@ -162,8 +140,10 @@
               v-model="goalFormData.title"
               label="目標タイトル"
               :rules="[
-                v => !!v || '目標タイトルは必須です',
-                v => (v && v.length >= 1 && v.length <= 100) || 'タイトルは1-100文字で入力してください'
+                (v) => !!v || '目標タイトルは必須です',
+                (v) =>
+                  (v && v.length >= 1 && v.length <= 100) ||
+                  'タイトルは1-100文字で入力してください',
               ]"
               variant="outlined"
               density="comfortable"
@@ -173,9 +153,7 @@
             <v-textarea
               v-model="goalFormData.description"
               label="目標の説明（任意）"
-              :rules="[
-                v => !v || v.length <= 500 || '説明は500文字以内で入力してください'
-              ]"
+              :rules="[(v) => !v || v.length <= 500 || '説明は500文字以内で入力してください']"
               variant="outlined"
               density="comfortable"
               rows="3"
@@ -199,8 +177,8 @@
                   min="0.01"
                   step="0.01"
                   :rules="[
-                    v => !!v || '目標値は必須です',
-                    v => v > 0 || '目標値は0より大きい値を入力してください'
+                    (v) => !!v || '目標値は必須です',
+                    (v) => v > 0 || '目標値は0より大きい値を入力してください',
                   ]"
                   variant="outlined"
                   density="comfortable"
@@ -214,9 +192,7 @@
                   type="number"
                   min="0"
                   step="0.01"
-                  :rules="[
-                    v => v >= 0 || '現在値は0以上の値を入力してください'
-                  ]"
+                  :rules="[(v) => v >= 0 || '現在値は0以上の値を入力してください']"
                   variant="outlined"
                   density="comfortable"
                 />
@@ -244,9 +220,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="cancelGoalForm">
-            キャンセル
-          </v-btn>
+          <v-btn variant="text" @click="cancelGoalForm"> キャンセル </v-btn>
           <v-btn
             color="primary"
             variant="elevated"
@@ -260,10 +234,7 @@
     </v-dialog>
 
     <!-- 詳細表示ダイアログ -->
-    <v-dialog
-      v-model="showDetailDialog"
-      max-width="800px"
-    >
+    <v-dialog v-model="showDetailDialog" max-width="800px">
       <v-card v-if="selectedGoal">
         <v-card-title>{{ selectedGoal.title }}</v-card-title>
         <v-card-text>
@@ -283,15 +254,15 @@
               <h4>進捗状況</h4>
               <v-progress-circular
                 :model-value="(selectedGoal.current_value / selectedGoal.target_value) * 100"
-                :color="getProgressColor((selectedGoal.current_value / selectedGoal.target_value) * 100)"
+                :color="
+                  getProgressColor((selectedGoal.current_value / selectedGoal.target_value) * 100)
+                "
                 :size="120"
                 :width="12"
               >
                 {{ Math.round((selectedGoal.current_value / selectedGoal.target_value) * 100) }}%
               </v-progress-circular>
-              <p class="mt-2">
-                {{ selectedGoal.current_value }} / {{ selectedGoal.target_value }}
-              </p>
+              <p class="mt-2">{{ selectedGoal.current_value }} / {{ selectedGoal.target_value }}</p>
             </v-col>
           </v-row>
 
@@ -313,9 +284,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="showDetailDialog = false">
-            閉じる
-          </v-btn>
+          <v-btn variant="text" @click="showDetailDialog = false"> 閉じる </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -353,7 +322,7 @@ const goalFormData = ref({
   target_value: 0,
   current_value: 0,
   target_date: '',
-  status: 'active'
+  status: 'active',
 })
 
 // オプション
@@ -361,7 +330,7 @@ const statusOptions = [
   { title: 'アクティブ', value: 'active' },
   { title: '完了', value: 'completed' },
   { title: '一時停止', value: 'paused' },
-  { title: 'アーカイブ', value: 'archived' }
+  { title: 'アーカイブ', value: 'archived' },
 ]
 
 const availableCategories = [
@@ -371,13 +340,13 @@ const availableCategories = [
   'learning',
   'hobby',
   'relationship',
-  'finance'
+  'finance',
 ]
 
 // 計算プロパティ
 const categoryOptions = computed(() => {
   const categories = [...new Set(goals.map((g: Goal) => g.category))]
-  return categories.map(cat => ({ title: cat, value: cat }))
+  return categories.map((cat) => ({ title: cat, value: cat }))
 })
 
 const filteredGoals = computed(() => {
@@ -410,16 +379,21 @@ const getProgressColor = (percentage: number): string => {
 
 const getStatusColor = (status: string): string => {
   switch (status) {
-    case 'active': return 'primary'
-    case 'completed': return 'success'
-    case 'paused': return 'warning'
-    case 'archived': return 'grey'
-    default: return 'grey'
+    case 'active':
+      return 'primary'
+    case 'completed':
+      return 'success'
+    case 'paused':
+      return 'warning'
+    case 'archived':
+      return 'grey'
+    default:
+      return 'grey'
   }
 }
 
 const getStatusLabel = (status: string): string => {
-  return statusOptions.find(opt => opt.value === status)?.title || status
+  return statusOptions.find((opt) => opt.value === status)?.title || status
 }
 
 const getCategoryColor = (category: string): string => {
@@ -430,7 +404,7 @@ const getCategoryColor = (category: string): string => {
     learning: '#2196F3',
     hobby: '#9C27B0',
     relationship: '#E91E63',
-    finance: '#795548'
+    finance: '#795548',
   }
   return colors[category] || '#607D8B'
 }
@@ -447,7 +421,7 @@ const resetGoalForm = (): void => {
     target_value: 0,
     current_value: 0,
     target_date: '',
-    status: 'active'
+    status: 'active',
   }
   editingGoal.value = null
   if (goalForm.value) {
@@ -464,7 +438,7 @@ const editGoal = (goal: Goal): void => {
     target_value: goal.target_value,
     current_value: goal.current_value,
     target_date: goal.target_date || '',
-    status: goal.status
+    status: goal.status,
   }
   showCreateDialog.value = true
 }
@@ -494,7 +468,7 @@ const submitGoal = async (): Promise<void> => {
         target_value: goalFormData.value.target_value,
         current_value: goalFormData.value.current_value,
         target_date: goalFormData.value.target_date || undefined,
-        status: goalFormData.value.status as Goal['status']
+        status: goalFormData.value.status as Goal['status'],
       })
     } else {
       // 新規作成
@@ -506,7 +480,7 @@ const submitGoal = async (): Promise<void> => {
         target_value: goalFormData.value.target_value,
         current_value: goalFormData.value.current_value,
         target_date: goalFormData.value.target_date || undefined,
-        status: goalFormData.value.status as Goal['status']
+        status: goalFormData.value.status as Goal['status'],
       })
     }
 
@@ -541,10 +515,7 @@ onMounted(async () => {
   const userId = authStore.user?.id
   if (userId) {
     try {
-      await Promise.all([
-        tagGoalStore.fetchGoals(userId),
-        tagGoalStore.fetchTags(userId)
-      ])
+      await Promise.all([tagGoalStore.fetchGoals(userId), tagGoalStore.fetchTags(userId)])
     } catch (err) {
       console.error('データ取得エラー:', err)
     }

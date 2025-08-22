@@ -3,74 +3,56 @@
     <v-sheet class="form-section pa-4 my-4" elevation="2">
       <div class="header-section mb-4">
         <h2>日記を編集する</h2>
-        <v-btn 
-          variant="text" 
-          icon="mdi-arrow-left" 
-          @click="goBack"
-          class="back-button"
-        />
+        <v-btn variant="text" icon="mdi-arrow-left" @click="goBack" class="back-button" />
       </div>
-      
+
       <v-form @submit.prevent="updateDiary" v-if="diary">
-        <v-text-field 
+        <v-text-field
           v-model="title"
           :error-messages="titleError ? [titleError] : []"
           @blur="validateField('title')"
-          label="タイトル" 
-          outlined 
-          required 
+          label="タイトル"
+          outlined
+          required
         />
-        <v-textarea 
+        <v-textarea
           v-model="content"
           :error-messages="contentError ? [contentError] : []"
           @blur="validateField('content')"
-          label="内容" 
-          outlined 
-          rows="5" 
-          required 
+          label="内容"
+          outlined
+          rows="5"
+          required
         />
-        <v-text-field 
+        <v-text-field
           v-model="date"
           :error-messages="dateError ? [dateError] : []"
           @blur="validateField('date')"
-          label="日付" 
-          type="date" 
-          outlined 
-          required 
+          label="日付"
+          type="date"
+          outlined
+          required
         />
-        <v-slider 
-          v-model="mood" 
-          label="進捗レベル" 
-          :min="0" 
-          :max="100" 
+        <v-slider
+          v-model="mood"
+          label="進捗レベル"
+          :min="0"
+          :max="100"
           :step="5"
           show-ticks="always"
           thumb-label
         >
-          <template #thumb-label="{ modelValue }">
-            {{ modelValue }}%
-          </template>
+          <template #thumb-label="{ modelValue }"> {{ modelValue }}% </template>
         </v-slider>
-        
+
         <div class="action-buttons">
-          <v-btn 
-            type="submit" 
-            color="primary" 
-            :loading="isSubmitting"
-            class="mr-2"
-          >
+          <v-btn type="submit" color="primary" :loading="isSubmitting" class="mr-2">
             更新する
           </v-btn>
-          <v-btn 
-            variant="outlined" 
-            @click="goBack"
-            class="mr-2"
-          >
-            キャンセル
-          </v-btn>
-          <v-btn 
-            variant="outlined" 
-            color="error" 
+          <v-btn variant="outlined" @click="goBack" class="mr-2"> キャンセル </v-btn>
+          <v-btn
+            variant="outlined"
+            color="error"
             :loading="isDeleting"
             @click="showDeleteConfirmation"
           >
@@ -101,44 +83,39 @@
           日記の削除確認
         </v-card-title>
         <v-card-text>
-          <v-alert 
-            type="warning" 
-            variant="tonal" 
-            class="mb-4"
-          >
+          <v-alert type="warning" variant="tonal" class="mb-4">
             この操作は取り消せません。削除された日記は復旧できません。
           </v-alert>
-          
+
           <p class="mb-3"><strong>削除対象の日記:</strong></p>
           <v-card variant="outlined" class="mb-4">
             <v-card-title class="text-subtitle-1">{{ diary?.title }}</v-card-title>
             <v-card-text>
-              <p class="text-body-2 text-medium-emphasis mb-2">作成日: {{ diary ? formatDate(diary.created_at) : '' }}</p>
-              <p class="text-body-2">{{ diary?.content?.slice(0, 100) }}{{ (diary?.content?.length || 0) > 100 ? '...' : '' }}</p>
+              <p class="text-body-2 text-medium-emphasis mb-2">
+                作成日: {{ diary ? formatDate(diary.created_at) : '' }}
+              </p>
+              <p class="text-body-2">
+                {{ diary?.content?.slice(0, 100)
+                }}{{ (diary?.content?.length || 0) > 100 ? '...' : '' }}
+              </p>
             </v-card-text>
           </v-card>
-          
+
           <p class="text-body-2 text-medium-emphasis">本当にこの日記を削除しますか？</p>
-          
+
           <!-- 二段階確認 -->
-          <v-checkbox 
-            v-model="deleteConfirmed" 
-            label="削除することを理解し、同意します" 
+          <v-checkbox
+            v-model="deleteConfirmed"
+            label="削除することを理解し、同意します"
             color="error"
             class="mt-4"
           />
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn 
-            variant="text" 
-            @click="cancelDelete"
-            :disabled="isDeleting"
-          >
-            キャンセル
-          </v-btn>
-          <v-btn 
-            color="error" 
+          <v-btn variant="text" @click="cancelDelete" :disabled="isDeleting"> キャンセル </v-btn>
+          <v-btn
+            color="error"
             variant="flat"
             :disabled="!deleteConfirmed"
             :loading="isDeleting"
@@ -151,21 +128,16 @@
     </v-dialog>
 
     <!-- エラー/成功通知スナックバー -->
-    <v-snackbar 
-      v-model="notification.show" 
-      :color="notification.type" 
+    <v-snackbar
+      v-model="notification.show"
+      :color="notification.type"
       :timeout="notification.timeout"
       location="top"
     >
       <v-icon :icon="notification.icon" class="mr-2" />
       {{ notification.message }}
       <template #actions>
-        <v-btn 
-          variant="text" 
-          @click="notification.show = false"
-        >
-          閉じる
-        </v-btn>
+        <v-btn variant="text" @click="notification.show = false"> 閉じる </v-btn>
       </template>
     </v-snackbar>
   </v-container>
@@ -187,7 +159,7 @@ const dataStore = useDataStore()
 const performance = usePerformanceMonitor()
 
 // シンプルなフォーム管理を使用
-const { 
+const {
   title,
   content,
   date,
@@ -198,7 +170,7 @@ const {
   isSubmitting,
   validateField,
   handleSubmit,
-  setFormData
+  setFormData,
 } = useSimpleDiaryForm()
 
 // 状態管理
@@ -217,7 +189,7 @@ const notification = ref({
   message: '',
   type: 'info' as 'success' | 'error' | 'warning' | 'info',
   timeout: 5000,
-  icon: 'mdi-information'
+  icon: 'mdi-information',
 })
 
 // 認証チェックとデータ取得
@@ -240,39 +212,30 @@ const loadDiary = async () => {
   try {
     loading.value = true
     performance.start('load_diary_for_edit')
-    
+
     // データストアから日記を取得
     const diaryData = await dataStore.getDiaryById(diaryId, authStore.user!.id)
-    
+
     if (!diaryData) {
-      showNotification(
-        '日記が見つかりませんでした。', 
-        'error', 
-        'mdi-alert-circle'
-      )
+      showNotification('日記が見つかりませんでした。', 'error', 'mdi-alert-circle')
       return
     }
 
     diary.value = diaryData
-    
+
     // フォームに既存データを設定
     setFormData({
       title: diaryData.title,
       content: diaryData.content,
       date: new Date(diaryData.created_at).toISOString().split('T')[0],
-      mood: diaryData.progress_level || 0
+      mood: diaryData.progress_level || 0,
     })
-    
+
     performance.end('load_diary_for_edit')
-    
   } catch (error) {
     console.error('日記読み込みエラー:', error)
     const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました'
-    showNotification(
-      `日記の読み込みに失敗しました: ${errorMessage}`, 
-      'error', 
-      'mdi-alert-circle'
-    )
+    showNotification(`日記の読み込みに失敗しました: ${errorMessage}`, 'error', 'mdi-alert-circle')
   } finally {
     loading.value = false
   }
@@ -296,51 +259,49 @@ const updateDiary = async (): Promise<void> => {
       if (!sanitizedData) return
 
       performance.start('update_diary')
-      
+
       // 更新データの準備
       const updateData = {
         title: sanitizedData.title,
         content: sanitizedData.content,
         progress_level: sanitizedData.mood,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
 
       // データストアを使用した更新処理
       await dataStore.updateDiary(diary.value!.id, updateData)
-      
+
       performance.end('update_diary')
-      
+
       // 成功メッセージ
       showNotification('日記が正常に更新されました！', 'success', 'mdi-check-circle')
-      
+
       // 少し待ってからリダイレクト
       setTimeout(() => {
         router.push('/diary-view')
       }, 1500)
-      
     } catch (error: unknown) {
       console.error('日記更新エラー:', error)
       const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました'
-      
+
       // ネットワークエラーの場合は自動リトライ
-      if (retryCount < maxRetries && (errorMessage.includes('network') || errorMessage.includes('fetch'))) {
+      if (
+        retryCount < maxRetries &&
+        (errorMessage.includes('network') || errorMessage.includes('fetch'))
+      ) {
         retryCount++
         showNotification(
-          `接続エラーが発生しました。再試行中... (${retryCount}/${maxRetries})`, 
-          'warning', 
-          'mdi-refresh'
+          `接続エラーが発生しました。再試行中... (${retryCount}/${maxRetries})`,
+          'warning',
+          'mdi-refresh',
         )
-        
+
         // 指数バックオフで再試行
         setTimeout(() => attemptUpdate(), Math.pow(2, retryCount) * 1000)
         return
       }
-      
-      showNotification(
-        `日記の更新に失敗しました: ${errorMessage}`, 
-        'error', 
-        'mdi-alert-circle'
-      )
+
+      showNotification(`日記の更新に失敗しました: ${errorMessage}`, 'error', 'mdi-alert-circle')
     }
   }
 
@@ -371,45 +332,43 @@ const confirmDelete = async () => {
     try {
       isDeleting.value = true
       performance.start('delete_diary')
-      
+
       await dataStore.deleteDiary(diary.value!.id, authStore.user!.id)
-      
+
       performance.end('delete_diary')
-      
+
       // ダイアログを閉じる
       deleteDialog.value = false
       deleteConfirmed.value = false
-      
+
       showNotification('日記が正常に削除されました。', 'success', 'mdi-check-circle')
-      
+
       // 少し待ってからリダイレクト
       setTimeout(() => {
         router.push('/diary-view')
       }, 1500)
-      
     } catch (error: unknown) {
       console.error('日記削除エラー:', error)
       const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました'
-      
+
       // ネットワークエラーの場合は自動リトライ
-      if (retryCount < maxRetries && (errorMessage.includes('network') || errorMessage.includes('fetch'))) {
+      if (
+        retryCount < maxRetries &&
+        (errorMessage.includes('network') || errorMessage.includes('fetch'))
+      ) {
         retryCount++
         showNotification(
-          `接続エラーが発生しました。再試行中... (${retryCount}/${maxRetries})`, 
-          'warning', 
-          'mdi-refresh'
+          `接続エラーが発生しました。再試行中... (${retryCount}/${maxRetries})`,
+          'warning',
+          'mdi-refresh',
         )
-        
+
         // 指数バックオフで再試行
         setTimeout(() => attemptDelete(), Math.pow(2, retryCount) * 1000)
         return
       }
-      
-      showNotification(
-        `日記の削除に失敗しました: ${errorMessage}`, 
-        'error', 
-        'mdi-alert-circle'
-      )
+
+      showNotification(`日記の削除に失敗しました: ${errorMessage}`, 'error', 'mdi-alert-circle')
     } finally {
       isDeleting.value = false
     }
@@ -420,17 +379,17 @@ const confirmDelete = async () => {
 
 // 通知表示ヘルパー
 const showNotification = (
-  message: string, 
-  type: 'success' | 'error' | 'warning' | 'info', 
+  message: string,
+  type: 'success' | 'error' | 'warning' | 'info',
   icon: string,
-  timeout: number = 5000
+  timeout: number = 5000,
 ) => {
   notification.value = {
     show: true,
     message,
     type,
     icon,
-    timeout
+    timeout,
   }
 }
 
@@ -442,12 +401,12 @@ const formatDate = (dateString: string): string => {
 // 戻る処理（未保存変更の警告付き）
 const goBack = () => {
   // フォームが変更されている場合は確認
-  const hasUnsavedChanges = diary.value && (
-    title.value !== diary.value.title ||
-    content.value !== diary.value.content ||
-    date.value !== new Date(diary.value.created_at).toISOString().split('T')[0] ||
-    mood.value !== (diary.value.progress_level || 0)
-  )
+  const hasUnsavedChanges =
+    diary.value &&
+    (title.value !== diary.value.title ||
+      content.value !== diary.value.content ||
+      date.value !== new Date(diary.value.created_at).toISOString().split('T')[0] ||
+      mood.value !== (diary.value.progress_level || 0))
 
   if (hasUnsavedChanges) {
     if (confirm('未保存の変更があります。本当にページを離れますか？')) {
@@ -498,11 +457,11 @@ const goBack = () => {
   .diary-edit-page {
     padding: 16px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
   }
-  
+
   .action-buttons .v-btn {
     width: 100%;
     margin: 4px 0;
@@ -513,13 +472,13 @@ const goBack = () => {
   .diary-edit-page {
     padding: 12px;
   }
-  
+
   .header-section {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .back-button {
     margin-left: 0;
     align-self: flex-end;

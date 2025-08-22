@@ -4,44 +4,42 @@
     <v-sheet class="form-section pa-4 my-4" elevation="2">
       <h2>新しい日記を追加する</h2>
       <v-form @submit.prevent="addDiary">
-        <v-text-field 
+        <v-text-field
           v-model="title"
           :error-messages="titleError ? [titleError] : []"
           @blur="validateField('title')"
-          label="タイトル" 
-          outlined 
-          required 
+          label="タイトル"
+          outlined
+          required
         />
-        <v-textarea 
+        <v-textarea
           v-model="content"
           :error-messages="contentError ? [contentError] : []"
           @blur="validateField('content')"
-          label="内容" 
-          outlined 
-          rows="3" 
-          required 
+          label="内容"
+          outlined
+          rows="3"
+          required
         />
-        <v-text-field 
+        <v-text-field
           v-model="date"
           :error-messages="dateError ? [dateError] : []"
           @blur="validateField('date')"
-          label="日付" 
-          type="date" 
-          outlined 
-          required 
+          label="日付"
+          type="date"
+          outlined
+          required
         />
-        <v-slider 
+        <v-slider
           v-model="mood"
-          label="進捗レベル" 
-          :min="0" 
-          :max="100" 
+          label="進捗レベル"
+          :min="0"
+          :max="100"
           :step="5"
           show-ticks="always"
           thumb-label
         >
-          <template #thumb-label="{ modelValue }">
-            {{ modelValue }}%
-          </template>
+          <template #thumb-label="{ modelValue }"> {{ modelValue }}% </template>
         </v-slider>
         <v-btn type="submit" color="primary" block :loading="isSubmitting">日記を追加</v-btn>
       </v-form>
@@ -63,7 +61,7 @@ const dataStore = useDataStore()
 const performance = usePerformanceMonitor()
 
 // シンプルなフォーム管理を使用
-const { 
+const {
   title,
   content,
   date,
@@ -74,7 +72,7 @@ const {
   isSubmitting,
   validateField,
   handleSubmit,
-  resetForm
+  resetForm,
 } = useSimpleDiaryForm()
 
 // 古いコードは削除し、バリデーションフィールドを使用
@@ -116,29 +114,28 @@ const addDiary = async (): Promise<void> => {
     if (!sanitizedData) return
 
     performance.start('create_diary')
-    
+
     // データストアを使用した最適化された作成処理
     const diaryData = {
       user_id: authStore.user.id,
       title: sanitizedData.title || '',
       content: sanitizedData.content || '',
       goal_category: 'general', // デフォルトカテゴリ
-      progress_level: Number(sanitizedData.mood) || 50
+      progress_level: Number(sanitizedData.mood) || 50,
     }
 
     await dataStore.createDiary(diaryData)
-    
+
     performance.end('create_diary')
-    
+
     // 成功メッセージ
     alert('日記が登録されました！')
-    
+
     // フォームリセット
     resetForm()
-    
+
     // オプション: ダッシュボードにリダイレクト
     router.push('/dashboard')
-    
   } catch (error: unknown) {
     console.error('日記作成エラー:', error)
     alert(`日記の作成に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`)

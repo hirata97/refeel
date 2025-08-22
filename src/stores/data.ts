@@ -45,13 +45,15 @@ export const useDataStore = defineStore('data', () => {
   const error = ref<Record<string, string | null>>({})
 
   // 計算プロパティ
-  const sortedDiaries = computed(() => 
-    [...diaries.value].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  const sortedDiaries = computed(() =>
+    [...diaries.value].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+    ),
   )
 
   const diariesByCategory = computed(() => {
     const grouped: Record<string, DiaryEntry[]> = {}
-    diaries.value.forEach(diary => {
+    diaries.value.forEach((diary) => {
       if (!grouped[diary.goal_category]) {
         grouped[diary.goal_category] = []
       }
@@ -74,7 +76,7 @@ export const useDataStore = defineStore('data', () => {
     cache.value.set(key, {
       data,
       timestamp: Date.now(),
-      expires: Date.now() + CACHE_DURATION
+      expires: Date.now() + CACHE_DURATION,
     })
   }
 
@@ -91,8 +93,8 @@ export const useDataStore = defineStore('data', () => {
   const invalidateCache = (pattern?: string): void => {
     if (pattern) {
       // パターンマッチングで特定のキャッシュを削除
-      const keysToDelete = Array.from(cache.value.keys()).filter(key => key.includes(pattern))
-      keysToDelete.forEach(key => cache.value.delete(key))
+      const keysToDelete = Array.from(cache.value.keys()).filter((key) => key.includes(pattern))
+      keysToDelete.forEach((key) => cache.value.delete(key))
     } else {
       // 全キャッシュクリア
       cache.value.clear()
@@ -110,14 +112,18 @@ export const useDataStore = defineStore('data', () => {
 
   // 日記データの取得（サーバーサイドページネーション対応）
   const fetchDiaries = async (
-    userId: string, 
+    userId: string,
     forceRefresh = false,
-    pagination?: { page: number; pageSize: number; filters?: Record<string, string | number | null> }
+    pagination?: {
+      page: number
+      pageSize: number
+      filters?: Record<string, string | number | null>
+    },
   ): Promise<{ data: DiaryEntry[]; count: number; totalPages: number }> => {
-    const cacheKey = pagination 
+    const cacheKey = pagination
       ? `${getCacheKey('diaries', userId)}_p${pagination.page}_s${pagination.pageSize}_${JSON.stringify(pagination.filters || {})}`
       : getCacheKey('diaries', userId)
-    
+
     // キャッシュチェック（ページネーション使用時は個別キャッシュ）
     if (!forceRefresh && !pagination) {
       const cachedData = getCache<DiaryEntry[]>(cacheKey)
@@ -131,10 +137,7 @@ export const useDataStore = defineStore('data', () => {
       setLoading('diaries', true)
       setError('diaries', null)
 
-      let query = supabase
-        .from('diaries')
-        .select('*', { count: 'exact' })
-        .eq('user_id', userId)
+      let query = supabase.from('diaries').select('*', { count: 'exact' }).eq('user_id', userId)
 
       // フィルター適用
       if (pagination?.filters) {
@@ -202,7 +205,7 @@ export const useDataStore = defineStore('data', () => {
   // アカウントデータの取得
   const fetchAccounts = async (userId: string, forceRefresh = false): Promise<Account[]> => {
     const cacheKey = getCacheKey('accounts', userId)
-    
+
     if (!forceRefresh) {
       const cachedData = getCache<Account[]>(cacheKey)
       if (cachedData) {
@@ -230,7 +233,8 @@ export const useDataStore = defineStore('data', () => {
 
       return accountData
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'アカウントデータの取得に失敗しました'
+      const errorMessage =
+        err instanceof Error ? err.message : 'アカウントデータの取得に失敗しました'
       setError('accounts', errorMessage)
       throw err
     } finally {
@@ -239,7 +243,9 @@ export const useDataStore = defineStore('data', () => {
   }
 
   // 日記の作成
-  const createDiary = async (diaryData: Omit<DiaryEntry, 'id' | 'created_at' | 'updated_at'>): Promise<DiaryEntry> => {
+  const createDiary = async (
+    diaryData: Omit<DiaryEntry, 'id' | 'created_at' | 'updated_at'>,
+  ): Promise<DiaryEntry> => {
     try {
       setLoading('createDiary', true)
       setError('createDiary', null)
@@ -257,7 +263,10 @@ export const useDataStore = defineStore('data', () => {
       }
 
       // データをサニタイズ
-      const sanitizedData = sanitizeInputData(diaryData) as Omit<DiaryEntry, 'id' | 'created_at' | 'updated_at'>
+      const sanitizedData = sanitizeInputData(diaryData) as Omit<
+        DiaryEntry,
+        'id' | 'created_at' | 'updated_at'
+      >
 
       const { data, error: insertError } = await supabase
         .from('diaries')
@@ -272,7 +281,7 @@ export const useDataStore = defineStore('data', () => {
       // ローカル状態とキャッシュを更新
       const newDiary = data as DiaryEntry
       diaries.value.unshift(newDiary)
-      
+
       // 関連キャッシュを無効化
       invalidateCache(`diaries_${diaryData.user_id}`)
 
@@ -323,7 +332,7 @@ export const useDataStore = defineStore('data', () => {
 
       // ローカル状態を更新
       const updatedDiary = data as DiaryEntry
-      const index = diaries.value.findIndex(d => d.id === id)
+      const index = diaries.value.findIndex((d) => d.id === id)
       if (index !== -1) {
         diaries.value[index] = updatedDiary
       }
@@ -348,7 +357,7 @@ export const useDataStore = defineStore('data', () => {
       setError('getDiaryById', null)
 
       // まずローカル状態から探す
-      const localDiary = diaries.value.find(d => d.id === id && d.user_id === userId)
+      const localDiary = diaries.value.find((d) => d.id === id && d.user_id === userId)
       if (localDiary) {
         return localDiary
       }
@@ -372,7 +381,7 @@ export const useDataStore = defineStore('data', () => {
       const diary = data as DiaryEntry
 
       // ローカル状態に追加（重複チェック）
-      const existingIndex = diaries.value.findIndex(d => d.id === id)
+      const existingIndex = diaries.value.findIndex((d) => d.id === id)
       if (existingIndex === -1) {
         diaries.value.push(diary)
       }
@@ -393,17 +402,14 @@ export const useDataStore = defineStore('data', () => {
       setLoading('deleteDiary', true)
       setError('deleteDiary', null)
 
-      const { error: deleteError } = await supabase
-        .from('diaries')
-        .delete()
-        .eq('id', id)
+      const { error: deleteError } = await supabase.from('diaries').delete().eq('id', id)
 
       if (deleteError) {
         throw deleteError
       }
 
       // ローカル状態を更新
-      diaries.value = diaries.value.filter(d => d.id !== id)
+      diaries.value = diaries.value.filter((d) => d.id !== id)
 
       // 関連キャッシュを無効化
       invalidateCache(`diaries_${userId}`)
@@ -417,7 +423,9 @@ export const useDataStore = defineStore('data', () => {
   }
 
   // アカウントの作成
-  const createAccount = async (accountData: Omit<Account, 'id' | 'created_at' | 'updated_at'>): Promise<Account> => {
+  const createAccount = async (
+    accountData: Omit<Account, 'id' | 'created_at' | 'updated_at'>,
+  ): Promise<Account> => {
     try {
       setLoading('createAccount', true)
       setError('createAccount', null)
@@ -451,10 +459,7 @@ export const useDataStore = defineStore('data', () => {
   // データの初期化
   const initializeData = async (userId: string): Promise<void> => {
     try {
-      await Promise.all([
-        fetchDiaries(userId),
-        fetchAccounts(userId)
-      ])
+      await Promise.all([fetchDiaries(userId), fetchAccounts(userId)])
     } catch (err) {
       console.error('データ初期化エラー:', err)
     }
@@ -475,31 +480,31 @@ export const useDataStore = defineStore('data', () => {
     accounts,
     loading,
     error,
-    
+
     // 計算プロパティ
     sortedDiaries,
     diariesByCategory,
-    
+
     // データ取得
     fetchDiaries,
     fetchAccounts,
     getDiaryById,
-    
+
     // データ操作
     createDiary,
     updateDiary,
     deleteDiary,
     createAccount,
-    
+
     // ユーティリティ
     initializeData,
     resetState,
     invalidateCache,
-    
+
     // キャッシュ情報（デバッグ用）
     getCacheInfo: computed(() => ({
       size: cache.value.size,
-      keys: Array.from(cache.value.keys())
-    }))
+      keys: Array.from(cache.value.keys()),
+    })),
   }
 })

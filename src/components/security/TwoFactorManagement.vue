@@ -6,7 +6,7 @@
       </v-icon>
       2要素認証
       <v-spacer />
-      <v-chip 
+      <v-chip
         :color="is2FAEnabled ? 'success' : 'warning'"
         :prepend-icon="is2FAEnabled ? 'mdi-check-circle' : 'mdi-alert-circle'"
         size="small"
@@ -24,17 +24,13 @@
           <v-icon class="me-2">mdi-information</v-icon>
           2要素認証を有効にして、アカウントのセキュリティを向上させましょう。
         </v-alert>
-        
+
         <div class="text-body-2 mb-4">
           2要素認証により、パスワードに加えて認証アプリで生成されるコードが必要になり、
           不正アクセスから大切なデータを保護できます。
         </div>
 
-        <v-btn
-          color="primary"
-          prepend-icon="mdi-shield-plus"
-          @click="showSetup = true"
-        >
+        <v-btn color="primary" prepend-icon="mdi-shield-plus" @click="showSetup = true">
           2要素認証を設定
         </v-btn>
       </template>
@@ -54,7 +50,7 @@
               {{ formatDate(twoFactorStatus.setupAt) }}
             </v-list-item-subtitle>
           </v-list-item>
-          
+
           <v-list-item v-if="twoFactorStatus.lastUsedAt">
             <v-list-item-title>最終使用</v-list-item-title>
             <v-list-item-subtitle>
@@ -66,7 +62,7 @@
             <v-list-item-title>バックアップコード</v-list-item-title>
             <v-list-item-subtitle>
               {{ twoFactorStatus.backupCodesCount }} 個残っています
-              <v-chip 
+              <v-chip
                 v-if="twoFactorStatus.backupCodesCount <= 2"
                 color="warning"
                 size="x-small"
@@ -109,10 +105,7 @@
 
     <!-- 2FA設定ダイアログ -->
     <v-dialog v-model="showSetup" max-width="700" persistent>
-      <TwoFactorSetup 
-        @complete="onSetupComplete"
-        @cancel="showSetup = false"
-      />
+      <TwoFactorSetup @complete="onSetupComplete" @cancel="showSetup = false" />
     </v-dialog>
 
     <!-- 2FA無効化ダイアログ -->
@@ -122,10 +115,11 @@
           <v-icon class="me-2 text-warning">mdi-alert</v-icon>
           2要素認証を無効化
         </v-card-title>
-        
+
         <v-card-text>
           <v-alert type="warning" class="mb-4">
-            <strong>警告:</strong> 2要素認証を無効にすると、アカウントのセキュリティレベルが低下します。
+            <strong>警告:</strong>
+            2要素認証を無効にすると、アカウントのセキュリティレベルが低下します。
           </v-alert>
 
           <div class="text-body-2 mb-4">
@@ -149,11 +143,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            variant="outlined"
-            @click="cancelDisable"
-            :disabled="disabling"
-          >
+          <v-btn variant="outlined" @click="cancelDisable" :disabled="disabling">
             キャンセル
           </v-btn>
           <v-btn
@@ -184,11 +174,7 @@
 
           <v-card variant="outlined" class="pa-3 mb-4">
             <v-row v-if="newBackupCodes" density="compact">
-              <v-col 
-                v-for="(code, index) in newBackupCodes" 
-                :key="index"
-                cols="6"
-              >
+              <v-col v-for="(code, index) in newBackupCodes" :key="index" cols="6">
                 <div class="text-body-2 font-weight-medium text-center pa-1">
                   {{ code }}
                 </div>
@@ -218,12 +204,7 @@
 
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            @click="showBackupCodes = false"
-          >
-            確認しました
-          </v-btn>
+          <v-btn color="primary" @click="showBackupCodes = false"> 確認しました </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -255,21 +236,21 @@ const twoFactorStatus = computed(() => {
     return {
       setupAt: null,
       lastUsedAt: null,
-      backupCodesCount: 0
+      backupCodesCount: 0,
     }
   }
-  
+
   // 実際の実装では authStore から取得
   return {
     setupAt: new Date(), // プレースホルダー
     lastUsedAt: null,
-    backupCodesCount: 8 // プレースホルダー
+    backupCodesCount: 8, // プレースホルダー
   }
 })
 
 const disableCodeRules = [
   (value: string) => !!value || '確認コードを入力してください',
-  (value: string) => value.length >= 6 || '6桁以上のコードを入力してください'
+  (value: string) => value.length >= 6 || '6桁以上のコードを入力してください',
 ]
 
 // Methods
@@ -280,7 +261,7 @@ const formatDate = (date: Date | null): string => {
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(date)
 }
 
@@ -336,7 +317,7 @@ const cancelDisable = () => {
 
 const copyNewBackupCodes = async () => {
   if (!newBackupCodes.value) return
-  
+
   const codesText = newBackupCodes.value.join('\n')
   try {
     await navigator.clipboard.writeText(codesText)
@@ -356,7 +337,7 @@ const downloadNewBackupCodes = () => {
     '重要: これらのコードは安全な場所に保管してください',
     '各コードは1回のみ使用可能です',
     '',
-    ...newBackupCodes.value.map((code, index) => `${index + 1}. ${code}`)
+    ...newBackupCodes.value.map((code, index) => `${index + 1}. ${code}`),
   ].join('\n')
 
   const blob = new Blob([codesText], { type: 'text/plain' })
