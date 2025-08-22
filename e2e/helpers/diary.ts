@@ -287,7 +287,7 @@ export class DiaryTestHelper {
   /**
    * バリデーションエラーを確認
    */
-  async expectValidationError(): Promise<void> {
+  async expectValidationError(fieldType?: string): Promise<void> {
     // Vuetifyの一般的なエラーメッセージ要素をより包括的に探す
     const errorSelectors = [
       '.v-text-field__error-messages',
@@ -297,7 +297,25 @@ export class DiaryTestHelper {
       '.v-input__details .v-messages'
     ]
     
-    const errorLocator = this.page.locator(errorSelectors.join(', '))
+    let errorLocator = this.page.locator(errorSelectors.join(', '))
+    
+    // 特定のフィールドのエラーを確認する場合
+    if (fieldType) {
+      switch (fieldType) {
+        case 'title':
+          errorLocator = this.page.locator('.v-text-field:has-text("タイトル") .v-messages__message, .v-text-field:has-text("タイトル") .v-text-field__error-messages')
+          break
+        case 'content':
+          errorLocator = this.page.locator('.v-textarea:has-text("内容") .v-messages__message, .v-textarea:has-text("内容") .v-textarea__error-messages')
+          break
+        case 'date':
+          errorLocator = this.page.locator('.v-text-field:has-text("日付") .v-messages__message, input[type="date"] + .v-messages__message')
+          break
+        default:
+          // 汎用的なエラーメッセージ検索
+          break
+      }
+    }
     
     // フィールドタイプに応じた特定のエラーメッセージを確認
     const fieldErrorLocator = errorLocator.filter({ hasText: new RegExp('(必須|入力|無効|形式)', 'i') })
