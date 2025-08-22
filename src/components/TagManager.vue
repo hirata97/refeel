@@ -2,18 +2,34 @@
   <v-card class="tag-manager">
     <v-card-title class="d-flex align-center justify-space-between">
       <span>タグ管理</span>
-      <v-btn
-        color="primary"
-        variant="outlined"
-        size="small"
-        @click="showCreateDialog = true"
-      >
-        <v-icon start>mdi-plus</v-icon>
-        新規タグ
-      </v-btn>
+      <div class="d-flex gap-2">
+        <v-btn
+          color="secondary"
+          variant="text"
+          size="small"
+          @click="refreshTags"
+        >
+          <v-icon start>mdi-refresh</v-icon>
+          更新
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="outlined"
+          size="small"
+          @click="showCreateDialog = true"
+        >
+          <v-icon start>mdi-plus</v-icon>
+          新規タグ
+        </v-btn>
+      </div>
     </v-card-title>
 
     <v-card-text>
+      <!-- デバッグ情報（開発用） -->
+      <!-- <div class="mb-2 text-caption">
+        デバッグ: タグ数 = {{ tags.length }}
+      </div> -->
+      
       <!-- タグ一覧 -->
       <div v-if="tags.length > 0" class="tag-list">
         <v-chip
@@ -180,6 +196,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useTagGoalStore } from '@/stores/tagGoal'
 import { useAuthStore } from '@/stores/auth'
 import type { Tag } from '@/types/tags'
@@ -188,8 +205,8 @@ import type { Tag } from '@/types/tags'
 const tagGoalStore = useTagGoalStore()
 const authStore = useAuthStore()
 
-// リアクティブな参照
-const { tags, loading, error } = tagGoalStore
+// リアクティブな参照（storeToRefsを使用）
+const { tags, loading, error } = storeToRefs(tagGoalStore)
 
 // ローカル状態
 const showCreateDialog = ref(false)
@@ -222,7 +239,7 @@ const predefinedColors = [
 // 計算プロパティ
 const isDuplicateTagName = (name: string): boolean => {
   if (!name) return false
-  return tags.some((tag: Tag) => 
+  return tags.value.some((tag: Tag) => 
     tag.name.toLowerCase() === name.toLowerCase() && 
     tag.id !== editingTag.value?.id
   )
@@ -233,6 +250,18 @@ const clearErrors = (): void => {
   tagGoalStore.setError('tags', null)
   tagGoalStore.setError('createTag', null)
   tagGoalStore.setError('updateTag', null)
+}
+
+const refreshTags = async (): Promise<void> => {
+  const userId = authStore.user?.id
+  
+  if (userId) {
+    try {
+      await tagGoalStore.fetchTags(userId, true)
+    } catch (err) {
+      console.error('Manual refresh error:', err)
+    }
+  }
 }
 
 const resetTagForm = (): void => {
@@ -263,18 +292,41 @@ const cancelTagForm = (): void => {
 }
 
 const submitTag = async (): Promise<void> => {
-  if (!tagForm.value?.validate().valid) {
+  // 基本的なバリデーション
+  if (!tagFormData.value.name || tagFormData.value.name.trim().length === 0) {
     return
+  }
+  
+  if (tagFormData.value.name.length > 50) {
+    return
+  }
+  
+  if (isDuplicateTagName(tagFormData.value.name)) {
+    return
+  }
+  
+  // Vuetifyバリデーション
+  if (tagForm.value) {
+    try {
+      const validation = await tagForm.value.validate()
+      if (!validation.valid) {
+        return
+      }
+    } catch (validationError) {
+      return
+    }
   }
 
   try {
     const userId = authStore.user?.id
+    
     if (!userId) {
-      throw new Error('ユーザーが認証されていません')
+      const error = new Error('ユーザーが認証されていません')
+      throw error
     }
 
     if (editingTag.value) {
-      // 編集モード（実装が必要な場合）
+      // 編集モード（今後実装予定）
       console.log('タグ更新機能は今後実装予定です')
     } else {
       // 新規作成
@@ -294,7 +346,7 @@ const submitTag = async (): Promise<void> => {
 }
 
 const deleteTag = (tagId: string): void => {
-  const tag = tags.find((t: Tag) => t.id === tagId)
+  const tag = tags.value.find((t: Tag) => t.id === tagId)
   if (tag) {
     deletingTag.value = tag
     showDeleteDialog.value = true
@@ -317,12 +369,25 @@ const confirmDeleteTag = async (): Promise<void> => {
 // ライフサイクル
 onMounted(async () => {
   const userId = authStore.user?.id
+  
   if (userId) {
     try {
-      await tagGoalStore.fetchTags(userId)
+      await tagGoalStore.fetchTags(userId, true)
     } catch (err) {
       console.error('タグ取得エラー:', err)
     }
+  } else {
+    // 認証状態が変更されたら再実行
+    setTimeout(async () => {
+      const delayedUserId = authStore.user?.id
+      if (delayedUserId) {
+        try {
+          await tagGoalStore.fetchTags(delayedUserId, true)
+        } catch (err) {
+          console.error('Delayed fetch error:', err)
+        }
+      }
+    }, 1000)
   }
 })
 </script>

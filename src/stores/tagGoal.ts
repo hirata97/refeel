@@ -84,7 +84,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
   }
 
   // タグ操作
-  const fetchTags = async (userId: string): Promise<Tag[]> => {
+  const fetchTags = async (userId: string, forceRefresh = true): Promise<Tag[]> => {
     try {
       setLoading('tags', true)
       setError('tags', null)
@@ -93,14 +93,18 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
         .from('tags')
         .select('*')
         .eq('user_id', userId)
-        .order('name', { ascending: true })
+        .order('created_at', { ascending: false })
 
       if (fetchError) {
         throw fetchError
       }
 
       const tagData = data || []
-      tags.value = tagData
+      
+      // リアクティブ更新を確実にするため配列を完全に再作成
+      tags.value.length = 0
+      tags.value.push(...tagData)
+      
       return tagData
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'タグの取得に失敗しました'
@@ -143,7 +147,12 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
       }
 
       const newTag = data as Tag
-      tags.value.push(newTag)
+      
+      // リアクティブ更新を確実にするため、配列を完全に再作成
+      const currentTags = [...tags.value]
+      currentTags.push(newTag)
+      tags.value = currentTags
+      
       return newTag
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'タグの作成に失敗しました'
