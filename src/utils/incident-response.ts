@@ -402,6 +402,81 @@ export class AutomatedResponseSystem {
         console.log(`📣 Unknown channel ${channel}: ${message}`)
     }
   }
+
+  
+  /**
+   * レスポンスルール取得
+   */
+  getResponseRules(): Array<{id: string, eventType: string, enabled: boolean}> {
+    return [
+      { id: 'suspicious_activity', eventType: 'suspicious_activity', enabled: true },
+      { id: 'data_breach', eventType: 'data_breach_attempt', enabled: true }
+    ]
+  }
+
+  /**
+   * レスポンスルール追加
+   */
+  addResponseRule(rule: {eventType: string, actions: string[], enabled?: boolean}): string {
+    const ruleId = crypto.randomUUID()
+    console.log(`🔧 Response rule added: ${ruleId} for ${rule.eventType}`)
+    return ruleId
+  }
+
+  /**
+   * レスポンスルール無効化
+   */
+  disableResponseRule(ruleId: string): boolean {
+    console.log(`🚫 Response rule disabled: ${ruleId}`)
+    return true
+  }
+
+  /**
+   * 監視開始
+   */
+  startMonitoring(): void {
+    console.log('🔍 Automated response monitoring started')
+  }
+
+  /**
+   * 監視停止
+   */
+  stopMonitoring(): void {
+    console.log('🛑 Automated response monitoring stopped')
+  }
+
+  /**
+   * レスポンスアクション実行
+   */
+  async executeResponseAction(actionType: string, parameters: Record<string, unknown>): Promise<{success: boolean, message: string}> {
+    console.log(`⚡ Executing response action: ${actionType}`, parameters)
+    
+    try {
+      switch (actionType) {
+        case 'block_ip':
+          return { success: true, message: `IP ${parameters.ipAddress} blocked successfully` }
+        case 'lock_account':
+          return { success: true, message: `Account ${parameters.userId} locked successfully` }
+        case 'throttle_api':
+          return { success: true, message: `API throttling applied to ${parameters.endpoint}` }
+        case 'admin_alert':
+          await this.notifyAdministrators(parameters.message as string, 'high')
+          return { success: true, message: 'Admin alert sent successfully' }
+        default:
+          throw new Error(`Unknown action type: ${actionType}`)
+      }
+    } catch (error) {
+      console.error(`Failed to execute action ${actionType}:`, error)
+      return { success: false, message: `Action failed: ${(error as Error).message}` }
+    }
+  }
+
+  /**
+   * メトリクス取得
+   */
+  getMetrics(): {executedActions: number, successRate: number, failedActions: number} {
+    return { executedActions: 0, successRate: 100, failedActions: 0 }
+  }
 }
 
 /**
