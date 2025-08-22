@@ -152,7 +152,7 @@ export class ErrorHandler {
     }
   }
 
-  static handleAuthError(error: unknown): void {
+  static handleAuthError(): void {
     const notificationStore = useNotificationStore()
     
     notificationStore.showError(
