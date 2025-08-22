@@ -55,6 +55,20 @@
           </v-card-actions>
         </v-card>
       </v-col>
+
+      <!-- タグ管理セクション -->
+      <v-col cols="12">
+        <v-card>
+          <v-card-title>
+            <v-icon class="mr-2" size="24">mdi-tag-multiple</v-icon>
+            タグ管理
+          </v-card-title>
+          <v-card-subtitle>日記や目標で使用するタグを管理できます。</v-card-subtitle>
+          <v-card-text>
+            <TagManager />
+          </v-card-text>
+        </v-card>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -65,6 +79,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore, type ThemeName } from '@/stores/theme'
 import { useTheme } from 'vuetify'
+import TagManager from '@/components/TagManager.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
