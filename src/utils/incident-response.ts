@@ -105,6 +105,126 @@ export class IncidentResponseManager {
   }
 
   /**
+   * 単一インシデント取得
+   */
+  getIncident(incidentId: string): SecurityIncident | undefined {
+    return this.incidents.find(i => i.id === incidentId)
+  }
+
+  /**
+   * ステータス別インシデント取得
+   */
+  getIncidentsByStatus(status: string): SecurityIncident[] {
+    return this.incidents.filter(i => i.status === status)
+  }
+
+  /**
+   * インシデントステータス更新
+   */
+  updateIncidentStatus(incidentId: string, status: string): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.status = status
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Status updated to ${status}`,
+      actor: 'System'
+    })
+
+    console.log(`📋 Incident ${incidentId} status updated to ${status}`)
+    return incident
+  }
+
+  /**
+   * インシデント担当者割り当て
+   */
+  assignIncident(incidentId: string, assignedTo: string): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.assignedTo = assignedTo
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Assigned to ${assignedTo}`,
+      actor: 'System'
+    })
+
+    console.log(`👤 Incident ${incidentId} assigned to ${assignedTo}`)
+    return incident
+  }
+
+  /**
+   * インシデント解決
+   */
+  resolveIncident(incidentId: string, resolution?: string): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.status = 'resolved'
+    incident.updatedAt = new Date().toISOString()
+    if (resolution) {
+      incident.resolution = resolution
+    }
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Incident resolved${resolution ? ': ' + resolution : ''}`,
+      actor: 'System'
+    })
+
+    console.log(`✅ Incident ${incidentId} resolved${resolution ? ': ' + resolution : ''}`)
+    return incident
+  }
+
+  /**
+   * 関連イベント追加
+   */
+  addRelatedEvent(incidentId: string, event: SecurityEvent): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.relatedEvents.push(event)
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Related event added: ${event.type}`,
+      actor: 'System'
+    })
+
+    console.log(`🔗 Related event added to incident ${incidentId}:`, event)
+    return incident
+  }
+
+  /**
+   * セキュリティアクション実行
+   */
+  executeAction(incidentId: string, actionType: string, description: string): SecurityAction | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    const action: SecurityAction = {
+      id: crypto.randomUUID(),
+      type: actionType,
+      description,
+      executedAt: new Date().toISOString(),
+      status: 'completed'
+    }
+
+    incident.actions.push(action)
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Action executed: ${actionType}`,
+      actor: 'System'
+    })
+
+    console.log(`⚡ Action executed for incident ${incidentId}:`, action)
+    return action
+  }
+
+  /**
    * インシデント対応のトリガー
    */
   private triggerIncidentResponse(incident: SecurityIncident): void {
