@@ -41,7 +41,14 @@
         >
           <template #thumb-label="{ modelValue }"> {{ modelValue }}% </template>
         </v-slider>
-        <v-btn type="submit" color="primary" block :loading="isSubmitting">日記を追加</v-btn>
+        <v-btn 
+          type="submit" 
+          color="primary" 
+          block 
+          :loading="isSubmitting || loadingStore.isLoading('create_diary')"
+        >
+          日記を追加
+        </v-btn>
       </v-form>
     </v-sheet>
   </v-container>
@@ -52,12 +59,16 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDataStore } from '@/stores/data'
+import { useNotificationStore } from '@/stores/notification'
+import { useLoadingStore } from '@/stores/loading'
 import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const dataStore = useDataStore()
+const notificationStore = useNotificationStore()
+const loadingStore = useLoadingStore()
 const performance = usePerformanceMonitor()
 
 // シンプルなフォーム管理を使用
@@ -103,42 +114,53 @@ onMounted(() => {
 const addDiary = async (): Promise<void> => {
   // 認証状態を再確認
   if (!authStore.isAuthenticated || !authStore.user) {
-    alert('認証が必要です。ログインしてください。')
+    notificationStore.showError(
+      '認証が必要です',
+      'ログインしてください。'
+    )
     router.push('/login')
     return
   }
 
   try {
-    // バリデーションとサニタイゼーションを実行
-    const sanitizedData = await handleSubmit()
-    if (!sanitizedData) return
+    await loadingStore.withLoading('create_diary', async () => {
+      // バリデーションとサニタイゼーションを実行
+      const sanitizedData = await handleSubmit()
+      if (!sanitizedData) return
 
-    performance.start('create_diary')
+      performance.start('create_diary')
+      
+      // データストアを使用した最適化された作成処理
+      const diaryData = {
+        user_id: authStore.user!.id, // 上で既にチェック済み
+        title: sanitizedData.title || '',
+        content: sanitizedData.content || '',
+        goal_category: 'general', // デフォルトカテゴリ
+        progress_level: Number(sanitizedData.mood) || 50
+      }
 
-    // データストアを使用した最適化された作成処理
-    const diaryData = {
-      user_id: authStore.user.id,
-      title: sanitizedData.title || '',
-      content: sanitizedData.content || '',
-      goal_category: 'general', // デフォルトカテゴリ
-      progress_level: Number(sanitizedData.mood) || 50,
-    }
-
-    await dataStore.createDiary(diaryData)
-
-    performance.end('create_diary')
-
-    // 成功メッセージ
-    alert('日記が登録されました！')
-
-    // フォームリセット
-    resetForm()
-
-    // オプション: ダッシュボードにリダイレクト
-    router.push('/dashboard')
+      await dataStore.createDiary(diaryData)
+      
+      performance.end('create_diary')
+      
+      // 成功メッセージ
+      notificationStore.showSuccess(
+        '日記が登録されました！',
+        'ダッシュボードに移動します。'
+      )
+      
+      // フォームリセット
+      resetForm()
+      
+      // オプション: ダッシュボードにリダイレクト
+      router.push('/dashboard')
+    })
   } catch (error: unknown) {
     console.error('日記作成エラー:', error)
-    alert(`日記の作成に失敗しました: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    notificationStore.showError(
+      '日記の作成に失敗しました',
+      error instanceof Error ? error.message : 'Unknown error'
+    )
   }
 }
 </script>
