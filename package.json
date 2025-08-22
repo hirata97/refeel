@@ -27,6 +27,13 @@
     "auto-cycle": "./scripts/auto-cycle.sh",
     "close-issues": "./scripts/close-linked-issues.sh",
     "setup-branch-protection": "./scripts/setup-branch-protection.sh",
+    "docker:setup": "./scripts/docker-setup.sh setup",
+    "docker:start": "./scripts/docker-setup.sh start",
+    "docker:stop": "./scripts/docker-setup.sh stop",
+    "docker:restart": "./scripts/docker-setup.sh restart",
+    "docker:cleanup": "./scripts/docker-setup.sh cleanup",
+    "docker:reset-db": "./scripts/docker-setup.sh reset-db",
+    "docker:logs": "./scripts/docker-setup.sh logs",
     "ci:all": "npm run ci:lint && npm run ci:type-check && npm run ci:test && npm run ci:build && npm run ci:security",
     "ci:quality-gate": "npm run ci:lint && npm run ci:type-check && npm run ci:build"
   },

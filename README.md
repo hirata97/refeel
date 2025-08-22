@@ -27,13 +27,27 @@ Goal Categorization Diaryは、日々の目標を管理し、進捗を追跡す�
 
 ## セットアップ
 
-### 前提条件
+### 🐳 Docker環境（推奨）
+
+最も簡単なセットアップ方法：
+
+```bash
+git clone https://github.com/RsPYP/GoalCategorizationDiary.git
+cd GoalCategorizationDiary
+npm run docker:setup
+```
+
+詳細な手順は [Docker環境セットアップガイド](docs/DOCKER_SETUP.md) を参照してください。
+
+### 手動セットアップ
+
+#### 前提条件
 
 - Node.js (v16以降)
 - npm
 - Supabaseアカウント
 
-### インストール
+#### インストール
 
 1. **リポジトリのクローン**
    ```bash
@@ -81,6 +95,28 @@ npm run test:unit
 # E2Eテスト（初回のみブラウザインストール）
 npx playwright install
 npm run test:e2e
+```
+
+### 🐳 Docker環境管理
+
+```bash
+# Docker環境の起動
+npm run docker:start
+
+# Docker環境の停止
+npm run docker:stop
+
+# Docker環境の再起動
+npm run docker:restart
+
+# ログ確認
+npm run docker:logs
+
+# データベースリセット
+npm run docker:reset-db
+
+# 環境のクリーンアップ
+npm run docker:cleanup
 ```
 
 ### 🚀 自動化ワークフロー
