@@ -306,7 +306,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useTagGoalStore } from '@/stores/tagGoal'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
-import type { Tag } from '@/types/tags'
+import type { Tag, Goal, DiaryTag } from '@/types/tags'
 
 // ストア
 const tagGoalStore = useTagGoalStore()
@@ -325,7 +325,7 @@ const selectedTag = ref<Tag | null>(null)
 // 計算プロパティ
 const averageProgress = computed(() => {
   if (activeGoals.length === 0) return 0
-  return activeGoals.reduce((acc: number, goal: any) => 
+  return activeGoals.reduce((acc: number, goal: Goal) => 
     acc + (goal.current_value / goal.target_value) * 100, 0
   ) / activeGoals.length
 })
@@ -334,7 +334,7 @@ const categoryAnalyses = computed(() => {
   const analyses: Record<string, ReturnType<typeof tagGoalStore.analyzeCategory>> = {}
   
   // 各カテゴリの分析を計算
-  const categories = [...new Set(goals.map((g: any) => g.category))]
+  const categories = [...new Set(goals.map((g: Goal) => g.category))]
   
   categories.forEach((category: string) => {
     analyses[category] = tagGoalStore.analyzeCategory(category, diaries)
@@ -347,9 +347,9 @@ const popularTags = computed(() => {
   // タグの使用頻度でソート
   return tags
     .slice()
-    .sort((a: any, b: any) => {
-      const aUsage = getTagUsageCount()
-      const bUsage = getTagUsageCount()
+    .sort((a: Tag, b: Tag) => {
+      const aUsage = getTagUsageCount(a.id)
+      const bUsage = getTagUsageCount(b.id)
       return bUsage - aUsage
     })
     .slice(0, 10)
@@ -360,8 +360,8 @@ const upcomingGoals = computed(() => {
   const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
   
   return activeGoals
-    .filter((goal: any) => goal.target_date && new Date(goal.target_date) <= thirtyDaysFromNow)
-    .sort((a: any, b: any) => 
+    .filter((goal: Goal) => goal.target_date && new Date(goal.target_date) <= thirtyDaysFromNow)
+    .sort((a: Goal, b: Goal) => 
       new Date(a.target_date!).getTime() - new Date(b.target_date!).getTime()
     )
     .slice(0, 5)
@@ -401,13 +401,16 @@ const getCategoryIcon = (category: string): string => {
   return icons[category] || 'mdi-folder'
 }
 
-const getTagUsageCount = (): number => {
-  // TODO: 実際の使用回数を計算
-  return Math.floor(Math.random() * 20) + 1
+const getTagUsageCount = (tagId?: string): number => {
+  if (!tagId) return 0
+  
+  // 実際の使用回数を計算
+  const usageCount = tagGoalStore.diaryTags.filter((dt: DiaryTag) => dt.tag_id === tagId).length
+  return usageCount
 }
 
-const getTagSize = (): string => {
-  const usageCount = getTagUsageCount()
+const getTagSize = (tagId?: string): string => {
+  const usageCount = getTagUsageCount(tagId)
   if (usageCount > 15) return 'large'
   if (usageCount > 10) return 'default'
   if (usageCount > 5) return 'small'

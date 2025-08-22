@@ -1,0 +1,242 @@
+name: PR Quality Gate
+
+# PR作成・更新時の厳格な品質チェック
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'e2e/**'  # E2Eテストは別ワークフローで実行
+
+# 権限設定
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+  statuses: write
+
+# 同じPRからの複数実行をキャンセル
+concurrency:
+  group: pr-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # Stage 1: 基本品質チェック（高速・厳格）
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # コミット履歴全体を取得
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci --prefer-offline --silent
+      
+    - name: Cache build artifacts
+      uses: actions/cache@v4
+      with:
+        path: |
+          dist
+          node_modules/.vite
+        key: build-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          build-cache-${{ runner.os }}-
+        
+    # 厳格なESLintチェック（エラーで失敗）
+    - name: ESLint Code Analysis
+      run: npm run ci:lint
+      
+    # 厳格なTypeScriptチェック（エラーで失敗）
+    - name: TypeScript Type Check
+      run: npm run ci:type-check
+      
+    # コードフォーマットチェック
+    - name: Prettier Format Check
+      run: npm run format -- --check
+      
+    # ビルドテスト
+    - name: Production Build Test
+      run: npm run ci:build
+      
+    - name: Check Build Artifacts
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "❌ ビルド成果物が生成されていません"
+          exit 1
+        fi
+        
+        # 必須ファイルの存在確認
+        if [ ! -f "dist/index.html" ]; then
+          echo "❌ index.htmlが生成されていません"
+          exit 1
+        fi
+        
+        echo "✅ ビルド成果物の検証完了"
+        
+    # バンドルサイズ分析
+    - name: Bundle Size Analysis
+      run: |
+        npm run build
+        echo "## 📦 Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+        echo "```" >> $GITHUB_STEP_SUMMARY
+        ls -lah dist/*.js | head -10 >> $GITHUB_STEP_SUMMARY
+        echo "```" >> $GITHUB_STEP_SUMMARY
+
+  # Stage 2: テスト実行（並行実行）
+  testing:
+    name: Comprehensive Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: code-quality
+    
+    strategy:
+      matrix:
+        node-version: [18, 20]
+        
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci --prefer-offline --silent
+      
+    # ユニットテスト（カバレッジ付き）
+    - name: Run Unit Tests with Coverage
+      run: npm run ci:test
+      
+    # カバレッジレポート生成
+    - name: Coverage Report
+      uses: codecov/codecov-action@v4
+      if: matrix.node-version == 20
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: unit-tests-coverage
+        fail_ci_if_error: false
+        
+    # カバレッジ閾値チェック
+    - name: Coverage Threshold Check
+      if: matrix.node-version == 20
+      run: |
+        COVERAGE=$(npm run ci:test | grep "All files" | awk '{print $10}' | sed 's/%//')
+        echo "現在のカバレッジ: ${COVERAGE}%"
+        
+        THRESHOLD=70
+        if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+          echo "❌ カバレッジが閾値($THRESHOLD%)を下回っています: ${COVERAGE}%"
+          exit 1
+        fi
+        
+        echo "✅ カバレッジ閾値クリア: ${COVERAGE}%"
+
+  # Stage 3: セキュリティチェック
+  security:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: code-quality
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci --prefer-offline --silent
+      
+    # npm auditによる脆弱性チェック
+    - name: Security Vulnerability Scan
+      run: |
+        echo "## 🔒 Security Scan Results" >> $GITHUB_STEP_SUMMARY
+        npm audit --audit-level=moderate 2>&1 | tee audit-results.txt
+        
+        # 高リスク脆弱性がある場合は失敗
+        if grep -q "high\|critical" audit-results.txt; then
+          echo "❌ 高リスクまたはクリティカルな脆弱性が発見されました"
+          cat audit-results.txt >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+        
+        echo "✅ セキュリティスキャン完了" >> $GITHUB_STEP_SUMMARY
+        
+    # セキュリティ機能のテスト
+    - name: Security Features Test
+      run: npm run ci:security
+      
+  # Stage 4: 統合品質レポート
+  quality-report:
+    name: Quality Gate Summary
+    runs-on: ubuntu-latest
+    needs: [code-quality, testing, security]
+    if: always()
+    
+    steps:
+    - name: Generate Quality Report
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const checks = {
+            'Code Quality': '${{ needs.code-quality.result }}',
+            'Testing': '${{ needs.testing.result }}', 
+            'Security': '${{ needs.security.result }}'
+          };
+          
+          const allPassed = Object.values(checks).every(result => result === 'success');
+          const status = allPassed ? '✅ 品質ゲート通過' : '❌ 品質ゲート失敗';
+          
+          let report = `## ${status}\n\n`;
+          report += '### 📊 チェック結果\n\n';
+          
+          Object.entries(checks).forEach(([check, result]) => {
+            const icon = result === 'success' ? '✅' : '❌';
+            report += `${icon} **${check}**: ${result}\n`;
+          });
+          
+          report += '\n### 📋 品質基準\n';
+          report += '- ✅ ESLint: エラー0件必須\n';
+          report += '- ✅ TypeScript: 型エラー0件必須\n';
+          report += '- ✅ テストカバレッジ: 70%以上\n';
+          report += '- ✅ セキュリティ: 高リスク脆弱性0件\n';
+          report += '- ✅ ビルド: 成功必須\n\n';
+          
+          if (!allPassed) {
+            report += '### ⚠️ マージ前に上記の問題を解決してください\n';
+          } else {
+            report += '### 🎉 すべての品質チェックに合格しています！\n';
+          }
+          
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: report
+          });
+          
+          // 品質ゲート失敗時はワークフロー失敗
+          if (!allPassed) {
+            core.setFailed('品質ゲートの基準を満たしていません');
+          }

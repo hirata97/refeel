@@ -257,7 +257,7 @@ const refreshTags = async (): Promise<void> => {
   
   if (userId) {
     try {
-      await tagGoalStore.fetchTags(userId, true)
+      await tagGoalStore.fetchTags(userId)
     } catch (err) {
       console.error('Manual refresh error:', err)
     }
@@ -312,7 +312,7 @@ const submitTag = async (): Promise<void> => {
       if (!validation.valid) {
         return
       }
-    } catch (validationError) {
+    } catch {
       return
     }
   }
@@ -372,7 +372,7 @@ onMounted(async () => {
   
   if (userId) {
     try {
-      await tagGoalStore.fetchTags(userId, true)
+      await tagGoalStore.fetchTags(userId)
     } catch (err) {
       console.error('タグ取得エラー:', err)
     }
@@ -382,7 +382,7 @@ onMounted(async () => {
       const delayedUserId = authStore.user?.id
       if (delayedUserId) {
         try {
-          await tagGoalStore.fetchTags(delayedUserId, true)
+          await tagGoalStore.fetchTags(delayedUserId)
         } catch (err) {
           console.error('Delayed fetch error:', err)
         }

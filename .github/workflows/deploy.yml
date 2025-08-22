@@ -1,0 +1,202 @@
+name: Deploy to Production
+
+# メインブランチへのマージ時に自動デプロイ
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'tests/**'
+      - 'e2e/**'
+
+# 権限設定
+permissions:
+  contents: read
+  deployments: write
+  statuses: write
+
+# 同時デプロイ防止
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  # 事前品質チェック
+  pre-deploy-check:
+    name: Pre-deployment Quality Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    outputs:
+      deploy-ready: ${{ steps.quality-check.outputs.ready }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci --prefer-offline --silent
+      
+    # 最終品質チェック
+    - name: Final Quality Check
+      id: quality-check
+      run: |
+        echo "🔍 デプロイ前品質チェック開始..."
+        
+        # ESLint
+        if ! npm run ci:lint; then
+          echo "❌ ESLintエラーあり - デプロイ中止"
+          echo "ready=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        # TypeScript
+        if ! npm run ci:type-check; then
+          echo "❌ TypeScriptエラーあり - デプロイ中止"
+          echo "ready=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        # ビルドテスト
+        if ! npm run ci:build; then
+          echo "❌ ビルドエラーあり - デプロイ中止"
+          echo "ready=false" >> $GITHUB_OUTPUT
+          exit 1
+        fi
+        
+        # セキュリティチェック
+        if ! npm run ci:security; then
+          echo "⚠️ セキュリティ警告あり - 継続"
+        fi
+        
+        echo "✅ 品質チェック完了 - デプロイ準備完了"
+        echo "ready=true" >> $GITHUB_OUTPUT
+
+  # Vercelへのデプロイ
+  deploy-vercel:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: pre-deploy-check
+    if: needs.pre-deploy-check.outputs.deploy-ready == 'true'
+    timeout-minutes: 15
+    
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.preview-url }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci --prefer-offline --silent
+      
+    # プロダクションビルド
+    - name: Production Build
+      run: npm run build
+      env:
+        NODE_ENV: production
+        
+    # Vercelデプロイ
+    - name: Deploy to Vercel
+      id: deploy
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        
+    # デプロイ後のスモークテスト
+    - name: Post-deploy Smoke Test
+      run: |
+        DEPLOY_URL="${{ steps.deploy.outputs.preview-url }}"
+        echo "🔍 デプロイ後スモークテスト開始: $DEPLOY_URL"
+        
+        # ヘルスチェック
+        for i in {1..5}; do
+          if curl -sSf "$DEPLOY_URL" > /dev/null; then
+            echo "✅ デプロイメント確認完了"
+            break
+          fi
+          echo "⏳ 試行 $i/5 - 10秒待機..."
+          sleep 10
+        done
+        
+        # 主要ページの基本チェック
+        curl -sSf "$DEPLOY_URL" | grep -q "日記アプリ" || {
+          echo "❌ メインページの内容確認失敗"
+          exit 1
+        }
+        
+        echo "✅ スモークテスト完了"
+
+  # デプロイ通知
+  deploy-notification:
+    name: Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [pre-deploy-check, deploy-vercel]
+    if: always()
+    
+    steps:
+    - name: Deployment Status Notification
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const preDeployResult = '${{ needs.pre-deploy-check.result }}';
+          const deployResult = '${{ needs.deploy-vercel.result }}';
+          
+          let summary = '## 🚀 Production Deployment Status\n\n';
+          
+          if (preDeployResult !== 'success') {
+            summary += '❌ **デプロイ前品質チェック失敗**\n';
+            summary += '品質基準を満たしていないため、デプロイが中止されました。\n\n';
+          } else if (deployResult === 'success') {
+            summary += '✅ **プロダクションデプロイ成功**\n\n';
+            summary += '### 📊 デプロイ情報\n';
+            summary += '- 🌐 **URL**: https://goal-categorization-diary.vercel.app\n';
+            summary += '- ⏰ **デプロイ時刻**: ' + new Date().toLocaleString('ja-JP', {timeZone: 'Asia/Tokyo'}) + '\n';
+            summary += '- 📦 **コミット**: ' + context.sha.substring(0, 7) + '\n\n';
+            summary += '### ✅ 完了した品質チェック\n';
+            summary += '- ESLint: 通過\n';
+            summary += '- TypeScript: 通過\n'; 
+            summary += '- ビルド: 成功\n';
+            summary += '- スモークテスト: 成功\n';
+          } else {
+            summary += '❌ **デプロイ失敗**\n\n';
+            summary += 'デプロイメント中にエラーが発生しました。\n';
+            summary += 'ワークフローログを確認してください。\n';
+          }
+          
+          // GitHub Deployment API使用
+          if (deployResult === 'success') {
+            await github.rest.repos.createDeployment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.sha,
+              environment: 'production',
+              auto_merge: false,
+              required_contexts: []
+            });
+          }
+          
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number || 0,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });

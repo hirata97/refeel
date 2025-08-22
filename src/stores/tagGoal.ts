@@ -84,7 +84,7 @@ export const useTagGoalStore = defineStore('tagGoal', () => {
   }
 
   // タグ操作
-  const fetchTags = async (userId: string, forceRefresh = true): Promise<Tag[]> => {
+  const fetchTags = async (userId: string): Promise<Tag[]> => {
     try {
       setLoading('tags', true)
       setError('tags', null)
