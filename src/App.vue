@@ -49,6 +49,14 @@
         <router-view></router-view>
       </div>
     </v-main>
+
+    <!-- グローバル通知システム -->
+    <GlobalNotification />
+
+    <!-- グローバルローディング -->
+    <v-overlay v-model="loadingStore.globalLoading" class="align-center justify-center">
+      <v-progress-circular indeterminate size="64" />
+    </v-overlay>
   </v-layout>
 </template>
 
@@ -56,10 +64,15 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
+import { useLoadingStore } from '@/stores/loading'
+import GlobalNotification from '@/components/GlobalNotification.vue'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const notificationStore = useNotificationStore()
+const loadingStore = useLoadingStore()
 
 // サイドバーの開閉状態
 const drawer = ref(false)
@@ -100,12 +113,26 @@ const items = ref([
 
 // ログアウト処理
 const handleLogout = async () => {
-  const result = await authStore.signOut()
-  if (result.success) {
-    await router.push('/login')
-  } else {
-    console.error('ログアウトエラー:', result.error)
-    alert('ログアウトに失敗しました')
+  try {
+    await loadingStore.withLoading('logout', async () => {
+      const result = await authStore.signOut()
+      if (result.success) {
+        notificationStore.showSuccess('ログアウトしました')
+        await router.push('/login')
+      } else {
+        console.error('ログアウトエラー:', result.error)
+        notificationStore.showError(
+          'ログアウトに失敗しました',
+          'ログアウトに失敗しました'
+        )
+      }
+    })
+  } catch (error) {
+    console.error('ログアウトエラー:', error)
+    notificationStore.showError(
+      'ログアウトに失敗しました',
+      error instanceof Error ? error.message : 'Unknown error'
+    )
   }
 }
 
