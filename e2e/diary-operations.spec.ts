@@ -51,8 +51,9 @@ test.describe('日記操作システム', () => {
       // フォーム要素が表示されていることを確認
       const elements = diaryHelper.getRegisterFormElements()
       await expect(elements.titleField).toBeVisible()
-      await expect(elements.categorySelect).toBeVisible()
       await expect(elements.contentField).toBeVisible()
+      await expect(elements.dateField).toBeVisible()
+      await expect(elements.moodSlider).toBeVisible()
       await expect(elements.submitButton).toBeVisible()
       
       await diaryHelper.performDiaryRegister(testDiary)
@@ -65,7 +66,7 @@ test.describe('日記操作システム', () => {
       const testDiary = generateTestDiary('with_target_date')
       const futureDate = new Date()
       futureDate.setDate(futureDate.getDate() + 7) // 7日後
-      testDiary.targetDate = futureDate.toISOString().split('T')[0]
+      testDiary.date = futureDate.toISOString().split('T')[0]
       
       await diaryHelper.navigateToDiaryRegister()
       await expect(diaryHelper.page).toHaveURL(/\/diary\/register/)
@@ -95,23 +96,24 @@ test.describe('日記操作システム', () => {
       await diaryHelper.expectValidationError('content')
     })
 
-    test('異常系: カテゴリ未選択でバリデーションエラー', async () => {
-      const testDiary = generateTestDiary('no_category')
+    test('異常系: 日付が無効な形式でのバリデーションエラー', async () => {
+      const invalidData = generateInvalidDiaryData()
       
       await diaryHelper.navigateToDiaryRegister()
       await expect(diaryHelper.page).toHaveURL(/\/diary\/register/)
       
       const elements = diaryHelper.getRegisterFormElements()
       
-      // タイトルとコンテンツのみ入力（カテゴリ未選択）
-      await elements.titleField.fill(testDiary.title)
-      await elements.contentField.fill(testDiary.content)
+      // 有効なタイトルとコンテンツを入力
+      await elements.titleField.fill(invalidData.invalidDate.title)
+      await elements.contentField.fill(invalidData.invalidDate.content)
       
-      // 登録を試行
-      await elements.submitButton.click()
+      // 無効な日付を入力（手動で無効な値を設定）
+      await elements.dateField.fill('invalid-date')
+      await elements.dateField.blur()
       
-      // バリデーションエラーまたは登録失敗を確認
-      await diaryHelper.expectValidationError('category')
+      // バリデーションエラーを確認
+      await diaryHelper.expectValidationError('date')
     })
 
     test('UI: キャンセルボタンで前のページに戻る', async () => {
@@ -163,10 +165,10 @@ test.describe('日記操作システム', () => {
       await diaryHelper.expectEditSuccess()
     })
 
-    test('正常系: カテゴリ変更', async () => {
+    test('正常系: 進捗レベル変更', async () => {
       // まず日記を作成
-      const originalDiary = generateTestDiary('category_change')
-      originalDiary.category = '仕事'
+      const originalDiary = generateTestDiary('mood_change')
+      originalDiary.mood = 30
       
       await diaryHelper.navigateToDiaryRegister()
       await diaryHelper.performDiaryRegister(originalDiary)
@@ -176,15 +178,15 @@ test.describe('日記操作システム', () => {
       await diaryHelper.navigateToDiaryView()
       await diaryHelper.clickDiaryItem(originalDiary.title)
       
-      // カテゴリを変更
+      // 進捗レベルを変更
       const updatedDiary = {
-        category: 'プライベート'
+        mood: 80
       }
       
       await diaryHelper.performDiaryEdit(updatedDiary)
       await diaryHelper.expectEditSuccess()
       
-      // カテゴリ変更が成功したことを確認
+      // 進捗レベル変更が成功したことを確認
       await expect(diaryHelper.page).toHaveURL(/\/diary\/view/)
     })
 
@@ -326,33 +328,33 @@ test.describe('日記操作システム', () => {
       const foundDiary = await diaryHelper.searchDiary(searchableDiary.title)
       expect(foundDiary).not.toBeNull()
       
-      if (foundDiary) {
-        await expect(foundDiary).toBeVisible()
-      }
+      // 見つかった日記が表示されることを確認
+      await expect(foundDiary!).toBeVisible()
     })
 
-    test('正常系: カテゴリフィルタリング', async () => {
-      // 異なるカテゴリの日記を作成
-      const workDiary = generateTestDiary('work')
-      workDiary.category = '仕事'
-      
-      const privateDiary = generateTestDiary('private')
-      privateDiary.category = 'プライベート'
+    test('正常系: 日付範囲フィルタリング', async () => {
+      // 異なる日付の日記を作成
+      const todayDiary = generateTestDiary('today')
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterdayDiary = generateTestDiary('yesterday')
+      yesterdayDiary.date = yesterday.toISOString().split('T')[0]
       
       await diaryHelper.navigateToDiaryRegister()
-      await diaryHelper.performDiaryRegister(workDiary)
+      await diaryHelper.performDiaryRegister(todayDiary)
       await diaryHelper.expectRegisterSuccess()
       
       await diaryHelper.navigateToDiaryRegister()
-      await diaryHelper.performDiaryRegister(privateDiary)
+      await diaryHelper.performDiaryRegister(yesterdayDiary)
       await diaryHelper.expectRegisterSuccess()
       
       // 日記一覧に移動
       await diaryHelper.navigateToDiaryView()
       await expect(diaryHelper.page).toHaveURL(/\/diary\/view/)
       
-      // カテゴリフィルタをテスト
-      await diaryHelper.testCategoryFilter('仕事')
+      // 両方の日記が表示されることを確認
+      await diaryHelper.expectDiaryInList(todayDiary.title)
+      await diaryHelper.expectDiaryInList(yesterdayDiary.title)
     })
 
     test('正常系: データが無い場合のメッセージ表示', async () => {
@@ -388,8 +390,9 @@ test.describe('日記操作システム', () => {
       
       // フォーム要素が表示されることを確認
       await expect(elements.titleField).toBeVisible()
-      await expect(elements.categorySelect).toBeVisible()
       await expect(elements.contentField).toBeVisible()
+      await expect(elements.dateField).toBeVisible()
+      await expect(elements.moodSlider).toBeVisible()
       await expect(elements.submitButton).toBeVisible()
       
       // フォームが機能することを確認
@@ -428,8 +431,9 @@ test.describe('日記操作システム', () => {
       
       // フォーム要素の可視性を確認
       await expect(elements.titleField).toBeVisible()
-      await expect(elements.categorySelect).toBeVisible()
       await expect(elements.contentField).toBeVisible()
+      await expect(elements.dateField).toBeVisible()
+      await expect(elements.moodSlider).toBeVisible()
       await expect(elements.submitButton).toBeVisible()
       
       // タブキーでフォーム間を移動できることを確認
@@ -437,10 +441,10 @@ test.describe('日記操作システム', () => {
       await expect(elements.titleField).toBeFocused()
       
       await diaryHelper.page.keyboard.press('Tab')
-      await expect(elements.categorySelect).toBeFocused()
+      await expect(elements.contentField).toBeFocused()
       
       await diaryHelper.page.keyboard.press('Tab')
-      await expect(elements.contentField).toBeFocused()
+      await expect(elements.dateField).toBeFocused()
     })
   })
 

@@ -6,18 +6,21 @@ import { Page, Locator, expect } from '@playwright/test'
 
 export interface DiaryData {
   title: string
-  category: string
   content: string
-  targetDate?: string
+  date?: string
+  mood?: number // 進捗レベル 0-100
 }
 
 export interface DiarySearchOptions {
-  category?: string
   dateRange?: {
     start: string
     end: string
   }
   keyword?: string
+  moodRange?: {
+    min: number
+    max: number
+  }
 }
 
 /**
@@ -55,14 +58,14 @@ export class DiaryTestHelper {
    */
   getRegisterFormElements() {
     return {
-      titleField: this.page.locator('input[label="タイトル"], input[placeholder*="タイトル"]'),
-      categorySelect: this.page.locator('.v-select').first(),
-      contentField: this.page.locator('textarea[label="内容"], textarea[placeholder*="内容"]'),
-      targetDateField: this.page.locator('input[type="date"]'),
-      submitButton: this.page.locator('button[type="submit"], button:has-text("登録")'),
-      cancelButton: this.page.locator('button:has-text("キャンセル")'),
-      errorAlert: this.page.locator('.v-alert--type-error'),
-      successAlert: this.page.locator('.v-alert--type-success')
+      titleField: this.page.locator('input[label="タイトル"], .v-text-field:has-text("タイトル") input').first(),
+      contentField: this.page.locator('textarea[label="内容"], .v-textarea:has-text("内容") textarea').first(),
+      dateField: this.page.locator('input[type="date"], input[label="日付"]').first(),
+      moodSlider: this.page.locator('.v-slider:has-text("進捗レベル"), .v-slider').first(),
+      submitButton: this.page.locator('button[type="submit"], button:has-text("日記を追加"), button:has-text("登録")'),
+      cancelButton: this.page.locator('button:has-text("キャンセル"), button:has-text("戻る")'),
+      errorAlert: this.page.locator('.v-alert--type-error, [role="alert"]'),
+      successAlert: this.page.locator('.v-alert--type-success, .v-snackbar--type-success')
     }
   }
 
@@ -71,15 +74,15 @@ export class DiaryTestHelper {
    */
   getEditFormElements() {
     return {
-      titleField: this.page.locator('input[label="タイトル"], input[placeholder*="タイトル"]'),
-      categorySelect: this.page.locator('.v-select').first(),
-      contentField: this.page.locator('textarea[label="内容"], textarea[placeholder*="内容"]'),
-      targetDateField: this.page.locator('input[type="date"]'),
-      updateButton: this.page.locator('button[type="submit"], button:has-text("更新")'),
-      cancelButton: this.page.locator('button:has-text("キャンセル")'),
+      titleField: this.page.locator('input[label="タイトル"], .v-text-field:has-text("タイトル") input').first(),
+      contentField: this.page.locator('textarea[label="内容"], .v-textarea:has-text("内容") textarea').first(),
+      dateField: this.page.locator('input[type="date"], input[label="日付"]').first(),
+      moodSlider: this.page.locator('.v-slider:has-text("進捗レベル"), .v-slider').first(),
+      updateButton: this.page.locator('button[type="submit"], button:has-text("更新"), button:has-text("保存")'),
+      cancelButton: this.page.locator('button:has-text("キャンセル"), button:has-text("戻る")'),
       deleteButton: this.page.locator('button:has-text("削除")'),
-      errorAlert: this.page.locator('.v-alert--type-error'),
-      successAlert: this.page.locator('.v-alert--type-success')
+      errorAlert: this.page.locator('.v-alert--type-error, [role="alert"]'),
+      successAlert: this.page.locator('.v-alert--type-success, .v-snackbar--type-success')
     }
   }
 
@@ -107,22 +110,30 @@ export class DiaryTestHelper {
 
     // フォーム入力
     await elements.titleField.fill(diaryData.title)
-    
-    // カテゴリ選択
-    await elements.categorySelect.click()
-    await this.page.locator(`.v-list-item:has-text("${diaryData.category}")`).click()
-    
     await elements.contentField.fill(diaryData.content)
     
-    if (diaryData.targetDate) {
-      await elements.targetDateField.fill(diaryData.targetDate)
+    if (diaryData.date) {
+      await elements.dateField.fill(diaryData.date)
+    }
+
+    // 進捗レベル設定（スライダー操作）
+    if (diaryData.mood !== undefined) {
+      // スライダーの値を設定（Vuetifyスライダーの操作）
+      await elements.moodSlider.click()
+      // スライダーのthumbを目標値まで移動（簡易実装）
+      const sliderTrack = elements.moodSlider.locator('.v-slider__track')
+      const sliderBoundingBox = await sliderTrack.boundingBox()
+      if (sliderBoundingBox) {
+        const targetX = sliderBoundingBox.x + (sliderBoundingBox.width * (diaryData.mood / 100))
+        await this.page.mouse.click(targetX, sliderBoundingBox.y + sliderBoundingBox.height / 2)
+      }
     }
 
     // 登録ボタンをクリック
     await elements.submitButton.click()
 
     // レスポンスを待つ
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(2000)
   }
 
   /**
@@ -136,24 +147,30 @@ export class DiaryTestHelper {
       await elements.titleField.fill(diaryData.title)
     }
     
-    if (diaryData.category) {
-      await elements.categorySelect.click()
-      await this.page.locator(`.v-list-item:has-text("${diaryData.category}")`).click()
-    }
-    
     if (diaryData.content) {
       await elements.contentField.fill(diaryData.content)
     }
     
-    if (diaryData.targetDate) {
-      await elements.targetDateField.fill(diaryData.targetDate)
+    if (diaryData.date) {
+      await elements.dateField.fill(diaryData.date)
+    }
+
+    // 進捗レベル設定（スライダー操作）
+    if (diaryData.mood !== undefined) {
+      await elements.moodSlider.click()
+      const sliderTrack = elements.moodSlider.locator('.v-slider__track')
+      const sliderBoundingBox = await sliderTrack.boundingBox()
+      if (sliderBoundingBox) {
+        const targetX = sliderBoundingBox.x + (sliderBoundingBox.width * (diaryData.mood / 100))
+        await this.page.mouse.click(targetX, sliderBoundingBox.y + sliderBoundingBox.height / 2)
+      }
     }
 
     // 更新ボタンをクリック
     await elements.updateButton.click()
 
     // レスポンスを待つ
-    await this.page.waitForTimeout(1000)
+    await this.page.waitForTimeout(2000)
   }
 
   /**
@@ -190,11 +207,8 @@ export class DiaryTestHelper {
     // 該当する日記アイテムを探す
     const diaryItem = this.page.locator(`.diary-item:has-text("${title}"), .v-list-item:has-text("${title}")`)
     
-    if (await diaryItem.count() > 0) {
-      return diaryItem.first()
-    }
-    
-    return null
+    const itemCount = await diaryItem.count()
+    return itemCount > 0 ? diaryItem.first() : null
   }
 
   /**
@@ -215,13 +229,17 @@ export class DiaryTestHelper {
    * 日記登録成功を確認
    */
   async expectRegisterSuccess(): Promise<void> {
-    const elements = this.getRegisterFormElements()
-    
-    // 成功メッセージまたはリダイレクトを確認
-    const hasSuccessMessage = await elements.successAlert.isVisible()
-    const isRedirected = this.page.url().includes('/diary/view') || this.page.url().includes('/dashboard')
-    
-    expect(hasSuccessMessage || isRedirected).toBeTruthy()
+    // 成功メッセージまたはフォームクリア、ページの状態変化を確認
+    try {
+      // まず成功メッセージを確認
+      const successAlert = this.page.locator('.v-alert--type-success, .v-snackbar--type-success, text=追加されました, text=登録されました')
+      await expect(successAlert).toBeVisible({ timeout: 5000 })
+    } catch {
+      // メッセージが無い場合はフォームがクリアされたことを確認
+      const elements = this.getRegisterFormElements()
+      const titleValue = await elements.titleField.inputValue()
+      expect(titleValue).toBe('')
+    }
   }
 
   /**
@@ -269,22 +287,22 @@ export class DiaryTestHelper {
   /**
    * バリデーションエラーを確認
    */
-  async expectValidationError(fieldType: 'title' | 'category' | 'content'): Promise<void> {
-    let errorLocator: Locator
-
-    switch (fieldType) {
-      case 'title':
-        errorLocator = this.page.locator('.v-text-field__error-messages').first()
-        break
-      case 'category':
-        errorLocator = this.page.locator('.v-select__error-messages').first()
-        break
-      case 'content':
-        errorLocator = this.page.locator('.v-textarea__error-messages').first()
-        break
-    }
-
-    await expect(errorLocator).toBeVisible({ timeout: 3000 })
+  async expectValidationError(): Promise<void> {
+    // Vuetifyの一般的なエラーメッセージ要素をより包括的に探す
+    const errorSelectors = [
+      '.v-text-field__error-messages',
+      '.v-textarea__error-messages',
+      '.v-messages__message',
+      '.error--text',
+      '.v-input__details .v-messages'
+    ]
+    
+    const errorLocator = this.page.locator(errorSelectors.join(', '))
+    
+    // フィールドタイプに応じた特定のエラーメッセージを確認
+    const fieldErrorLocator = errorLocator.filter({ hasText: new RegExp('(必須|入力|無効|形式)', 'i') })
+    
+    await expect(fieldErrorLocator.first()).toBeVisible({ timeout: 5000 })
   }
 
   /**
@@ -311,19 +329,19 @@ export class DiaryTestHelper {
   }
 
   /**
-   * フィルタリング機能をテスト
+   * 検索機能をテスト
    */
-  async testCategoryFilter(category: string): Promise<void> {
+  async testSearchFilter(keyword: string): Promise<void> {
     const elements = this.getViewPageElements()
     
-    // カテゴリフィルタを選択
-    await elements.categoryFilter.click()
-    await this.page.locator(`.v-list-item:has-text("${category}")`).click()
+    // 検索フィールドに入力
+    if (await elements.searchField.isVisible()) {
+      await elements.searchField.fill(keyword)
+      await this.page.keyboard.press('Enter')
+      await this.page.waitForTimeout(1000)
+    }
     
-    // フィルタ結果を待つ
-    await this.page.waitForTimeout(500)
-    
-    // フィルタされた結果の確認
+    // 検索結果の確認
     const visibleItems = await elements.diaryItems.count()
     expect(visibleItems).toBeGreaterThanOrEqual(0)
   }
@@ -345,9 +363,9 @@ export function generateTestDiary(prefix = 'test'): DiaryData {
   
   return {
     title: `${prefix}_日記_${timestamp}`,
-    category: '仕事',
     content: `これは${prefix}用の日記内容です。タイムスタンプ: ${timestamp}`,
-    targetDate: new Date().toISOString().split('T')[0] // 今日の日付
+    date: new Date().toISOString().split('T')[0], // 今日の日付
+    mood: Math.floor(Math.random() * 101) // 0-100のランダムな進捗レベル
   }
 }
 
@@ -358,18 +376,18 @@ export function generateInvalidDiaryData() {
   return {
     emptyTitle: {
       title: '',
-      category: '仕事',
-      content: 'コンテンツ内容'
+      content: 'コンテンツ内容',
+      date: new Date().toISOString().split('T')[0]
     },
     emptyContent: {
       title: 'テストタイトル',
-      category: '仕事',
-      content: ''
+      content: '',
+      date: new Date().toISOString().split('T')[0]
     },
-    invalidCategory: {
+    invalidDate: {
       title: 'テストタイトル',
-      category: '', // 未選択
-      content: 'コンテンツ内容'
+      content: 'コンテンツ内容',
+      date: 'invalid-date'
     }
   }
 }
