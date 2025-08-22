@@ -477,6 +477,31 @@ export class AutomatedResponseSystem {
   getMetrics(): {executedActions: number, successRate: number, failedActions: number} {
     return { executedActions: 0, successRate: 100, failedActions: 0 }
   }
+
+  /**
+   * イベント処理
+   */
+  async processEvent(event: SecurityEvent): Promise<void> {
+    console.log(`🔄 Processing security event: ${event.type}`)
+    
+    // イベントタイプに基づく自動応答
+    const rules = this.getResponseRules()
+    const matchingRule = rules.find(rule => rule.eventType === event.type && rule.enabled)
+    
+    if (matchingRule) {
+      console.log(`✅ Auto-response triggered for ${event.type}`)
+      
+      // 重要度に応じた自動アクション
+      if (event.severity === 'high' || event.severity === 'critical') {
+        await this.executeResponseAction('admin_alert', {
+          message: `High severity ${event.type} detected`,
+          eventId: event.id
+        })
+      }
+    } else {
+      console.log(`⏭️ No auto-response rule for ${event.type}`)
+    }
+  }
 }
 
 /**
