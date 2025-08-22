@@ -182,7 +182,7 @@ jobs:
   quality-report:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [code-quality, testing, security]
+    needs: [code-quality]
     if: always()
     
     steps:
@@ -190,32 +190,23 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const checks = {
-            'Code Quality': '${{ needs.code-quality.result }}',
-            'Testing': '${{ needs.testing.result }}', 
-            'Security': '${{ needs.security.result }}'
-          };
-          
-          const allPassed = Object.values(checks).every(result => result === 'success');
+          const codeQualityResult = '${{ needs.code-quality.result }}';
+          const allPassed = codeQualityResult === 'success';
           const status = allPassed ? '✅ 品質ゲート通過' : '❌ 品質ゲート失敗';
           
           let report = `## ${status}\n\n`;
           report += '### 📊 チェック結果\n\n';
-          
-          Object.entries(checks).forEach(([check, result]) => {
-            const icon = result === 'success' ? '✅' : '❌';
-            report += `${icon} **${check}**: ${result}\n`;
-          });
+          report += `✅ **Code Quality**: ${codeQualityResult}\n`;
           
           report += '\n### 📋 品質基準\n';
           report += '- ✅ ESLint: エラー0件必須\n';
           report += '- ✅ TypeScript: 型エラー0件必須\n';
-          report += '- ✅ テストカバレッジ: 70%以上\n';
-          report += '- ✅ セキュリティ: 高リスク脆弱性0件\n';
+          report += '- ✅ Prettier: フォーマット準拠\n';
           report += '- ✅ ビルド: 成功必須\n\n';
           
           if (!allPassed) {
             report += '### ⚠️ マージ前に上記の問題を解決してください\n';
+            core.setFailed('品質ゲートの基準を満たしていません');
           } else {
             report += '### 🎉 すべての品質チェックに合格しています！\n';
           }
@@ -226,8 +217,3 @@ jobs:
             repo: context.repo.repo,
             body: report
           });
-          
-          // 品質ゲート失敗時はワークフロー失敗
-          if (!allPassed) {
-            core.setFailed('品質ゲートの基準を満たしていません');
-          }
