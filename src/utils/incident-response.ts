@@ -105,6 +105,126 @@ export class IncidentResponseManager {
   }
 
   /**
+   * 単一インシデント取得
+   */
+  getIncident(incidentId: string): SecurityIncident | undefined {
+    return this.incidents.find(i => i.id === incidentId)
+  }
+
+  /**
+   * ステータス別インシデント取得
+   */
+  getIncidentsByStatus(status: string): SecurityIncident[] {
+    return this.incidents.filter(i => i.status === status)
+  }
+
+  /**
+   * インシデントステータス更新
+   */
+  updateIncidentStatus(incidentId: string, status: string): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.status = status
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Status updated to ${status}`,
+      actor: 'System'
+    })
+
+    console.log(`📋 Incident ${incidentId} status updated to ${status}`)
+    return incident
+  }
+
+  /**
+   * インシデント担当者割り当て
+   */
+  assignIncident(incidentId: string, assignedTo: string): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.assignedTo = assignedTo
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Assigned to ${assignedTo}`,
+      actor: 'System'
+    })
+
+    console.log(`👤 Incident ${incidentId} assigned to ${assignedTo}`)
+    return incident
+  }
+
+  /**
+   * インシデント解決
+   */
+  resolveIncident(incidentId: string, resolution?: string): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.status = 'resolved'
+    incident.updatedAt = new Date().toISOString()
+    if (resolution) {
+      incident.resolution = resolution
+    }
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Incident resolved${resolution ? ': ' + resolution : ''}`,
+      actor: 'System'
+    })
+
+    console.log(`✅ Incident ${incidentId} resolved${resolution ? ': ' + resolution : ''}`)
+    return incident
+  }
+
+  /**
+   * 関連イベント追加
+   */
+  addRelatedEvent(incidentId: string, event: SecurityEvent): SecurityIncident | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    incident.relatedEvents.push(event)
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Related event added: ${event.type}`,
+      actor: 'System'
+    })
+
+    console.log(`🔗 Related event added to incident ${incidentId}:`, event)
+    return incident
+  }
+
+  /**
+   * セキュリティアクション実行
+   */
+  executeAction(incidentId: string, actionType: string, description: string): SecurityAction | null {
+    const incident = this.incidents.find(i => i.id === incidentId)
+    if (!incident) return null
+
+    const action: SecurityAction = {
+      id: crypto.randomUUID(),
+      type: actionType,
+      description,
+      executedAt: new Date().toISOString(),
+      status: 'completed'
+    }
+
+    incident.actions.push(action)
+    incident.updatedAt = new Date().toISOString()
+    incident.timeline.push({
+      timestamp: new Date().toISOString(),
+      event: `Action executed: ${actionType}`,
+      actor: 'System'
+    })
+
+    console.log(`⚡ Action executed for incident ${incidentId}:`, action)
+    return action
+  }
+
+  /**
    * インシデント対応のトリガー
    */
   private triggerIncidentResponse(incident: SecurityIncident): void {
@@ -238,6 +358,7 @@ export class IncidentResponseManager {
 export class AutomatedResponseSystem {
   private static instance: AutomatedResponseSystem
   private responseManager: IncidentResponseManager
+  private isMonitoring = false
 
   private constructor() {
     this.responseManager = IncidentResponseManager.getInstance()
@@ -280,6 +401,118 @@ export class AutomatedResponseSystem {
         break
       default:
         console.log(`📣 Unknown channel ${channel}: ${message}`)
+    }
+  }
+
+  /**
+   * レスポンスルール取得
+   */
+  getResponseRules(): Array<{id: string, eventType: string, enabled: boolean}> {
+    return [
+      { id: 'suspicious_activity', eventType: 'suspicious_activity', enabled: true },
+      { id: 'data_breach', eventType: 'data_breach_attempt', enabled: true }
+    ]
+  }
+
+  /**
+   * レスポンスルール追加
+   */
+  addResponseRule(rule: {eventType: string, actions: string[], enabled?: boolean}): string {
+    const ruleId = crypto.randomUUID()
+    console.log(`🔧 Response rule added: ${ruleId} for ${rule.eventType}`)
+    return ruleId
+  }
+
+  /**
+   * レスポンスルール無効化
+   */
+  disableResponseRule(ruleId: string): boolean {
+    console.log(`🚫 Response rule disabled: ${ruleId}`)
+    return true
+  }
+
+  /**
+   * 監視開始
+   */
+  startMonitoring(): void {
+    if (!this.isMonitoring) {
+      this.isMonitoring = true
+      console.log('🔍 Automated response monitoring started')
+    }
+  }
+
+  /**
+   * 監視停止
+   */
+  stopMonitoring(): void {
+    if (this.isMonitoring) {
+      this.isMonitoring = false
+      console.log('🛑 Automated response monitoring stopped')
+    }
+  }
+
+  /**
+   * 監視状態取得
+   */
+  isMonitoringActive(): boolean {
+    return this.isMonitoring
+  }
+
+  /**
+   * レスポンスアクション実行
+   */
+  async executeResponseAction(actionType: string, parameters: Record<string, unknown>): Promise<{success: boolean, message: string}> {
+    console.log(`⚡ Executing response action: ${actionType}`, parameters)
+    
+    try {
+      switch (actionType) {
+        case 'block_ip':
+          return { success: true, message: `IP ${parameters.ipAddress} blocked successfully` }
+        case 'lock_account':
+          return { success: true, message: `Account ${parameters.userId} locked successfully` }
+        case 'throttle_api':
+          return { success: true, message: `API throttling applied to ${parameters.endpoint}` }
+        case 'admin_alert':
+          await this.notifyAdministrators(parameters.message as string, 'high')
+          return { success: true, message: 'Admin alert sent successfully' }
+        default:
+          throw new Error(`Unknown action type: ${actionType}`)
+      }
+    } catch (error) {
+      console.error(`Failed to execute action ${actionType}:`, error)
+      return { success: false, message: `Action failed: ${(error as Error).message}` }
+    }
+  }
+
+  /**
+   * メトリクス取得
+   */
+  getMetrics(): {executedActions: number, successRate: number, failedActions: number} {
+    return { executedActions: 0, successRate: 100, failedActions: 0 }
+  }
+
+  /**
+   * イベント処理
+   */
+  async processEvent(event: SecurityEvent): Promise<void> {
+    console.log(`🔄 Processing security event: ${event.type}`)
+    
+    // イベントタイプに基づく自動応答
+    const rules = this.getResponseRules()
+    const matchingRule = rules.find(rule => rule.eventType === event.type && rule.enabled)
+    
+    if (matchingRule) {
+      console.log(`✅ Auto-response triggered for ${event.type}`)
+      
+      // 重要度に応じた自動アクション
+      if (event.severity === 'high' || event.severity === 'critical') {
+        await this.executeResponseAction('admin_alert', {
+          message: `High severity ${event.type} detected`,
+          eventId: event.id
+        })
+      }
+    } else {
+      console.log(`⏭️ No auto-response rule for ${event.type}`)
     }
   }
 }

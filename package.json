@@ -26,6 +26,7 @@
     "auto-implement": "node scripts/auto-implement.js",
     "auto-cycle": "./scripts/auto-cycle.sh",
     "close-issues": "./scripts/close-linked-issues.sh",
+    "issue-audit": "./scripts/issue-audit.sh",
     "setup-branch-protection": "./scripts/setup-branch-protection.sh",
     "docker:setup": "./scripts/docker-setup.sh setup",
     "docker:start": "./scripts/docker-setup.sh start",
