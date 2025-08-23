@@ -358,6 +358,7 @@ export class IncidentResponseManager {
 export class AutomatedResponseSystem {
   private static instance: AutomatedResponseSystem
   private responseManager: IncidentResponseManager
+  private isMonitoring = false
 
   private constructor() {
     this.responseManager = IncidentResponseManager.getInstance()
@@ -403,7 +404,6 @@ export class AutomatedResponseSystem {
     }
   }
 
-  
   /**
    * レスポンスルール取得
    */
@@ -435,14 +435,27 @@ export class AutomatedResponseSystem {
    * 監視開始
    */
   startMonitoring(): void {
-    console.log('🔍 Automated response monitoring started')
+    if (!this.isMonitoring) {
+      this.isMonitoring = true
+      console.log('🔍 Automated response monitoring started')
+    }
   }
 
   /**
    * 監視停止
    */
   stopMonitoring(): void {
-    console.log('🛑 Automated response monitoring stopped')
+    if (this.isMonitoring) {
+      this.isMonitoring = false
+      console.log('🛑 Automated response monitoring stopped')
+    }
+  }
+
+  /**
+   * 監視状態取得
+   */
+  isMonitoringActive(): boolean {
+    return this.isMonitoring
   }
 
   /**
