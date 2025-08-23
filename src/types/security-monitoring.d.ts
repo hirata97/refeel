@@ -131,6 +131,7 @@ export interface SecurityIncident {
   createdAt: string
   updatedAt: string
   resolvedAt?: string
+  resolution?: string
   relatedEvents: SecurityEvent[]
   actions: SecurityAction[]
   impact: {

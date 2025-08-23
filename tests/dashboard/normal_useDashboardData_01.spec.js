@@ -216,9 +216,7 @@ describe('useDashboardData - 正常系', () => {
   })
 
   it('リフレッシュ機能が正しく動作する', async () => {
-    const { refresh, fetchDashboardData } = useDashboardData()
-
-    const fetchSpy = vi.fn().mockImplementation(fetchDashboardData)
+    const { refresh } = useDashboardData()
     
     // リフレッシュの呼び出し確認
     await refresh()

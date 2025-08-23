@@ -2,8 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { IncidentResponseManager, AutomatedResponseSystem } from '@/utils/incident-response'
 import type { 
   SecurityIncident, 
-  SecurityEvent, 
-  ThreatLevel
+  SecurityEvent
 } from '@/types/security-monitoring'
 
 // モック
@@ -53,7 +52,7 @@ global.fetch = vi.fn()
 
 // Console.logのモック
 const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('IncidentResponseManager', () => {
   let incidentManager: IncidentResponseManager

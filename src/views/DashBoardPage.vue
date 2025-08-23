@@ -113,7 +113,6 @@ const {
   dashboardData,
   loading,
   error,
-  hasData,
   hasError,
   isLoading,
   fetchDashboardData,

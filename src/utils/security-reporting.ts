@@ -150,7 +150,6 @@ export class SecurityReportGenerator {
     endDate: Date
   ): Promise<SecurityReport> {
     const monitor = SecurityMonitor.getInstance()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _alertManager = SecurityAlertManager.getInstance()
     
     const _events = this.getEventsInPeriod(monitor.getEvents(10000), startDate, endDate)

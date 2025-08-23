@@ -81,7 +81,7 @@ interface Emits {
   (e: 'create-diary'): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   loading: false,
   error: null,
 })

@@ -19,6 +19,21 @@ export default [
   ...vueTsEslintConfig(),
   
   {
+    name: 'app/global-rules',
+    rules: {
+      '@typescript-eslint/no-unused-expressions': ['error', { 
+        allowShortCircuit: true, 
+        allowTernary: true, 
+        allowTaggedTemplates: true 
+      }],
+      '@typescript-eslint/no-unused-vars': ['error', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_'
+      }]
+    }
+  },
+  
+  {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],
   },

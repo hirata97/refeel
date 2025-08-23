@@ -111,7 +111,7 @@ const chartOptions = computed(() => ({
       bodyColor: '#fff',
       cornerRadius: 8,
       callbacks: {
-        label: (context: any) => `気分: ${context.parsed.y}%`,
+        label: (context: { parsed: { y: number } }) => `気分: ${context.parsed.y}%`,
       },
     },
   },
@@ -138,7 +138,7 @@ const chartOptions = computed(() => ({
         font: {
           size: 12,
         },
-        callback: (value: any) => `${value}%`,
+        callback: (value: number | string) => `${value}%`,
       },
     },
   },

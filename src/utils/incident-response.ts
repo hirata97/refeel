@@ -121,7 +121,7 @@ export class IncidentResponseManager {
   /**
    * インシデントステータス更新
    */
-  updateIncidentStatus(incidentId: string, status: string): SecurityIncident | null {
+  updateIncidentStatus(incidentId: string, status: 'open' | 'investigating' | 'resolved' | 'closed'): SecurityIncident | null {
     const incident = this.incidents.find(i => i.id === incidentId)
     if (!incident) return null
 
@@ -200,7 +200,7 @@ export class IncidentResponseManager {
   /**
    * セキュリティアクション実行
    */
-  executeAction(incidentId: string, actionType: string, description: string): SecurityAction | null {
+  executeAction(incidentId: string, actionType: 'block_ip' | 'lock_account' | 'throttle_api' | 'alert_admin' | 'log_event', description: string): SecurityAction | null {
     const incident = this.incidents.find(i => i.id === incidentId)
     if (!incident) return null
 
@@ -209,7 +209,9 @@ export class IncidentResponseManager {
       type: actionType,
       description,
       executedAt: new Date().toISOString(),
-      status: 'completed'
+      executedBy: 'System',
+      parameters: {},
+      result: 'success'
     }
 
     incident.actions.push(action)

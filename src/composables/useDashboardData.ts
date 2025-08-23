@@ -3,7 +3,7 @@
  * Issue #38: ダッシュボードの動的データ表示実装
  */
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
 import type {
@@ -96,7 +96,7 @@ export function useDashboardData() {
     )
     
     let streakDays = 0
-    let currentDate = new Date()
+    const currentDate = new Date()
     currentDate.setHours(0, 0, 0, 0)
 
     for (const diary of sortedDiaries) {
@@ -138,7 +138,6 @@ export function useDashboardData() {
 
   // 7日間の気分データの作成
   const createMoodData = (diaries: DiaryEntry[]): MoodDataPoint[] => {
-    const { sevenDaysAgo } = getDateRanges()
     const moodData: MoodDataPoint[] = []
     
     // 過去7日間の各日付を生成
@@ -172,7 +171,6 @@ export function useDashboardData() {
 
   // クイックアクションの設定
   const createQuickActions = (): QuickAction[] => {
-    const today = new Date().toISOString().split('T')[0]
     const yesterday = new Date()
     yesterday.setDate(yesterday.getDate() - 1)
     const yesterdayString = yesterday.toISOString().split('T')[0]
