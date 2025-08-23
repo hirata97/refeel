@@ -6,11 +6,15 @@ import { Page, expect } from '@playwright/test'
 
 export interface ReportFilter {
   // シンプルなレポートページには複雑なフィルターは実装されていない
-  // 将来の拡張用として残す
+  // 将来の拡張用として残す（現在は未実装）
   dateRange?: {
     start: string
     end: string
   }
+  // TODO: 実装予定のフィルター機能
+  // - カテゴリフィルター
+  // - 気分レベルフィルター
+  // - カスタム期間選択
 }
 
 export interface ChartData {
