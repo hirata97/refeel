@@ -38,10 +38,10 @@ test.describe('レポート機能システム', () => {
   })
 
   test.afterEach(async () => {
-    // テスト後のクリーンアップ
-    await reportHelper.cleanup()
-    await diaryHelper.cleanup()
-    await authHelper.cleanup()
+    // テスト後のクリーンアップ（ヘルパーが存在する場合のみ）
+    if (reportHelper) await reportHelper.cleanup()
+    if (diaryHelper) await diaryHelper.cleanup()
+    if (authHelper) await authHelper.cleanup()
   })
 
   test.describe('レポートページ基本機能', () => {
