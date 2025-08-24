@@ -17,8 +17,9 @@ vi.mock('@/lib/supabase', () => ({
               id: '1',
               title: 'テスト日記',
               content: 'テスト内容',
-              created_at: '2023-01-01T00:00:00Z',
-              progress_level: 50
+              date: '2023-01-01',
+              mood: 4,
+              created_at: '2023-01-01T00:00:00Z'
             },
             error: null 
           }))
@@ -81,8 +82,9 @@ describe('DiaryEditPage - 正常系', () => {
         id: '1',
         title: 'テスト日記',
         content: 'テスト内容',
-        created_at: '2023-01-01T00:00:00Z',
-        progress_level: 50
+        date: '2023-01-01',
+        mood: 4,
+        created_at: '2023-01-01T00:00:00Z'
       })),
       updateDiary: vi.fn(() => Promise.resolve()),
       deleteDiary: vi.fn(() => Promise.resolve())
@@ -139,10 +141,10 @@ describe('DiaryEditPage - 正常系', () => {
     // フォームが表示されるまで待機
     await wrapper.vm.$nextTick()
     
-    // タイトル、内容、日付フィールドの存在確認
+    // タイトル、内容、日付、気分フィールドの存在確認
     expect(wrapper.html()).toContain('タイトル')
     expect(wrapper.html()).toContain('内容')
     expect(wrapper.html()).toContain('日付')
-    expect(wrapper.html()).toContain('進捗レベル')
+    expect(wrapper.html()).toContain('気分')
   })
 })

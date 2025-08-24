@@ -5,7 +5,6 @@
     <!-- フィルターコンポーネント -->
     <DiaryFilter
       :filters="filter"
-      :categories="availableCategories"
       :loading="loading"
       @update:filters="filter = $event"
       @apply-filters="handleApplyFilters"
@@ -24,39 +23,29 @@
       <template #[`item.created_at`]="{ item }">
         {{ formatDate(item.created_at) }}
       </template>
-      <template #[`item.goal_category`]="{ item }">
-        <v-chip size="small" color="primary" variant="outlined">
-          {{ item.goal_category }}
-        </v-chip>
+      <template #[`item.date`]="{ item }">
+        {{ formatDate(item.date) }}
       </template>
-      <template #[`item.progress_level`]="{ item }">
-        <v-progress-linear
-          :model-value="item.progress_level"
-          height="20"
-          :color="getProgressColor(item.progress_level)"
-          class="progress-bar"
-        >
-          <strong>{{ item.progress_level }}%</strong>
-        </v-progress-linear>
+      <template #[`item.mood`]="{ item }">
+        <v-rating
+          :model-value="item.mood"
+          readonly
+          size="small"
+          color="amber"
+          half-increments
+        />
+        <span class="ml-2">{{ item.mood }}/5</span>
       </template>
       <template #[`item.content`]="{ item }">
-        <DiaryPreview
-          :diary="item"
-          @detail="viewDiary"
-          @edit="editDiary"
+        <div
+          class="diary-content-cell"
+          @click="viewDiary(item)"
+          tabindex="0"
+          role="button"
+          :aria-label="`日記「${item.title}」の詳細を表示`"
         >
-          <template #default="{ previewVisible }">
-            <div
-              class="diary-content-cell"
-              :class="{ 'preview-active': previewVisible }"
-              tabindex="0"
-              role="button"
-              :aria-label="`日記「${item.title}」のプレビューを表示`"
-            >
-              {{ item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content }}
-            </div>
-          </template>
-        </DiaryPreview>
+          {{ item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content }}
+        </div>
       </template>
 
       <template #[`item.actions`]="{ item }">
@@ -98,61 +87,55 @@
     </v-data-table>
 
     <!-- ページネーション -->
-    <PaginationComponent
-      :page="paginationStore.getCurrentState.page"
-      :page-size="paginationStore.getCurrentState.pageSize"
-      :total="paginationStore.getCurrentState.total"
-      :total-pages="paginationStore.getCurrentState.totalPages"
-      :loading="paginationStore.getCurrentLoading"
-      :show-skeleton="showPaginationSkeleton"
-      :error="paginationStore.getCurrentError"
-      @update:page="handlePageChange"
-      @update:page-size="handlePageSizeChange"
-      @dismiss-error="handleDismissError"
-      @retry="handleRetry"
+    <v-pagination
+      v-if="pagination.totalPages > 1"
+      v-model="pagination.page"
+      :length="pagination.totalPages"
+      :loading="loading"
+      @update:model-value="handlePageChange"
     />
 
     <!-- 詳細モーダル -->
-    <DiaryDetailModal
-      v-model="showDetailDialog"
-      :diary="selectedDiary"
-      :diaries="diaries || []"
-      :current-index="currentDiaryIndex"
-      @edit="handleEditDiary"
-      @favorite="handleToggleFavorite"
-      @navigate="handleNavigateDiary"
-    />
+    <v-dialog v-model="showDetailDialog" max-width="800px">
+      <v-card v-if="selectedDiary">
+        <v-card-title>{{ selectedDiary.title }}</v-card-title>
+        <v-card-subtitle>
+          {{ formatDate(selectedDiary.date) }} | 気分: {{ selectedDiary.mood }}/5
+        </v-card-subtitle>
+        <v-card-text>
+          <div class="diary-content">{{ selectedDiary.content }}</div>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer />
+          <v-btn color="primary" @click="editDiary(selectedDiary)">編集</v-btn>
+          <v-btn variant="outlined" @click="showDetailDialog = false">閉じる</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
-import { usePaginationStore } from '@/stores/pagination'
 import { useDiaries } from '@/composables/useDataFetch'
 import type { DiaryEntry } from '@/stores/data'
-import DiaryFilter from '@/components/DiaryFilter.vue'
-import PaginationComponent from '@/components/PaginationComponent.vue'
-import DiaryDetailModal from '@/components/DiaryDetailModal.vue'
-import DiaryPreview from '@/components/DiaryPreview.vue'
 
 const router = useRouter()
 const dataStore = useDataStore()
 const authStore = useAuthStore()
-const paginationStore = usePaginationStore()
 
-// ページネーション初期化とデータ読み込み
+// 認証チェックとデータ読み込み
 onMounted(async () => {
-  paginationStore.initialize()
-
-  // URLから復元した状態でデータを読み込み
+  if (!authStore.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+  
+  // 初期データ読み込み
   await refresh()
-})
-
-onUnmounted(() => {
-  paginationStore.cleanup()
 })
 
 // サーバーサイドページネーション対応のデータ取得
@@ -165,7 +148,7 @@ const {
   changePageSize,
   applyFilters,
   clearFilters,
-  categoryStats,
+  moodStats,
   refresh,
 } = useDiaries({
   immediate: false, // 手動で初期化
@@ -177,45 +160,19 @@ const {
 const isDeleting = ref(false)
 const showDetailDialog = ref(false)
 const selectedDiary = ref<DiaryEntry | null>(null)
-const currentDiaryIndex = ref(-1)
-const showPaginationSkeleton = ref(false)
-
-// ページネーション状態とuseDataFetchの同期
-watch(
-  () => paginationStore.getCurrentState,
-  (newState) => {
-    // PaginationStoreの状態をuseDataFetchに反映
-    pagination.value = {
-      ...pagination.value,
-      page: newState.page,
-      pageSize: newState.pageSize,
-      total: newState.total,
-      totalPages: newState.totalPages,
-    }
-  },
-  { deep: true, immediate: true },
-)
-
-// フィルター状態の同期
-watch(
-  () => paginationStore.getCurrentFilters,
-  (newFilters) => {
-    // PaginationStoreのフィルターをuseDataFetchに反映
-    Object.assign(filter.value, newFilters)
-  },
-  { deep: true, immediate: true },
-)
-
-// 利用可能なカテゴリ（統計から取得）
-const availableCategories = computed(() => {
-  return Object.keys(categoryStats.value)
-})
 
 // テーブルヘッダー
 const headers = [
   {
     title: '作成日',
     key: 'created_at',
+    align: 'start' as const,
+    sortable: false,
+    width: '120px',
+  },
+  {
+    title: '日記日付',
+    key: 'date',
     align: 'start' as const,
     sortable: false,
     width: '120px',
@@ -228,15 +185,8 @@ const headers = [
     width: '200px',
   },
   {
-    title: 'カテゴリ',
-    key: 'goal_category',
-    align: 'start' as const,
-    sortable: false,
-    width: '150px',
-  },
-  {
-    title: '進捗',
-    key: 'progress_level',
+    title: '気分',
+    key: 'mood',
     align: 'center' as const,
     sortable: false,
     width: '120px',
@@ -261,16 +211,15 @@ const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP')
 }
 
-const getProgressColor = (progress: number): string => {
-  if (progress >= 80) return 'success'
-  if (progress >= 50) return 'warning'
+const getMoodColor = (mood: number): string => {
+  if (mood >= 4) return 'success'
+  if (mood >= 3) return 'warning'
   return 'error'
 }
 
 // 日記詳細表示
 const viewDiary = (diary: DiaryEntry) => {
   selectedDiary.value = diary
-  currentDiaryIndex.value = diaries.value?.findIndex(d => d.id === diary.id) ?? -1
   showDetailDialog.value = true
 }
 
@@ -281,48 +230,21 @@ const editDiary = (diary: DiaryEntry) => {
   router.push(`/diary-edit/${diary.id}`)
 }
 
-// 新しいページネーションイベントハンドラー
+// ページネーションイベントハンドラー
 const handlePageChange = (page: number) => {
-  paginationStore.changePage(page)
   changePage(page)
 }
 
 const handlePageSizeChange = (pageSize: number) => {
-  paginationStore.changePageSize(pageSize)
   changePageSize(pageSize)
 }
 
-const handleDismissError = () => {
-  paginationStore.setError(null)
-}
-
-const handleRetry = async () => {
-  try {
-    paginationStore.setError(null)
-    showPaginationSkeleton.value = true
-    await refresh()
-
-    // 最新のデータでページネーション状態を更新
-    paginationStore.updateState({
-      total: pagination.value.total,
-      totalPages: pagination.value.totalPages,
-    })
-  } catch (err) {
-    console.error('データの再取得に失敗:', err)
-    paginationStore.setError('データの再取得に失敗しました')
-  } finally {
-    showPaginationSkeleton.value = false
-  }
-}
-
-// フィルター適用処理を拡張
+// フィルター適用処理
 const handleApplyFilters = () => {
-  paginationStore.updateFilters(filter.value)
   applyFilters()
 }
 
 const handleClearFilters = () => {
-  paginationStore.clearFilters()
   clearFilters()
 }
 
@@ -334,50 +256,14 @@ const handleDeleteDiary = async (item: DiaryEntry) => {
 
   try {
     isDeleting.value = true
-
     await dataStore.deleteDiary(item.id, authStore.user.id)
-
     // データ再取得
     await refresh()
-
-    // ページネーション状態を更新
-    paginationStore.updateState({
-      total: pagination.value.total,
-      totalPages: pagination.value.totalPages,
-    })
   } catch (error) {
     console.error('日記削除エラー:', error)
-    paginationStore.setError('日記の削除に失敗しました')
+    alert('日記の削除に失敗しました')
   } finally {
     isDeleting.value = false
-  }
-}
-
-// 詳細モーダルのイベントハンドラー
-const handleEditDiary = (diary: DiaryEntry) => {
-  showDetailDialog.value = false
-  editDiary(diary)
-}
-
-const handleToggleFavorite = async (diary: DiaryEntry) => {
-  // TODO: お気に入り機能の実装
-  // 現在はデータモデルにis_favoriteフィールドがないため、将来の実装で対応
-  console.log('お気に入り切り替え:', diary.title)
-}
-
-const handleNavigateDiary = (direction: 'prev' | 'next') => {
-  if (!diaries.value || currentDiaryIndex.value === -1) return
-  
-  let newIndex = currentDiaryIndex.value
-  if (direction === 'prev' && newIndex > 0) {
-    newIndex = newIndex - 1
-  } else if (direction === 'next' && newIndex < diaries.value.length - 1) {
-    newIndex = newIndex + 1
-  }
-  
-  if (newIndex !== currentDiaryIndex.value) {
-    currentDiaryIndex.value = newIndex
-    selectedDiary.value = diaries.value[newIndex]
   }
 }
 </script>
