@@ -39,6 +39,26 @@
           <strong>{{ item.progress_level }}%</strong>
         </v-progress-linear>
       </template>
+      <template #[`item.content`]="{ item }">
+        <DiaryPreview
+          :diary="item"
+          @detail="viewDiary"
+          @edit="editDiary"
+        >
+          <template #default="{ previewVisible }">
+            <div
+              class="diary-content-cell"
+              :class="{ 'preview-active': previewVisible }"
+              tabindex="0"
+              role="button"
+              :aria-label="`日記「${item.title}」のプレビューを表示`"
+            >
+              {{ item.content.length > 100 ? item.content.substring(0, 100) + '...' : item.content }}
+            </div>
+          </template>
+        </DiaryPreview>
+      </template>
+
       <template #[`item.actions`]="{ item }">
         <v-btn
           icon="mdi-eye"
@@ -46,6 +66,7 @@
           color="primary"
           size="small"
           @click="viewDiary(item)"
+          aria-label="詳細表示"
         />
         <v-btn
           icon="mdi-pencil"
@@ -53,6 +74,7 @@
           color="warning"
           size="small"
           @click="editDiary(item)"
+          aria-label="編集"
         />
         <v-btn
           icon="mdi-delete"
@@ -61,6 +83,7 @@
           size="small"
           @click="handleDeleteDiary(item)"
           :loading="isDeleting"
+          aria-label="削除"
         />
       </template>
 
@@ -89,31 +112,16 @@
       @retry="handleRetry"
     />
 
-    <!-- 詳細ダイアログ -->
-    <v-dialog v-model="showDetailDialog" max-width="600">
-      <v-card v-if="selectedDiary">
-        <v-card-title>{{ selectedDiary.title }}</v-card-title>
-        <v-card-subtitle>
-          {{ formatDate(selectedDiary.created_at) }} | {{ selectedDiary.goal_category }}
-        </v-card-subtitle>
-        <v-card-text>
-          <div class="diary-content">{{ selectedDiary.content }}</div>
-          <v-progress-linear
-            :model-value="selectedDiary.progress_level"
-            height="20"
-            :color="getProgressColor(selectedDiary.progress_level)"
-            class="mt-4"
-          >
-            <strong>進捗: {{ selectedDiary.progress_level }}%</strong>
-          </v-progress-linear>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn variant="text" color="warning" @click="editDiary(selectedDiary)"> 編集 </v-btn>
-          <v-spacer />
-          <v-btn variant="text" @click="showDetailDialog = false">閉じる</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- 詳細モーダル -->
+    <DiaryDetailModal
+      v-model="showDetailDialog"
+      :diary="selectedDiary"
+      :diaries="diaries || []"
+      :current-index="currentDiaryIndex"
+      @edit="handleEditDiary"
+      @favorite="handleToggleFavorite"
+      @navigate="handleNavigateDiary"
+    />
   </v-container>
 </template>
 
@@ -127,6 +135,8 @@ import { useDiaries } from '@/composables/useDataFetch'
 import type { DiaryEntry } from '@/stores/data'
 import DiaryFilter from '@/components/DiaryFilter.vue'
 import PaginationComponent from '@/components/PaginationComponent.vue'
+import DiaryDetailModal from '@/components/DiaryDetailModal.vue'
+import DiaryPreview from '@/components/DiaryPreview.vue'
 
 const router = useRouter()
 const dataStore = useDataStore()
@@ -167,6 +177,7 @@ const {
 const isDeleting = ref(false)
 const showDetailDialog = ref(false)
 const selectedDiary = ref<DiaryEntry | null>(null)
+const currentDiaryIndex = ref(-1)
 const showPaginationSkeleton = ref(false)
 
 // ページネーション状態とuseDataFetchの同期
@@ -259,6 +270,7 @@ const getProgressColor = (progress: number): string => {
 // 日記詳細表示
 const viewDiary = (diary: DiaryEntry) => {
   selectedDiary.value = diary
+  currentDiaryIndex.value = diaries.value?.findIndex(d => d.id === diary.id) ?? -1
   showDetailDialog.value = true
 }
 
@@ -340,6 +352,34 @@ const handleDeleteDiary = async (item: DiaryEntry) => {
     isDeleting.value = false
   }
 }
+
+// 詳細モーダルのイベントハンドラー
+const handleEditDiary = (diary: DiaryEntry) => {
+  showDetailDialog.value = false
+  editDiary(diary)
+}
+
+const handleToggleFavorite = async (diary: DiaryEntry) => {
+  // TODO: お気に入り機能の実装
+  // 現在はデータモデルにis_favoriteフィールドがないため、将来の実装で対応
+  console.log('お気に入り切り替え:', diary.title)
+}
+
+const handleNavigateDiary = (direction: 'prev' | 'next') => {
+  if (!diaries.value || currentDiaryIndex.value === -1) return
+  
+  let newIndex = currentDiaryIndex.value
+  if (direction === 'prev' && newIndex > 0) {
+    newIndex = newIndex - 1
+  } else if (direction === 'next' && newIndex < diaries.value.length - 1) {
+    newIndex = newIndex + 1
+  }
+  
+  if (newIndex !== currentDiaryIndex.value) {
+    currentDiaryIndex.value = newIndex
+    selectedDiary.value = diaries.value[newIndex]
+  }
+}
 </script>
 
 <style scoped>
@@ -370,6 +410,33 @@ const handleDeleteDiary = async (item: DiaryEntry) => {
   padding: 8px;
   background-color: rgba(var(--v-theme-surface), 0.5);
   border-radius: 4px;
+}
+
+/* プレビュー機能のスタイル */
+.diary-content-cell {
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.diary-content-cell:hover,
+.diary-content-cell:focus {
+  background-color: rgba(var(--v-theme-primary), 0.08);
+  outline: none;
+}
+
+.diary-content-cell.preview-active {
+  background-color: rgba(var(--v-theme-primary), 0.12);
+  font-weight: 500;
+}
+
+.diary-content-cell:focus-visible {
+  box-shadow: 0 0 0 2px rgba(var(--v-theme-primary), 0.5);
 }
 
 /* レスポンシブ対応 */
