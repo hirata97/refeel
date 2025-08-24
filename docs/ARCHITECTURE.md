@@ -1,4 +1,17 @@
-# プロジェクトアーキテクチャ（2025年更新版）
+# プロジェクトアーキテクチャ
+
+## 🏗️ システムアーキテクチャ
+
+- **フロントエンド**: Vue 3.5 + TypeScript 5.6 + Vite 5.4
+- **UI フレームワーク**: Vuetify 3.7（Material Design）
+- **状態管理**: Pinia 2.2（統合ページネーションストア含む）
+- **データ可視化**: Chart.js 4.4 + vue-chartjs 5.3
+- **認証・DB**: Supabase 2.49（JWT認証、RLS、リアルタイム更新）
+- **フォーム検証**: VeeValidate 4.15 + カスタムルール
+- **セキュリティ**: DOMPurify 3.2（XSS対策）+ CSP準備中
+- **テスト**: Vitest 2.1 + Playwright 1.48 + @vitest/coverage-v8
+- **リンティング**: ESLint 9.14 + Prettier 3.3
+- **デプロイ**: Vercel自動デプロイ + CI/CD統合
 
 ## 技術スタック
 
