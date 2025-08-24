@@ -37,6 +37,7 @@ export const useDataStore = defineStore('data', () => {
   // キャッシュストレージ
   const cache = ref<Map<string, CacheEntry<unknown>>>(new Map())
   const CACHE_DURATION = 5 * 60 * 1000 // 5分
+  const MAX_CACHE_SIZE = 100 // 最大キャッシュエントリ数
 
   // 状態
   const diaries = ref<DiaryEntry[]>([])
@@ -73,6 +74,16 @@ export const useDataStore = defineStore('data', () => {
   }
 
   const setCache = <T>(key: string, data: T): void => {
+    // キャッシュサイズ制限: 古いエントリを削除
+    if (cache.value.size >= MAX_CACHE_SIZE) {
+      const entries = Array.from(cache.value.entries())
+      // 最も古いエントリを削除
+      entries
+        .sort(([, a], [, b]) => a.timestamp - b.timestamp)
+        .slice(0, Math.floor(MAX_CACHE_SIZE * 0.2)) // 20%削除
+        .forEach(([key]) => cache.value.delete(key))
+    }
+
     cache.value.set(key, {
       data,
       timestamp: Date.now(),

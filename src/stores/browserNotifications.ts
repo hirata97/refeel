@@ -9,7 +9,7 @@ import type {
 } from '@/types/settings'
 import { DEFAULT_NOTIFICATION_SETTINGS } from '@/types/settings'
 
-export const useNotificationStore = defineStore('notifications', () => {
+export const useBrowserNotificationStore = defineStore('browserNotifications', () => {
   // 状態
   const settings = ref<NotificationSettings>({ ...DEFAULT_NOTIFICATION_SETTINGS })
   const permission = ref<NotificationPermission>('default')
@@ -269,4 +269,4 @@ export const useNotificationStore = defineStore('notifications', () => {
   }
 })
 
-export default useNotificationStore
+export default useBrowserNotificationStore
