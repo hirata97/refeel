@@ -55,7 +55,6 @@
 ### 開発関連
 - **🛠️ 開発コマンド**: [docs/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT_COMMANDS.md)
 - **🔄 開発ワークフロー**: [docs/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT_WORKFLOW.md) ⭐ 更新済
-- **🤖 CI/CD運用ガイド**: [docs/CI_CD_GUIDE.md](docs/CI_CD_GUIDE.md) - 5項目自動品質チェック
 - **🧪 PRテスト・検証ガイド**: [docs/PR_TESTING_GUIDE.md](docs/PR_TESTING_GUIDE.md) - 段階的検証手順
 - **🏗️ アーキテクチャ**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) ⭐ 更新必要
 - **📝 コーディング規則**: [docs/CODING_STANDARDS.md](docs/CODING_STANDARDS.md)
@@ -63,6 +62,7 @@
 
 ### 環境・設定
 - **⚙️ 環境設定**: [docs/ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md)
+- **🐳 Docker環境**: [docs/DOCKER_SETUP.md](docs/DOCKER_SETUP.md) - コンテナ化開発環境
 - **🔐 Supabase認証設定**: [docs/SUPABASE_QUICK_SETUP.md](docs/SUPABASE_QUICK_SETUP.md)
 - **📖 認証システム詳細**: [docs/SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md)
 
@@ -71,6 +71,9 @@
 - **🔧 セキュリティ開発ガイド**: [docs/SECURITY_DEVELOPMENT.md](docs/SECURITY_DEVELOPMENT.md) - 実践的な開発手順
 - **📖 セキュリティ実装詳細**: [docs/SECURITY_IMPLEMENTATION.md](docs/SECURITY_IMPLEMENTATION.md) - 技術的詳細
 - **🔍 セキュリティトラブルシューティング**: [docs/SECURITY_TROUBLESHOOTING.md](docs/SECURITY_TROUBLESHOOTING.md) - 問題解決ガイド
+
+### CI/CD・品質管理
+- **🚀 CI/CDパイプライン**: [docs/CI_CD_GUIDE.md](docs/CI_CD_GUIDE.md) - GitHub Actions自動化システム
 
 ### プロジェクト管理
 - **🏷️ Issue ラベル体系**: [docs/ISSUE_LABELS.md](docs/ISSUE_LABELS.md)

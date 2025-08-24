@@ -206,7 +206,6 @@ tests/
 - `priority:P1` 🟡 - 高優先度（重要）  
 - `priority:P2` 🔵 - 中優先度（通常）
 
-<<<<<<< HEAD
 ### 作業規模ラベル
 - `size:S` 🔴 - 小規模（1-2日）
 - `size:M` 🟡 - 中規模（3-5日）
@@ -230,26 +229,6 @@ tests/
 - `type-quality:docs` - ドキュメント
 - `type-quality:test` - テスト関連
 
-## デプロイメント
-
-本プロジェクトはVercelで自動デプロイされます。developブランチへのマージで自動的にデプロイが実行されます。
-
-## 貢献
-
-1. Issueを確認し、作業したいものを選択
-2. `npm run start-issue [issue番号]` で作業開始
-3. 機能実装・テスト追加
-4. `npm run create-pr` でPR作成
-5. レビュー後、developブランチにマージ
-
-## ライセンス
-
-このプロジェクトはプライベートリポジトリです。
-
-## サポート
-
-質問やバグ報告は [Issues](https://github.com/RsPYP/GoalCategorizationDiary/issues) で受け付けています。
-=======
 ## Claude Codeでの開発
 
 このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。詳細な開発ガイドは`CLAUDE.md`を参照してください。
@@ -261,4 +240,23 @@ tests/
 - `npm run test:e2e` - E2Eテスト
 - `npm run lint` - リンティング
 - `npm run type-check` - 型チェック
->>>>>>> main
+
+## デプロイメント
+
+本プロジェクトはVercelで自動デプロイされます。mainブランチへのマージで自動的にデプロイが実行されます。
+
+## 貢献
+
+1. Issueを確認し、作業したいものを選択
+2. `npm run start-issue [issue番号]` で作業開始
+3. 機能実装・テスト追加
+4. `npm run create-pr` でPR作成
+5. レビュー後、mainブランチにマージ
+
+## ライセンス
+
+このプロジェクトはプライベートリポジトリです。
+
+## サポート
+
+質問やバグ報告は [Issues](https://github.com/RsPYP/GoalCategorizationDiary/issues) で受け付けています。
