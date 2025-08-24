@@ -75,86 +75,7 @@
 
       <!-- 通知設定 -->
       <v-tabs-window-item value="notifications">
-        <v-card>
-          <v-card-title>
-            <v-icon class="mr-2" size="24">mdi-bell</v-icon>
-            通知設定
-          </v-card-title>
-          <v-card-subtitle>ブラウザ通知とリマインダーの設定ができます。</v-card-subtitle>
-          <v-card-text>
-            <v-row>
-              <v-col cols="12">
-                <v-switch
-                  v-model="notificationStore.settings.enabled"
-                  label="ブラウザ通知を有効にする"
-                  color="primary"
-                  @update:model-value="updateNotificationSettings"
-                ></v-switch>
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <v-switch
-                  v-model="notificationStore.settings.diaryReminder"
-                  label="日記リマインダー"
-                  color="primary"
-                  :disabled="!notificationStore.settings.enabled"
-                  @update:model-value="updateNotificationSettings"
-                ></v-switch>
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <v-text-field
-                  v-model="notificationStore.settings.reminderTime"
-                  label="リマインダー時刻"
-                  type="time"
-                  variant="outlined"
-                  :disabled="!notificationStore.settings.diaryReminder"
-                  @update:model-value="updateNotificationSettings"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" md="6">
-                <v-switch
-                  v-model="notificationStore.settings.soundEnabled"
-                  label="通知音を有効にする"
-                  color="primary"
-                  :disabled="!notificationStore.settings.enabled"
-                  @update:model-value="updateNotificationSettings"
-                ></v-switch>
-              </v-col>
-
-              <v-col cols="12">
-                <v-alert
-                  v-if="!notificationStore.hasPermission && notificationStore.settings.enabled"
-                  type="warning"
-                  variant="outlined"
-                  class="mb-4"
-                >
-                  ブラウザの通知権限が必要です。
-                </v-alert>
-              </v-col>
-            </v-row>
-          </v-card-text>
-
-          <v-card-actions>
-            <v-btn
-              v-if="!notificationStore.hasPermission"
-              variant="outlined"
-              prepend-icon="mdi-shield-check"
-              @click="requestNotificationPermission"
-            >
-              通知権限を要求
-            </v-btn>
-            <v-btn
-              variant="text"
-              prepend-icon="mdi-test-tube"
-              @click="testNotification"
-              :disabled="!notificationStore.canShowNotifications"
-            >
-              テスト通知
-            </v-btn>
-          </v-card-actions>
-        </v-card>
+        <NotificationSettings />
       </v-tabs-window-item>
 
       <!-- プロフィール管理 -->
@@ -444,6 +365,7 @@ import { useProfileStore } from '@/stores/profile'
 import { useDataManagementStore } from '@/stores/dataManagement'
 import { useTheme } from 'vuetify'
 import TagManager from '@/components/TagManager.vue'
+import NotificationSettings from '@/components/NotificationSettings.vue'
 
 // タブの状態管理
 const activeTab = ref<string>('theme')
@@ -491,32 +413,6 @@ const toggleTheme = () => {
   themeStore.toggleTheme()
 }
 
-// 通知設定の更新
-const updateNotificationSettings = async () => {
-  try {
-    await notificationStore.updateSettings(notificationStore.settings)
-  } catch (error) {
-    console.error('通知設定の更新に失敗:', error)
-  }
-}
-
-// 通知権限の要求
-const requestNotificationPermission = async () => {
-  try {
-    await notificationStore.requestPermission()
-  } catch (error) {
-    console.error('通知権限の要求に失敗:', error)
-  }
-}
-
-// テスト通知
-const testNotification = async () => {
-  try {
-    await notificationStore.testNotification()
-  } catch (error) {
-    console.error('テスト通知の送信に失敗:', error)
-  }
-}
 
 // プロフィール更新
 const updateProfile = async () => {
