@@ -231,9 +231,9 @@ describe('DataStore - 正常系', () => {
       const newDiary = {
         title: 'New Diary',
         content: 'Content',
-        goal_category: 'work',
+        date: '2023-01-01',
         user_id: 'user1',
-        progress_level: 3
+        mood: 3
       }
       
       const createdDiary = {

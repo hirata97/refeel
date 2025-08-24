@@ -22,10 +22,10 @@ export interface RecentDiary {
   preview: string
   /** 作成日時 */
   created_at: string
-  /** 進捗レベル（0-100） */
-  progress_level: number
-  /** 目標カテゴリ */
-  goal_category: string
+  /** 気分スコア（1-5） */
+  mood: number
+  /** 日記の日付 */
+  date: string
 }
 
 export interface MoodDataPoint {

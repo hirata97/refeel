@@ -121,12 +121,11 @@ export function useDiaries(options: FetchOptions = {}) {
 
   // フィルタリング機能
   const filter = ref({
-    goal_category: '',
     date_from: '',
     date_to: '',
     search_text: '',
-    progress_level_min: null as number | null,
-    progress_level_max: null as number | null,
+    mood_min: null as number | null,
+    mood_max: null as number | null,
   })
 
   // サーバーサイドでページ付きデータを取得
@@ -190,47 +189,47 @@ export function useDiaries(options: FetchOptions = {}) {
   // フィルタークリア
   const clearFilters = async () => {
     filter.value = {
-      goal_category: '',
       date_from: '',
       date_to: '',
       search_text: '',
-      progress_level_min: null,
-      progress_level_max: null,
+      mood_min: null,
+      mood_max: null,
     }
     await applyFilters()
   }
 
-  // カテゴリ統計（全データから計算）
-  const categoryStats = ref<Record<string, { count: number; avgProgress: number }>>({})
+  // 気分統計（全データから計算）
+  const moodStats = ref<Record<string, { count: number; avgMood: number }>>({})
 
-  const fetchCategoryStats = async () => {
+  const fetchMoodStats = async () => {
     if (!authStore.user?.id) return
 
     try {
       const allData = await dataStore.fetchDiaries(authStore.user.id, false)
-      const stats: Record<string, { count: number; avgProgress: number }> = {}
+      const stats: Record<string, { count: number; avgMood: number }> = {}
 
       allData.data.forEach((diary: DiaryEntry) => {
-        if (!stats[diary.goal_category]) {
-          stats[diary.goal_category] = { count: 0, avgProgress: 0 }
+        const moodKey = `mood_${diary.mood}`
+        if (!stats[moodKey]) {
+          stats[moodKey] = { count: 0, avgMood: 0 }
         }
-        stats[diary.goal_category].count++
-        stats[diary.goal_category].avgProgress += diary.progress_level
+        stats[moodKey].count++
+        stats[moodKey].avgMood += diary.mood
       })
 
       // 平均値計算
-      Object.keys(stats).forEach((category) => {
-        stats[category].avgProgress /= stats[category].count
+      Object.keys(stats).forEach((moodKey) => {
+        stats[moodKey].avgMood /= stats[moodKey].count
       })
 
-      categoryStats.value = stats
+      moodStats.value = stats
     } catch (error) {
       console.error('カテゴリ統計の取得に失敗:', error)
     }
   }
 
   // 初期統計データ取得
-  fetchCategoryStats()
+  fetchMoodStats()
 
   return {
     // データ
@@ -249,8 +248,8 @@ export function useDiaries(options: FetchOptions = {}) {
     changePageSize,
 
     // 統計
-    categoryStats,
-    fetchCategoryStats,
+    moodStats,
+    fetchMoodStats,
 
     // アクション
     execute,

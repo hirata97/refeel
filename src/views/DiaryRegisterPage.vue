@@ -135,8 +135,8 @@ const addDiary = async (): Promise<void> => {
         user_id: authStore.user!.id, // 上で既にチェック済み
         title: sanitizedData.title || '',
         content: sanitizedData.content || '',
-        goal_category: 'general', // デフォルトカテゴリ
-        progress_level: Number(sanitizedData.mood) || 50
+        date: sanitizedData.date || new Date().toISOString().split('T')[0], // YYYY-MM-DD形式
+        mood: Math.min(Math.max(Math.round((Number(sanitizedData.mood) || 50) / 20), 1), 5) // 0-100 → 1-5
       }
 
       await dataStore.createDiary(diaryData)

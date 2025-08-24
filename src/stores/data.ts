@@ -7,10 +7,10 @@ import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
 export interface DiaryEntry {
   id: string
   user_id: string
+  date: string
   title: string
   content: string
-  goal_category: string
-  progress_level: number
+  mood: number
   created_at: string
   updated_at: string
 }
@@ -52,13 +52,14 @@ export const useDataStore = defineStore('data', () => {
     ),
   )
 
-  const diariesByCategory = computed(() => {
+  const diariesByMood = computed(() => {
     const grouped: Record<string, DiaryEntry[]> = {}
     diaries.value.forEach((diary) => {
-      if (!grouped[diary.goal_category]) {
-        grouped[diary.goal_category] = []
+      const moodKey = `mood_${diary.mood}`
+      if (!grouped[moodKey]) {
+        grouped[moodKey] = []
       }
-      grouped[diary.goal_category].push(diary)
+      grouped[moodKey].push(diary)
     })
     return grouped
   })
@@ -155,20 +156,17 @@ export const useDataStore = defineStore('data', () => {
         Object.entries(pagination.filters).forEach(([key, value]) => {
           if (value !== null && value !== undefined && value !== '') {
             switch (key) {
-              case 'goal_category':
-                query = query.eq('goal_category', value)
+              case 'mood_min':
+                query = query.gte('mood', value)
                 break
-              case 'progress_level_min':
-                query = query.gte('progress_level', value)
-                break
-              case 'progress_level_max':
-                query = query.lte('progress_level', value)
+              case 'mood_max':
+                query = query.lte('mood', value)
                 break
               case 'date_from':
-                query = query.gte('created_at', value)
+                query = query.gte('date', value)
                 break
               case 'date_to':
-                query = query.lte('created_at', value)
+                query = query.lte('date', value)
                 break
               case 'search_text':
                 query = query.or(`title.ilike.%${value}%,content.ilike.%${value}%`)
@@ -494,7 +492,7 @@ export const useDataStore = defineStore('data', () => {
 
     // 計算プロパティ
     sortedDiaries,
-    diariesByCategory,
+    diariesByMood,
 
     // データ取得
     fetchDiaries,
