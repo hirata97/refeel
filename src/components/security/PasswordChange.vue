@@ -199,10 +199,11 @@ import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { passwordValidator } from '@/utils/password-policy'
 import type { PasswordValidationResult } from '@/utils/password-policy'
+import type { VForm } from 'vuetify/components'
 
 // State
 const authStore = useAuthStore()
-const formRef = ref()
+const formRef = ref<VForm>()
 const formValid = ref(false)
 const loading = ref(false)
 const error = ref<string | null>(null)

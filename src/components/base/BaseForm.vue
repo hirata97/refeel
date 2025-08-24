@@ -13,7 +13,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type ComputedRef } from 'vue'
+import { ref, computed } from 'vue'
+import type { VForm } from 'vuetify/components'
 
 interface Props {
   title?: string
@@ -32,7 +33,7 @@ const emit = defineEmits<{
   submit: [isValid: boolean]
 }>()
 
-const formRef = ref()
+const formRef = ref<VForm>()
 const isValid = ref(false)
 
 const handleSubmit = async () => {
@@ -63,17 +64,12 @@ const resetValidation = () => {
   }
 }
 
-// Vuetify型定義の競合を回避するため、unknown経由で型アサーション
+// Vuetify型定義を正しく使用
 defineExpose({
-  validate: validate as () => Promise<{ valid: boolean }> | { valid: boolean },
+  validate,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value),
-} as unknown as {
-  validate: () => Promise<{ valid: boolean }>
-  reset: () => void
-  resetValidation: () => void
-  isValid: ComputedRef<boolean>
 })
 </script>
 

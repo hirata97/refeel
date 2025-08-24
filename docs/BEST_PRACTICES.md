@@ -1,12 +1,13 @@
-# 開発ベストプラクティス（反省点対応版）
+# 開発ベストプラクティス
 
 ## 📋 このドキュメントについて
 
-Issue #75実装時の反省点を基に、より効率的で品質の高い開発プロセスを確立するためのガイドです。
+より効率的で品質の高い開発プロセスを確立するためのガイドです。
 
 ## 🚀 実装前必須チェックリスト
 
 ### 事前調査（必須）
+
 ```bash
 # 1. 依存関係確認
 npm outdated
@@ -24,6 +25,7 @@ npm audit
 ```
 
 ### 設計フェーズ
+
 - **最小単位での分割**: 機能を独立した小さな単位に分解
 - **テスト戦略**: 新機能の品質担保方法を事前に計画
 - **型設計**: インターフェース・型定義を先に設計
@@ -31,21 +33,25 @@ npm audit
 ## 🔄 段階的実装プロセス
 
 ### フェーズ1: 基盤準備
+
 1. **型定義・インターフェース作成**
 2. **基本構造の実装**
 3. **初期CI/CDチェック**: `npm run ci:lint && npm run ci:type-check`
 
 ### フェーズ2: 機能実装
+
 1. **コア機能実装**
 2. **ユニットテスト同時作成** ⭐ 必須
 3. **段階的品質チェック**: 各機能完成時にCI/CDチェック実行
 
 ### フェーズ3: 統合・最適化
+
 1. **他コンポーネントとの統合**
 2. **E2Eテストの追加**
 3. **パフォーマンス・アクセシビリティ確認**
 
 ### フェーズ4: 最終検証
+
 1. **全CI/CDチェック通過確認**
 2. **リファクタリング・コード品質向上**
 3. **ドキュメント更新**
@@ -53,6 +59,7 @@ npm audit
 ## 🧪 テスト駆動開発（TDD）推奨
 
 ### 新規ストア・コンポーネント作成時
+
 ```bash
 # 1. テストファイル作成（実装前）
 touch tests/[ComponentName]/normal_[ComponentName]_01.spec.js
@@ -60,7 +67,7 @@ touch tests/[ComponentName]/exception_[ComponentName]_01.spec.js
 
 # 2. テストケース設計
 # - 正常系テスト
-# - 異常系テスト  
+# - 異常系テスト
 # - エッジケース
 
 # 3. 実装
@@ -71,6 +78,7 @@ touch tests/[ComponentName]/exception_[ComponentName]_01.spec.js
 ```
 
 ### テスト命名規則（プロジェクト標準）
+
 - **正常系**: `normal_[ComponentName]_[番号].spec.js`
 - **異常系**: `exception_[ComponentName]_[番号].spec.js`
 - **テストディレクトリ**: `tests/[ComponentName]/`
@@ -78,6 +86,7 @@ touch tests/[ComponentName]/exception_[ComponentName]_01.spec.js
 ## ⚡ CI/CD統合ワークフロー
 
 ### 推奨開発フロー
+
 ```bash
 # 段階的品質チェック（実装中に実行）
 npm run ci:lint && npm run ci:type-check
@@ -88,12 +97,13 @@ npm run ci:test  # テスト + カバレッジ
 # PR作成前最終チェック
 npm run ci:lint      # 厳格リンティング
 npm run ci:type-check # TypeScript検証
-npm run ci:test      # テスト + カバレッジ  
+npm run ci:test      # テスト + カバレッジ
 npm run ci:build     # プロダクションビルド
 npm run ci:security  # セキュリティチェック
 ```
 
 ### エラー対応原則
+
 - **即座対応**: 型エラー、リンティングエラーは後回しにしない
 - **段階的修正**: 大量エラーは小分けして段階的に修正
 - **根本原因**: エラーの根本原因を特定してから修正
@@ -101,6 +111,7 @@ npm run ci:security  # セキュリティチェック
 ## 🔧 依存関係管理
 
 ### バージョン互換性チェック
+
 ```bash
 # 開発開始前必須
 npm outdated
@@ -111,6 +122,7 @@ npm install [package]@[compatible-version] --save-dev
 ```
 
 ### 依存関係競合の回避
+
 - **メジャーバージョン**: 慎重に更新、影響範囲を十分調査
 - **マイナーバージョン**: 機能追加時は互換性を確認
 - **パッチバージョン**: セキュリティ修正は積極的に適用
@@ -118,13 +130,14 @@ npm install [package]@[compatible-version] --save-dev
 ## 📝 コード品質向上
 
 ### TypeScript活用（Issue #112反省点対応）
+
 ```typescript
 // ❌ 避けるべきパターン
-let mockData: any  // any型の濫用
+let mockData: any // any型の濫用
 Object.values(data).filter((item: any) => {}) // 不適切な型キャスト
 
 // ✅ 推奨パターン
-let mockData: Partial<AuditLogger>  // 適切な型定義
+let mockData: Partial<AuditLogger> // 適切な型定義
 Object.values(data as Record<string, LoginAttempt[]>).filter((item: LoginAttempt) => {})
 
 // 型安全性の強化例
@@ -135,44 +148,44 @@ interface StrictComponentProps {
 }
 
 // ジェネリクス活用
-function createTypedStore<T extends Record<string, unknown>>(
-  initialState: T
-): Store<T> {
+function createTypedStore<T extends Record<string, unknown>>(initialState: T): Store<T> {
   // 実装
 }
 ```
 
 ### Vue 3パターン（最新記法対応）
+
 ```vue
 <template>
   <!-- ❌ 古い記法（ESLintエラーの原因） -->
   <template #item.device="{ item }">
-  
-  <!-- ✅ 推奨記法（Vue 3.2+） -->
-  <template v-slot:[`item.device`]="{ item }">
+    <!-- ✅ 推奨記法（Vue 3.2+） -->
+    <template v-slot:[`item.device`]="{ item }"> </template>
+
+    <script setup lang="ts">
+      // Composition APIベストプラクティス
+      import { ref, computed, watch, onMounted } from 'vue'
+      import { useDisplay } from 'vuetify' // Vuetifyコンポーザブル活用
+
+      // 明確な型定義
+      interface Props {
+        data: ComponentData[]
+        loading?: boolean
+      }
+
+      // デフォルト値の適切な設定
+      const props = withDefaults(defineProps<Props>(), {
+        loading: false,
+      })
+    </script></template
+  >
 </template>
-
-<script setup lang="ts">
-// Composition APIベストプラクティス
-import { ref, computed, watch, onMounted } from 'vue'
-import { useDisplay } from 'vuetify' // Vuetifyコンポーザブル活用
-
-// 明確な型定義
-interface Props {
-  data: ComponentData[]
-  loading?: boolean
-}
-
-// デフォルト値の適切な設定
-const props = withDefaults(defineProps<Props>(), {
-  loading: false
-})
-</script>
 ```
 
 ## 🛡️ セキュリティベストプラクティス
 
 ### 入力値検証・サニタイゼーション
+
 ```typescript
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
 
@@ -195,19 +208,21 @@ const createSecureData = async (inputData: unknown) => {
 ## 📚 ドキュメント更新
 
 ### 実装完了時必須更新
+
 - **ARCHITECTURE.md**: 新機能追加時
 - **CLAUDE.md**: 重要な変更時
 - **README**: ユーザー影響がある場合
 - **型定義コメント**: 複雑なインターフェース
 
 ### コミットメッセージ規則
+
 ```bash
 # 形式: type: 簡潔な説明
-# 
+#
 # 詳細説明（必要に応じて）
-# 
+#
 # 🤖 Generated with Claude Code
-# 
+#
 # Co-Authored-By: Claude <noreply@anthropic.com>
 
 # 例:
@@ -225,6 +240,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 ## 🎯 パフォーマンス最適化
 
 ### Vue 3最適化パターン
+
 ```vue
 <script setup lang="ts">
 import { computed, shallowRef } from 'vue'
@@ -241,11 +257,10 @@ const optimizedComputed = computed(() => {
 ```
 
 ### バンドルサイズ最適化
+
 ```typescript
 // 動的インポートの活用
-const HeavyComponent = defineAsyncComponent(
-  () => import('@/components/HeavyComponent.vue')
-)
+const HeavyComponent = defineAsyncComponent(() => import('@/components/HeavyComponent.vue'))
 
 // Tree shakingを意識したインポート
 import { specificFunction } from '@/utils/helpers'
@@ -255,28 +270,33 @@ import { specificFunction } from '@/utils/helpers'
 ## 🚨 よくある落とし穴（Issue #112反省点追加）
 
 ### 型エラー対応
+
 - **null/undefinedチェック不足**: 厳密なnullチェックを実装
 - **anyタイプ濫用**: 適切な型定義で置き換え（`Partial<T>`、`Record<K,V>`活用）
 - **オプショナルプロパティ**: `?.`演算子の適切な使用
 - **型キャスト**: `as any`ではなく適切な型アサーション使用
 
 ### Vue.js テンプレート記法
+
 - **古いslot記法**: `#item.xxx`は`v-slot:[item.xxx]`に更新
 - **動的スロット名**: バッククォートでエスケープ必須
 - **Vuetify互換性**: 最新記法への対応が必要
 
 ### テスト品質
+
 - **モックの適切な使用**: 外部依存関係は必ずモック
 - **非同期処理テスト**: `async/await`の正しい使用
 - **DOM操作テスト**: Vue Test Utilsの適切な活用
 - **型安全なモック**: `any`型ではなく`Partial<T>`使用
 
 ### ESLint/TypeScript設定
+
 - **厳格モード**: `@typescript-eslint/no-explicit-any`準拠
 - **型注釈**: 推論可能でも明示的な型定義推奨
 - **unused変数**: 不要な変数・インポートの削除
 
 ### パフォーマンス
+
 - **不要な再レンダリング**: 適切なmemo化
 - **メモリリーク**: イベントリスナーの適切なクリーンアップ
 - **バンドルサイズ**: 未使用インポートの削除
@@ -289,5 +309,6 @@ import { specificFunction } from '@/utils/helpers'
 新たな課題や改善点が見つかった場合は、積極的にこのドキュメントに反映してください。
 
 **更新履歴**:
+
 - 2025-08-19: Issue #75反省点対応版作成
 - 2025-08-21: Issue #112反省点追加（TypeScript型安全性、Vue.jsテンプレート記法）

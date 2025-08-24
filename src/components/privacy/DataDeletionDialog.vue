@@ -108,6 +108,7 @@
 import { ref, computed, watch } from 'vue'
 import { DataDeletionManager } from '@/utils/privacy'
 import { useAuthStore } from '@/stores/auth'
+import type { VForm } from 'vuetify/components'
 
 // Props & Emits
 interface Props {
@@ -131,7 +132,7 @@ const dialog = computed({
   set: (value: boolean) => emit('update:modelValue', value)
 })
 
-const form = ref()
+const form = ref<VForm>()
 const isFormValid = ref(false)
 const loading = ref(false)
 const requestType = ref<'partial' | 'complete'>('partial')

@@ -172,6 +172,7 @@ import { storeToRefs } from 'pinia'
 import { useTagGoalStore } from '@/stores/tagGoal'
 import { useAuthStore } from '@/stores/auth'
 import type { Tag } from '@/types/tags'
+import type { VForm } from 'vuetify/components'
 
 // ストア
 const tagGoalStore = useTagGoalStore()
@@ -185,7 +186,7 @@ const showCreateDialog = ref(false)
 const showDeleteDialog = ref(false)
 const editingTag = ref<Tag | null>(null)
 const deletingTag = ref<Tag | null>(null)
-const tagForm = ref()
+const tagForm = ref<VForm>()
 
 // フォームデータ
 const tagFormData = ref({

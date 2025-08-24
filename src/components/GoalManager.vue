@@ -296,6 +296,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useTagGoalStore } from '@/stores/tagGoal'
 import { useAuthStore } from '@/stores/auth'
 import type { Goal } from '@/types/tags'
+import type { VForm } from 'vuetify/components'
 
 // ストア
 const tagGoalStore = useTagGoalStore()
@@ -309,7 +310,7 @@ const showCreateDialog = ref(false)
 const showDetailDialog = ref(false)
 const editingGoal = ref<Goal | null>(null)
 const selectedGoal = ref<Goal | null>(null)
-const goalForm = ref()
+const goalForm = ref<VForm>()
 
 const selectedCategory = ref<string>('')
 const selectedStatus = ref<string>('')
@@ -449,8 +450,11 @@ const cancelGoalForm = (): void => {
 }
 
 const submitGoal = async (): Promise<void> => {
-  if (!goalForm.value?.validate().valid) {
-    return
+  if (goalForm.value) {
+    const validation = await goalForm.value.validate()
+    if (!validation.valid) {
+      return
+    }
   }
 
   try {

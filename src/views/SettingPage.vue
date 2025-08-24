@@ -439,7 +439,7 @@ import { onMounted, onUnmounted, computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useThemeStore, type ThemeName } from '@/stores/theme'
-import { useNotificationStore } from '@/stores/notifications'
+import { useBrowserNotificationStore } from '@/stores/browserNotifications'
 import { useProfileStore } from '@/stores/profile'
 import { useDataManagementStore } from '@/stores/dataManagement'
 import { useTheme } from 'vuetify'
@@ -473,7 +473,7 @@ const languageOptions = [
 const router = useRouter()
 const authStore = useAuthStore()
 const themeStore = useThemeStore()
-const notificationStore = useNotificationStore()
+const notificationStore = useBrowserNotificationStore()
 const profileStore = useProfileStore()
 const dataManagementStore = useDataManagementStore()
 const vuetifyTheme = useTheme()

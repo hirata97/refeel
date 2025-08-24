@@ -238,6 +238,7 @@ import { PrivacyManager, GDPRCompliance } from '@/utils/privacy'
 import { useAuthStore } from '@/stores/auth'
 import DataDeletionDialog from './DataDeletionDialog.vue'
 import type { PrivacySettings } from '@/types/encryption'
+import type { VForm } from 'vuetify/components'
 
 // Composables
 const authStore = useAuthStore()
@@ -247,7 +248,7 @@ const loading = ref(true)
 const saveLoading = ref(false)
 const exportLoading = ref(false)
 const showDataDeletionDialog = ref(false)
-const form = ref()
+const form = ref<VForm>()
 
 const originalSettings = ref<PrivacySettings | null>(null)
 const localSettings = ref<PrivacySettings>({
