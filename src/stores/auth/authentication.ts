@@ -74,7 +74,7 @@ export const createAuthenticationStore = (
       recordLoginAttempt: (email: string, success: boolean, clientIP: string, userAgent: string) => Promise<void>
       shouldLockAccount: (email: string) => Promise<boolean>
       checkLockoutStatus: (email: string) => Promise<LockoutStatus>
-      lockAccount: (email: string, attemptCount: number) => Promise<void>
+      lockAccount: (email: string, attemptCount: number) => Promise<unknown>
     },
     regenerateSessionFn: () => Promise<{ success: boolean; error?: string }>,
   ) => {
