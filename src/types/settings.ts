@@ -10,6 +10,12 @@ export interface NotificationSettings {
   diaryReminder: boolean
   /** リマインダーの時刻 (HH:MM形式) */
   reminderTime: string
+  /** リマインダー曜日 */
+  reminderDays: number[]
+  /** 目標期限アラート */
+  goalDeadlineAlert: boolean
+  /** 達成通知 */
+  achievementNotification: boolean
   /** 通知音の有効化 */
   soundEnabled: boolean
   /** 通知の表示時間 (ミリ秒) */
@@ -18,18 +24,26 @@ export interface NotificationSettings {
 
 // ユーザープロフィール
 export interface UserProfile {
+  /** ユーザーID */
+  user_id: string
   /** ユーザー表示名 */
-  displayName: string
+  display_name: string
+  /** 自己紹介 */
+  bio?: string
   /** アバター画像URL */
-  avatarUrl?: string
+  avatar_url?: string
+  /** 言語設定 */
+  preferred_language: string
   /** タイムゾーン */
   timezone: string
-  /** 言語設定 */
-  language: string
+  /** プロフィール公開設定 */
+  public_profile: boolean
+  /** 達成状況表示設定 */
+  show_achievements: boolean
   /** プロフィール作成日時 */
-  createdAt: string
+  created_at: string
   /** プロフィール更新日時 */
-  updatedAt: string
+  updated_at: string
 }
 
 // データ管理設定
@@ -91,6 +105,9 @@ export const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
   enabled: false,
   diaryReminder: false,
   reminderTime: '20:00',
+  reminderDays: [1, 2, 3, 4, 5], // 月-金
+  goalDeadlineAlert: true,
+  achievementNotification: true,
   soundEnabled: true,
   displayDuration: 5000,
 }
@@ -119,9 +136,13 @@ export const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
 }
 
 export const DEFAULT_USER_PROFILE: Partial<UserProfile> = {
-  displayName: '',
+  display_name: '',
+  bio: '',
+  avatar_url: '',
+  preferred_language: 'ja',
   timezone: 'Asia/Tokyo',
-  language: 'ja',
+  public_profile: false,
+  show_achievements: true,
 }
 
 // エクスポート・インポート用の型

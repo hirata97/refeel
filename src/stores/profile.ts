@@ -15,12 +15,12 @@ export const useProfileStore = defineStore('profile', () => {
   const uploading = ref<boolean>(false)
 
   // 計算プロパティ
-  const displayName = computed(() => profile.value?.displayName || '')
-  const avatarUrl = computed(() => profile.value?.avatarUrl || '')
+  const displayName = computed(() => profile.value?.display_name || '')
+  const avatarUrl = computed(() => profile.value?.avatar_url || '')
   const hasProfile = computed(() => profile.value !== null)
   const isComplete = computed(() => {
     if (!profile.value) return false
-    return !!(profile.value.displayName && profile.value.timezone && profile.value.language)
+    return !!(profile.value.display_name && profile.value.timezone && profile.value.preferred_language)
   })
 
   // プロフィールの取得
@@ -81,9 +81,9 @@ export const useProfileStore = defineStore('profile', () => {
 
       const newProfile: Partial<UserProfile> = {
         ...DEFAULT_USER_PROFILE,
-        displayName: user.email?.split('@')[0] || 'ユーザー',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        display_name: user.email?.split('@')[0] || 'ユーザー',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       }
 
       const { data, error } = await supabase
@@ -126,11 +126,11 @@ export const useProfileStore = defineStore('profile', () => {
       }
 
       // 入力値の検証
-      if (updates.displayName !== undefined) {
-        if (!updates.displayName.trim()) {
+      if (updates.display_name !== undefined) {
+        if (!updates.display_name.trim()) {
           throw new Error('表示名は必須です')
         }
-        if (updates.displayName.length > 50) {
+        if (updates.display_name.length > 50) {
           throw new Error('表示名は50文字以下で入力してください')
         }
       }
@@ -193,8 +193,8 @@ export const useProfileStore = defineStore('profile', () => {
       const fileName = `${user.id}_${Date.now()}.${fileExt}`
 
       // 既存のアバターを削除（もしあれば）
-      if (profile.value?.avatarUrl) {
-        const oldFileName = profile.value.avatarUrl.split('/').pop()
+      if (profile.value?.avatar_url) {
+        const oldFileName = profile.value.avatar_url.split('/').pop()
         if (oldFileName) {
           await supabase.storage
             .from('avatars')
@@ -219,7 +219,7 @@ export const useProfileStore = defineStore('profile', () => {
         .getPublicUrl(uploadData.path)
 
       // プロフィールを更新
-      const success = await updateProfile({ avatarUrl: publicUrl })
+      const success = await updateProfile({ avatar_url: publicUrl })
       
       if (!success) {
         throw new Error('プロフィールの更新に失敗しました')
@@ -238,7 +238,7 @@ export const useProfileStore = defineStore('profile', () => {
 
   // アバター画像の削除
   const removeAvatar = async (): Promise<boolean> => {
-    if (!profile.value?.avatarUrl) {
+    if (!profile.value?.avatar_url) {
       return true // すでに削除済み
     }
 
@@ -247,7 +247,7 @@ export const useProfileStore = defineStore('profile', () => {
 
     try {
       // ストレージからファイルを削除
-      const fileName = profile.value.avatarUrl.split('/').pop()
+      const fileName = profile.value.avatar_url.split('/').pop()
       if (fileName) {
         const { error: deleteError } = await supabase.storage
           .from('avatars')
@@ -260,7 +260,7 @@ export const useProfileStore = defineStore('profile', () => {
       }
 
       // プロフィールを更新
-      const success = await updateProfile({ avatarUrl: undefined })
+      const success = await updateProfile({ avatar_url: undefined })
       return success
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'アバターの削除に失敗しました'
@@ -310,6 +310,7 @@ export const useProfileStore = defineStore('profile', () => {
 
     // アクション
     fetchProfile,
+    getProfile: fetchProfile, // ProfileSettingsCardとの互換性のためのエイリアス
     createProfile,
     updateProfile,
     uploadAvatar,

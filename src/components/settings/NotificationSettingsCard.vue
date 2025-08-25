@@ -251,12 +251,7 @@ const updateSettings = async () => {
 const sendTestNotification = async () => {
   testLoading.value = true
   try {
-    await notificationStore.showNotification({
-      title: 'テスト通知',
-      body: 'Goal Categorization Diaryからのテスト通知です。設定が正しく動作しています！',
-      icon: '/favicon.ico',
-      tag: 'test-notification'
-    })
+    await notificationStore.showNotification('Goal Categorization Diaryからのテスト通知です。設定が正しく動作しています！')
   } catch (error) {
     console.error('テスト通知の送信に失敗:', error)
   } finally {
