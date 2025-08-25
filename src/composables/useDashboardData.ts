@@ -133,6 +133,8 @@ export function useDashboardData() {
         created_at: diary.created_at,
         mood: diary.mood,
         date: diary.date,
+        goal_category: diary.goal_category,
+        progress_level: diary.progress_level,
       }))
   }
 

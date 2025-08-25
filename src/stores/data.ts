@@ -11,6 +11,8 @@ export interface DiaryEntry {
   title: string
   content: string
   mood: number
+  goal_category: string
+  progress_level: number
   created_at: string
   updated_at: string
 }

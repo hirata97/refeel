@@ -26,6 +26,10 @@ export interface RecentDiary {
   mood: number
   /** 日記の日付 */
   date: string
+  /** 目標カテゴリ */
+  goal_category: string
+  /** 進捗レベル（0-100） */
+  progress_level: number
 }
 
 export interface MoodDataPoint {
