@@ -310,11 +310,11 @@ export const sanitizeFormData = {
       throw new Error(`Date validation failed: ${dateValidation.error}`)
     }
 
-    // 気分値のサニタイゼーション（型安全性強化）
+    // 気分値のサニタイゼーション（10段階評価用）
     const sanitizedMood = sanitizeNumber(data.mood, {
-      min: 0,
-      max: 100,
-      defaultValue: 50,
+      min: 1,
+      max: 10,
+      defaultValue: 5,
       allowFloat: false,
     })
 
@@ -383,10 +383,12 @@ export const validateDate = (dateString: string): { isValid: boolean; error?: st
     return { isValid: false, error: 'Invalid date format' }
   }
 
-  // 未来の日付をチェック
+  // 未来の日付をチェック（YYYY-MM-DD形式で比較）
   const today = new Date()
-  today.setHours(23, 59, 59, 999) // 今日の終わりまで許可
-  if (date > today) {
+  const todayString = today.toISOString().split('T')[0] // YYYY-MM-DD
+  const inputDateString = date.toISOString().split('T')[0] // YYYY-MM-DD
+  
+  if (inputDateString > todayString) {
     return { isValid: false, error: 'Future dates are not allowed' }
   }
 

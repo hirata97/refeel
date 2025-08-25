@@ -30,17 +30,60 @@
           outlined
           required
         />
-        <v-slider
-          v-model="mood"
-          label="進捗レベル"
-          :min="0"
-          :max="100"
-          :step="5"
-          show-ticks="always"
-          thumb-label
-        >
-          <template #thumb-label="{ modelValue }"> {{ modelValue }}% </template>
-        </v-slider>
+        <v-card variant="outlined" class="mood-selector">
+          <v-card-subtitle class="pb-2">気分</v-card-subtitle>
+          <v-card-text class="pt-0">
+            <v-btn-toggle
+              v-model="mood"
+              color="primary"
+              variant="outlined"
+              divided
+              mandatory
+              class="mood-buttons"
+            >
+              <v-btn :value="1" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-dead</v-icon>
+                <span class="ml-1">1</span>
+              </v-btn>
+              <v-btn :value="2" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-sad</v-icon>
+                <span class="ml-1">2</span>
+              </v-btn>
+              <v-btn :value="3" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-cry</v-icon>
+                <span class="ml-1">3</span>
+              </v-btn>
+              <v-btn :value="4" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-neutral</v-icon>
+                <span class="ml-1">4</span>
+              </v-btn>
+              <v-btn :value="5" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon</v-icon>
+                <span class="ml-1">5</span>
+              </v-btn>
+              <v-btn :value="6" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-happy</v-icon>
+                <span class="ml-1">6</span>
+              </v-btn>
+              <v-btn :value="7" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-excited</v-icon>
+                <span class="ml-1">7</span>
+              </v-btn>
+              <v-btn :value="8" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-cool</v-icon>
+                <span class="ml-1">8</span>
+              </v-btn>
+              <v-btn :value="9" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-kiss</v-icon>
+                <span class="ml-1">9</span>
+              </v-btn>
+              <v-btn :value="10" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-lol</v-icon>
+                <span class="ml-1">10</span>
+              </v-btn>
+            </v-btn-toggle>
+          </v-card-text>
+        </v-card>
         <v-btn 
           type="submit" 
           color="primary" 
@@ -136,7 +179,7 @@ const addDiary = async (): Promise<void> => {
         title: sanitizedData.title || '',
         content: sanitizedData.content || '',
         date: sanitizedData.date || new Date().toISOString().split('T')[0], // YYYY-MM-DD形式
-        mood: Math.min(Math.max(Math.round((Number(sanitizedData.mood) || 50) / 20), 1), 5), // 0-100 → 1-5
+        mood: Number(sanitizedData.mood) || 5, // 1-10の値をそのまま使用、デフォルトは5
         goal_category: 'general',
         progress_level: 0
       }
@@ -170,5 +213,30 @@ const addDiary = async (): Promise<void> => {
 <style scoped>
 .diary-page {
   margin: 0 auto;
+}
+
+.mood-selector {
+  margin: 16px 0;
+}
+
+.mood-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mood-btn {
+  flex: 1;
+  margin: 0 1px;
+  min-height: 48px;
+  flex-direction: column;
+  font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .mood-btn {
+    min-height: 40px;
+    font-size: 0.7rem;
+  }
 }
 </style>

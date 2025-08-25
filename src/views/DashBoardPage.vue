@@ -47,7 +47,7 @@
         <StatCard
           title="平均気分"
           :value="dashboardData.stats.averageMood"
-          unit="%"
+          unit="/10"
           icon="mdi-emoticon"
           icon-color="warning"
           description="これまでの平均気分スコア"
