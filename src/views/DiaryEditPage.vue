@@ -35,14 +35,14 @@
         />
         <v-slider
           v-model="mood"
-          label="進捗レベル"
-          :min="0"
-          :max="100"
-          :step="5"
+          label="気分"
+          :min="1"
+          :max="5"
+          :step="1"
           show-ticks="always"
           thumb-label
         >
-          <template #thumb-label="{ modelValue }"> {{ modelValue }}% </template>
+          <template #thumb-label="{ modelValue }"> {{ modelValue }}/5 </template>
         </v-slider>
 
         <div class="action-buttons">
@@ -228,7 +228,7 @@ const loadDiary = async () => {
       title: diaryData.title,
       content: diaryData.content,
       date: new Date(diaryData.created_at).toISOString().split('T')[0],
-      mood: diaryData.progress_level || 0,
+      mood: diaryData.mood || 3, // moodフィールドを使用、デフォルトは3
     })
 
     performance.end('load_diary_for_edit')
@@ -264,7 +264,7 @@ const updateDiary = async (): Promise<void> => {
       const updateData = {
         title: sanitizedData.title,
         content: sanitizedData.content,
-        progress_level: sanitizedData.mood,
+        mood: Number(sanitizedData.mood) || 3, // 1-5の値をそのまま使用
         updated_at: new Date().toISOString(),
       }
 
@@ -406,7 +406,7 @@ const goBack = () => {
     (title.value !== diary.value.title ||
       content.value !== diary.value.content ||
       date.value !== new Date(diary.value.created_at).toISOString().split('T')[0] ||
-      mood.value !== (diary.value.progress_level || 0))
+      mood.value !== (diary.value.mood || 3)) // moodフィールドを使用
 
   if (hasUnsavedChanges) {
     if (confirm('未保存の変更があります。本当にページを離れますか？')) {

@@ -111,7 +111,7 @@ const chartOptions = computed(() => ({
       bodyColor: '#fff',
       cornerRadius: 8,
       callbacks: {
-        label: (context: { parsed: { y: number } }) => `気分: ${context.parsed.y}%`,
+        label: (context: { parsed: { y: number } }) => `気分: ${context.parsed.y}/5`,
       },
     },
   },
@@ -129,7 +129,7 @@ const chartOptions = computed(() => ({
     },
     y: {
       beginAtZero: true,
-      max: 100,
+      max: 5,
       grid: {
         color: 'var(--v-theme-outline-variant)',
       },
@@ -138,7 +138,7 @@ const chartOptions = computed(() => ({
         font: {
           size: 12,
         },
-        callback: (value: number | string) => `${value}%`,
+        callback: (value: number | string) => `${value}/5`,
       },
     },
   },

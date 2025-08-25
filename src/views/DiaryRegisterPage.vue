@@ -32,14 +32,14 @@
         />
         <v-slider
           v-model="mood"
-          label="進捗レベル"
-          :min="0"
-          :max="100"
-          :step="5"
+          label="気分"
+          :min="1"
+          :max="5"
+          :step="1"
           show-ticks="always"
           thumb-label
         >
-          <template #thumb-label="{ modelValue }"> {{ modelValue }}% </template>
+          <template #thumb-label="{ modelValue }"> {{ modelValue }}/5 </template>
         </v-slider>
         <v-btn 
           type="submit" 
@@ -136,7 +136,7 @@ const addDiary = async (): Promise<void> => {
         title: sanitizedData.title || '',
         content: sanitizedData.content || '',
         date: sanitizedData.date || new Date().toISOString().split('T')[0], // YYYY-MM-DD形式
-        mood: Math.min(Math.max(Math.round((Number(sanitizedData.mood) || 50) / 20), 1), 5), // 0-100 → 1-5
+        mood: Number(sanitizedData.mood) || 3, // 1-5の値をそのまま使用、デフォルトは3
         goal_category: 'general',
         progress_level: 0
       }
