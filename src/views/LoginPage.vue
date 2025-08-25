@@ -42,21 +42,9 @@
         @close="clearDisplayError"
       />
 
-      <!-- 2FA要求時の表示 -->
-      <v-alert
-        v-if="show2FARequired && !show2FAVerification"
-        type="info"
-        class="mb-4"
-        variant="tonal"
-      >
-        <v-icon class="me-2">mdi-shield-key</v-icon>
-        <strong>2要素認証が必要です</strong>
-        <div class="text-body-2 mt-1">セキュリティのため、2要素認証コードの入力が必要です。</div>
-      </v-alert>
 
       <!-- メールアドレス入力 -->
       <v-text-field
-        v-if="!show2FAVerification"
         label="Email"
         v-model="email"
         :error-messages="emailError ? [emailError] : []"
@@ -71,7 +59,6 @@
 
       <!-- パスワード入力 -->
       <v-text-field
-        v-if="!show2FAVerification"
         label="Password"
         type="password"
         v-model="password"
@@ -84,20 +71,10 @@
         :disabled="lockoutInfo?.isLocked"
       />
 
-      <!-- 2FA認証コンポーネント -->
-      <div v-if="show2FAVerification" class="mb-4">
-        <TwoFactorVerification
-          :email="email"
-          :timeout-seconds="300"
-          @success="handle2FASuccess"
-          @cancel="handle2FACancel"
-          @timeout="handle2FATimeout"
-        />
-      </div>
 
       <!-- セキュリティヒント -->
       <v-expansion-panels
-        v-if="!show2FAVerification && !lockoutInfo?.isLocked"
+        v-if="!lockoutInfo?.isLocked"
         variant="accordion"
         class="mb-4"
       >
@@ -134,7 +111,6 @@
 
     <template #actions>
       <BaseButton
-        v-if="!show2FAVerification"
         :loading="authStore.loading || isSubmitting"
         :disabled="lockoutInfo?.isLocked"
         type="submit"
@@ -159,14 +135,10 @@ import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'
-import TwoFactorVerification from '@/components/security/TwoFactorVerification.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-// 2FA関連の状態管理
-const show2FARequired = ref(false)
-const show2FAVerification = ref(false)
 const lockoutCheckInterval = ref<NodeJS.Timeout | null>(null)
 
 // シンプルなフォーム管理を使用
@@ -185,7 +157,7 @@ const displayError = computed(() => {
 })
 
 const showError = computed({
-  get: () => !!displayError.value && !show2FARequired.value,
+  get: () => !!displayError.value,
   set: (value: boolean) => {
     if (!value) {
       authStore.clearError()
@@ -227,24 +199,6 @@ const stopLockoutStatusCheck = () => {
   }
 }
 
-// 2FA関連のイベントハンドラ
-const handle2FASuccess = () => {
-  show2FAVerification.value = false
-  show2FARequired.value = false
-  router.push('/dashboard')
-}
-
-const handle2FACancel = () => {
-  show2FAVerification.value = false
-  show2FARequired.value = false
-  authStore.clearError()
-}
-
-const handle2FATimeout = () => {
-  show2FAVerification.value = false
-  show2FARequired.value = false
-  authStore.setError('2要素認証がタイムアウトしました。再度ログインしてください。')
-}
 
 // すでにログイン済みの場合はダッシュボードにリダイレクト
 onMounted(() => {
@@ -299,11 +253,6 @@ const handleLogin = async (isValid: boolean) => {
       // ログイン成功時は認証ストアが自動的に状態を更新する
       // ダッシュボードにリダイレクト
       router.push('/dashboard')
-    } else if (result.requires2FA) {
-      // 2FA要求の場合
-      show2FARequired.value = true
-      show2FAVerification.value = true
-      await logAuthAttempt(true, sanitizedEmail, '2fa_required')
     } else {
       // ログイン失敗をログに記録
       await logAuthAttempt(false, sanitizedEmail, result.error || 'login_failed')
