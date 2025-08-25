@@ -39,10 +39,10 @@
         <div class="diary-footer">
           <span class="diary-date">{{ formatDate(diary.created_at) }}</span>
           <div class="mood-indicator">
-            <v-icon size="16" :color="getMoodColor(diary.progress_level)">
+            <v-icon size="16" :color="getMoodColor(diary.mood)">
               mdi-emoticon
             </v-icon>
-            <span class="mood-value">{{ diary.progress_level }}%</span>
+            <span class="mood-value">{{ diary.mood }}/10</span>
           </div>
         </div>
       </div>
@@ -99,9 +99,9 @@ const formatDate = (dateString: string): string => {
 }
 
 const getMoodColor = (mood: number): string => {
-  if (mood >= 80) return 'success'
-  if (mood >= 60) return 'warning'
-  if (mood >= 40) return 'orange'
+  if (mood >= 8) return 'success'
+  if (mood >= 6) return 'warning'
+  if (mood >= 4) return 'orange'
   return 'error'
 }
 </script>

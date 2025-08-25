@@ -87,7 +87,7 @@ export function useDashboardData() {
 
     // 平均気分スコアの計算（moodフィールドを使用）
     const averageMood = diaries.length > 0
-      ? Math.round(diaries.reduce((sum, diary) => sum + (diary.mood || 3), 0) / diaries.length * 10) / 10
+      ? Math.round(diaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / diaries.length * 10) / 10
       : 0
 
     // 連続投稿日数の計算（簡易版）
@@ -131,7 +131,7 @@ export function useDashboardData() {
         title: diary.title,
         preview: truncateText(diary.content, 50),
         created_at: diary.created_at,
-        mood: diary.mood || 3, // moodフィールドを直接使用
+        mood: diary.mood || 5, // moodフィールドを直接使用
         date: diary.date,
         goal_category: diary.goal_category,
         progress_level: diary.progress_level,
@@ -156,7 +156,7 @@ export function useDashboardData() {
       
       // その日の平均気分スコアを計算（moodフィールドを使用）
       const averageMood = dayDiaries.length > 0
-        ? Math.round(dayDiaries.reduce((sum, diary) => sum + (diary.mood || 3), 0) / dayDiaries.length * 10) / 10
+        ? Math.round(dayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / dayDiaries.length * 10) / 10
         : null
 
       if (averageMood !== null) {

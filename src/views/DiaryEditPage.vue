@@ -44,25 +44,45 @@
               mandatory
               class="mood-buttons"
             >
-              <v-btn :value="1" size="large" class="mood-btn">
-                <v-icon>mdi-emoticon-sad</v-icon>
-                <span class="ml-2">1</span>
+              <v-btn :value="1" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-dead</v-icon>
+                <span class="ml-1">1</span>
               </v-btn>
-              <v-btn :value="2" size="large" class="mood-btn">
-                <v-icon>mdi-emoticon-neutral</v-icon>
-                <span class="ml-2">2</span>
+              <v-btn :value="2" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-sad</v-icon>
+                <span class="ml-1">2</span>
               </v-btn>
-              <v-btn :value="3" size="large" class="mood-btn">
-                <v-icon>mdi-emoticon</v-icon>
-                <span class="ml-2">3</span>
+              <v-btn :value="3" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-cry</v-icon>
+                <span class="ml-1">3</span>
               </v-btn>
-              <v-btn :value="4" size="large" class="mood-btn">
-                <v-icon>mdi-emoticon-happy</v-icon>
-                <span class="ml-2">4</span>
+              <v-btn :value="4" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-neutral</v-icon>
+                <span class="ml-1">4</span>
               </v-btn>
-              <v-btn :value="5" size="large" class="mood-btn">
-                <v-icon>mdi-emoticon-excited</v-icon>
-                <span class="ml-2">5</span>
+              <v-btn :value="5" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon</v-icon>
+                <span class="ml-1">5</span>
+              </v-btn>
+              <v-btn :value="6" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-happy</v-icon>
+                <span class="ml-1">6</span>
+              </v-btn>
+              <v-btn :value="7" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-excited</v-icon>
+                <span class="ml-1">7</span>
+              </v-btn>
+              <v-btn :value="8" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-cool</v-icon>
+                <span class="ml-1">8</span>
+              </v-btn>
+              <v-btn :value="9" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-kiss</v-icon>
+                <span class="ml-1">9</span>
+              </v-btn>
+              <v-btn :value="10" size="small" class="mood-btn">
+                <v-icon size="small">mdi-emoticon-lol</v-icon>
+                <span class="ml-1">10</span>
               </v-btn>
             </v-btn-toggle>
           </v-card-text>
@@ -251,7 +271,7 @@ const loadDiary = async () => {
       title: diaryData.title,
       content: diaryData.content,
       date: new Date(diaryData.created_at).toISOString().split('T')[0],
-      mood: diaryData.mood || 3, // moodフィールドを使用、デフォルトは3
+      mood: diaryData.mood || 5, // moodフィールドを使用、デフォルトは5
     })
 
     performance.end('load_diary_for_edit')
@@ -287,7 +307,7 @@ const updateDiary = async (): Promise<void> => {
       const updateData = {
         title: sanitizedData.title,
         content: sanitizedData.content,
-        mood: Number(sanitizedData.mood) || 3, // 1-5の値をそのまま使用
+        mood: Number(sanitizedData.mood) || 5, // 1-10の値をそのまま使用
         updated_at: new Date().toISOString(),
       }
 
@@ -429,7 +449,7 @@ const goBack = () => {
     (title.value !== diary.value.title ||
       content.value !== diary.value.content ||
       date.value !== new Date(diary.value.created_at).toISOString().split('T')[0] ||
-      mood.value !== (diary.value.mood || 3)) // moodフィールドを使用
+      mood.value !== (diary.value.mood || 5)) // moodフィールドを使用
 
   if (hasUnsavedChanges) {
     if (confirm('未保存の変更があります。本当にページを離れますか？')) {
@@ -520,14 +540,16 @@ const goBack = () => {
 
 .mood-btn {
   flex: 1;
-  margin: 0 2px;
-  min-height: 56px;
+  margin: 0 1px;
+  min-height: 48px;
   flex-direction: column;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 600px) {
   .mood-btn {
-    min-height: 48px;
+    min-height: 40px;
+    font-size: 0.7rem;
   }
 }
 </style>
