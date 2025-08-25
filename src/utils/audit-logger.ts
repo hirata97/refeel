@@ -11,16 +11,9 @@ export enum AuditEventType {
   AUTH_SESSION_CREATED = 'auth_session_created',
   AUTH_SESSION_TERMINATED = 'auth_session_terminated',
   AUTH_MASS_LOGOUT = 'auth_mass_logout',
-  AUTH_FAILED_2FA = 'auth_failed_2fa',
-
   // セキュリティ関連
   SECURITY_LOCKOUT = 'security_lockout',
   SECURITY_UNLOCK = 'security_unlock',
-  SECURITY_2FA_SETUP = 'security_2fa_setup',
-  SECURITY_2FA_ENABLED = 'security_2fa_enabled',
-  SECURITY_2FA_DISABLED = 'security_2fa_disabled',
-  SECURITY_BACKUP_CODE_USED = 'security_backup_code_used',
-  SECURITY_BACKUP_CODES_REGENERATED = 'security_backup_codes_regenerated',
   SECURITY_DEVICE_TRUST_CHANGED = 'security_device_trust_changed',
   SECURITY_VIOLATION = 'security_violation',
   SECURITY_ALERT = 'security_alert',
@@ -182,7 +175,6 @@ export class AuditLogger {
   getSecurityLogs(limit: number = 500): AuditLogEntry[] {
     const securityEventTypes = [
       AuditEventType.AUTH_FAILED_LOGIN,
-      AuditEventType.AUTH_FAILED_2FA,
       AuditEventType.SECURITY_LOCKOUT,
       AuditEventType.SECURITY_VIOLATION,
       AuditEventType.SECURITY_ALERT,
@@ -301,7 +293,6 @@ export class AuditLogger {
     const criticalEvents = [AuditEventType.SECURITY_VIOLATION, AuditEventType.SYSTEM_ERROR]
 
     const highEvents = [
-      AuditEventType.AUTH_FAILED_2FA,
       AuditEventType.SECURITY_LOCKOUT,
       AuditEventType.SECURITY_ALERT,
       AuditEventType.PASSWORD_POLICY_VIOLATION,
@@ -309,8 +300,6 @@ export class AuditLogger {
 
     const mediumEvents = [
       AuditEventType.AUTH_FAILED_LOGIN,
-      AuditEventType.SECURITY_2FA_DISABLED,
-      AuditEventType.SECURITY_BACKUP_CODE_USED,
       AuditEventType.AUTH_MASS_LOGOUT,
     ]
 

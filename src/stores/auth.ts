@@ -4,7 +4,6 @@ import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
 import { performSecurityCheck } from '@/utils/sanitization'
 import { passwordValidator, passwordHistoryManager } from '@/utils/password-policy'
-import { twoFactorAuthManager } from '@/utils/two-factor-auth'
 import { accountLockoutManager } from '@/utils/account-lockout'
 import { enhancedSessionManager } from '@/utils/enhanced-session-management'
 import { auditLogger, AuditEventType } from '@/utils/audit-logger'
@@ -24,8 +23,6 @@ export const useAuthStore = defineStore('auth', () => {
   // セキュリティ状態
   const lockoutStatus = ref<LockoutStatus | null>(null)
   const passwordValidationResult = ref<PasswordValidationResult | null>(null)
-  const twoFactorRequired = ref<boolean>(false)
-  const pendingTwoFactorSessionId = ref<string | null>(null)
 
   // 計算プロパティ
   const isAuthenticated = computed(() => {
@@ -33,7 +30,6 @@ export const useAuthStore = defineStore('auth', () => {
       !!user.value &&
       !!session.value &&
       !isSessionExpired.value &&
-      !twoFactorRequired.value &&
       !lockoutStatus.value?.isLocked
     )
   })
@@ -61,10 +57,6 @@ export const useAuthStore = defineStore('auth', () => {
   // セキュリティ関連の計算プロパティ
   const isAccountLocked = computed(() => lockoutStatus.value?.isLocked || false)
 
-  const is2FAEnabled = computed(() => {
-    if (!user.value?.id) return false
-    return twoFactorAuthManager.is2FAEnabled(user.value.id)
-  })
 
   const securityStats = computed(() => {
     if (!user.value?.id) return null
@@ -251,7 +243,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // ログイン
-  const signIn = async (email: string, password: string, twoFactorCode?: string) => {
+  const signIn = async (email: string, password: string) => {
     try {
       setLoading(true)
       clearError()
@@ -313,43 +305,6 @@ export const useAuthStore = defineStore('auth', () => {
         // ログイン成功を記録
         await accountLockoutManager.recordLoginAttempt(email, true, clientIP, userAgent)
 
-        // 2FA確認が必要かチェック
-        const requires2FA = twoFactorAuthManager.is2FAEnabled(data.user.id)
-
-        if (requires2FA && !twoFactorCode) {
-          // 2FAが有効で、コードが提供されていない場合
-          twoFactorRequired.value = true
-          pendingTwoFactorSessionId.value = data.session.access_token
-          return {
-            success: false,
-            requires2FA: true,
-            message: '2要素認証が必要です',
-          }
-        }
-
-        if (requires2FA && twoFactorCode) {
-          // 2FAコードの検証
-          const verificationResult = await twoFactorAuthManager.verify2FACode(
-            data.user.id,
-            twoFactorCode,
-          )
-
-          if (!verificationResult.isValid) {
-            await auditLogger.log(AuditEventType.AUTH_FAILED_2FA, `2FA認証失敗: ${email}`, {
-              email,
-              userId: data.user.id,
-              ipAddress: clientIP,
-            })
-            throw new Error('2要素認証コードが正しくありません')
-          }
-
-          await auditLogger.log(AuditEventType.AUTH_LOGIN, `2FA認証成功: ${email}`, {
-            email,
-            userId: data.user.id,
-            ipAddress: clientIP,
-            method: verificationResult.method,
-          })
-        }
 
         // セッション作成と管理
         setSession(data.session)
@@ -366,9 +321,6 @@ export const useAuthStore = defineStore('auth', () => {
         // 最終活動時間を保存
         localStorage.setItem('lastActivity', lastActivity.value.toString())
 
-        // 2FA状態をクリア
-        twoFactorRequired.value = false
-        pendingTwoFactorSessionId.value = null
 
         await auditLogger.log(AuditEventType.AUTH_LOGIN, `ログイン成功: ${email}`, {
           email,
@@ -532,8 +484,6 @@ export const useAuthStore = defineStore('auth', () => {
       sessionExpiresAt.value = null
       lockoutStatus.value = null
       passwordValidationResult.value = null
-      twoFactorRequired.value = false
-      pendingTwoFactorSessionId.value = null
 
       // ローカルストレージもクリア
       localStorage.removeItem('user')
@@ -699,44 +649,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  // 2FA関連メソッド
-  const setup2FA = async () => {
-    if (!user.value) {
-      throw new Error('ユーザーが認証されていません')
-    }
-
-    return await twoFactorAuthManager.setup2FA(user.value.id, user.value.email!)
-  }
-
-  const enable2FA = async (verificationCode: string, secret: string, backupCodes: string[]) => {
-    if (!user.value) {
-      throw new Error('ユーザーが認証されていません')
-    }
-
-    return await twoFactorAuthManager.enable2FA(
-      user.value.id,
-      user.value.email!,
-      secret,
-      verificationCode,
-      backupCodes,
-    )
-  }
-
-  const disable2FA = async (verificationCode: string) => {
-    if (!user.value) {
-      throw new Error('ユーザーが認証されていません')
-    }
-
-    return await twoFactorAuthManager.disable2FA(user.value.id, user.value.email!, verificationCode)
-  }
-
-  const regenerateBackupCodes = async () => {
-    if (!user.value) {
-      throw new Error('ユーザーが認証されていません')
-    }
-
-    return await twoFactorAuthManager.regenerateBackupCodes(user.value.id, user.value.email!)
-  }
 
   // セッション管理メソッド
   const getActiveSessions = () => {
@@ -775,8 +687,6 @@ export const useAuthStore = defineStore('auth', () => {
     // セキュリティ状態
     lockoutStatus,
     passwordValidationResult,
-    twoFactorRequired,
-    pendingTwoFactorSessionId,
 
     // 計算プロパティ
     isAuthenticated,
@@ -784,7 +694,6 @@ export const useAuthStore = defineStore('auth', () => {
     isSessionExpired,
     timeUntilExpiry,
     isAccountLocked,
-    is2FAEnabled,
     securityStats,
 
     // 基本認証アクション
@@ -805,10 +714,6 @@ export const useAuthStore = defineStore('auth', () => {
 
     // セキュリティアクション
     changePassword,
-    setup2FA,
-    enable2FA,
-    disable2FA,
-    regenerateBackupCodes,
     getActiveSessions,
     getUserDevices,
     terminateUserSession,

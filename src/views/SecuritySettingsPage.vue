@@ -40,14 +40,6 @@
               <v-row density="compact">
                 <v-col cols="12" sm="3">
                   <div class="text-center">
-                    <v-icon size="24" :color="authStore.is2FAEnabled ? 'success' : 'warning'">
-                      {{ authStore.is2FAEnabled ? 'mdi-check-circle' : 'mdi-alert-circle' }}
-                    </v-icon>
-                    <div class="text-body-2 mt-1">2要素認証</div>
-                  </div>
-                </v-col>
-                <v-col cols="12" sm="3">
-                  <div class="text-center">
                     <v-icon size="24" :color="hasStrongPassword ? 'success' : 'warning'">
                       {{ hasStrongPassword ? 'mdi-check-circle' : 'mdi-alert-circle' }}
                     </v-icon>
@@ -82,10 +74,6 @@
           <v-icon class="me-2">mdi-lock</v-icon>
           パスワード
         </v-tab>
-        <v-tab value="2fa">
-          <v-icon class="me-2">mdi-shield-key</v-icon>
-          2要素認証
-        </v-tab>
         <v-tab value="sessions">
           <v-icon class="me-2">mdi-monitor-multiple</v-icon>
           セッション
@@ -103,10 +91,6 @@
             <PasswordChange />
           </v-tabs-window-item>
 
-          <!-- 2FA設定 -->
-          <v-tabs-window-item value="2fa">
-            <TwoFactorManagement />
-          </v-tabs-window-item>
 
           <!-- セッション管理 -->
           <v-tabs-window-item value="sessions">
@@ -200,7 +184,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import PasswordChange from '@/components/security/PasswordChange.vue'
-import TwoFactorManagement from '@/components/security/TwoFactorManagement.vue'
 import SessionManagement from '@/components/security/SessionManagement.vue'
 // import AuditLogViewer from '@/components/security/AuditLogViewer.vue'
 
@@ -213,7 +196,6 @@ const isAdvancedUser = ref(false) // 将来的に管理者権限で制御
 const securityScore = computed(() => {
   let score = 50 // ベーススコア
 
-  if (authStore.is2FAEnabled) score += 30
   if (hasStrongPassword.value) score += 20
 
   return Math.min(100, score)
@@ -233,12 +215,6 @@ const pendingAlerts = computed(() => {
 })
 
 const securityRecommendations = computed(() => [
-  {
-    id: 1,
-    title: '2要素認証を有効にする',
-    description: 'アカウントのセキュリティを大幅に向上させます',
-    completed: authStore.is2FAEnabled,
-  },
   {
     id: 2,
     title: '強固なパスワードを設定する',
