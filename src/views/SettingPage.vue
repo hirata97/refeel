@@ -1,7 +1,7 @@
 <template>
   <v-container class="settings-page">
-    <v-typography variant="h4" class="mb-4">設定</v-typography>
-    <v-typography variant="body1" class="mb-4">ここではアプリの設定を行います。</v-typography>
+    <h1 class="text-h4 mb-4">設定</h1>
+    <p class="text-body-1 mb-4">ここではアプリの設定を行います。</p>
 
     <!-- タブナビゲーション -->
     <v-tabs v-model="activeTab" class="mb-4">

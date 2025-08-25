@@ -1,5 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { generateCSSCustomProperties } from '@/styles/design-tokens'
 
 export type ThemeName = 'light' | 'dark' | 'system'
 
@@ -208,7 +209,7 @@ export const useThemeStore = defineStore('theme', () => {
     { title: 'システム設定に従う', value: 'system' as ThemeName, icon: 'mdi-theme-light-dark' },
   ]
 
-  // CSS変数更新（カスタムスタイルが必要な場合）
+  // CSS変数更新（デザイントークンシステム統合）
   const updateCSSVariables = () => {
     try {
       if (typeof document === 'undefined' || !document.documentElement) {
@@ -218,6 +219,15 @@ export const useThemeStore = defineStore('theme', () => {
       const root = document.documentElement
       const currentTheme = effectiveTheme.value
 
+      // デザイントークンからCSS変数を生成
+      const designTokenProperties = generateCSSCustomProperties()
+      
+      // デザイントークンを適用
+      Object.entries(designTokenProperties).forEach(([property, value]) => {
+        root.style.setProperty(property, value)
+      })
+
+      // テーマ依存のカラー変数を更新
       if (currentTheme === 'dark') {
         // ダークテーマのカラーパレット
         root.style.setProperty('--app-background', '#121212')

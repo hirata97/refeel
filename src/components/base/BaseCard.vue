@@ -34,25 +34,27 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <style scoped>
+/* デザイントークン準拠スタイリング */
 .base-card {
-  margin-bottom: 16px;
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--border-radius-card);
 }
 
 .base-card-title {
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: var(--font-size-h6);
 }
 
 .base-card-subtitle {
-  color: rgba(0, 0, 0, 0.6);
-  font-size: 0.9rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  font-size: var(--font-size-body2);
 }
 
 .base-card-content {
-  padding: 16px;
+  padding: var(--card-padding);
 }
 
 .base-card-actions {
-  padding: 8px 16px 16px;
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-md);
 }
 </style>

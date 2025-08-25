@@ -1,0 +1,170 @@
+/**
+ * グローバルデザイントークンスタイル
+ * Issue #153 Phase 2: デザイントークンシステム統合
+ */
+
+/* =============================================================================
+   Root Variables (デザイントークンから自動生成)
+   ============================================================================= */
+:root {
+  /* デザイントークンはthemeストアのupdateCSSVariables()で動的に設定 */
+  
+  /* 固定のデザイントークン (テーマ非依存) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-xxl: 48px;
+  
+  /* Component tokens */
+  --card-padding: 16px;
+  --section-margin: 16px;
+  --form-field-spacing: 16px;
+  --border-radius-card: 8px;
+  --border-radius-button: 4px;
+  --button-height-medium: 40px;
+  --layout-max-width: 1200px;
+  
+  /* Typography tokens */
+  --font-size-h1: 57px;
+  --font-size-h2: 45px;
+  --font-size-h3: 36px;
+  --font-size-h4: 32px;
+  --font-size-h5: 28px;
+  --font-size-h6: 24px;
+  --font-size-body1: 16px;
+  --font-size-body2: 14px;
+}
+
+/* =============================================================================
+   Global Layout Improvements
+   ============================================================================= */
+
+/* コンテナの最大幅制限 */
+.v-container {
+  max-width: var(--layout-max-width) !important;
+}
+
+/* フォームセクションの統一スタイル */
+.form-section {
+  padding: var(--card-padding);
+  margin: var(--section-margin) 0;
+  border-radius: var(--border-radius-card);
+}
+
+/* カードの統一スタイル */
+.v-card {
+  border-radius: var(--border-radius-card);
+}
+
+.v-card .v-card-text {
+  padding: var(--card-padding);
+}
+
+/* ボタンの統一スタイル */
+.v-btn {
+  border-radius: var(--border-radius-button);
+  text-transform: none; /* 日本語UIのため */
+  font-weight: 500;
+}
+
+/* =============================================================================
+   Typography Consistency
+   ============================================================================= */
+
+/* 見出しの一貫性 */
+.text-h1 { font-size: var(--font-size-h1) !important; }
+.text-h2 { font-size: var(--font-size-h2) !important; }
+.text-h3 { font-size: var(--font-size-h3) !important; }
+.text-h4 { font-size: var(--font-size-h4) !important; }
+.text-h5 { font-size: var(--font-size-h5) !important; }
+.text-h6 { font-size: var(--font-size-h6) !important; }
+
+.text-body-1 { font-size: var(--font-size-body1) !important; }
+.text-body-2 { font-size: var(--font-size-body2) !important; }
+
+/* =============================================================================
+   Component Specific Improvements
+   ============================================================================= */
+
+/* カードタイトルの統一 */
+.v-card-title {
+  font-size: var(--font-size-h6);
+  font-weight: 600;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+}
+
+.v-card-subtitle {
+  font-size: var(--font-size-body2);
+  padding: 0 var(--spacing-md) var(--spacing-sm);
+}
+
+/* リストアイテムの統一 */
+.v-list-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+/* フィールドの統一スタイル */
+.v-field {
+  margin-bottom: var(--form-field-spacing);
+}
+
+/* アラートの統一 */
+.v-alert {
+  border-radius: var(--border-radius-card);
+  margin: var(--spacing-sm) 0;
+}
+
+/* =============================================================================
+   Responsive Design Tokens
+   ============================================================================= */
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  :root {
+    --card-padding: 12px;
+    --section-margin: 12px;
+    --form-field-spacing: 12px;
+  }
+  
+  .v-container {
+    padding: var(--spacing-sm) !important;
+  }
+  
+  .form-section {
+    margin: var(--spacing-sm) 0;
+  }
+}
+
+/* タブレット対応 */
+@media (min-width: 769px) and (max-width: 1024px) {
+  :root {
+    --card-padding: 20px;
+    --section-margin: 20px;
+  }
+}
+
+/* =============================================================================
+   Animation & Transitions
+   ============================================================================= */
+
+/* スムーズなテーマ切り替え */
+.v-application,
+.v-card,
+.v-btn,
+.v-field,
+.v-alert {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* ホバーエフェクトの統一 */
+.v-btn:hover {
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+.v-card:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+}

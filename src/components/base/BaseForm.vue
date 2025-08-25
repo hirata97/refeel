@@ -74,14 +74,30 @@ defineExpose({
 </script>
 
 <style scoped>
+/* デザイントークン準拠フォームスタイル */
 .form-title {
-  font-size: 1.5rem;
+  font-size: var(--font-size-h5);
   font-weight: 600;
 }
 
 .form-actions {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--spacing-sm);
+  margin-top: var(--form-field-spacing);
+}
+
+/* フォームコンテナのパディング調整 */
+:deep(.v-container) {
+  padding: var(--spacing-md);
+}
+
+/* フォームフィールド間のスペーシング */
+:deep(.v-form > .v-field) {
+  margin-bottom: var(--form-field-spacing);
+}
+
+:deep(.v-form > .v-card) {
+  margin-bottom: var(--section-margin);
 }
 </style>

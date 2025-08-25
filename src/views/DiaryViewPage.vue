@@ -1,6 +1,6 @@
 <template>
   <v-container class="diary-view-page">
-    <v-typography variant="h4" class="mb-4">日記一覧</v-typography>
+    <h1 class="text-h4 mb-4">日記一覧</h1>
 
     <!-- フィルターコンポーネント -->
     <DiaryFilter
