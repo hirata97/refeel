@@ -20,7 +20,34 @@ const SUPABASE_TYPES_FILE = join(TYPES_DIR, 'supabase.ts')
 
 // 環境変数から設定を取得
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL
-const PROJECT_ID = SUPABASE_URL?.match(/https:\/\/([a-z]+)\.supabase\.co/)?.[1]
+const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN
+
+// PROJECT_IDの抽出ロジック（より堅牢に）
+function extractProjectId(url) {
+  if (!url) {
+    log('VITE_SUPABASE_URL が設定されていません', 'error')
+    return null
+  }
+  
+  // 複数のパターンに対応
+  const patterns = [
+    /https:\/\/([a-zA-Z0-9]+)\.supabase\.co/,  // 標準パターン
+    /https:\/\/([a-zA-Z0-9\-_]+)\.supabase\.co/, // ハイフン・アンダースコア対応
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match && match[1]) {
+      log(`PROJECT_ID を抽出しました: ${match[1]}`, 'success')
+      return match[1]
+    }
+  }
+  
+  log(`URL形式が不正です: ${url}`, 'error')
+  return null
+}
+
+const PROJECT_ID = extractProjectId(SUPABASE_URL)
 
 /**
  * ログ出力関数
@@ -236,12 +263,27 @@ export type DashboardData = {
  * 本番環境用の型定義生成（実際のSupabase接続）
  */
 async function generateTypesProduction() {
+  // 環境変数の検証
+  log('本番環境用の型定義生成を開始します...')
+  log(`SUPABASE_URL: ${SUPABASE_URL ? '設定済み' : '未設定'}`)
+  log(`ACCESS_TOKEN: ${ACCESS_TOKEN ? '設定済み' : '未設定'}`)
+  log(`PROJECT_ID: ${PROJECT_ID || '取得失敗'}`)
+  
   if (!PROJECT_ID) {
+    log('PROJECT_ID が取得できません。環境変数を確認してください:', 'error')
+    log(`  VITE_SUPABASE_URL: ${SUPABASE_URL || 'undefined'}`, 'error')
+    log(`  SUPABASE_ACCESS_TOKEN: ${ACCESS_TOKEN ? '設定済み' : 'undefined'}`, 'error')
     throw new Error('PROJECT_ID が環境変数から取得できません')
+  }
+  
+  if (!ACCESS_TOKEN) {
+    log('SUPABASE_ACCESS_TOKEN が設定されていません', 'error')
+    throw new Error('SUPABASE_ACCESS_TOKEN が必要です')
   }
 
   try {
     // Supabase CLIを使用して型定義生成を試行
+    log(`PROJECT_ID ${PROJECT_ID} を使用して型定義を生成しています...`)
     const typesOutput = execCommand(
       `npx supabase gen types typescript --project-id ${PROJECT_ID}`,
       'Supabaseから型定義を取得'
@@ -258,8 +300,9 @@ ${typesOutput}
     writeFileSync(GENERATED_TYPES_FILE, wrappedTypes)
     log('本番環境の型定義を生成しました', 'success')
     
-  } catch {
-    log('本番環境での型定義生成に失敗しました。ローカル環境用にフォールバックします', 'error')
+  } catch (error) {
+    log(`本番環境での型定義生成に失敗: ${error.message}`, 'error')
+    log('ローカル環境用にフォールバックします', 'error')
     generateTypesLocal()
   }
 }
