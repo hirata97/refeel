@@ -4,11 +4,22 @@
  * エラーハンドリングと例外ケースをテスト
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { 
   PasswordValidator,
   DEFAULT_PASSWORD_POLICY
 } from '@/utils/password-policy'
+
+// Crypto API のモック
+Object.defineProperty(globalThis, 'crypto', {
+  value: {
+    subtle: {
+      digest: vi.fn(async () => {
+        return new ArrayBuffer(32) // SHA-256の結果をシミュレート
+      })
+    }
+  }
+})
 
 describe('PasswordValidator - 異常系', () => {
   let validator

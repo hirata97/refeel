@@ -128,12 +128,17 @@ export const analyzeContentStats = (diaries: DiaryEntry[]): ContentStats => {
  * progress_levelを気分スコアとして使用
  */
 export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
+  // 曜日の初期化
+  const weekdays = ['日', '月', '火', '水', '木', '金', '土']
+  const weeklyAverage: Record<string, number> = {}
+  weekdays.forEach(day => { weeklyAverage[day] = 0 })
+
   if (diaries.length === 0) {
     return {
       average: 0,
       max: 0,
       min: 0,
-      weeklyAverage: {},
+      weeklyAverage,
       monthlyAverage: {}
     }
   }
@@ -144,10 +149,8 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
   const min = Math.min(...moods)
 
   // 曜日別平均
-  const weeklyGroups: Record<string, number[]> = {
-    '月': [], '火': [], '水': [], '木': [], '金': [], '土': [], '日': []
-  }
-  const weekdays = ['日', '月', '火', '水', '木', '金', '土']
+  const weeklyGroups: Record<string, number[]> = {}
+  weekdays.forEach(day => { weeklyGroups[day] = [] })
 
   // 月別平均
   const monthlyGroups: Record<string, number[]> = {}
@@ -169,7 +172,6 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
   })
 
   // 平均計算
-  const weeklyAverage: Record<string, number> = {}
   Object.entries(weeklyGroups).forEach(([day, values]) => {
     weeklyAverage[day] = values.length > 0 
       ? Math.round(values.reduce((sum, val) => sum + val, 0) / values.length)
