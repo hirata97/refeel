@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import {
   accountLockoutManager,
-  twoFactorAuthManager,
   passwordValidator,
   passwordHistoryManager,
   enhancedSessionManager,
@@ -20,16 +19,9 @@ export const useSecurityStore = defineStore('security', () => {
   // セキュリティ状態
   const lockoutStatus = ref<LockoutStatus | null>(null)
   const passwordValidationResult = ref<PasswordValidationResult | null>(null)
-  const twoFactorRequired = ref<boolean>(false)
-  const pendingTwoFactorSessionId = ref<string | null>(null)
 
   // セキュリティ関連の計算プロパティ
   const isAccountLocked = computed(() => lockoutStatus.value?.isLocked || false)
-
-  const is2FAEnabled = computed(() => {
-    // ユーザーIDは認証ストアから取得する必要がある
-    return (userId: string) => twoFactorAuthManager.is2FAEnabled(userId)
-  })
 
   const securityStats = computed(() => {
     return (userId: string) => enhancedSessionManager.getSecurityStats(userId)
@@ -97,52 +89,6 @@ export const useSecurityStore = defineStore('security', () => {
     return await passwordHistoryManager.isPasswordReused(userId, passwordHash)
   }
 
-  // 2FA関連メソッド
-  const setup2FA = async (userId: string, email: string) => {
-    return await twoFactorAuthManager.setup2FA(userId, email)
-  }
-
-  const enable2FA = async (
-    userId: string,
-    email: string,
-    secret: string,
-    verificationCode: string,
-    backupCodes: string[]
-  ) => {
-    const result = await twoFactorAuthManager.enable2FA(
-      userId,
-      email,
-      secret,
-      verificationCode,
-      backupCodes
-    )
-
-    if (result.success) {
-      twoFactorRequired.value = false
-      pendingTwoFactorSessionId.value = null
-    }
-
-    return result
-  }
-
-  const disable2FA = async (userId: string, email: string, verificationCode: string) => {
-    return await twoFactorAuthManager.disable2FA(userId, email, verificationCode)
-  }
-
-  const verify2FACode = async (userId: string, code: string) => {
-    const result = await twoFactorAuthManager.verify2FACode(userId, code)
-    
-    if (result.isValid) {
-      twoFactorRequired.value = false
-      pendingTwoFactorSessionId.value = null
-    }
-
-    return result
-  }
-
-  const regenerateBackupCodes = async (userId: string, email: string) => {
-    return await twoFactorAuthManager.regenerateBackupCodes(userId, email)
-  }
 
   // セッション管理
   const createSession = async (
@@ -179,33 +125,19 @@ export const useSecurityStore = defineStore('security', () => {
     return await auditLogger.log(eventType, description, metadata)
   }
 
-  // 2FA状態管理
-  const setTwoFactorRequired = (required: boolean) => {
-    twoFactorRequired.value = required
-  }
-
-  const setPendingTwoFactorSessionId = (sessionId: string | null) => {
-    pendingTwoFactorSessionId.value = sessionId
-  }
-
   // 状態クリア
   const clearSecurityState = () => {
     lockoutStatus.value = null
     passwordValidationResult.value = null
-    twoFactorRequired.value = false
-    pendingTwoFactorSessionId.value = null
   }
 
   return {
     // 状態
     lockoutStatus,
     passwordValidationResult,
-    twoFactorRequired,
-    pendingTwoFactorSessionId,
 
     // 計算プロパティ
     isAccountLocked,
-    is2FAEnabled,
     securityStats,
 
     // メソッド
@@ -219,19 +151,12 @@ export const useSecurityStore = defineStore('security', () => {
     getStrengthLabel,
     addToPasswordHistory,
     isPasswordReused,
-    setup2FA,
-    enable2FA,
-    disable2FA,
-    verify2FACode,
-    regenerateBackupCodes,
     createSession,
     terminateSession,
     getActiveUserSessions,
     getUserDevices,
     terminateAllUserSessions,
     logSecurityEvent,
-    setTwoFactorRequired,
-    setPendingTwoFactorSessionId,
     clearSecurityState,
   }
 })
