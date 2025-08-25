@@ -17,7 +17,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar class="ps-4" color="deep-purple">
+    <v-app-bar class="ps-4" color="primary">
       <v-app-bar-nav-icon :disabled="disableSidebarToggle" @click="toggleDrawer" />
 
       <v-app-bar-title>日記アプリゆる開発</v-app-bar-title>

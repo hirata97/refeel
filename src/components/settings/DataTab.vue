@@ -143,10 +143,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDataManagementStore } from '../../stores/dataManagement'
-import { useRouter } from 'vue-router'
 
 const dataManagementStore = useDataManagementStore()
-const router = useRouter()
 
 // ローカル状態
 const exportFormat = ref('json')
@@ -156,12 +154,23 @@ const showAccountDeleteDialog = ref(false)
 
 // データ操作
 const exportData = async () => {
-  await dataManagementStore.exportData(exportFormat.value as 'json' | 'csv')
+  const exportOptions = {
+    format: exportFormat.value as 'json' | 'csv',
+    dataTypes: ['diaries', 'settings', 'profile'] as Array<'diaries' | 'settings' | 'profile'>,
+    compressed: false
+  }
+  await dataManagementStore.exportData(exportOptions)
 }
 
 const importData = async () => {
   if (importFile.value && importFile.value.length > 0) {
-    await dataManagementStore.importData(importFile.value[0])
+    const importOptions = {
+      format: 'json' as 'json' | 'csv',
+      file: importFile.value[0],
+      conflictResolution: 'merge' as 'overwrite' | 'merge' | 'skip',
+      validateData: true
+    }
+    await dataManagementStore.importData(importOptions)
     importFile.value = []
   }
 }
@@ -172,8 +181,8 @@ const deleteAllData = async () => {
 }
 
 const deleteAccount = async () => {
-  await dataManagementStore.deleteAccount()
+  // TODO: アカウント削除機能の実装が必要
+  console.warn('アカウント削除機能は未実装です')
   showAccountDeleteDialog.value = false
-  router.push('/login')
 }
 </script>

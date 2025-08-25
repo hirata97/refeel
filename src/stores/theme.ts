@@ -90,6 +90,9 @@ export const useThemeStore = defineStore('theme', () => {
     // Vuetifyテーマに反映
     applyThemeToVuetify(theme)
 
+    // CSS変数を更新
+    updateCSSVariables()
+
     // ローカルストレージに保存
     saveToLocalStorage()
   }
@@ -135,6 +138,9 @@ export const useThemeStore = defineStore('theme', () => {
 
         // Vuetifyテーマに即座に反映
         applyThemeToVuetify(selectedTheme.value)
+        
+        // CSS変数も更新
+        updateCSSVariables()
       }
     } catch (error) {
       console.warn('テーマ設定の読み込みに失敗しました:', error)
@@ -156,6 +162,7 @@ export const useThemeStore = defineStore('theme', () => {
         try {
           if (selectedTheme.value === 'system') {
             applyThemeToVuetify('system')
+            updateCSSVariables()
           }
         } catch (error) {
           console.warn('システムテーマ変更の処理に失敗しました:', error)
@@ -212,13 +219,21 @@ export const useThemeStore = defineStore('theme', () => {
       const currentTheme = effectiveTheme.value
 
       if (currentTheme === 'dark') {
+        // ダークテーマのカラーパレット
         root.style.setProperty('--app-background', '#121212')
         root.style.setProperty('--app-surface', '#1E1E1E')
         root.style.setProperty('--app-text', '#FFFFFF')
+        root.style.setProperty('--app-primary', '#7C4DFF')
+        root.style.setProperty('--app-primary-darken', '#651FFF')
+        root.style.setProperty('--app-surface-variant', '#2A1B3D')
       } else {
+        // ライトテーマのカラーパレット
         root.style.setProperty('--app-background', '#f5f7fa')
         root.style.setProperty('--app-surface', '#ffffff')
         root.style.setProperty('--app-text', '#000000')
+        root.style.setProperty('--app-primary', '#673AB7')
+        root.style.setProperty('--app-primary-darken', '#512DA8')
+        root.style.setProperty('--app-surface-variant', '#F3E5F5')
       }
     } catch (error) {
       console.warn('CSS変数の更新に失敗しました:', error)
