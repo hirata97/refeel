@@ -17,9 +17,7 @@
       </v-list>
     </v-navigation-drawer>
 
-    <!-- ツールバー -->
     <v-app-bar class="ps-4" color="deep-purple">
-      <!-- サイドバーの開閉ボタン -->
       <v-app-bar-nav-icon :disabled="disableSidebarToggle" @click="toggleDrawer" />
 
       <v-app-bar-title>日記アプリゆる開発</v-app-bar-title>
@@ -85,32 +83,32 @@ const drawer = ref(false)
 // サイドバーに表示する項目
 const items = ref([
   {
-    title: 'Dashboard',
+    title: 'ダッシュボード',
     prependIcon: 'mdi-view-dashboard-outline',
     link: '/dashboard',
   },
   {
-    title: 'Diary Register',
+    title: '日記登録',
     prependIcon: 'mdi-pencil-outline',
     link: '/diary-register',
   },
   {
-    title: 'Diary View',
+    title: '日記閲覧',
     prependIcon: 'mdi-book-open-outline',
     link: '/diary-view',
   },
   {
-    title: 'Diary Report',
+    title: '日記レポート',
     prependIcon: 'mdi-file-chart-outline',
     link: '/diary-report',
   },
   {
-    title: 'Setting',
+    title: '設定',
     prependIcon: 'mdi-cog-outline',
     link: '/setting',
   },
   {
-    title: 'Help',
+    title: 'ヘルプ',
     prependIcon: 'mdi-help-circle-outline',
     link: '/help',
   },
@@ -126,17 +124,14 @@ const handleLogout = async () => {
         await router.push('/login')
       } else {
         console.error('ログアウトエラー:', result.error)
-        notificationStore.showError(
-          'ログアウトに失敗しました',
-          'ログアウトに失敗しました'
-        )
+        notificationStore.showError('ログアウトに失敗しました', 'ログアウトに失敗しました')
       }
     })
   } catch (error) {
     console.error('ログアウトエラー:', error)
     notificationStore.showError(
       'ログアウトに失敗しました',
-      error instanceof Error ? error.message : 'Unknown error'
+      error instanceof Error ? error.message : 'Unknown error',
     )
   }
 }
@@ -161,7 +156,6 @@ const toggleDrawer = () => {
 </script>
 
 <style scoped>
-/* 必要に応じてスタイルを追加 */
 .v-layout {
   position: relative;
 }
