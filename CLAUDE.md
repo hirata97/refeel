@@ -21,13 +21,28 @@ npm run test:unit    # ユニットテスト
 npm run build        # 本番ビルド
 ```
 
-## ⚡ 開発フロー（5ステップ）
+## ⚡ 開発フロー（6ステップ）**【厳守】**
 
-1. **Issue理解** → `npm run fetch-issue [番号]` でタスク確認
-2. **探索・計画** → アーキテクチャ理解、依存関係確認
-3. **段階的実装** → 最小単位で実装→テスト→品質チェック
-4. **品質検証** → lint・型チェック + 影響範囲のテスト実行（全テスト実行は不要、PR時に自動実行）
-5. **PR作成** → `npm run create-pr` で自動作成（自動的に`Closes #[Issue番号]`追加）
+1. **最新状態取得** → **必須**: `git pull origin main` で最新状態に更新
+2. **フィーチャーブランチ作成** → **必須**: `git checkout -b feature/[issue-number]-[description]`
+3. **Issue理解** → `npm run fetch-issue [番号]` でタスク確認
+4. **探索・計画** → アーキテクチャ理解、依存関係確認
+5. **段階的実装** → 最小単位で実装→テスト→品質チェック
+6. **PR作成** → 品質検証後、`npm run create-pr` で自動作成
+
+### 🚨 ブランチ戦略（絶対厳守）
+```bash
+# ✅ 正しい手順
+git pull origin main                                    # 1. 最新状態取得
+git checkout -b feature/issue-123-diary-fix           # 2. フィーチャーブランチ作成
+# ... 実装作業 ...
+git push -u origin feature/issue-123-diary-fix        # 3. リモートにプッシュ
+npm run create-pr                                      # 4. PR作成
+
+# ❌ 絶対禁止
+git commit -m "fix" main                               # mainブランチ直接コミット
+git push origin main                                   # mainブランチ直接プッシュ
+```
 
 ## 🎯 重要原則（絶対厳守）
 
@@ -106,11 +121,12 @@ tests/               # テストファイル
 ```
 
 ### 作業パターン
-1. **段階的実装**: 最小単位での確認
-2. **並列処理**: 複数ツール同時実行
-3. **早期品質チェック**: 実装中の`npm run ci:lint && npm run ci:type-check` + 影響範囲テスト
-4. **自動化活用**: `npm run auto-issue`での効率化
-5. **PR作成**: 必ず`Closes #[Issue番号]`をPR本文に記載（自動スクリプト使用時は自動追加）
+1. **ブランチ準備**: 必ず`git pull origin main`→フィーチャーブランチ作成
+2. **段階的実装**: 最小単位での確認
+3. **並列処理**: 複数ツール同時実行
+4. **早期品質チェック**: 実装中の`npm run ci:lint && npm run ci:type-check` + 影響範囲テスト
+5. **自動化活用**: `npm run auto-issue`での効率化
+6. **PR作成**: フィーチャーブランチから必ず作成、`Closes #[Issue番号]`をPR本文に記載
 
 ## 📚 詳細情報
 

@@ -9,19 +9,6 @@
 
     <v-card-text>
       <v-row>
-        <!-- カテゴリフィルター -->
-        <v-col cols="12" md="6" lg="4">
-          <v-select
-            v-model="localFilters.goal_category"
-            :items="categoryOptions"
-            label="目標カテゴリ"
-            clearable
-            variant="outlined"
-            density="compact"
-            @update:model-value="handleFilterChange"
-          />
-        </v-col>
-
         <!-- テキスト検索 -->
         <v-col cols="12" md="6" lg="4">
           <v-text-field
@@ -35,42 +22,42 @@
           />
         </v-col>
 
-        <!-- 進捗レベル範囲 -->
+        <!-- 気分レベル範囲 -->
         <v-col cols="12" md="6" lg="4">
-          <div class="progress-filter">
-            <v-label class="filter-label">進捗レベル</v-label>
-            <div class="progress-inputs">
+          <div class="mood-filter">
+            <v-label class="filter-label">気分レベル (1-5)</v-label>
+            <div class="mood-inputs">
               <v-text-field
-                v-model.number="localFilters.progress_level_min"
+                v-model.number="localFilters.mood_min"
                 type="number"
-                :min="0"
-                :max="100"
+                :min="1"
+                :max="5"
                 label="最小"
                 variant="outlined"
                 density="compact"
-                class="progress-input"
+                class="mood-input"
                 @update:model-value="handleFilterChange"
               />
               <span class="range-separator">〜</span>
               <v-text-field
-                v-model.number="localFilters.progress_level_max"
+                v-model.number="localFilters.mood_max"
                 type="number"
-                :min="0"
-                :max="100"
+                :min="1"
+                :max="5"
                 label="最大"
                 variant="outlined"
                 density="compact"
-                class="progress-input"
+                class="mood-input"
                 @update:model-value="handleFilterChange"
               />
             </div>
           </div>
         </v-col>
 
-        <!-- 作成日期間 -->
+        <!-- 日記日付期間 -->
         <v-col cols="12" md="6" lg="6">
           <div class="date-filter">
-            <v-label class="filter-label">作成日期間</v-label>
+            <v-label class="filter-label">日記日付期間</v-label>
             <div class="date-inputs">
               <v-text-field
                 v-model="localFilters.date_from"
@@ -136,17 +123,15 @@ import { ref, computed, watch } from 'vue'
 import { debounce } from '@/utils/performance'
 
 interface FilterValues {
-  goal_category: string
   date_from: string
   date_to: string
   search_text: string
-  progress_level_min: number | null
-  progress_level_max: number | null
+  mood_min: number | null
+  mood_max: number | null
 }
 
 interface Props {
   filters: FilterValues
-  categories?: string[]
   loading?: boolean
 }
 
@@ -157,7 +142,6 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  categories: () => [],
   loading: false,
 })
 
@@ -166,11 +150,7 @@ const emit = defineEmits<Emits>()
 // ローカルフィルター状態
 const localFilters = ref<FilterValues>({ ...props.filters })
 
-// カテゴリオプション
-const categoryOptions = computed(() => [
-  { title: 'すべて', value: '' },
-  ...props.categories.map((cat) => ({ title: cat, value: cat })),
-])
+// フィルター値の削除
 
 // アクティブフィルターの計算
 const hasActiveFilters = computed(() => {
@@ -182,14 +162,6 @@ const hasActiveFilters = computed(() => {
 const activeFiltersList = computed(() => {
   const filters = []
 
-  if (localFilters.value.goal_category) {
-    filters.push({
-      key: 'goal_category',
-      label: 'カテゴリ',
-      value: localFilters.value.goal_category,
-    })
-  }
-
   if (localFilters.value.search_text) {
     filters.push({
       key: 'search_text',
@@ -198,19 +170,19 @@ const activeFiltersList = computed(() => {
     })
   }
 
-  if (localFilters.value.progress_level_min !== null) {
+  if (localFilters.value.mood_min !== null) {
     filters.push({
-      key: 'progress_level_min',
-      label: '進捗最小',
-      value: `${localFilters.value.progress_level_min}%`,
+      key: 'mood_min',
+      label: '気分最小',
+      value: `${localFilters.value.mood_min}/5`,
     })
   }
 
-  if (localFilters.value.progress_level_max !== null) {
+  if (localFilters.value.mood_max !== null) {
     filters.push({
-      key: 'progress_level_max',
-      label: '進捗最大',
-      value: `${localFilters.value.progress_level_max}%`,
+      key: 'mood_max',
+      label: '気分最大',
+      value: `${localFilters.value.mood_max}/5`,
     })
   }
 
@@ -248,12 +220,11 @@ const applyFilters = () => {
 
 const clearAllFilters = () => {
   localFilters.value = {
-    goal_category: '',
     date_from: '',
     date_to: '',
     search_text: '',
-    progress_level_min: null,
-    progress_level_max: null,
+    mood_min: null,
+    mood_max: null,
   }
   emit('update:filters', { ...localFilters.value })
   emit('clear-filters')
@@ -261,12 +232,11 @@ const clearAllFilters = () => {
 
 const removeFilter = (key: string) => {
   const filterKey = key as keyof FilterValues
-  if (filterKey === 'progress_level_min' || filterKey === 'progress_level_max') {
+  if (filterKey === 'mood_min' || filterKey === 'mood_max') {
     localFilters.value[filterKey] = null
   } else {
     // 文字列型のプロパティに対して空文字を設定
     if (
-      filterKey === 'goal_category' ||
       filterKey === 'date_from' ||
       filterKey === 'date_to' ||
       filterKey === 'search_text'
@@ -309,19 +279,19 @@ watch(
   display: block;
 }
 
-.progress-filter,
+.mood-filter,
 .date-filter {
   width: 100%;
 }
 
-.progress-inputs,
+.mood-inputs,
 .date-inputs {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.progress-input,
+.mood-input,
 .date-input {
   flex: 1;
 }
@@ -354,7 +324,7 @@ watch(
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-  .progress-inputs,
+  .mood-inputs,
   .date-inputs {
     flex-direction: column;
     gap: 12px;

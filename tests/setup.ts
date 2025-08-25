@@ -134,6 +134,122 @@ config.global.stubs = {
   },
   'v-container': {
     template: '<div class="v-container"><slot /></div>'
+  },
+  'v-data-table': {
+    template: '<table class="v-data-table"><thead><tr><th v-for="header in headers" :key="header.key">{{header.title}}</th></tr></thead><tbody><tr v-for="item in computedItems" :key="item.id || item"><td v-for="header in headers" :key="header.key"><slot :name="`item.${header.key}`" :item="item">{{item[header.key]}}</slot></td></tr></tbody></table>',
+    props: {
+      headers: { type: Array, default: () => [] },
+      items: { type: [Array, Object], default: () => [] },
+      loading: { type: [Boolean, Object], default: false },
+      hover: { type: Boolean, default: false }
+    },
+    computed: {
+      computedItems() {
+        // ref オブジェクトの場合は value を取得
+        return this.items && typeof this.items === 'object' && 'value' in this.items 
+          ? this.items.value 
+          : this.items
+      }
+    }
+  },
+  'v-rating': {
+    template: '<div class="v-rating"><span v-for="n in 5" :key="n" :class="n <= modelValue ? \'star-filled\' : \'star-empty\'">⭐</span></div>',
+    props: {
+      modelValue: { type: Number, default: 0 },
+      readonly: { type: Boolean, default: false },
+      size: { type: String, default: 'default' },
+      color: { type: String, default: 'primary' },
+      halfIncrements: { type: Boolean, default: false }
+    }
+  },
+  'v-dialog': {
+    template: '<div v-if="modelValue" class="v-dialog"><slot /></div>',
+    props: {
+      modelValue: { type: Boolean, default: false },
+      maxWidth: { type: String, default: '' }
+    },
+    emits: ['update:modelValue']
+  },
+  'v-typography': {
+    template: '<div :class="`v-typography v-typography--${variant}`"><slot /></div>',
+    props: {
+      variant: { type: String, default: 'body1' }
+    }
+  },
+  'v-pagination': {
+    template: '<nav class="v-pagination"><button v-for="page in length" :key="page" @click="$emit(\'update:model-value\', page)">{{page}}</button></nav>',
+    props: {
+      modelValue: { type: Number, default: 1 },
+      length: { type: Number, default: 1 },
+      loading: { type: Boolean, default: false }
+    },
+    emits: ['update:model-value']
+  },
+  'v-spacer': {
+    template: '<div class="v-spacer"></div>'
+  },
+  'v-icon': {
+    template: '<i class="v-icon">{{ icon || "mdi-icon" }}</i>',
+    props: {
+      icon: { type: String, default: '' },
+      size: { type: String, default: 'default' },
+      color: { type: String, default: '' }
+    }
+  },
+  'v-text-field': {
+    template: '<div class="v-text-field"><label :for="label">{{label}}</label><input :id="label" :type="type" :placeholder="placeholder" :min="min" :max="max" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" /></div>',
+    props: {
+      modelValue: { type: [String, Number], default: '' },
+      label: { type: String, default: '' },
+      type: { type: String, default: 'text' },
+      placeholder: { type: String, default: '' },
+      min: { type: [String, Number], default: undefined },
+      max: { type: [String, Number], default: undefined },
+      rules: { type: Array, default: () => [] },
+      variant: { type: String, default: 'filled' },
+      density: { type: String, default: 'default' }
+    },
+    emits: ['update:modelValue']
+  },
+  'v-col': {
+    template: '<div class="v-col"><slot /></div>',
+    props: {
+      cols: { type: [String, Number], default: undefined },
+      sm: { type: [String, Number], default: undefined },
+      md: { type: [String, Number], default: undefined },
+      lg: { type: [String, Number], default: undefined }
+    }
+  },
+  'v-row': {
+    template: '<div class="v-row"><slot /></div>',
+    props: {
+      align: { type: String, default: undefined },
+      justify: { type: String, default: undefined }
+    }
+  },
+  'v-label': {
+    template: '<label class="v-label"><slot /></label>',
+    props: {
+      for: { type: String, default: '' }
+    }
+  },
+  'v-chip': {
+    template: '<div class="v-chip"><slot /><button v-if="closable" @click="$emit(\'click:close\')" aria-label="close">×</button></div>',
+    props: {
+      closable: { type: Boolean, default: false },
+      size: { type: String, default: 'default' },
+      color: { type: String, default: 'default' },
+      variant: { type: String, default: 'tonal' }
+    },
+    emits: ['click:close']
+  },
+  'DiaryFilter': {
+    template: '<div class="diary-filter"><slot /></div>',
+    props: {
+      filters: { type: Object, default: () => ({}) },
+      loading: { type: [Boolean, Object], default: false }
+    },
+    emits: ['update:filters', 'apply-filters', 'clear-filters']
   }
 }
 
