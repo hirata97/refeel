@@ -56,11 +56,11 @@
 </template>
 
 <script setup lang="ts">
-import { useThemeStore } from '../../stores/theme'
-import { useVuetify } from 'vuetify'
+import { useThemeStore, type ThemeName } from '../../stores/theme'
+import { useTheme } from 'vuetify'
 
 const themeStore = useThemeStore()
-const vuetify = useVuetify()
+const theme = useTheme()
 
 // テーマ設定オプション
 const themeOptions = [
@@ -82,8 +82,9 @@ const themeOptions = [
 ]
 
 const handleThemeChange = (value: string) => {
-  themeStore.setTheme(value as 'auto' | 'light' | 'dark')
-  vuetify.theme.global.name.value = themeStore.isDarkMode ? 'dark' : 'light'
+  const themeName = value === 'auto' ? 'system' : value as ThemeName
+  themeStore.setTheme(themeName)
+  theme.global.name.value = themeStore.isDarkMode ? 'dark' : 'light'
 }
 
 const toggleTheme = () => {

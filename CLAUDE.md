@@ -15,10 +15,15 @@
 ### 頻用コマンド
 ```bash
 npm run dev          # 開発サーバー起動
-npm run ci:all       # 全品質チェック（lint+型+テスト+ビルド）
+npm run ci:all       # 全品質チェック（型生成+lint+型+テスト+ビルド）
 npm run auto-issue   # Issue自動実装（推奨）
 npm run test:unit    # ユニットテスト
 npm run build        # 本番ビルド
+
+# 型定義関連（Issue #144対応）
+npm run generate-types      # ローカル型定義生成
+npm run generate-types:prod # 本番型定義生成（Supabase接続）
+npm run dev:with-types      # 型生成後に開発サーバー起動
 ```
 
 ## ⚡ 開発フロー（6ステップ）**【厳守】**
@@ -94,10 +99,14 @@ tests/               # テストファイル
 - ログアウト処理の不備 → `authStore.logout()`の適切な実行
 - セッション期限切れ → 自動リダイレクト実装確認
 
-### 型定義の不備
-- `any`型の使用 → 具体的な型定義作成
-- Props/Emitsの型不備 → `defineProps<>`使用
-- API レスポンスの型不備 → Supabaseスキーマから型生成
+### 型定義の不備（Issue #144で解決済み）
+- ❌ `any`型の使用 → 具体的な型定義作成
+- ❌ Props/Emitsの型不備 → `defineProps<>`使用
+- ✅ **API レスポンスの型不備** → **自動生成された型定義を使用**
+  - `src/types/database.ts` - データベーススキーマ型
+  - `src/types/supabase.ts` - Supabaseクライアント型
+  - `src/types/custom.ts` - カスタム型定義（手動管理）
+- ✅ **型定義自動化** → `npm run generate-types` で最新スキーマから生成
 
 ### テスト関連
 - 新機能のテスト不備 → ユニットテスト必須作成

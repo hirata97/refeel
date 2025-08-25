@@ -2,38 +2,13 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
+import type { DiaryEntry, Profile as Account } from '@/types/supabase'
 
-// データ型定義
-export interface DiaryEntry {
-  id: string
-  user_id: string
-  date: string
-  title: string
-  content: string
-  mood: number
-  goal_category: string
-  progress_level: number
-  created_at: string
-  updated_at: string
-}
+// 既存コードとの互換性のため一時的にre-export
+export type { DiaryEntry, Account }
 
-export interface Account {
-  id: string
-  user_id: string
-  email: string
-  username?: string
-  created_at: string
-  updated_at: string
-}
-
-// キャッシュ設定
-interface CacheEntry<T> {
-  data: T
-  timestamp: number
-  expires: number
-}
-
-type CacheKey = 'diaries' | 'accounts' | 'user_profile'
+// キャッシュ設定をカスタム型定義から再エクスポート
+import type { CacheEntry, CacheKey } from '@/types/custom'
 
 export const useDataStore = defineStore('data', () => {
   // キャッシュストレージ
