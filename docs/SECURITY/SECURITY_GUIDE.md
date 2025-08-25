@@ -28,6 +28,34 @@
 
 ## 🔒 実装済みセキュリティ機能
 
+### 🏗️ 統合セキュリティアーキテクチャ（2025年統合済み）
+
+**セキュリティモジュール**: `src/security/`
+- `core/index.ts` - 基本セキュリティ機能
+- `monitoring/index.ts` - セキュリティ監視・アラートシステム
+- `reporting/index.ts` - インシデント報告・統計機能
+- `index.ts` - 統一エクスポート
+
+```typescript
+// 統合セキュリティモジュールの使用例
+import { 
+  SecurityMonitor, 
+  SecurityAlertManager,
+  SecurityIncidentReporter 
+} from '@/security'
+
+// セキュリティ監視開始
+SecurityMonitor.getInstance().startMonitoring()
+
+// セキュリティイベント記録
+SecurityMonitor.getInstance().recordEvent({
+  type: 'auth_failure',
+  severity: 'medium',
+  userId: 'user123',
+  action: 'Login attempt failed'
+})
+```
+
 ### 入力値検証 (Input Validation)
 
 #### バリデーションライブラリ

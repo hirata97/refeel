@@ -81,14 +81,31 @@
 
 #### 機能コンポーネント
 
-- `PaginationComponent.vue` - ページネーション（2025年強化版）
+- `PaginationComponent.vue` - ページネーション統合コンポーネント（229行）
+- `pagination/` - ページネーション機能モジュール
+  - `PaginationCore.vue` - 基本機能（185行）
+  - `PaginationControls.vue` - ナビゲーション制御（198行）
+  - `PaginationAnimation.vue` - アニメーション・エラー処理（166行）
+  - `PaginationJump.vue` - ページジャンプ機能（112行）
+- `settings/` - 設定タブコンポーネント
+  - `ProfileTab.vue` - プロフィール設定
+  - `SecurityTab.vue` - セキュリティ設定
+  - `DataTab.vue` - データ管理設定
 - `DiaryFilter.vue` - 日記フィルタリング
 - `SupabaseComponent.vue` - Supabase連携
 - `MyComponent.vue` - カスタムコンポーネント
 
 ### src/stores/ - Pinia状態管理
 
-- `auth.ts` - 認証状態管理
+#### 認証ストア（モジュール化済み）
+- `auth/` - 認証機能モジュール
+  - `index.ts` - 統合インターフェース（185行）
+  - `session.ts` - セッション管理（258行）
+  - `authentication.ts` - ログイン・ログアウト処理（404行）
+  - `security.ts` - セキュリティチェック（29行）
+  - `lockout.ts` - アカウントロックアウト（33行）
+
+#### その他ストア
 - `data.ts` - データ取得・キャッシング（サーバーサイドページネーション対応）
 - `pagination.ts` - ページネーション状態管理（URL同期・永続化） ⭐ 新規
 - `counter.ts` - カウンター状態（サンプル）
@@ -96,8 +113,11 @@
 ### 重要な設定ファイル
 
 - `src/lib/supabase.ts` - Supabaseクライアント設定
-- `src/config/security.ts` - セキュリティ設定 ⭐ 追加
-- `src/types/security.d.ts` - セキュリティ型定義 ⭐ 追加
+- `src/security/` - 統合セキュリティモジュール
+  - `index.ts` - セキュリティ機能統一エクスポート
+  - `core/index.ts` - 基本セキュリティ機能
+  - `monitoring/index.ts` - セキュリティ監視システム
+  - `reporting/index.ts` - セキュリティレポート機能
 - `vite.config.ts` - Viteビルド設定
 - `eslint.config.js` - ESLint設定
 - `playwright.config.ts` - E2Eテスト設定
@@ -108,28 +128,47 @@
 src/
 ├── components/          # 再利用可能なコンポーネント
 │   ├── base/           # ベースコンポーネント（BaseButton, BaseCard等）
-│   ├── PaginationComponent.vue  # ページネーション（強化版）
+│   ├── pagination/     # ページネーション機能モジュール
+│   │   ├── PaginationCore.vue      # 基本機能（185行）
+│   │   ├── PaginationControls.vue  # ナビゲーション制御（198行）
+│   │   ├── PaginationAnimation.vue # アニメーション処理（166行）
+│   │   └── PaginationJump.vue      # ページジャンプ（112行）
+│   ├── settings/       # 設定タブコンポーネント
+│   │   ├── ProfileTab.vue    # プロフィール設定
+│   │   ├── SecurityTab.vue   # セキュリティ設定
+│   │   └── DataTab.vue       # データ管理設定
+│   ├── PaginationComponent.vue  # ページネーション統合（229行）
 │   ├── DiaryFilter.vue          # フィルタリング機能
 │   └── SupabaseComponent.vue    # Supabase連携
 ├── views/              # ページコンポーネント（9ページ）
 ├── stores/             # Pinia状態管理
-│   ├── auth.ts         # 認証状態
+│   ├── auth/           # 認証ストアモジュール
+│   │   ├── index.ts           # 統合インターフェース（185行）
+│   │   ├── session.ts         # セッション管理（258行）
+│   │   ├── authentication.ts  # 認証処理（404行）
+│   │   ├── security.ts        # セキュリティ（29行）
+│   │   └── lockout.ts         # ロックアウト（33行）
 │   ├── data.ts         # データ・キャッシング
 │   ├── pagination.ts   # ページネーション（新規）
 │   └── counter.ts      # サンプル
 ├── composables/        # Vue3コンポーザブル
 │   ├── useSimpleForm.ts     # フォーム管理
 │   └── useDataFetch.ts      # データ取得
+├── security/           # 統合セキュリティモジュール
+│   ├── index.ts        # セキュリティ機能統一エクスポート
+│   ├── core/           # 基本セキュリティ機能
+│   │   └── index.ts    # セキュリティコア機能
+│   ├── monitoring/     # セキュリティ監視
+│   │   └── index.ts    # 監視システム・アラート管理
+│   └── reporting/      # セキュリティレポート
+│       └── index.ts    # インシデント報告・統計
 ├── utils/              # ユーティリティ関数
 │   ├── sanitization.ts      # セキュリティサニタイゼーション
-│   ├── security.ts          # セキュリティ機能
 │   ├── auth.ts             # 認証ヘルパー
 │   ├── authorization.ts     # 認可制御
 │   ├── access-control.ts    # アクセス制御
 │   ├── audit-logger.ts      # 監査ログ
 │   └── performance.ts       # パフォーマンス監視
-├── config/             # 設定ファイル
-│   └── security.ts     # セキュリティ設定
 ├── types/              # TypeScript型定義
 │   └── security.d.ts   # セキュリティ型定義
 ├── router/             # Vue Routerルート定義
