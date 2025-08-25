@@ -145,10 +145,8 @@ const {
   filter,
   pagination,
   changePage,
-  changePageSize,
   applyFilters,
   clearFilters,
-  moodStats,
   refresh,
 } = useDiaries({
   immediate: false, // 手動で初期化
@@ -211,11 +209,6 @@ const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP')
 }
 
-const getMoodColor = (mood: number): string => {
-  if (mood >= 4) return 'success'
-  if (mood >= 3) return 'warning'
-  return 'error'
-}
 
 // 日記詳細表示
 const viewDiary = (diary: DiaryEntry) => {
@@ -235,9 +228,6 @@ const handlePageChange = (page: number) => {
   changePage(page)
 }
 
-const handlePageSizeChange = (pageSize: number) => {
-  changePageSize(pageSize)
-}
 
 // フィルター適用処理
 const handleApplyFilters = () => {
