@@ -30,17 +30,40 @@
           outlined
           required
         />
-        <v-slider
-          v-model="mood"
-          label="気分"
-          :min="1"
-          :max="5"
-          :step="1"
-          show-ticks="always"
-          thumb-label
-        >
-          <template #thumb-label="{ modelValue }"> {{ modelValue }}/5 </template>
-        </v-slider>
+        <v-card variant="outlined" class="mood-selector">
+          <v-card-subtitle class="pb-2">気分</v-card-subtitle>
+          <v-card-text class="pt-0">
+            <v-btn-toggle
+              v-model="mood"
+              color="primary"
+              variant="outlined"
+              divided
+              mandatory
+              class="mood-buttons"
+            >
+              <v-btn :value="1" size="large" class="mood-btn">
+                <v-icon>mdi-emoticon-sad</v-icon>
+                <span class="ml-2">1</span>
+              </v-btn>
+              <v-btn :value="2" size="large" class="mood-btn">
+                <v-icon>mdi-emoticon-neutral</v-icon>
+                <span class="ml-2">2</span>
+              </v-btn>
+              <v-btn :value="3" size="large" class="mood-btn">
+                <v-icon>mdi-emoticon</v-icon>
+                <span class="ml-2">3</span>
+              </v-btn>
+              <v-btn :value="4" size="large" class="mood-btn">
+                <v-icon>mdi-emoticon-happy</v-icon>
+                <span class="ml-2">4</span>
+              </v-btn>
+              <v-btn :value="5" size="large" class="mood-btn">
+                <v-icon>mdi-emoticon-excited</v-icon>
+                <span class="ml-2">5</span>
+              </v-btn>
+            </v-btn-toggle>
+          </v-card-text>
+        </v-card>
         <v-btn 
           type="submit" 
           color="primary" 
@@ -170,5 +193,28 @@ const addDiary = async (): Promise<void> => {
 <style scoped>
 .diary-page {
   margin: 0 auto;
+}
+
+.mood-selector {
+  margin: 16px 0;
+}
+
+.mood-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.mood-btn {
+  flex: 1;
+  margin: 0 2px;
+  min-height: 56px;
+  flex-direction: column;
+}
+
+@media (max-width: 600px) {
+  .mood-btn {
+    min-height: 48px;
+  }
 }
 </style>

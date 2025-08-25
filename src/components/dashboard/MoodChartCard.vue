@@ -129,16 +129,18 @@ const chartOptions = computed(() => ({
     },
     y: {
       beginAtZero: true,
+      min: 1,
       max: 5,
-      grid: {
-        color: 'var(--v-theme-outline-variant)',
-      },
       ticks: {
+        stepSize: 1,
         color: 'var(--v-theme-on-surface-variant)',
         font: {
           size: 12,
         },
         callback: (value: number | string) => `${value}/5`,
+      },
+      grid: {
+        color: 'var(--v-theme-outline-variant)',
       },
     },
   },
