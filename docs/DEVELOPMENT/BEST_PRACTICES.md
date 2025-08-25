@@ -24,8 +24,51 @@ npm audit
 ## 設計フェーズ
 
 - **最小単位での分割**: 機能を独立した小さな単位に分解
+- **単一責任原則**: 1ファイル200行以下を目標とした機能分割
+- **モジュール化戦略**: 依存関係を明確にした階層構造設計
 - **テスト戦略**: 新機能の品質担保方法を事前に計画
 - **型設計**: インターフェース・型定義を先に設計
+
+### 🏗️ モジュール分割ベストプラクティス
+
+#### 大きなファイルの分割指針
+```typescript
+// ❌ 避けるべきパターン（737行の巨大ストア）
+export const useAuthStore = defineStore('auth', () => {
+  // セッション管理 + 認証処理 + セキュリティ + ロックアウト
+  // すべてが1つのファイルに混在
+})
+
+// ✅ 推奨パターン（機能別分割）
+// stores/auth/index.ts - 統合インターフェース（185行）
+export const useAuthStore = defineStore('auth', () => {
+  const sessionStore = createSessionStore()
+  const authenticationStore = createAuthenticationStore(/*...*/)
+  const securityStore = createSecurityStore()
+  const lockoutStore = createLockoutStore()
+  
+  return {
+    // 統一されたAPIを提供（後方互換性保持）
+    ...sessionStore,
+    ...authenticationStore, 
+    ...securityStore,
+    ...lockoutStore
+  }
+})
+```
+
+#### 依存関係注入パターン
+```typescript
+// stores/auth/authentication.ts
+export const createAuthenticationStore = (
+  setSessionFn: (session: Session | null) => void,
+  setLoadingFn: (loading: boolean) => void,
+  // 必要な依存関係を注入
+) => {
+  // 認証処理の実装（404行）
+  return { signIn, signUp, signOut, changePassword }
+}
+```
 
 ## 段階的実装プロセス
 
@@ -181,6 +224,8 @@ function createTypedStore<T extends Record<string, unknown>>(initialState: T): S
 ### 入力値検証・サニタイゼーション
 
 ```typescript
+// 統合セキュリティモジュール活用
+import { SecurityMonitor, SecurityIncidentReporter } from '@/security'
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
 
 // 必須チェックパターン
@@ -188,6 +233,13 @@ const createSecureData = async (inputData: unknown) => {
   // 1. セキュリティチェック
   const securityResult = performSecurityCheck(inputData)
   if (!securityResult.isSecure) {
+    // セキュリティ監視システムに記録
+    SecurityMonitor.getInstance().recordEvent({
+      type: 'security_violation',
+      severity: 'high',
+      action: 'Input validation failed',
+      details: { threats: securityResult.threats }
+    })
     throw new Error(`セキュリティエラー: ${securityResult.threats.join(', ')}`)
   }
 
