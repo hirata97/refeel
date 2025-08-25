@@ -125,7 +125,7 @@ export const analyzeContentStats = (diaries: DiaryEntry[]): ContentStats => {
 
 /**
  * 気分統計を計算
- * progress_levelを気分スコアとして使用
+ * moodフィールドを気分スコアとして使用（1-10）
  */
 export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
   // 曜日の初期化
@@ -143,7 +143,7 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
     }
   }
 
-  const moods = diaries.map(diary => diary.progress_level || 0)
+  const moods = diaries.map(diary => diary.mood || 5)
   const average = Math.round(moods.reduce((sum, mood) => sum + mood, 0) / moods.length)
   const max = Math.max(...moods)
   const min = Math.min(...moods)
@@ -157,7 +157,7 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
 
   diaries.forEach(diary => {
     const date = new Date(diary.created_at)
-    const mood = diary.progress_level || 0
+    const mood = diary.mood || 5
     
     // 曜日別グループ化
     const weekday = weekdays[date.getDay()]

@@ -7,7 +7,7 @@ export interface DashboardStats {
   totalDiaries: number
   /** 今週の投稿数 */
   weeklyDiaries: number
-  /** 平均気分スコア（0-100） */
+  /** 平均気分スコア（1-10） */
   averageMood: number
   /** 継続日数（連続投稿記録） */
   streakDays: number
@@ -22,7 +22,7 @@ export interface RecentDiary {
   preview: string
   /** 作成日時 */
   created_at: string
-  /** 気分スコア（1-5） */
+  /** 気分スコア（1-10） */
   mood: number
   /** 日記の日付 */
   date: string
