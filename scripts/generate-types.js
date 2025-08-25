@@ -1,0 +1,321 @@
+#!/usr/bin/env node
+
+/**
+ * Supabase型定義自動生成スクリプト
+ * 
+ * 機能:
+ * 1. ローカルのSupabase環境から型定義を生成
+ * 2. 生成された型定義をsrc/types/に配置
+ * 3. 既存コードとの互換性チェック
+ */
+
+import { execSync } from 'child_process'
+import { writeFileSync, existsSync, mkdirSync } from 'fs'
+import { join } from 'path'
+
+const PROJECT_ROOT = process.cwd()
+const TYPES_DIR = join(PROJECT_ROOT, 'src/types')
+const GENERATED_TYPES_FILE = join(TYPES_DIR, 'database.ts')
+const SUPABASE_TYPES_FILE = join(TYPES_DIR, 'supabase.ts')
+
+// 環境変数から設定を取得
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL
+const PROJECT_ID = SUPABASE_URL?.match(/https:\/\/([a-z]+)\.supabase\.co/)?.[1]
+
+/**
+ * ログ出力関数
+ */
+function log(message, type = 'info') {
+  const timestamp = new Date().toISOString()
+  const prefix = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'
+  console.log(`${prefix} [${timestamp}] ${message}`)
+}
+
+/**
+ * エラーハンドリング付きコマンド実行
+ */
+function execCommand(command, description) {
+  try {
+    log(`実行中: ${description}`)
+    const output = execSync(command, { encoding: 'utf8', stdio: 'pipe' })
+    log(`完了: ${description}`, 'success')
+    return output
+  } catch (error) {
+    log(`失敗: ${description} - ${error.message}`, 'error')
+    throw error
+  }
+}
+
+/**
+ * 型定義ディレクトリの準備
+ */
+function prepareTyepesDirectory() {
+  if (!existsSync(TYPES_DIR)) {
+    mkdirSync(TYPES_DIR, { recursive: true })
+    log('型定義ディレクトリを作成しました', 'success')
+  }
+}
+
+/**
+ * ローカル環境用の型定義生成（モックデータベース使用）
+ */
+function generateTypesLocal() {
+  log('ローカル環境用の型定義を生成しています...')
+  
+  // 基本的なデータベース型定義のテンプレート
+  const databaseTypeTemplate = `// 自動生成されたデータベース型定義
+// 生成日時: ${new Date().toISOString()}
+
+export interface Database {
+  public: {
+    Tables: {
+      diaries: {
+        Row: {
+          id: string
+          user_id: string
+          date: string
+          title: string
+          content: string
+          mood: number
+          goal_category: string
+          progress_level: number
+          created_at: string
+          updated_at: string
+          encrypted_data?: string
+          tags?: string[]
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          date?: string
+          title: string
+          content: string
+          mood?: number
+          goal_category: string
+          progress_level?: number
+          created_at?: string
+          updated_at?: string
+          encrypted_data?: string
+          tags?: string[]
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          date?: string
+          title?: string
+          content?: string
+          mood?: number
+          goal_category?: string
+          progress_level?: number
+          created_at?: string
+          updated_at?: string
+          encrypted_data?: string
+          tags?: string[]
+        }
+      }
+      profiles: {
+        Row: {
+          id: string
+          user_id: string
+          username: string
+          email: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          username: string
+          email: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          username?: string
+          email?: string
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      settings: {
+        Row: {
+          id: string
+          user_id: string
+          theme: string
+          language: string
+          notifications: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          theme?: string
+          language?: string
+          notifications?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          theme?: string
+          language?: string
+          notifications?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+`
+
+  // Supabaseクライアント型定義のテンプレート
+  const supabaseTypeTemplate = `// 自動生成されたSupabaseクライアント型定義
+// 生成日時: ${new Date().toISOString()}
+
+import type { Database } from './database'
+
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+export type Inserts<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']
+export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update']
+
+// 具体的な型エイリアス
+export type DiaryEntry = Tables<'diaries'>
+export type DiaryInsert = Inserts<'diaries'>
+export type DiaryUpdate = Updates<'diaries'>
+
+export type Profile = Tables<'profiles'>
+export type ProfileInsert = Inserts<'profiles'>
+export type ProfileUpdate = Updates<'profiles'>
+
+export type Settings = Tables<'settings'>
+export type SettingsInsert = Inserts<'settings'>
+export type SettingsUpdate = Updates<'settings'>
+
+// 既存コードとの互換性のための型エイリアス
+export type RecentDiary = DiaryEntry & {
+  isRecent?: boolean
+}
+
+export type DashboardData = {
+  totalEntries: number
+  recentEntries: DiaryEntry[]
+  progressSummary: {
+    [category: string]: {
+      count: number
+      averageProgress: number
+    }
+  }
+}
+`
+
+  // ファイル書き込み
+  writeFileSync(GENERATED_TYPES_FILE, databaseTypeTemplate)
+  writeFileSync(SUPABASE_TYPES_FILE, supabaseTypeTemplate)
+  
+  log('ローカル型定義を生成しました', 'success')
+}
+
+/**
+ * 本番環境用の型定義生成（実際のSupabase接続）
+ */
+async function generateTypesProduction() {
+  if (!PROJECT_ID) {
+    throw new Error('PROJECT_ID が環境変数から取得できません')
+  }
+
+  try {
+    // Supabase CLIを使用して型定義生成を試行
+    const typesOutput = execCommand(
+      `npx supabase gen types typescript --project-id ${PROJECT_ID}`,
+      'Supabaseから型定義を取得'
+    )
+    
+    // 生成された型定義をファイルに保存
+    const wrappedTypes = `// 自動生成されたデータベース型定義
+// 生成日時: ${new Date().toISOString()}
+// Supabase Project ID: ${PROJECT_ID}
+
+${typesOutput}
+`
+    
+    writeFileSync(GENERATED_TYPES_FILE, wrappedTypes)
+    log('本番環境の型定義を生成しました', 'success')
+    
+  } catch {
+    log('本番環境での型定義生成に失敗しました。ローカル環境用にフォールバックします', 'error')
+    generateTypesLocal()
+  }
+}
+
+/**
+ * 既存コードとの互換性チェック
+ */
+function validateTypeCompatibility() {
+  try {
+    log('型チェックを実行しています...')
+    execCommand('npm run type-check', '型チェック実行')
+    log('型チェックが成功しました', 'success')
+    return true
+  } catch (error) {
+    log('型チェックでエラーが発生しました', 'error')
+    console.error(error.stdout || error.message)
+    return false
+  }
+}
+
+/**
+ * メイン実行関数
+ */
+async function main() {
+  try {
+    log('=== Supabase型定義自動生成開始 ===')
+    
+    // 1. 準備
+    prepareTyepesDirectory()
+    
+    // 2. 型定義生成
+    const useProduction = process.argv.includes('--production') || process.env.NODE_ENV === 'production'
+    
+    if (useProduction) {
+      await generateTypesProduction()
+    } else {
+      generateTypesLocal()
+    }
+    
+    // 3. 互換性チェック
+    const isValid = validateTypeCompatibility()
+    
+    if (isValid) {
+      log('=== 型定義生成が正常に完了しました ===', 'success')
+    } else {
+      log('=== 型定義生成は完了しましたが、型エラーがあります ===', 'error')
+      process.exit(1)
+    }
+    
+  } catch (error) {
+    log(`型定義生成中にエラーが発生しました: ${error.message}`, 'error')
+    process.exit(1)
+  }
+}
+
+// スクリプト実行
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main()
+}

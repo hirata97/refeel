@@ -38,3 +38,28 @@ defineEmits<{
   click: [event: MouseEvent]
 }>()
 </script>
+
+<style scoped>
+/* デザイントークン準拠ボタンスタイル */
+:deep(.v-btn) {
+  border-radius: var(--border-radius-button);
+  font-weight: 500;
+  text-transform: none; /* 日本語UIのためキャピタライゼーション無効 */
+}
+
+/* サイズ別スタイル */
+:deep(.v-btn--size-small) {
+  min-height: 32px;
+  padding: 0 var(--spacing-sm);
+}
+
+:deep(.v-btn--size-default) {
+  min-height: var(--button-height-medium);
+  padding: 0 var(--spacing-md);
+}
+
+:deep(.v-btn--size-large) {
+  min-height: 48px;
+  padding: 0 var(--spacing-lg);
+}
+</style>

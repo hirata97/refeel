@@ -1,7 +1,7 @@
 <template>
   <v-container class="help-page">
-    <v-typography class="display-1">ヘルプ</v-typography>
-    <p>ここではアプリのヘルプ情報を提供します。</p>
+    <h1 class="text-h3 mb-4">ヘルプ</h1>
+    <p class="text-body-1">ここではアプリのヘルプ情報を提供します。</p>
   </v-container>
 </template>
 

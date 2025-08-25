@@ -39,7 +39,7 @@
 
       <v-form @submit.prevent="updateProfile">
         <v-text-field
-          v-model="profileStore.displayName"
+          v-model="localDisplayName"
           label="表示名"
           variant="outlined"
           class="mb-3"
@@ -47,18 +47,17 @@
         />
 
         <v-text-field
-          v-model="profileStore.email"
-          label="メールアドレス"
+          :model-value="profileStore.profile?.user_id || ''"
+          label="ユーザーID"
           variant="outlined"
-          type="email"
           class="mb-3"
           readonly
-          hint="メールアドレスは変更できません"
+          hint="ユーザーIDは変更できません"
           persistent-hint
         />
 
         <v-textarea
-          v-model="profileStore.bio"
+          v-model="localBio"
           label="自己紹介"
           variant="outlined"
           rows="3"
@@ -68,7 +67,7 @@
         />
 
         <v-select
-          v-model="profileStore.language"
+          v-model="localLanguage"
           :items="languageOptions"
           item-title="title"
           item-value="value"
@@ -78,7 +77,7 @@
         />
 
         <v-select
-          v-model="profileStore.timezone"
+          v-model="localTimezone"
           :items="timezoneOptions"
           item-title="title"
           item-value="value"
@@ -103,9 +102,27 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useProfileStore } from '../../stores/profile'
 
 const profileStore = useProfileStore()
+
+// ローカル状態
+const localDisplayName = ref('')
+const localBio = ref('')
+const localLanguage = ref('ja')
+const localTimezone = ref('Asia/Tokyo')
+
+// プロファイル初期化
+onMounted(async () => {
+  await profileStore.fetchProfile()
+  if (profileStore.profile) {
+    localDisplayName.value = profileStore.profile.display_name || ''
+    localBio.value = profileStore.profile.bio || ''
+    localLanguage.value = profileStore.profile.preferred_language || 'ja'
+    localTimezone.value = profileStore.profile.timezone || 'Asia/Tokyo'
+  }
+})
 
 // 言語設定オプション
 const languageOptions = [
@@ -123,10 +140,10 @@ const timezoneOptions = [
 
 const updateProfile = async () => {
   await profileStore.updateProfile({
-    displayName: profileStore.displayName,
-    bio: profileStore.bio,
-    language: profileStore.language,
-    timezone: profileStore.timezone,
+    display_name: localDisplayName.value,
+    bio: localBio.value,
+    preferred_language: localLanguage.value,
+    timezone: localTimezone.value,
   })
 }
 
