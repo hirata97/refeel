@@ -20,10 +20,13 @@ npm run auto-issue   # Issue自動実装（推奨）
 npm run test:unit    # ユニットテスト
 npm run build        # 本番ビルド
 
-# 型定義関連（Issue #144対応）
-npm run generate-types      # ローカル型定義生成
+# 型定義関連（Issue #144対応）⚠️【重要】
+npm run generate-types      # ローカル型定義生成（推奨）
 npm run generate-types:prod # 本番型定義生成（Supabase接続）
 npm run dev:with-types      # 型生成後に開発サーバー起動
+
+# CI/CD安定性向上（Issue #155対応）⚠️【New】  
+npm ci --prefer-offline --no-audit --no-fund  # 高速・安定インストール
 ```
 
 ## ⚡ 開発フロー（6ステップ）**【厳守】**
