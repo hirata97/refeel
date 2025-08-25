@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-export type ThemeName = 'light' | 'dark' | 'auto'
+export type ThemeName = 'light' | 'dark' | 'system'
 
 export interface ThemePreferences {
   selectedTheme: ThemeName
@@ -23,14 +23,14 @@ export const useThemeStore = defineStore('theme', () => {
     if (selectedTheme.value === 'dark') {
       return true
     }
-    if (selectedTheme.value === 'auto' && systemPreference.value) {
+    if (selectedTheme.value === 'system' && systemPreference.value) {
       return window.matchMedia('(prefers-color-scheme: dark)').matches
     }
     return false
   })
 
-  const effectiveTheme = computed(() => {
-    if (selectedTheme.value === 'auto') {
+  const currentTheme = computed(() => {
+    if (selectedTheme.value === 'system') {
       try {
         if (typeof window !== 'undefined' && window.matchMedia) {
           return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
@@ -43,6 +43,10 @@ export const useThemeStore = defineStore('theme', () => {
     return selectedTheme.value === 'dark' || selectedTheme.value === 'light'
       ? selectedTheme.value
       : 'light'
+  })
+
+  const effectiveTheme = computed(() => {
+    return currentTheme.value
   })
 
   const themePreferences = computed(
@@ -63,7 +67,7 @@ export const useThemeStore = defineStore('theme', () => {
     if (!vuetifyTheme) return
 
     try {
-      if (theme === 'auto') {
+      if (theme === 'system') {
         if (typeof window !== 'undefined' && window.matchMedia) {
           const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
           vuetifyTheme.global.name.value = mediaQuery.matches ? 'dark' : 'light'
@@ -94,7 +98,7 @@ export const useThemeStore = defineStore('theme', () => {
     if (selectedTheme.value === 'light') {
       setTheme('dark')
     } else if (selectedTheme.value === 'dark') {
-      setTheme('auto')
+      setTheme('system')
     } else {
       setTheme('light')
     }
@@ -150,8 +154,8 @@ export const useThemeStore = defineStore('theme', () => {
 
       const handleSystemThemeChange = () => {
         try {
-          if (selectedTheme.value === 'auto') {
-            applyThemeToVuetify('auto')
+          if (selectedTheme.value === 'system') {
+            applyThemeToVuetify('system')
           }
         } catch (error) {
           console.warn('システムテーマ変更の処理に失敗しました:', error)
@@ -194,7 +198,7 @@ export const useThemeStore = defineStore('theme', () => {
   const getThemeOptions = () => [
     { title: 'ライトモード', value: 'light' as ThemeName, icon: 'mdi-white-balance-sunny' },
     { title: 'ダークモード', value: 'dark' as ThemeName, icon: 'mdi-moon-waning-crescent' },
-    { title: 'システム設定に従う', value: 'auto' as ThemeName, icon: 'mdi-theme-light-dark' },
+    { title: 'システム設定に従う', value: 'system' as ThemeName, icon: 'mdi-theme-light-dark' },
   ]
 
   // CSS変数更新（カスタムスタイルが必要な場合）
@@ -229,6 +233,7 @@ export const useThemeStore = defineStore('theme', () => {
 
     // 計算プロパティ
     isDarkMode,
+    currentTheme,
     effectiveTheme,
     themePreferences,
 

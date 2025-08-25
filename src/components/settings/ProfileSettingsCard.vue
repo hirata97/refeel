@@ -301,7 +301,7 @@ const loadProfile = async () => {
   if (!authStore.user) return
 
   try {
-    const profile = await profileStore.getProfile(authStore.user.id)
+    const profile = await profileStore.getProfile()
     if (profile) {
       profileData.value = { ...profile }
       originalProfile.value = { ...profile }
@@ -317,16 +317,12 @@ const saveProfile = async () => {
 
   saveLoading.value = true
   try {
-    const updatedProfile = await profileStore.updateProfile(
-      authStore.user.id,
-      profileData.value
-    )
+    await profileStore.updateProfile(profileData.value)
     
-    originalProfile.value = { ...updatedProfile }
-    profileData.value = { ...updatedProfile }
+    originalProfile.value = { ...profileData.value }
     
-    emit('update:modelValue', updatedProfile)
-    emit('profileUpdated', updatedProfile)
+    emit('update:modelValue', profileData.value)
+    emit('profileUpdated', profileData.value)
   } catch (error) {
     console.error('プロファイル保存エラー:', error)
   } finally {
@@ -351,9 +347,9 @@ const handleFileSelect = async (event: Event) => {
 
   uploadLoading.value = true
   try {
-    const url = await profileStore.uploadAvatar(authStore.user.id, file)
-    profileData.value.avatar_url = url
-    emit('avatarUploaded', url)
+    const url = await profileStore.uploadAvatar(file)
+    profileData.value.avatar_url = url || ''
+    emit('avatarUploaded', url || '')
   } catch (error) {
     console.error('アバターアップロードエラー:', error)
   } finally {
@@ -367,7 +363,7 @@ const removeAvatar = async () => {
 
   removeLoading.value = true
   try {
-    await profileStore.removeAvatar(authStore.user.id)
+    await profileStore.removeAvatar()
     profileData.value.avatar_url = ''
   } catch (error) {
     console.error('アバター削除エラー:', error)

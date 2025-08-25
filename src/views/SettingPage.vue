@@ -128,7 +128,7 @@
 
               <v-col cols="12" md="6" v-if="profileStore.profile">
                 <v-text-field
-                  v-model="profileStore.profile.displayName"
+                  v-model="profileStore.profile.display_name"
                   label="表示名"
                   variant="outlined"
                   :loading="profileStore.loading"
@@ -149,7 +149,7 @@
 
               <v-col cols="12" md="6" v-if="profileStore.profile">
                 <v-select
-                  v-model="profileStore.profile.language"
+                  v-model="profileStore.profile.preferred_language"
                   :items="languageOptions"
                   label="言語"
                   variant="outlined"
@@ -420,9 +420,9 @@ const updateProfile = async () => {
   
   try {
     await profileStore.updateProfile({
-      displayName: profileStore.profile.displayName,
+      display_name: profileStore.profile.display_name,
       timezone: profileStore.profile.timezone,
-      language: profileStore.profile.language,
+      preferred_language: profileStore.profile.preferred_language,
     })
   } catch (error) {
     console.error('プロフィールの更新に失敗:', error)
