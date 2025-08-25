@@ -24,6 +24,11 @@ npm run test:e2e
 
 # 型チェック
 npm run type-check
+
+# 型定義生成（データベーススキーマから）⚠️【New】
+npm run generate-types        # ローカル型定義生成
+npm run generate-types:prod   # 本番型定義生成（要環境変数）
+npm run dev:with-types        # 型生成後に開発サーバー起動
 ```
 
 ## セキュリティ関連コマンド

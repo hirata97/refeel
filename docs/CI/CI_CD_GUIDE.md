@@ -194,35 +194,60 @@ strategy:
 
 ### よくある失敗パターン
 
-#### 1. TypeScriptエラー
+#### 1. Type Generation失敗 ⚠️【New】
+```bash
+# 症状: PROJECT_ID が環境変数から取得できません
+# 原因: VITE_SUPABASE_URL の設定不備またはURL形式問題
+# 対処法:
+npm run generate-types  # ローカル型定義生成（フォールバック）
+# 環境変数確認:
+echo $VITE_SUPABASE_URL  # URL形式確認
+# 期待形式: https://[project-id].supabase.co
+
+# GitHub Actions設定確認:
+# - Repository Settings > Secrets and variables > Actions
+# - VITE_SUPABASE_URL と SUPABASE_ACCESS_TOKEN の設定確認
+```
+
+#### 2. npm install失敗（Rate Limiting） ⚠️【New】
+```bash
+# 症状: npm error code E429, 429 Too Many Requests
+# 原因: npm registry の rate limiting
+# 対処: 自動retry機能実装済み（最大3回、30秒間隔）
+# 手動対処:
+npm ci --prefer-offline --no-audit --no-fund  # 高速化オプション付き
+npm cache clean --force  # キャッシュクリア
+```
+
+#### 3. TypeScriptエラー
 ```bash
 # 症状: TS4058エラー（Vuetify関連）
 # 対処: 既知問題として自動フィルタリング実装済み
 # 確認: npm run ci:type-check で事前チェック
 ```
 
-#### 2. lint失敗
+#### 4. lint失敗
 ```bash  
 # 症状: ESLintルール違反
 # 対処: npm run lint で自動修正
 # 予防: エディタにESLint拡張機能導入
 ```
 
-#### 3. テスト失敗
+#### 5. テスト失敗
 ```bash
 # 症状: ユニットテスト失敗
 # 対処: 個別テスト実行で原因特定
 # コマンド: npm test -- tests/specific-test.spec.js
 ```
 
-#### 4. ビルド失敗
+#### 6. ビルド失敗
 ```bash
 # 症状: 本番ビルド失敗  
 # 対処: npm run ci:build でローカル再現
 # 確認: dist/フォルダ生成確認
 ```
 
-#### 5. セキュリティ監査失敗
+#### 7. セキュリティ監査失敗
 ```bash
 # 症状: 重要な脆弱性検出
 # 対処: npm audit fix で自動修正
@@ -265,6 +290,38 @@ paths-ignore: ['docs/**']
 
 ---
 
+## ⚡ 新機能・改善 ⚠️【Updated】
+
+### Type Generation Workflow
+```yaml
+名前: Type Generation
+トリガー: push (main), pull_request, 手動実行
+機能: データベーススキーマからTypeScript型定義を自動生成
+実行時間: ~2-3分
+出力: src/types/database.ts, src/types/supabase.ts
+```
+
+#### Type Generation機能詳細
+- **ローカル環境**: モック型定義を生成（開発用）
+- **本番環境**: 実際のSupabaseからスキーマ取得
+- **フォールバック**: 本番取得失敗時は自動的にローカル版使用
+- **自動コミット**: main branchでは型定義変更を自動コミット
+
+#### 使用コマンド
+```bash
+npm run generate-types        # ローカル型定義生成
+npm run generate-types:prod   # 本番型定義生成（要環境変数）
+npm run dev:with-types        # 型生成後に開発サーバー起動
+```
+
+### CI/CD安定性向上機能 ⚠️【New】
+- **自動retry機能**: npm install失敗時に最大3回自動再試行
+- **高速化オプション**: `--no-audit --no-fund` フラグで高速インストール
+- **詳細ログ**: エラー時の原因特定を容易にする詳細ログ出力
+- **環境変数検証**: 型定義生成時の設定確認機能
+
 **📝 更新履歴**
 - 2025-08-19: CI/CDシステム初版作成（Issue #55対応）
 - 2025-08-19: TypeScript型エラーフィルタリング機能追加
+- 2025-08-25: Type Generation Workflow追加（Issue #144対応）
+- 2025-08-25: CI/CD安定性向上・rate limiting対策（Issue #155対応）

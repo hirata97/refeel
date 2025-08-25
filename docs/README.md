@@ -37,7 +37,9 @@
 
 | ファイル                                   | 説明                     | 主な内容                                                   |
 | ------------------------------------------ | ------------------------ | ---------------------------------------------------------- |
-| [CI_CD_GUIDE.md](CI_CD_GUIDE.md)           | CI/CDパイプライン運用    | GitHub Actions、5項目品質チェック、自動化ワークフロー     |
+| [CI_CD_GUIDE.md](CI/CI_CD_GUIDE.md)           | CI/CDパイプライン運用    | GitHub Actions、5項目品質チェック、自動化ワークフロー     |
+| [TYPE_GENERATION.md](CI/TYPE_GENERATION.md)   | Type Generation システム | 型定義自動生成、データベーススキーマ連携、トラブル対応    |
+| [CI_CD_BEST_PRACTICES.md](CI/CI_CD_BEST_PRACTICES.md) | CI/CDベストプラクティス | 開発フロー最適化、エラー予防策、パフォーマンス改善        |
 
 ### 📋 プロジェクト管理
 
@@ -61,7 +63,9 @@
 - **ワークフロー**: [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md) - ブランチ作成〜PR作成
 - **コマンド**: [DEVELOPMENT_COMMANDS.md](DEVELOPMENT_COMMANDS.md) - 自動化スクリプト活用
 - **品質チェック**: [PR_TESTING_GUIDE.md](PR_TESTING_GUIDE.md) - テスト・検証手順
-- **CI/CD理解**: [CI_CD_GUIDE.md](CI_CD_GUIDE.md) - 5項目自動品質チェック
+- **CI/CD理解**: [CI_CD_GUIDE.md](CI/CI_CD_GUIDE.md) - 5項目自動品質チェック
+- **型システム**: [TYPE_GENERATION.md](CI/TYPE_GENERATION.md) - 型定義自動生成システム
+- **ベストプラクティス**: [CI_CD_BEST_PRACTICES.md](CI/CI_CD_BEST_PRACTICES.md) - 効率的開発フロー
 
 #### 設計・アーキテクチャ作業時  
 - **アーキテクチャ**: [ARCHITECTURE.md](ARCHITECTURE.md) - システム全体設計
@@ -81,7 +85,8 @@
 - **Docker問題**: [DOCKER_SETUP.md](DOCKER_SETUP.md) のよくある問題  
 - **認証問題**: [SUPABASE_AUTH.md](SUPABASE_AUTH.md) の問題解決セクション
 - **セキュリティ問題**: [SECURITY_TROUBLESHOOTING.md](SECURITY_TROUBLESHOOTING.md) の診断・解決手順
-- **CI/CD問題**: [CI_CD_GUIDE.md](CI_CD_GUIDE.md) のトラブルシューティング
+- **CI/CD問題**: [CI_CD_GUIDE.md](CI/CI_CD_GUIDE.md) のトラブルシューティング
+- **Type Generation問題**: [TYPE_GENERATION.md](CI/TYPE_GENERATION.md) の詳細トラブル対応
 
 ### 📋 プロジェクト管理者向け
 
