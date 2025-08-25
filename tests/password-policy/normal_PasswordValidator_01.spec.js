@@ -4,13 +4,24 @@
  * パスワード検証システムの基本機能をテスト
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { 
   PasswordValidator,
   passwordValidator,
   DEFAULT_PASSWORD_POLICY,
   SPECIAL_CHARS
 } from '@/utils/password-policy'
+
+// Crypto API のモック
+Object.defineProperty(globalThis, 'crypto', {
+  value: {
+    subtle: {
+      digest: vi.fn(async () => {
+        return new ArrayBuffer(32) // SHA-256の結果をシミュレート
+      })
+    }
+  }
+})
 
 describe('PasswordValidator - 正常系', () => {
   let validator

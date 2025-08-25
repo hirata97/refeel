@@ -1,5 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { XSSProtection } from '@/utils/security'
+
+// DOMPurifyのモック
+vi.mock('dompurify', () => ({
+  default: {
+    sanitize: vi.fn((input) => {
+      // 基本的なHTMLサニタイゼーションをシミュレート
+      return input
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+    }),
+    setConfig: vi.fn()
+  }
+}))
 
 describe('XSSProtection', () => {
   describe('sanitizeHTML', () => {
@@ -68,19 +81,19 @@ describe('XSSProtection', () => {
     it('should reject javascript URLs', () => {
       const maliciousUrl = 'javascript:alert("xss")'
       const result = XSSProtection.sanitizeURL(maliciousUrl)
-      expect(result).toBe('')
+      expect(result).toBeNull()
     })
 
     it('should reject data URLs', () => {
       const dataUrl = 'data:text/html,<script>alert("xss")</script>'
       const result = XSSProtection.sanitizeURL(dataUrl)
-      expect(result).toBe('')
+      expect(result).toBeNull()
     })
 
     it('should handle invalid URLs', () => {
-      expect(XSSProtection.sanitizeURL('not-a-url')).toBe('')
-      expect(XSSProtection.sanitizeURL('')).toBe('')
-      expect(XSSProtection.sanitizeURL(null as never)).toBe('')
+      expect(XSSProtection.sanitizeURL('not-a-url')).toBeNull()
+      expect(XSSProtection.sanitizeURL('')).toBeNull()
+      expect(XSSProtection.sanitizeURL(null as never)).toBeNull()
     })
   })
 

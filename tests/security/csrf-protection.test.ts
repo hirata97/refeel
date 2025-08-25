@@ -1,6 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { CSRFProtection } from '@/utils/security'
 
+// sessionStorageのモック
+Object.defineProperty(window, 'sessionStorage', {
+  value: {
+    getItem: vi.fn(() => 'mock-csrf-token'),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn()
+  }
+})
+
 describe('CSRFProtection', () => {
   beforeEach(() => {
     // テスト前にトークンをクリア

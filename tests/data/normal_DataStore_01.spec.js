@@ -35,6 +35,38 @@ vi.mock('@/lib/supabase', () => ({
         }))
       }))
     }))
+  },
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            range: vi.fn(() => ({
+              then: vi.fn()
+            }))
+          })),
+          single: vi.fn(),
+          gte: vi.fn(),
+          lte: vi.fn(),
+          or: vi.fn()
+        })),
+        insert: vi.fn(() => ({
+          select: vi.fn(() => ({
+            single: vi.fn()
+          }))
+        })),
+        update: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            select: vi.fn(() => ({
+              single: vi.fn()
+            }))
+          }))
+        })),
+        delete: vi.fn(() => ({
+          eq: vi.fn()
+        }))
+      }))
+    }))
   }
 }))
 
