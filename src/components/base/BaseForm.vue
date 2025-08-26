@@ -65,6 +65,9 @@ const resetValidation = () => {
 }
 
 // Vuetify型定義を正しく使用
+// 注意: VForm.validate()の戻り値型（SubmitEventPromise）に関するTypeScriptエラーが
+// vue-tscとVuetifyの型定義の相互作用で発生することがあります。
+// このエラーはci-type-check.shで適切に除外されており、ランタイム動作には影響しません。
 defineExpose({
   validate,
   reset,
