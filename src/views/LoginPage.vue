@@ -156,7 +156,10 @@ const displayError = computed(() => {
   if (lockoutInfo.value?.isLocked) {
     return null // ロックアウト時は別途表示
   }
-  return authStore.error || null
+  
+  // 空文字やスペースのみの場合は明示的にnullを返す
+  const error = authStore.error
+  return (error && error.trim()) ? error : null
 })
 
 const showError = computed({
