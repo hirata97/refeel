@@ -50,6 +50,7 @@
         v-model="email"
         :error-messages="emailError ? [emailError] : []"
         @blur="validateField('email')"
+        @input="clearEmailErrorOnInput"
         variant="outlined"
         class="mb-3"
         required
@@ -65,6 +66,7 @@
         v-model="password"
         :error-messages="passwordError ? [passwordError] : []"
         @blur="validateField('password')"
+        @input="clearPasswordErrorOnInput"
         variant="outlined"
         class="mb-4"
         required
@@ -143,7 +145,7 @@ const authStore = useAuthStore()
 const lockoutCheckInterval = ref<NodeJS.Timeout | null>(null)
 
 // シンプルなフォーム管理を使用
-const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit } =
+const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit, clearPasswordErrorOnInput, clearEmailErrorOnInput } =
   useSimpleLoginForm()
 
 // アカウントロックアウト情報を取得
