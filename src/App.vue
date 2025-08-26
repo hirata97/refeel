@@ -1,9 +1,11 @@
 <template>
-  <v-layout>
+  <v-app>
     <!-- サイドバー -->
     <v-navigation-drawer
-      :permanent="false"
+      app
       v-model="drawer"
+      clipped
+      :temporary="true"
       :disable-resize-watcher="disableSidebarToggle"
     >
       <v-list density="compact">
@@ -17,10 +19,10 @@
       </v-list>
     </v-navigation-drawer>
 
-    <v-app-bar class="ps-4" color="primary">
+    <v-app-bar app clipped-left class="ps-4" color="primary">
       <v-app-bar-nav-icon :disabled="disableSidebarToggle" @click="toggleDrawer" />
 
-      <v-app-bar-title>日記アプリゆる開発</v-app-bar-title>
+      <v-app-bar-title>Refeel</v-app-bar-title>
 
       <template #append>
         <!-- ユーザーメニュー -->
@@ -60,7 +62,7 @@
     <v-overlay v-model="loadingStore.globalLoading" class="align-center justify-center">
       <v-progress-circular indeterminate size="64" />
     </v-overlay>
-  </v-layout>
+  </v-app>
 </template>
 
 <script setup lang="ts">
@@ -156,20 +158,5 @@ const toggleDrawer = () => {
 </script>
 
 <style scoped>
-.v-layout {
-  position: relative;
-}
-
-.v-navigation-drawer {
-  z-index: 1;
-}
-
-.v-app-bar {
-  z-index: 2;
-}
-
-.v-main {
-  z-index: 0;
-  position: relative;
-}
+/* Vuetifyのappプロパティにより自動的に適切なレイアウトが適用される */
 </style>

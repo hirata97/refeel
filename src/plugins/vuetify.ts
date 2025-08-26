@@ -5,6 +5,16 @@ import * as directives from 'vuetify/directives'
 export default createVuetify({
   components,
   directives,
+  display: {
+    mobileBreakpoint: 'sm',
+    thresholds: {
+      xs: 0,
+      sm: 600,
+      md: 960,
+      lg: 1264,
+      xl: 1904,
+    },
+  },
   theme: {
     defaultTheme: 'light',
     themes: {

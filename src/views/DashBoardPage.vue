@@ -4,7 +4,7 @@
     <header class="dashboard-header">
       <div class="header-content">
         <h1 class="dashboard-title">ダッシュボード</h1>
-        <p class="dashboard-description">あなたの日記活動の概要を確認できます</p>
+        <p class="dashboard-description">あなたの振り返り活動の概要を確認できます</p>
       </div>
       <v-btn
         icon="mdi-refresh"

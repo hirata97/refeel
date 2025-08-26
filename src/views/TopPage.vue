@@ -1,6 +1,6 @@
 <template>
   <v-container class="dashboard-container">
-    <div class="title">日記アプリゆる開発</div>
+    <div class="title">Refeel</div>
 
     <v-btn class="action-button" color="primary" block @click="navigateTo('/register')">
       アカウント登録

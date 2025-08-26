@@ -248,7 +248,7 @@ export function useDashboardData() {
     return [
       {
         id: 'new-diary',
-        label: '新しい日記を書く',
+        label: '新しい振り返りを書く',
         icon: 'mdi-plus',
         to: '/diary-register',
         visible: true,
@@ -275,7 +275,7 @@ export function useDashboardData() {
       },
       {
         id: 'mood-record',
-        label: '今日の気分を記録',
+        label: '今日の振り返りを記録',
         icon: 'mdi-emoticon',
         to: '/diary-register',
         visible: true,

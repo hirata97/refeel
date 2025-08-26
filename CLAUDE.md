@@ -1,6 +1,7 @@
-# CLAUDE.md - GoalCategorizationDiary開発ガイド
+# CLAUDE.md - Refeel開発ガイド
 
-**Vue 3 + TypeScript + Supabase**による目標管理Webアプリケーション
+**Vue 3 + TypeScript + Supabase**による振り返り・感情分析Webアプリケーション
+**Reflect（内省）+ Feel（感情）** = モチベーション変化測定・分析プラットフォーム
 
 ## 🚀 クイックスタート（必読）
 

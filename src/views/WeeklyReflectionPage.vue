@@ -264,7 +264,7 @@
       <h3 class="text-h5 text-medium-emphasis mb-2">{{ reflectionData.weekLabel }}のデータがありません</h3>
       <p class="text-body-1 text-medium-emphasis mb-4">
         この期間には日記が投稿されていません。<br>
-        他の週を選択するか、日記を書いてみましょう。
+        他の週を選択するか、振り返りを書いてみましょう。
       </p>
       <v-btn
         color="primary"
@@ -272,7 +272,7 @@
         prepend-icon="mdi-plus"
         @click="navigateTo('/diary-register')"
       >
-        日記を書く
+        振り返りを書く
       </v-btn>
     </div>
   </v-container>
