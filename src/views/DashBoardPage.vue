@@ -91,6 +91,14 @@
           :error="comparisonError"
         />
 
+        <!-- 感情タグ分析 -->
+        <EmotionTagAnalysisCard
+          :loading="loading.emotionTagAnalysis"
+          :error="error.emotionTagAnalysis"
+          @refresh="refresh"
+          @view-details="navigateTo('/diary-report')"
+        />
+
         <!-- クイックアクション -->
         <QuickActionsCard
           :actions="dashboardData.quickActions"
@@ -109,6 +117,7 @@ import { useDashboardData } from '@/composables/useDashboardData'
 import StatCard from '@/components/dashboard/StatCard.vue'
 import RecentDiaryCard from '@/components/dashboard/RecentDiaryCard.vue'
 import MoodChartCard from '@/components/dashboard/MoodChartCard.vue'
+import EmotionTagAnalysisCard from '@/components/dashboard/EmotionTagAnalysisCard.vue'
 import QuickActionsCard from '@/components/dashboard/QuickActionsCard.vue'
 import ComparisonCard from '@/components/dashboard/ComparisonCard.vue'
 import type { QuickAction } from '@/types/dashboard'

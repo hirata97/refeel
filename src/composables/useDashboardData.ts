@@ -27,6 +27,7 @@ export function useDashboardData() {
     stats: false,
     recentDiaries: false,
     moodData: false,
+    emotionTagAnalysis: false,
     overall: false,
   })
 
@@ -34,6 +35,7 @@ export function useDashboardData() {
     stats: null,
     recentDiaries: null,
     moodData: null,
+    emotionTagAnalysis: null,
     overall: null,
   })
 
@@ -323,6 +325,7 @@ export function useDashboardData() {
         stats: false,
         recentDiaries: false,
         moodData: false,
+        emotionTagAnalysis: false,
         overall: false,
       }
       comparisonLoading.value = false
