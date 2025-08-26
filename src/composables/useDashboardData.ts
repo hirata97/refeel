@@ -256,6 +256,15 @@ export function useDashboardData() {
         variant: 'elevated',
       },
       {
+        id: 'weekly-reflection',
+        label: '週間振り返りを見る',
+        icon: 'mdi-calendar-week',
+        to: '/weekly-reflection',
+        visible: true,
+        color: 'info',
+        variant: 'elevated',
+      },
+      {
         id: 'edit-yesterday',
         label: '昨日の日記を編集',
         icon: 'mdi-pencil',

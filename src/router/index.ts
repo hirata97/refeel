@@ -13,6 +13,7 @@ const pages = {
   DiaryViewPage: () => import('@/views/DiaryViewPage.vue'),
   DiaryEditPage: () => import('@/views/DiaryEditPage.vue'),
   DashBoardPage: () => import('@/views/DashBoardPage.vue'),
+  WeeklyReflectionPage: () => import('@/views/WeeklyReflectionPage.vue'),
 }
 
 // ルートの定義を簡略化
@@ -50,6 +51,12 @@ const routes = [
     path: '/dashboard',
     name: 'DashBoard',
     component: pages.DashBoardPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/weekly-reflection',
+    name: 'WeeklyReflection',
+    component: pages.WeeklyReflectionPage,
     meta: { requiresAuth: true },
   },
 ]
