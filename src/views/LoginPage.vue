@@ -48,7 +48,7 @@
       <v-text-field
         label="Email"
         v-model="email"
-        :error-messages="emailError ? [emailError] : []"
+        :error-messages="emailError && emailError.trim() ? [emailError] : []"
         @blur="validateField('email')"
         @input="clearEmailErrorOnInput"
         variant="outlined"
@@ -64,7 +64,7 @@
         label="Password"
         type="password"
         v-model="password"
-        :error-messages="passwordError ? [passwordError] : []"
+        :error-messages="passwordError && passwordError.trim() ? [passwordError] : []"
         @blur="validateField('password')"
         @input="clearPasswordErrorOnInput"
         variant="outlined"
