@@ -10,6 +10,7 @@ export interface LegacyDiaryEntry {
   title: string
   content: string
   mood: number
+  mood_reason?: string
   goal_category: string
   progress_level: number
   template_type?: 'free' | 'reflection' | 'mood'
@@ -41,6 +42,7 @@ export interface DiaryFormData {
   title: string
   content: string
   mood: number
+  mood_reason?: string
   goal_category: string
   progress_level: number
   template_type?: 'free' | 'reflection' | 'mood'

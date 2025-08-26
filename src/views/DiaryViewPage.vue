@@ -34,7 +34,7 @@
           color="amber"
           half-increments
         />
-        <span class="ml-2">{{ item.mood }}/5</span>
+        <span class="ml-2">{{ item.mood }}/10</span>
       </template>
       <template #[`item.content`]="{ item }">
         <div
@@ -100,7 +100,8 @@
       <v-card v-if="selectedDiary">
         <v-card-title>{{ selectedDiary.title }}</v-card-title>
         <v-card-subtitle>
-          {{ formatDate(selectedDiary.date) }} | 気分: {{ selectedDiary.mood }}/5
+          {{ formatDate(selectedDiary.date) }} | 気分: {{ selectedDiary.mood }}/10
+          <span v-if="selectedDiary.mood_reason" class="ml-2">（{{ selectedDiary.mood_reason }}）</span>
         </v-card-subtitle>
         <v-card-text>
           <div class="diary-content">{{ selectedDiary.content }}</div>
