@@ -12,6 +12,7 @@ export interface Database {
           title: string
           content: string
           mood: number
+          mood_reason?: string
           goal_category: string
           progress_level: number
           created_at: string
@@ -26,6 +27,7 @@ export interface Database {
           title: string
           content: string
           mood?: number
+          mood_reason?: string
           goal_category: string
           progress_level?: number
           created_at?: string
@@ -40,6 +42,7 @@ export interface Database {
           title?: string
           content?: string
           mood?: number
+          mood_reason?: string
           goal_category?: string
           progress_level?: number
           created_at?: string

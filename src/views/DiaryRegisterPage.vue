@@ -152,6 +152,20 @@
             </v-btn-toggle>
           </v-card-text>
         </v-card>
+        
+        <!-- 気分理由入力フィールド（気分が選択された場合に表示） -->
+        <v-text-field
+          v-if="mood"
+          v-model="moodReason"
+          label="その気分の理由は？（任意）"
+          placeholder="例：目標達成できた、疲れている、良いことがあった"
+          outlined
+          clearable
+          counter="50"
+          maxlength="50"
+          class="mt-4"
+        />
+        
         <v-btn 
           type="submit" 
           color="primary" 
@@ -216,6 +230,9 @@ const moodDetails = ref<MoodDetails>({
   reason: '',
   context: ''
 })
+
+// 新しい気分理由フィールド（すべてのテンプレートで使用）
+const moodReason = ref<string>('')
 
 // シンプルなフォーム管理を使用
 const {
@@ -311,6 +328,7 @@ const addDiary = async (): Promise<void> => {
         content: finalContent,
         date: sanitizedData.date || new Date().toISOString().split('T')[0], // YYYY-MM-DD形式
         mood: Number(sanitizedData.mood) || 5, // 1-10の値をそのまま使用、デフォルトは5
+        mood_reason: moodReason.value || undefined, // 気分理由（任意）
         goal_category: 'general',
         progress_level: 0,
         template_type: selectedTemplate.value
@@ -332,6 +350,7 @@ const addDiary = async (): Promise<void> => {
       selectedTemplate.value = 'free'
       reflectionAnswers.value = { success: '', challenge: '', tomorrow: '' }
       moodDetails.value = { reason: '', context: '' }
+      moodReason.value = '' // 新しい気分理由フィールドもリセット
       
       // オプション: ダッシュボードにリダイレクト
       router.push('/dashboard')

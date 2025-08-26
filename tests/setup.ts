@@ -3,18 +3,29 @@ import { config } from '@vue/test-utils'
 // Vuetifyコンポーネントのモック設定
 config.global.stubs = {
   'v-btn': {
-    template: '<button :class="buttonClasses" :type="type" :disabled="disabled" @click="handleClick"><slot /></button>',
+    template: '<button :class="buttonClasses" :type="type" :disabled="computedDisabled" @click="handleClick"><slot /></button>',
     props: {
       color: { type: String, default: 'primary' },
       variant: { type: String, default: 'elevated' },
       size: { type: String, default: 'default' },
-      loading: { type: Boolean, default: false },
+      loading: { type: [Boolean, Object], default: false },
       disabled: { type: Boolean, default: false },
       block: { type: Boolean, default: false },
-      type: { type: String, default: 'button' }
+      type: { type: String, default: 'button' },
+      value: { type: [String, Number], default: undefined }
     },
     emits: ['click'],
     computed: {
+      computedLoading() {
+        // Object形式のloading（refオブジェクトなど）への対応
+        if (this.loading && typeof this.loading === 'object' && 'value' in this.loading) {
+          return this.loading.value
+        }
+        return this.loading
+      },
+      computedDisabled() {
+        return this.disabled || this.computedLoading
+      },
       buttonClasses() {
         const classes = ['v-btn']
         
@@ -27,8 +38,8 @@ config.global.stubs = {
         classes.push(`v-btn--variant-${variant}`)
         classes.push(`v-btn--size-${size}`)
         
-        if (this.loading) classes.push('v-btn--loading')
-        if (this.disabled) classes.push('v-btn--disabled')
+        if (this.computedLoading) classes.push('v-btn--loading')
+        if (this.computedDisabled) classes.push('v-btn--disabled')
         if (this.block) classes.push('v-btn--block')
         
         return classes
@@ -37,7 +48,7 @@ config.global.stubs = {
     methods: {
       handleClick(event) {
         // disabled状態ではクリックイベントを発火しない
-        if (!this.disabled) {
+        if (!this.computedDisabled) {
           this.$emit('click', event)
         }
       }
@@ -197,19 +208,41 @@ config.global.stubs = {
     }
   },
   'v-text-field': {
-    template: '<div class="v-text-field"><label :for="label">{{label}}</label><input :id="label" :type="type" :placeholder="placeholder" :min="min" :max="max" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" /></div>',
+    template: '<div class="v-text-field v-field"><label :for="inputId">{{label}}</label><input :id="inputId" :type="type" :placeholder="placeholder" :min="min" :max="max" :maxlength="maxlength" :counter="counter" :clearable="clearable" :value="computedModelValue" @input="handleInput" @blur="$emit(\'blur\', $event)" /></div>',
     props: {
-      modelValue: { type: [String, Number], default: '' },
+      modelValue: { type: [String, Number, Object], default: '' },
       label: { type: String, default: '' },
       type: { type: String, default: 'text' },
       placeholder: { type: String, default: '' },
       min: { type: [String, Number], default: undefined },
       max: { type: [String, Number], default: undefined },
+      maxlength: { type: [String, Number], default: undefined },
+      counter: { type: [String, Number], default: undefined },
+      clearable: { type: Boolean, default: false },
+      outlined: { type: Boolean, default: false },
+      errorMessages: { type: Array, default: () => [] },
       rules: { type: Array, default: () => [] },
       variant: { type: String, default: 'filled' },
       density: { type: String, default: 'default' }
     },
-    emits: ['update:modelValue']
+    computed: {
+      inputId() {
+        return `input-${this.label.toLowerCase().replace(/\s+/g, '-')}`
+      },
+      computedModelValue() {
+        // Object形式のmodelValue（refオブジェクトなど）への対応
+        if (this.modelValue && typeof this.modelValue === 'object' && 'value' in this.modelValue) {
+          return this.modelValue.value
+        }
+        return this.modelValue
+      }
+    },
+    methods: {
+      handleInput(event) {
+        this.$emit('update:modelValue', event.target.value)
+      }
+    },
+    emits: ['update:modelValue', 'blur']
   },
   'v-col': {
     template: '<div class="v-col"><slot /></div>',
@@ -250,6 +283,100 @@ config.global.stubs = {
       loading: { type: [Boolean, Object], default: false }
     },
     emits: ['update:filters', 'apply-filters', 'clear-filters']
+  },
+  // DiaryRegisterPageで使用されるVuetifyコンポーネント
+  'v-select': {
+    template: '<div class="v-select"><label>{{label}}</label><select :value="modelValue" @change="$emit(\'update:modelValue\', $event.target.value)"><option v-for="item in items" :key="item.value" :value="item.value">{{item.title || item.label}}</option></select><div class="v-select__template" style="display: none;"><slot name="item" v-for="item in items" :key="item.value" :item="{ raw: item }" /></div></div>',
+    props: {
+      modelValue: { type: [String, Number], default: '' },
+      items: { type: Array, default: () => [] },
+      label: { type: String, default: '' },
+      itemTitle: { type: String, default: 'title' },
+      itemValue: { type: String, default: 'value' },
+      outlined: { type: Boolean, default: false }
+    },
+    emits: ['update:modelValue']
+  },
+  'v-textarea': {
+    template: '<div class="v-textarea"><label>{{label}}</label><textarea :placeholder="placeholder" :rows="rows" :value="computedModelValue" @input="handleInput" @blur="$emit(\'blur\', $event)" class="mb-3"></textarea></div>',
+    props: {
+      modelValue: { type: [String, Number, Object], default: '' },
+      label: { type: String, default: '' },
+      placeholder: { type: String, default: '' },
+      outlined: { type: Boolean, default: false },
+      rows: { type: [String, Number], default: 3 }
+    },
+    computed: {
+      computedModelValue() {
+        // Object形式のmodelValue（refオブジェクトなど）への対応
+        if (this.modelValue && typeof this.modelValue === 'object' && 'value' in this.modelValue) {
+          return this.modelValue.value
+        }
+        return this.modelValue
+      }
+    },
+    methods: {
+      handleInput(event) {
+        this.$emit('update:modelValue', event.target.value)
+      }
+    },
+    emits: ['update:modelValue', 'blur']
+  },
+  'v-sheet': {
+    template: '<div class="v-sheet" :class="sheetClasses"><slot /></div>',
+    props: {
+      elevation: { type: [String, Number], default: 0 },
+      color: { type: String, default: '' },
+      maxWidth: { type: [String, Number], default: '' }
+    },
+    computed: {
+      sheetClasses() {
+        const classes = ['v-sheet']
+        if (this.elevation) classes.push(`v-sheet--elevation-${this.elevation}`)
+        if (this.color) classes.push(`v-sheet--color-${this.color}`)
+        return classes
+      }
+    }
+  },
+  'v-btn-toggle': {
+    template: '<div class="v-btn-toggle" :class="toggleClasses"><slot /></div>',
+    props: {
+      modelValue: { type: [String, Number, Array, Object], default: null },
+      color: { type: String, default: 'primary' },
+      variant: { type: String, default: 'outlined' },
+      divided: { type: Boolean, default: false },
+      mandatory: { type: Boolean, default: false }
+    },
+    computed: {
+      computedModelValue() {
+        // Object形式のmodelValue（refオブジェクトなど）への対応
+        if (this.modelValue && typeof this.modelValue === 'object' && 'value' in this.modelValue) {
+          return this.modelValue.value
+        }
+        return this.modelValue
+      },
+      toggleClasses() {
+        const classes = ['v-btn-toggle']
+        if (this.color) classes.push(`v-btn-toggle--${this.color}`)
+        if (this.variant) classes.push(`v-btn-toggle--${this.variant}`)
+        if (this.divided) classes.push('v-btn-toggle--divided')
+        if (this.mandatory) classes.push('v-btn-toggle--mandatory')
+        return classes
+      }
+    },
+    emits: ['update:modelValue']
+  },
+  'v-list-item': {
+    template: '<li class="v-list-item"><slot /></li>',
+    props: {
+      value: { type: [String, Number], default: undefined }
+    }
+  },
+  'v-list-item-title': {
+    template: '<div class="v-list-item-title"><slot /></div>'
+  },
+  'v-list-item-subtitle': {
+    template: '<div class="v-list-item-subtitle"><slot /></div>'
   }
 }
 
