@@ -35,10 +35,11 @@
 
       <!-- 一般的なエラー表示 -->
       <BaseAlert
+        v-if="displayError"
         v-model="showError"
         type="error"
         closable
-        :message="displayError || ''"
+        :message="displayError"
         @close="clearDisplayError"
       />
 
