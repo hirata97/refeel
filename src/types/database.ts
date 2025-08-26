@@ -106,6 +106,58 @@ export interface Database {
           updated_at?: string
         }
       }
+      emotion_tags: {
+        Row: {
+          id: string
+          name: string
+          category: string
+          color: string
+          description?: string
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          category: string
+          color?: string
+          description?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          category?: string
+          color?: string
+          description?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      diary_emotion_tags: {
+        Row: {
+          id: string
+          diary_id: string
+          emotion_tag_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          diary_id: string
+          emotion_tag_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          diary_id?: string
+          emotion_tag_id?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never

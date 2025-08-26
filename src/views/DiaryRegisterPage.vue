@@ -165,6 +165,12 @@
           maxlength="50"
           class="mt-4"
         />
+
+        <!-- 感情タグ選択コンポーネント -->
+        <EmotionTagSelector
+          v-model="selectedEmotionTags"
+          class="mt-4"
+        />
         
         <v-btn 
           type="submit" 
@@ -186,8 +192,10 @@ import { useAuthStore } from '@/stores/auth'
 import { useDataStore } from '@/stores/data'
 import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@/stores/loading'
+import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
+import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
 import type { TemplateType, TemplateOption, ReflectionAnswers, MoodDetails } from '@/types/custom'
 
 const router = useRouter()
@@ -195,6 +203,7 @@ const authStore = useAuthStore()
 const dataStore = useDataStore()
 const notificationStore = useNotificationStore()
 const loadingStore = useLoadingStore()
+const emotionTagsStore = useEmotionTagsStore()
 const performance = usePerformanceMonitor()
 
 // テンプレート選択
@@ -233,6 +242,9 @@ const moodDetails = ref<MoodDetails>({
 
 // 新しい気分理由フィールド（すべてのテンプレートで使用）
 const moodReason = ref<string>('')
+
+// 感情タグ選択状態
+const selectedEmotionTags = ref<string[]>([])
 
 // シンプルなフォーム管理を使用
 const {
@@ -334,7 +346,21 @@ const addDiary = async (): Promise<void> => {
         template_type: selectedTemplate.value
       }
 
-      await dataStore.createDiary(diaryData)
+      const newDiary = await dataStore.createDiary(diaryData)
+      
+      // 感情タグがある場合は関連付けを保存
+      if (selectedEmotionTags.value.length > 0) {
+        try {
+          await emotionTagsStore.linkDiaryEmotionTags(newDiary.id, selectedEmotionTags.value)
+        } catch (emotionTagError) {
+          console.error('感情タグの保存エラー:', emotionTagError)
+          // 感情タグ保存失敗でも日記作成は成功扱いとする
+          notificationStore.showError(
+            '感情タグの保存に失敗しました',
+            '日記は作成されましたが、感情タグの保存に失敗しました。'
+          )
+        }
+      }
       
       performance.end('create_diary')
       
@@ -351,6 +377,7 @@ const addDiary = async (): Promise<void> => {
       reflectionAnswers.value = { success: '', challenge: '', tomorrow: '' }
       moodDetails.value = { reason: '', context: '' }
       moodReason.value = '' // 新しい気分理由フィールドもリセット
+      selectedEmotionTags.value = [] // 感情タグ選択もリセット
       
       // オプション: ダッシュボードにリダイレクト
       router.push('/dashboard')

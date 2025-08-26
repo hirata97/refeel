@@ -78,6 +78,8 @@ export interface DashboardLoadingState {
   recentDiaries: boolean
   /** 気分データローディング中 */
   moodData: boolean
+  /** 感情タグ分析ローディング中 */
+  emotionTagAnalysis: boolean
   /** 全体ローディング中 */
   overall: boolean
 }
@@ -89,6 +91,8 @@ export interface DashboardError {
   recentDiaries: string | null
   /** 気分データエラー */
   moodData: string | null
+  /** 感情タグ分析エラー */
+  emotionTagAnalysis: string | null
   /** 全体エラー */
   overall: string | null
 }
