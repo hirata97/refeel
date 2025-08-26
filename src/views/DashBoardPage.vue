@@ -84,6 +84,13 @@
           @view-details="navigateTo('/diary-report')"
         />
 
+        <!-- 前日比較カード -->
+        <ComparisonCard
+          :comparison="comparisonData"
+          :loading="comparisonLoading"
+          :error="comparisonError"
+        />
+
         <!-- クイックアクション -->
         <QuickActionsCard
           :actions="dashboardData.quickActions"
@@ -103,6 +110,7 @@ import StatCard from '@/components/dashboard/StatCard.vue'
 import RecentDiaryCard from '@/components/dashboard/RecentDiaryCard.vue'
 import MoodChartCard from '@/components/dashboard/MoodChartCard.vue'
 import QuickActionsCard from '@/components/dashboard/QuickActionsCard.vue'
+import ComparisonCard from '@/components/dashboard/ComparisonCard.vue'
 import type { QuickAction } from '@/types/dashboard'
 
 const router = useRouter()
@@ -115,6 +123,9 @@ const {
   error,
   hasError,
   isLoading,
+  comparisonData,
+  comparisonLoading,
+  comparisonError,
   fetchDashboardData,
   refresh,
 } = useDashboardData()
@@ -198,12 +209,12 @@ const handleActionClick = (action: QuickAction) => {
 .content-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  grid-template-rows: auto auto;
+  grid-template-rows: auto auto auto;
   gap: 24px;
 }
 
 .content-grid > :first-child {
-  grid-row: 1 / 3;
+  grid-row: 1 / 4;
 }
 
 .content-grid > :nth-child(2) {
@@ -216,6 +227,11 @@ const handleActionClick = (action: QuickAction) => {
   grid-row: 2;
 }
 
+.content-grid > :nth-child(4) {
+  grid-column: 2;
+  grid-row: 3;
+}
+
 /* タブレット対応 */
 @media (max-width: 1024px) {
   .stats-grid {
@@ -224,7 +240,7 @@ const handleActionClick = (action: QuickAction) => {
   
   .content-grid {
     grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
   }
   
   .content-grid > :first-child {
@@ -240,6 +256,11 @@ const handleActionClick = (action: QuickAction) => {
   .content-grid > :nth-child(3) {
     grid-column: 2;
     grid-row: 2;
+  }
+  
+  .content-grid > :nth-child(4) {
+    grid-column: 1 / 3;
+    grid-row: 3;
   }
 }
 
@@ -267,13 +288,14 @@ const handleActionClick = (action: QuickAction) => {
   
   .content-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     gap: 20px;
   }
   
   .content-grid > :first-child,
   .content-grid > :nth-child(2),
-  .content-grid > :nth-child(3) {
+  .content-grid > :nth-child(3),
+  .content-grid > :nth-child(4) {
     grid-column: 1;
     grid-row: auto;
   }

@@ -6,7 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
-import { nextTick } from 'vue'
+// import { nextTick } from 'vue' // 現在未使用
 import DiaryRegisterPage from '@/views/DiaryRegisterPage.vue'
 
 // シンプルなモック設定
@@ -179,7 +179,7 @@ describe('DiaryRegisterPage - 気分理由入力フィールド', () => {
       // 気分理由フィールドがテンプレート条件外に配置されていることを確認
       // （v-else-ifなどのテンプレート条件内にないことを確認）
       const reasonFieldPosition = html.indexOf('その気分の理由')
-      const templateConditionEnd = html.indexOf('</div>') // テンプレート条件の終了
+      // const templateConditionEnd = html.indexOf('</div>') // テンプレート条件の終了 - 現在未使用
       
       // 気分理由フィールドが見つかることを確認
       expect(reasonFieldPosition).toBeGreaterThan(-1)

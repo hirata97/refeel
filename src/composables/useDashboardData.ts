@@ -15,6 +15,7 @@ import type {
   DashboardLoadingState,
   DashboardError,
 } from '@/types/dashboard'
+import type { ComparisonData } from '@/components/dashboard/ComparisonCard.vue'
 import type { DiaryEntry } from '@/stores/data'
 
 export function useDashboardData() {
@@ -48,6 +49,11 @@ export function useDashboardData() {
     quickActions: [],
   })
 
+  // 前日比較データ
+  const comparisonData = ref<ComparisonData | null>(null)
+  const comparisonLoading = ref(false)
+  const comparisonError = ref<string | null>(null)
+
   // ユーティリティ関数
   const truncateText = (text: string, maxLength: number): string => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
@@ -69,10 +75,14 @@ export function useDashboardData() {
     const sevenDaysAgo = new Date(now)
     sevenDaysAgo.setDate(now.getDate() - 6) // 今日を含む7日間
 
+    const yesterday = new Date(now)
+    yesterday.setDate(now.getDate() - 1)
+
     return {
       weekAgo: weekAgo.toISOString().split('T')[0],
       sevenDaysAgo: sevenDaysAgo.toISOString().split('T')[0],
       today: now.toISOString().split('T')[0],
+      yesterday: yesterday.toISOString().split('T')[0],
     }
   }
 
@@ -171,6 +181,56 @@ export function useDashboardData() {
     return moodData
   }
 
+  // 前日比較データの作成
+  const createComparisonData = (diaries: DiaryEntry[]): ComparisonData | null => {
+    const { today, yesterday } = getDateRanges()
+
+    // 今日の日記を検索
+    const todayDiaries = diaries.filter(diary => {
+      const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
+      return diaryDate === today
+    })
+
+    // 昨日の日記を検索
+    const yesterdayDiaries = diaries.filter(diary => {
+      const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
+      return diaryDate === yesterday
+    })
+
+    // 昨日のデータがない場合はnullを返す
+    if (yesterdayDiaries.length === 0) {
+      return null
+    }
+
+    // 今日の平均気分（データがない場合は5をデフォルト）
+    const currentMood = todayDiaries.length > 0
+      ? Math.round(todayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / todayDiaries.length)
+      : 5
+
+    // 昨日の平均気分
+    const previousMood = Math.round(
+      yesterdayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / yesterdayDiaries.length
+    )
+
+    // 気分理由の取得（最新の日記から）
+    const currentReason = todayDiaries.length > 0
+      ? todayDiaries[0].mood_reason || undefined
+      : undefined
+    
+    const previousReason = yesterdayDiaries[0].mood_reason || undefined
+
+    // 連続記録日数の計算（既存の統計から取得）
+    const stats = calculateStats(diaries)
+
+    return {
+      previousMood,
+      currentMood,
+      previousReason,
+      currentReason,
+      streakDays: stats.streakDays,
+    }
+  }
+
   // クイックアクションの設定
   const createQuickActions = (): QuickAction[] => {
     const yesterday = new Date()
@@ -233,11 +293,13 @@ export function useDashboardData() {
       loading.value.stats = true
       loading.value.recentDiaries = true
       loading.value.moodData = true
+      comparisonLoading.value = true
 
-      const [stats, recentDiaries, moodData] = await Promise.all([
+      const [stats, recentDiaries, moodData, comparison] = await Promise.all([
         Promise.resolve(calculateStats(diaries)),
         Promise.resolve(createRecentDiaries(diaries)),
         Promise.resolve(createMoodData(diaries)),
+        Promise.resolve(createComparisonData(diaries)),
       ])
 
       dashboardData.value = {
@@ -246,10 +308,16 @@ export function useDashboardData() {
         moodData,
         quickActions: createQuickActions(),
       }
+      
+      comparisonData.value = comparison
+      comparisonError.value = null
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'データの取得に失敗しました'
       error.value.overall = errorMessage
+      
+      // 比較データのエラーも設定（全体のエラーとは別扱い）
+      comparisonError.value = '前日比較データの取得に失敗しました'
     } finally {
       loading.value = {
         stats: false,
@@ -257,6 +325,7 @@ export function useDashboardData() {
         moodData: false,
         overall: false,
       }
+      comparisonLoading.value = false
     }
   }
 
@@ -323,6 +392,11 @@ export function useDashboardData() {
     dashboardData: computed(() => dashboardData.value),
     loading: computed(() => loading.value),
     error: computed(() => error.value),
+    
+    // 前日比較データ
+    comparisonData: computed(() => comparisonData.value),
+    comparisonLoading: computed(() => comparisonLoading.value),
+    comparisonError: computed(() => comparisonError.value),
     
     // 計算プロパティ
     hasData,
