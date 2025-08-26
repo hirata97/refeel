@@ -35,10 +35,11 @@
 
       <!-- 一般的なエラー表示 -->
       <BaseAlert
+        v-if="displayError"
         v-model="showError"
         type="error"
         closable
-        :message="displayError || ''"
+        :message="displayError"
         @close="clearDisplayError"
       />
 
@@ -47,8 +48,9 @@
       <v-text-field
         label="Email"
         v-model="email"
-        :error-messages="emailError ? [emailError] : []"
+        :error-messages="emailError && emailError.trim() ? [emailError] : []"
         @blur="validateField('email')"
+        @input="clearEmailErrorOnInput"
         variant="outlined"
         class="mb-3"
         required
@@ -62,8 +64,9 @@
         label="Password"
         type="password"
         v-model="password"
-        :error-messages="passwordError ? [passwordError] : []"
+        :error-messages="passwordError && passwordError.trim() ? [passwordError] : []"
         @blur="validateField('password')"
+        @input="clearPasswordErrorOnInput"
         variant="outlined"
         class="mb-4"
         required
@@ -142,7 +145,7 @@ const authStore = useAuthStore()
 const lockoutCheckInterval = ref<NodeJS.Timeout | null>(null)
 
 // シンプルなフォーム管理を使用
-const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit } =
+const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit, clearPasswordErrorOnInput, clearEmailErrorOnInput } =
   useSimpleLoginForm()
 
 // アカウントロックアウト情報を取得
@@ -153,7 +156,10 @@ const displayError = computed(() => {
   if (lockoutInfo.value?.isLocked) {
     return null // ロックアウト時は別途表示
   }
-  return authStore.error || null
+  
+  // 空文字やスペースのみの場合は明示的にnullを返す
+  const error = authStore.error
+  return (error && error.trim()) ? error : null
 })
 
 const showError = computed({

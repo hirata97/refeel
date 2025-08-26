@@ -231,6 +231,18 @@ export const useSimpleLoginForm = () => {
     passwordError.value = ''
   }
 
+  const clearPasswordErrorOnInput = () => {
+    if (passwordError.value && password.value) {
+      passwordError.value = ''
+    }
+  }
+
+  const clearEmailErrorOnInput = () => {
+    if (emailError.value && email.value) {
+      emailError.value = ''
+    }
+  }
+
   const isFormValid = computed(() => {
     return email.value && password.value && !emailError.value && !passwordError.value
   })
@@ -245,6 +257,8 @@ export const useSimpleLoginForm = () => {
     validateField,
     handleSubmit,
     resetForm,
+    clearPasswordErrorOnInput,
+    clearEmailErrorOnInput,
   }
 }
 
