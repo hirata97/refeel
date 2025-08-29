@@ -89,44 +89,9 @@
         >
           Login
         </BaseButton>
-        <BaseButton color="secondary" block @click="navigateToTopPage" class="mb-4">
+        <BaseButton color="secondary" block @click="navigateToTopPage">
           トップページに戻る
         </BaseButton>
-        
-        <!-- セキュリティ情報を展開式でボタン下部に配置 -->
-        <v-expansion-panels
-          v-if="!lockoutInfo?.isLocked"
-          variant="accordion"
-          class="mt-2"
-        >
-          <v-expansion-panel>
-            <v-expansion-panel-title>
-              <v-icon start>mdi-information</v-icon> セキュリティ情報
-            </v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <v-list density="compact" class="bg-transparent">
-                <v-list-item>
-                  <v-list-item-title class="text-body-2">
-                    <v-icon class="me-2" size="small">mdi-shield-check</v-icon>
-                    強固なパスワードを使用してください
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-2">
-                    <v-icon class="me-2" size="small">mdi-key</v-icon>
-                    2要素認証でアカウントを保護
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item>
-                  <v-list-item-title class="text-body-2">
-                    <v-icon class="me-2" size="small">mdi-alert-circle</v-icon>
-                    不審な活動を検出した場合は即座に報告
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
       </v-card-actions>
       </v-form>
     </v-card>
