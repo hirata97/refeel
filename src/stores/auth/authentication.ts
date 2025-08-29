@@ -132,6 +132,9 @@ export const createAuthenticationStore = (
       }
 
       if (data.session && data.user) {
+        // ログイン成功時にエラー状態をクリア
+        clearErrorFn()
+        
         // ログイン成功を記録
         await accountLockoutManager.recordLoginAttempt(email, true, clientIP, userAgent)
 
