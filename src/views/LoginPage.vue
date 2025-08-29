@@ -8,7 +8,7 @@
     <template #content>
       <!-- アカウントロックアウト警告 -->
       <v-alert
-        v-if="lockoutInfo"
+        v-if="shouldShowLockoutAlert"
         type="error"
         class="mb-4"
         variant="tonal"
@@ -35,7 +35,7 @@
 
       <!-- 一般的なエラー表示 -->
       <BaseAlert
-        v-if="finalDisplayError"
+        v-if="finalDisplayError && finalDisplayError.trim()"
         v-model="showErrorState"
         type="error"
         closable
@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted, watch } from 'vue'
+import { ref, computed, onUnmounted, watch, nextTick } from 'vue'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
@@ -153,20 +153,32 @@ const { email, password, emailError, passwordError, isSubmitting, validateField,
 // アカウントロックアウト情報を取得
 const lockoutInfo = computed(() => authStore.lockoutStatus)
 
+// ロックアウトアラートを表示すべきかの判定
+const shouldShowLockoutAlert = computed(() => {
+  const info = lockoutInfo.value
+  if (!info) return false
+  return !!(info.isLocked || (info.failedAttempts ?? 0) > 0)
+})
+
 // エラー表示の統合管理（ロックアウト時の特別処理を含む）
 const finalDisplayError = computed(() => {
+  // 認証中はエラーを表示しない（状態遷移中の古いエラーを避けるため）
+  if (authStore.loading) {
+    return null
+  }
+  
   if (lockoutInfo.value?.isLocked) {
     return null // ロックアウト時は別途表示
   }
   
-  // 統一エラーハンドラーからのエラーを最優先
-  if (displayError.value) {
-    return displayError.value
-  }
+  // エラーメッセージの統一処理（空白のみを完全排除）
+  const msg =
+    (typeof displayError.value === 'string' ? displayError.value : '') ||
+    (typeof authStore.error === 'string' ? authStore.error : '')
+  const trimmed = msg.trim()
+  if (trimmed.length > 0) return trimmed
   
-  // authStoreからのエラーをフォールバック
-  const authError = authStore.error
-  return (authError && authError.trim()) ? authError : null
+  return null
 })
 
 const showErrorState = computed({
@@ -226,6 +238,8 @@ onUnmounted(() => {
 watch(email, async (newEmail) => {
   if (newEmail && InputValidation.isValidEmail(newEmail)) {
     await authStore.checkLockoutStatus(newEmail)
+    // リアクティブ反映を待ってから判定（表示のワンテンポずれを防ぐ）
+    await nextTick()
     if (lockoutInfo.value?.failedAttempts || lockoutInfo.value?.isLocked) {
       startLockoutStatusCheck(newEmail)
     } else {
@@ -240,6 +254,10 @@ const handleLogin = async (isValid: boolean) => {
   let sanitizedEmail = 'unknown'
 
   try {
+    // サインイン開始時にエラー状態をクリア（フラッシュ表示を防ぐ）
+    clearError()
+    authStore.clearError()
+    
     // バリデーションとサニタイゼーションを実行
     const sanitizedData = await handleSubmit()
     if (!sanitizedData) return
@@ -259,6 +277,10 @@ const handleLogin = async (isValid: boolean) => {
     if (result.success) {
       // ログイン成功をログに記録
       await logAuthAttempt(true, sanitizedEmail)
+
+      // 残っている可能性のあるエラーを必ず掃除
+      clearError()
+      authStore.clearError()
 
       // ログイン成功時は認証ストアが自動的に状態を更新する
       // ダッシュボードにリダイレクト
