@@ -110,10 +110,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { useDashboardData } from '@/composables/useDashboardData'
+import { useAuthGuard } from '@/composables/useAuthGuard'
+import { useAppRouter } from '@/composables/useAppRouter'
 import StatCard from '@/components/dashboard/StatCard.vue'
 import RecentDiaryCard from '@/components/dashboard/RecentDiaryCard.vue'
 import MoodChartCard from '@/components/dashboard/MoodChartCard.vue'
@@ -122,8 +121,14 @@ import QuickActionsCard from '@/components/dashboard/QuickActionsCard.vue'
 import ComparisonCard from '@/components/dashboard/ComparisonCard.vue'
 import type { QuickAction } from '@/types/dashboard'
 
-const router = useRouter()
-const authStore = useAuthStore()
+useAuthGuard({
+  requireAuth: true,
+  onAuthenticated: async () => {
+    // 認証成功時にダッシュボードデータを取得
+    await fetchDashboardData()
+  }
+})
+const { navigateTo } = useAppRouter()
 
 // ダッシュボードデータコンポーザブル
 const {
@@ -139,26 +144,11 @@ const {
   refresh,
 } = useDashboardData()
 
-// 認証状態をチェックしてデータを取得
-onMounted(async () => {
-  if (!authStore.isAuthenticated) {
-    // 認証されていない場合はログインページにリダイレクト
-    router.push('/login')
-    return
-  }
-  
-  // ダッシュボードデータを取得
-  await fetchDashboardData()
-})
-
-// ナビゲーション
-const navigateTo = (path: string) => {
-  router.push(path)
-}
+// 認証チェックとデータ取得は useAuthGuard で自動処理
 
 // 日記表示
 const handleViewDiary = (diaryId: string) => {
-  router.push(`/diary-view?id=${diaryId}`)
+  navigateTo(`/diary-view?id=${diaryId}`)
 }
 
 // アクションクリック

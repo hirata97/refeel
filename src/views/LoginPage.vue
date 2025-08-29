@@ -35,11 +35,11 @@
 
       <!-- 一般的なエラー表示 -->
       <BaseAlert
-        v-if="displayError"
-        v-model="showError"
+        v-if="finalDisplayError"
+        v-model="showErrorState"
         type="error"
         closable
-        :message="displayError"
+        :message="finalDisplayError"
         @close="clearDisplayError"
       />
 
@@ -131,16 +131,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { ref, computed, onUnmounted, watch } from 'vue'
 import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'
+import { useAuthGuard } from '@/composables/useAuthGuard'
+import { useAppRouter } from '@/composables/useAppRouter'
+import { useErrorHandler } from '@/composables/useErrorHandler'
 
-const router = useRouter()
-const authStore = useAuthStore()
+const { authStore } = useAuthGuard({ requireAuth: false })
+const { navigateToDashboard, navigateToTop } = useAppRouter()
+const { showError, clearError, error: displayError } = useErrorHandler()
 
 const lockoutCheckInterval = ref<NodeJS.Timeout | null>(null)
 
@@ -151,21 +153,27 @@ const { email, password, emailError, passwordError, isSubmitting, validateField,
 // アカウントロックアウト情報を取得
 const lockoutInfo = computed(() => authStore.lockoutStatus)
 
-// エラー表示の統合管理
-const displayError = computed(() => {
+// エラー表示の統合管理（ロックアウト時の特別処理を含む）
+const finalDisplayError = computed(() => {
   if (lockoutInfo.value?.isLocked) {
     return null // ロックアウト時は別途表示
   }
   
-  // 空文字やスペースのみの場合は明示的にnullを返す
-  const error = authStore.error
-  return (error && error.trim()) ? error : null
+  // 統一エラーハンドラーからのエラーを最優先
+  if (displayError.value) {
+    return displayError.value
+  }
+  
+  // authStoreからのエラーをフォールバック
+  const authError = authStore.error
+  return (authError && authError.trim()) ? authError : null
 })
 
-const showError = computed({
-  get: () => !!displayError.value,
+const showErrorState = computed({
+  get: () => !!finalDisplayError.value,
   set: (value: boolean) => {
     if (!value) {
+      clearError()
       authStore.clearError()
     }
   },
@@ -173,6 +181,7 @@ const showError = computed({
 
 // エラークリア関数
 const clearDisplayError = () => {
+  clearError()
   authStore.clearError()
 }
 
@@ -206,12 +215,7 @@ const stopLockoutStatusCheck = () => {
 }
 
 
-// すでにログイン済みの場合はダッシュボードにリダイレクト
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    router.push('/dashboard')
-  }
-})
+// 認証済みユーザーのリダイレクト処理は useAuthGuard で自動処理
 
 // コンポーネント破棄時のクリーンアップ
 onUnmounted(() => {
@@ -245,7 +249,7 @@ const handleLogin = async (isValid: boolean) => {
 
     // メールアドレス形式の検証
     if (!InputValidation.isValidEmail(sanitizedEmail)) {
-      authStore.setError('有効なメールアドレスを入力してください')
+      showError('有効なメールアドレスを入力してください')
       await logAuthAttempt(false, sanitizedEmail, 'invalid_email_format')
       return
     }
@@ -258,7 +262,7 @@ const handleLogin = async (isValid: boolean) => {
 
       // ログイン成功時は認証ストアが自動的に状態を更新する
       // ダッシュボードにリダイレクト
-      router.push('/dashboard')
+      navigateToDashboard()
     } else {
       // ログイン失敗をログに記録
       await logAuthAttempt(false, sanitizedEmail, result.error || 'login_failed')
@@ -273,14 +277,12 @@ const handleLogin = async (isValid: boolean) => {
   } catch (err) {
     // 予期しないエラーをログに記録
     await logAuthAttempt(false, sanitizedEmail, 'unexpected_error')
-    authStore.setError(err instanceof Error ? err.message : 'ログイン処理中にエラーが発生しました')
+    showError(err instanceof Error ? err.message : 'ログイン処理中にエラーが発生しました')
   }
 }
 
-// 登録ページからトップページに遷移
-const navigateToTopPage = () => {
-  router.push('/')
-}
+// 登録ページからトップページに遷移（useAppRouterを使用）
+const navigateToTopPage = navigateToTop
 </script>
 
 <style scoped>
