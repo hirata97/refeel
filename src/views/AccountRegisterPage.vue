@@ -65,16 +65,18 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { computed } from 'vue'
+import { useAuthGuard } from '@/composables/useAuthGuard'
+import { useAppRouter } from '@/composables/useAppRouter'
+import { useErrorHandler } from '@/composables/useErrorHandler'
 import { supabase } from '@/lib/supabase'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleRegisterForm } from '@/composables/useSimpleForm'
 
-const router = useRouter()
-const authStore = useAuthStore()
+const { authStore } = useAuthGuard({ requireAuth: false })
+const { navigateToDashboard, navigateToTop, navigateToLogin } = useAppRouter()
+const { showError, clearError, error: displayError } = useErrorHandler()
 
 // シンプルなフォーム管理を使用
 const {
@@ -92,15 +94,11 @@ const {
 } = useSimpleRegisterForm()
 
 // エラーメッセージやローディング状態
-const errorMessage = computed(() => authStore.error)
+const errorMessage = computed(() => displayError.value || authStore.error)
 const isLoading = computed(() => authStore.loading || isSubmitting.value)
 
 // すでにログイン済みの場合はダッシュボードにリダイレクト
-onMounted(() => {
-  if (authStore.isAuthenticated) {
-    router.push('/dashboard')
-  }
-})
+// 認証済みユーザーのリダイレクト処理は useAuthGuard で自動処理
 
 // フォーム送信時の処理
 const handleRegister = async () => {
@@ -120,7 +118,7 @@ const handleRegister = async () => {
     const sqlSafeEmail = InputValidation.checkForSQLInjection(sanitizedEmail)
 
     if (!sqlSafeUsername || !sqlSafeEmail) {
-      authStore.setError('入力値に不正な文字が含まれています')
+      showError('入力値に不正な文字が含まれています')
       await logAuthAttempt(false, sanitizedEmail, 'sql_injection_attempt')
       return
     }
@@ -144,7 +142,7 @@ const handleRegister = async () => {
               },
             ])
             if (accountError) {
-              authStore.setError('User registration successful, but failed to save account data.')
+              showError('User registration successful, but failed to save account data.')
               return
             }
           }
@@ -156,15 +154,15 @@ const handleRegister = async () => {
             )
             // エラーではないので、ログインページに移動
             setTimeout(() => {
-              router.push('/login')
+              navigateToLogin()
             }, 3000)
           } else {
             // すぐにログインできる場合はダッシュボードへ
-            router.push('/dashboard')
+            navigateToDashboard()
           }
         } catch (err) {
           console.error('Account creation error:', err)
-          authStore.setError('アカウント情報の保存に失敗しました')
+          showError('アカウント情報の保存に失敗しました')
           await logAuthAttempt(false, sanitizedEmail, 'account_save_failed')
         }
       } else {
@@ -174,25 +172,24 @@ const handleRegister = async () => {
     } catch {
       // 内部エラーをログに記録
       await logAuthAttempt(false, sanitizedEmail, 'inner_registration_error')
-      authStore.setError('認証処理中にエラーが発生しました')
+      showError('認証処理中にエラーが発生しました')
     }
     // エラーの場合は認証ストアが自動的にエラー状態を設定する
   } catch {
     // 予期しないエラーをログに記録
     await logAuthAttempt(false, sanitizedEmail, 'unexpected_registration_error')
-    authStore.setError('アカウント登録処理中にエラーが発生しました')
+    showError('アカウント登録処理中にエラーが発生しました')
   }
 }
 
 // エラーメッセージをクリア
 const clearErrorMessage = () => {
+  clearError()
   authStore.clearError()
 }
 
 // トップページへの遷移
-const navigateToTopPage = () => {
-  router.push('/')
-}
+const navigateToTopPage = navigateToTop
 </script>
 
 <style scoped>
