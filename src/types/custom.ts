@@ -2,6 +2,23 @@
 // 生成日時: 2025-08-25T07:50:00.000Z
 // 注意: このファイルは手動で管理され、自動生成されません
 
+// 現在使用中のDiaryEntry型定義
+export interface DiaryEntry {
+  id: string
+  user_id: string
+  date: string
+  title: string
+  content: string
+  mood: number
+  mood_reason?: string
+  goal_category: string
+  progress_level: number
+  template_type?: 'free' | 'reflection' | 'mood'
+  tags?: string[]
+  created_at: string
+  updated_at: string
+}
+
 // 既存コードとの互換性のために残す型定義
 export interface LegacyDiaryEntry {
   id: string

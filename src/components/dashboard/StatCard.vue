@@ -23,7 +23,7 @@ interface Props {
   /** タイトル */
   title: string
   /** 値 */
-  value: number
+  value: number | string
   /** 単位 */
   unit?: string
   /** アイコン名 */
@@ -33,14 +33,14 @@ interface Props {
   /** 説明文 */
   description?: string
   /** フォーマット関数 */
-  formatter?: (value: number) => string
+  formatter?: (value: number | string) => string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   unit: '',
   iconColor: 'primary',
   description: '',
-  formatter: (value: number) => value.toString(),
+  formatter: (value: number | string) => value.toString(),
 })
 
 const formattedValue = computed(() => {
