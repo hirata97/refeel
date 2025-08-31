@@ -179,29 +179,11 @@ export function useWeeklyAnalysis() {
     return moodData
   }
 
-  // 週間感情タグ分析
-  const createWeeklyEmotionTags = (diaries: DiaryEntry[]): WeeklyEmotionTag[] => {
-    const tagCounts: Record<string, { count: number; category: string }> = {}
-    const totalTags = diaries.reduce((sum, diary) => sum + (diary.tags?.length || 0), 0)
-    
-    diaries.forEach(diary => {
-      diary.tags?.forEach(tag => {
-        if (!tagCounts[tag]) {
-          tagCounts[tag] = { count: 0, category: 'general' } // 実際は感情タグストアから取得
-        }
-        tagCounts[tag].count++
-      })
-    })
-    
-    return Object.entries(tagCounts)
-      .map(([name, data]) => ({
-        name,
-        count: data.count,
-        category: data.category,
-        percentage: totalTags > 0 ? Math.round((data.count / totalTags) * 100) : 0,
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10) // 上位10個
+  // 週間感情タグ分析（旧tagsフィールド対応削除）
+  const createWeeklyEmotionTags = (_diaries: DiaryEntry[]): WeeklyEmotionTag[] => {
+    // 旧tagsフィールドは削除されたため、空配列を返す
+    // 今後はemotion_tagsテーブルからデータを取得する必要がある
+    return []
   }
 
   // 週間進捗データの作成

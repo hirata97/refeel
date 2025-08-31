@@ -102,7 +102,7 @@
           />
           <StatCard
             title="最も活発な曜日"
-            :value="reflectionData.stats.mostActiveDay"
+            :value="reflectionData.stats.mostActiveDay || '不明'"
             unit="曜日"
             icon="mdi-calendar-star"
             icon-color="info"
@@ -244,7 +244,7 @@
               <v-alert
                 v-for="comment in reflectionData.comments"
                 :key="comment.message"
-                :type="comment.color"
+                :type="getAlertType(comment.type)"
                 :icon="comment.icon"
                 variant="tonal"
                 density="comfortable"
@@ -339,6 +339,16 @@ const getTrendColor = (trend: string): string => {
     stable: 'primary',
   }
   return colors[trend] || 'primary'
+}
+
+const getAlertType = (type: string): 'error' | 'success' | 'warning' | 'info' => {
+  const alertTypes: Record<string, 'error' | 'success' | 'warning' | 'info'> = {
+    mood: 'info',
+    emotion: 'warning', 
+    progress: 'success',
+    general: 'info'
+  }
+  return alertTypes[type] || 'info'
 }
 
 const getTrendIcon = (trend: string): string => {

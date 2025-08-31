@@ -411,7 +411,6 @@ export class DataDeletionManager {
       'goals',
       'progress_entries', 
       'categories',
-      'tags',
       'user_profiles',
       'privacy_settings',
       'consent_records',
@@ -437,7 +436,6 @@ export class DataDeletionManager {
       'goals': 'goals',
       'progress': 'progress_entries',
       'categories': 'categories',
-      'tags': 'tags',
       'profile': 'user_profiles'
     }
 
@@ -472,7 +470,7 @@ export class GDPRCompliance {
       const userData: Record<string, unknown> = {}
 
       // 各テーブルからデータを取得
-      const tables = ['goals', 'progress_entries', 'categories', 'tags', 'user_profiles']
+      const tables = ['goals', 'progress_entries', 'categories', 'user_profiles']
       
       for (const table of tables) {
         const { data, error } = await supabase

@@ -287,7 +287,6 @@ export class EncryptionConfigManager {
       'note',
       'personal_note',
       'reflection',
-      'tags',
       'private_data'
     ],
     encryptByDefault: true,

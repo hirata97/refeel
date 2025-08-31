@@ -10,7 +10,7 @@
       <v-tab value="profile">プロフィール</v-tab>
       <v-tab value="data">データ管理</v-tab>
       <v-tab value="privacy">プライバシー</v-tab>
-      <v-tab value="tags">タグ管理</v-tab>
+      <v-tab value="emotion-tags">感情タグ</v-tab>
     </v-tabs>
 
     <!-- タブコンテンツ -->
@@ -298,19 +298,20 @@
         </v-card>
       </v-tabs-window-item>
 
-      <!-- タグ管理 -->
-      <v-tabs-window-item value="tags">
+      <!-- 感情タグ管理 -->
+      <v-tabs-window-item value="emotion-tags">
         <v-card>
           <v-card-title>
-            <v-icon class="mr-2" size="24">mdi-tag-multiple</v-icon>
-            タグ管理
+            <v-icon class="mr-2" size="24">mdi-emoticon-happy</v-icon>
+            感情タグ管理
           </v-card-title>
-          <v-card-subtitle>日記や目標で使用するタグを管理できます。</v-card-subtitle>
+          <v-card-subtitle>日記で使用される感情タグの管理ができます。</v-card-subtitle>
           <v-card-text>
-            <TagManager />
+            <EmotionTagManager />
           </v-card-text>
         </v-card>
       </v-tabs-window-item>
+
     </v-tabs-window>
 
     <!-- データ削除確認ダイアログ -->
@@ -364,8 +365,8 @@ import { useBrowserNotificationStore } from '@/stores/browserNotifications'
 import { useProfileStore } from '@/stores/profile'
 import { useDataManagementStore } from '@/stores/dataManagement'
 import { useTheme } from 'vuetify'
-import TagManager from '@/components/TagManager.vue'
 import NotificationSettings from '@/components/NotificationSettings.vue'
+import EmotionTagManager from '@/components/EmotionTagManager.vue'
 
 // タブの状態管理
 const activeTab = ref<string>('theme')
