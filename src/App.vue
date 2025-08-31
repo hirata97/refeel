@@ -11,9 +11,9 @@
       <v-list density="compact">
         <!-- サイドバー項目をループで表示 -->
         <v-list-item v-for="item in items" :key="item.title" :to="item.link" router link>
-          <v-list-item-icon>
+          <template #prepend>
             <v-icon>{{ item.prependIcon }}</v-icon>
-          </v-list-item-icon>
+          </template>
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item>
       </v-list>

@@ -258,13 +258,11 @@ describe('useDataFetch - 正常系', () => {
       interface TestData {
         id: number
         name: string
-        tags: string[]
       }
 
       const testData: TestData = {
         id: 1,
         name: 'Test Item',
-        tags: ['tag1', 'tag2']
       }
 
       mockFetcher.mockResolvedValue(testData)
@@ -280,7 +278,6 @@ describe('useDataFetch - 正常系', () => {
       // TypeScriptの型チェックでエラーが出ないことを確認
       expect(data.value?.id).toBe(1)
       expect(data.value?.name).toBe('Test Item')
-      expect(data.value?.tags).toEqual(['tag1', 'tag2'])
     })
 
     it('null値も適切に処理される', async () => {

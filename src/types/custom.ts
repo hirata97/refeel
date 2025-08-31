@@ -14,7 +14,6 @@ export interface DiaryEntry {
   goal_category: string
   progress_level: number
   template_type?: 'free' | 'reflection' | 'mood'
-  tags?: string[]
   created_at: string
   updated_at: string
 }

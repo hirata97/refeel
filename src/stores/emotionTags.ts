@@ -98,7 +98,6 @@ export const useEmotionTagsStore = defineStore('emotionTags', () => {
 
       emotionTags.value = (data || []) as EmotionTag[]
       lastFetch.value = Date.now()
-      
       return emotionTags.value
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '感情タグの取得に失敗しました'

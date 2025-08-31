@@ -1,5 +1,5 @@
 // 自動生成されたデータベース型定義
-// 生成日時: 2025-08-31T09:33:32.305Z
+// 生成日時: 2025-08-31T12:03:22.545Z
 
 export interface Database {
   public: {
@@ -18,7 +18,6 @@ export interface Database {
           created_at: string
           updated_at: string
           encrypted_data?: string
-          tags?: string[]
         }
         Insert: {
           id?: string
@@ -33,7 +32,6 @@ export interface Database {
           created_at?: string
           updated_at?: string
           encrypted_data?: string
-          tags?: string[]
         }
         Update: {
           id?: string
@@ -48,7 +46,6 @@ export interface Database {
           created_at?: string
           updated_at?: string
           encrypted_data?: string
-          tags?: string[]
         }
       }
       profiles: {
@@ -104,58 +101,6 @@ export interface Database {
           notifications?: boolean
           created_at?: string
           updated_at?: string
-        }
-      }
-      emotion_tags: {
-        Row: {
-          id: string
-          name: string
-          category: string
-          color: string
-          description: string | null
-          display_order: number
-          created_at: string
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          category: string
-          color?: string
-          description?: string | null
-          display_order?: number
-          created_at?: string
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          category?: string
-          color?: string
-          description?: string | null
-          display_order?: number
-          created_at?: string
-          updated_at?: string
-        }
-      }
-      diary_emotion_tags: {
-        Row: {
-          id: string
-          diary_id: string
-          emotion_tag_id: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          diary_id: string
-          emotion_tag_id: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          diary_id?: string
-          emotion_tag_id?: string
-          created_at?: string
         }
       }
     }
