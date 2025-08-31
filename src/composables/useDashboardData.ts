@@ -11,7 +11,6 @@ import type {
   DashboardStats,
   RecentDiary,
   MoodDataPoint,
-  QuickAction,
   DashboardLoadingState,
   DashboardError,
 } from '@/types/dashboard'
@@ -48,7 +47,6 @@ export function useDashboardData() {
     },
     recentDiaries: [],
     moodData: [],
-    quickActions: [],
   })
 
   // 前日比較データ
@@ -233,57 +231,6 @@ export function useDashboardData() {
     }
   }
 
-  // クイックアクションの設定
-  const createQuickActions = (): QuickAction[] => {
-    const yesterday = new Date()
-    yesterday.setDate(yesterday.getDate() - 1)
-    const yesterdayString = yesterday.toISOString().split('T')[0]
-
-    // 昨日の日記があるかチェック
-    const hasYesterdayDiary = dashboardData.value.recentDiaries.some(diary => {
-      const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
-      return diaryDate === yesterdayString
-    })
-
-    return [
-      {
-        id: 'new-diary',
-        label: '新しい振り返りを書く',
-        icon: 'mdi-plus',
-        to: '/diary-register',
-        visible: true,
-        color: 'primary',
-        variant: 'elevated',
-      },
-      {
-        id: 'weekly-reflection',
-        label: '週間振り返りを見る',
-        icon: 'mdi-calendar-week',
-        to: '/weekly-reflection',
-        visible: true,
-        color: 'info',
-        variant: 'elevated',
-      },
-      {
-        id: 'edit-yesterday',
-        label: '昨日の日記を編集',
-        icon: 'mdi-pencil',
-        to: '/diary-view', // 実際の編集リンクは後で実装
-        visible: hasYesterdayDiary,
-        color: 'secondary',
-        variant: 'outlined',
-      },
-      {
-        id: 'mood-record',
-        label: '今日の振り返りを記録',
-        icon: 'mdi-emoticon',
-        to: '/diary-register',
-        visible: true,
-        color: 'success',
-        variant: 'outlined',
-      },
-    ]
-  }
 
   // データの取得と更新
   const fetchDashboardData = async (): Promise<void> => {
@@ -317,7 +264,6 @@ export function useDashboardData() {
         stats,
         recentDiaries,
         moodData,
-        quickActions: createQuickActions(),
       }
       
       comparisonData.value = comparison

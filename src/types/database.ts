@@ -18,7 +18,6 @@ export interface Database {
           created_at: string
           updated_at: string
           encrypted_data?: string
-          tags?: string[]
         }
         Insert: {
           id?: string
@@ -33,7 +32,6 @@ export interface Database {
           created_at?: string
           updated_at?: string
           encrypted_data?: string
-          tags?: string[]
         }
         Update: {
           id?: string
@@ -48,7 +46,6 @@ export interface Database {
           created_at?: string
           updated_at?: string
           encrypted_data?: string
-          tags?: string[]
         }
       }
       profiles: {

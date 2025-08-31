@@ -9,7 +9,6 @@ const pages = {
   SettingPage: () => import('@/views/SettingPage.vue'),
   HelpPage: () => import('@/views/HelpPage.vue'),
   DiaryRegisterPage: () => import('@/views/DiaryRegisterPage.vue'),
-  DiaryreportPage: () => import('@/views/DiaryReportPage.vue'),
   DiaryViewPage: () => import('@/views/DiaryViewPage.vue'),
   DiaryEditPage: () => import('@/views/DiaryEditPage.vue'),
   DashBoardPage: () => import('@/views/DashBoardPage.vue'),
@@ -27,12 +26,6 @@ const routes = [
     path: '/diary-register',
     name: 'DiaryRegister',
     component: pages.DiaryRegisterPage,
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/diary-report',
-    name: 'DiaryReport',
-    component: pages.DiaryreportPage,
     meta: { requiresAuth: true },
   },
   {

@@ -41,24 +41,6 @@ export interface MoodDataPoint {
   label: string
 }
 
-export interface QuickAction {
-  /** アクション識別子 */
-  id: string
-  /** 表示ラベル */
-  label: string
-  /** アイコン名（Material Design Icons） */
-  icon: string
-  /** 遷移先パス */
-  to?: string
-  /** クリックハンドラー */
-  onClick?: () => void
-  /** 表示条件 */
-  visible: boolean
-  /** ボタンカラー */
-  color: string
-  /** バリアント */
-  variant: 'elevated' | 'outlined' | 'text'
-}
 
 export interface DashboardData {
   /** 統計データ */
@@ -67,8 +49,6 @@ export interface DashboardData {
   recentDiaries: RecentDiary[]
   /** 7日間の気分データ */
   moodData: MoodDataPoint[]
-  /** クイックアクション */
-  quickActions: QuickAction[]
 }
 
 export interface DashboardLoadingState {
