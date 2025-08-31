@@ -1,0 +1,56 @@
+-- 感情タグマスターデータ投入SQL
+-- 既存データがある場合は重複を避けて投入
+
+-- 1. 重複チェック用の一時的な設定
+-- 既存データがあれば何もしない、なければ投入
+INSERT INTO public.emotion_tags (name, category, color, description, display_order) 
+SELECT * FROM (VALUES
+  -- ポジティブ感情（8種類）
+  ('達成感', 'positive', '#4CAF50', '目標達成や成功体験による満足感', 1),
+  ('集中', 'positive', '#2196F3', '作業や活動に深く没頭している状態', 2),
+  ('やりがい', 'positive', '#FF9800', '仕事や活動に意味や価値を感じている', 3),
+  ('安心', 'positive', '#009688', '心配や不安がなく落ち着いている状態', 4),
+  ('充実', 'positive', '#8BC34A', '満足感と生きがいを感じている', 5),
+  ('興奮', 'positive', '#E91E63', '高揚感や期待感に満ちている状態', 6),
+  ('喜び', 'positive', '#FFEB3B', '嬉しさや楽しさを感じている状態', 7),
+  ('感謝', 'positive', '#795548', '他者や状況に対する感謝の気持ち', 8),
+
+  -- ネガティブ感情（8種類）
+  ('疲労', 'negative', '#795548', '身体的・精神的な疲れを感じている', 11),
+  ('不安', 'negative', '#9C27B0', '将来への心配や恐れを感じている', 12),
+  ('焦り', 'negative', '#F44336', '時間や結果に対する切迫感', 13),
+  ('失望', 'negative', '#607D8B', '期待が裏切られた時の落胆', 14),
+  ('孤独', 'negative', '#424242', '他者とのつながりを感じられない状態', 15),
+  ('退屈', 'negative', '#9E9E9E', 'つまらなさや刺激の不足を感じている', 16),
+  ('怒り', 'negative', '#D32F2F', '不満やフラストレーションを感じている', 17),
+  ('悲しみ', 'negative', '#3F51B5', '落ち込みや憂鬱な気分', 18),
+
+  -- 中性感情（4種類）
+  ('平常', 'neutral', '#757575', '特に感情の起伏がない普通の状態', 21),
+  ('淡々', 'neutral', '#90A4AE', '感情的にならず事務的に進めている', 22),
+  ('思考中', 'neutral', '#5D4037', '何かについて深く考えている状態', 23),
+  ('準備中', 'neutral', '#37474F', '次の行動や段階への準備をしている', 24)
+) AS new_data(name, category, color, description, display_order)
+WHERE NOT EXISTS (
+  SELECT 1 FROM public.emotion_tags WHERE emotion_tags.name = new_data.name
+);
+
+-- 2. 投入確認クエリ
+SELECT 
+  category,
+  COUNT(*) as count,
+  STRING_AGG(name, ', ' ORDER BY display_order) as tags
+FROM public.emotion_tags 
+GROUP BY category 
+ORDER BY category;
+
+-- 3. 全マスターデータ確認
+SELECT 
+  id,
+  name,
+  category,
+  color,
+  display_order,
+  description
+FROM public.emotion_tags 
+ORDER BY display_order;
