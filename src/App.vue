@@ -100,9 +100,9 @@ const items = ref([
     link: '/diary-view',
   },
   {
-    title: '日記レポート',
-    prependIcon: 'mdi-file-chart-outline',
-    link: '/diary-report',
+    title: '週間振り返り',
+    prependIcon: 'mdi-calendar-week',
+    link: '/weekly-reflection',
   },
   {
     title: '設定',

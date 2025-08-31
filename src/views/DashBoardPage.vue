@@ -4,7 +4,7 @@
     <header class="dashboard-header">
       <div class="header-content">
         <h1 class="dashboard-title">ダッシュボード</h1>
-        <p class="dashboard-description">あなたの振り返り活動の概要を確認できます</p>
+        <p class="dashboard-description">あなたの振り返り活動の概要と詳細分析を確認できます</p>
       </div>
       <v-btn
         icon="mdi-refresh"
@@ -13,6 +13,18 @@
         @click="refresh"
       />
     </header>
+
+    <!-- タブナビゲーション -->
+    <v-tabs v-model="activeTab" class="mb-6">
+      <v-tab value="overview">
+        <v-icon start>mdi-view-dashboard</v-icon>
+        概要
+      </v-tab>
+      <v-tab value="analytics">
+        <v-icon start>mdi-chart-line</v-icon>
+        詳細分析
+      </v-tab>
+    </v-tabs>
 
     <!-- エラー表示 -->
     <v-alert
@@ -25,101 +37,96 @@
       データの読み込みに失敗しました。リフレッシュボタンをお試しください。
     </v-alert>
 
-    <!-- 統計カードセクション -->
-    <section class="stats-section">
-      <div class="stats-grid">
-        <StatCard
-          title="総投稿数"
-          :value="dashboardData.stats.totalDiaries"
-          unit="件"
-          icon="mdi-notebook"
-          icon-color="primary"
-          description="これまでに投稿した日記の総数"
-        />
-        <StatCard
-          title="今週の投稿"
-          :value="dashboardData.stats.weeklyDiaries"
-          unit="件"
-          icon="mdi-calendar-week"
-          icon-color="success"
-          description="今週投稿した日記の数"
-        />
-        <StatCard
-          title="平均気分"
-          :value="dashboardData.stats.averageMood"
-          unit="/10"
-          icon="mdi-emoticon"
-          icon-color="warning"
-          description="これまでの平均気分スコア"
-        />
-        <StatCard
-          title="連続記録"
-          :value="dashboardData.stats.streakDays"
-          unit="日"
-          icon="mdi-fire"
-          icon-color="error"
-          description="連続で投稿している日数"
-        />
-      </div>
-    </section>
+    <!-- タブコンテンツ -->
+    <v-window v-model="activeTab">
+      <!-- 概要タブ -->
+      <v-window-item value="overview">
+        <!-- 統計カードセクション -->
+        <section class="stats-section">
+          <div class="stats-grid">
+            <StatCard
+              title="総投稿数"
+              :value="dashboardData.stats.totalDiaries"
+              unit="件"
+              icon="mdi-notebook"
+              icon-color="primary"
+              description="これまでに投稿した日記の総数"
+            />
+            <StatCard
+              title="今週の投稿"
+              :value="dashboardData.stats.weeklyDiaries"
+              unit="件"
+              icon="mdi-calendar-week"
+              icon-color="success"
+              description="今週投稿した日記の数"
+            />
+            <StatCard
+              title="平均気分"
+              :value="dashboardData.stats.averageMood"
+              unit="/10"
+              icon="mdi-emoticon"
+              icon-color="warning"
+              description="これまでの平均気分スコア"
+            />
+            <StatCard
+              title="連続記録"
+              :value="dashboardData.stats.streakDays"
+              unit="日"
+              icon="mdi-fire"
+              icon-color="error"
+              description="連続で投稿している日数"
+            />
+          </div>
+        </section>
 
-    <!-- メインコンテンツセクション -->
-    <section class="main-content">
-      <div class="content-grid">
-        <!-- 最近の日記 -->
-        <RecentDiaryCard
-          :recent-diaries="dashboardData.recentDiaries"
-          :loading="loading.recentDiaries"
-          :error="error.recentDiaries"
-          @view-diary="handleViewDiary"
-          @view-all="navigateTo('/diary-view')"
-          @create-diary="navigateTo('/diary-register')"
-        />
+        <!-- メインコンテンツセクション -->
+        <section class="main-content">
+          <div class="content-grid">
+            <!-- 気分推移チャート -->
+            <MoodChartCard
+              :mood-data="dashboardData.moodData"
+              :loading="loading.moodData"
+              :error="error.moodData"
+            />
 
-        <!-- 気分推移チャート -->
-        <MoodChartCard
-          :mood-data="dashboardData.moodData"
-          :loading="loading.moodData"
-          :error="error.moodData"
-          @view-details="navigateTo('/diary-report')"
-        />
+            <!-- 前日比較カード -->
+            <ComparisonCard
+              :comparison="comparisonData"
+              :loading="comparisonLoading"
+              :error="comparisonError"
+            />
 
-        <!-- 前日比較カード -->
-        <ComparisonCard
-          :comparison="comparisonData"
-          :loading="comparisonLoading"
-          :error="comparisonError"
-        />
+            <!-- 感情タグ分析 -->
+            <EmotionTagAnalysisCard
+              :loading="loading.emotionTagAnalysis"
+              :error="error.emotionTagAnalysis"
+              @refresh="refresh"
+            />
+          </div>
+        </section>
+      </v-window-item>
 
-        <!-- 感情タグ分析 -->
-        <EmotionTagAnalysisCard
-          :loading="loading.emotionTagAnalysis"
-          :error="error.emotionTagAnalysis"
-          @refresh="refresh"
-          @view-details="navigateTo('/diary-report')"
-        />
+      <!-- 詳細分析タブ -->
+      <v-window-item value="analytics">
+        <DetailedAnalyticsSection />
+      </v-window-item>
+    </v-window>
 
-        <!-- クイックアクション -->
-        <QuickActionsCard
-          :actions="dashboardData.quickActions"
-          @action-click="handleActionClick"
-        />
-      </div>
-    </section>
   </v-container>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useDashboardData } from '@/composables/useDashboardData'
 import { useAuthGuard } from '@/composables/useAuthGuard'
-import { useAppRouter } from '@/composables/useAppRouter'
 import StatCard from '@/components/dashboard/StatCard.vue'
-import RecentDiaryCard from '@/components/dashboard/RecentDiaryCard.vue'
 import MoodChartCard from '@/components/dashboard/MoodChartCard.vue'
 import EmotionTagAnalysisCard from '@/components/dashboard/EmotionTagAnalysisCard.vue'
-import QuickActionsCard from '@/components/dashboard/QuickActionsCard.vue'
 import ComparisonCard from '@/components/dashboard/ComparisonCard.vue'
-import type { QuickAction } from '@/types/dashboard'
+import DetailedAnalyticsSection from '@/components/dashboard/DetailedAnalyticsSection.vue'
+
+// タブ管理
+const activeTab = ref('overview')
 
 useAuthGuard({
   requireAuth: true,
@@ -128,7 +135,6 @@ useAuthGuard({
     await fetchDashboardData()
   }
 })
-const { navigateTo } = useAppRouter()
 
 // ダッシュボードデータコンポーザブル
 const {
@@ -146,15 +152,7 @@ const {
 
 // 認証チェックとデータ取得は useAuthGuard で自動処理
 
-// 日記表示
-const handleViewDiary = (diaryId: string) => {
-  navigateTo(`/diary-view?id=${diaryId}`)
-}
 
-// アクションクリック
-const handleActionClick = (action: QuickAction) => {
-  console.log('Action clicked:', action.id)
-}
 </script>
 
 <style scoped>
@@ -207,28 +205,8 @@ const handleActionClick = (action: QuickAction) => {
 
 .content-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  grid-template-rows: auto auto auto;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 24px;
-}
-
-.content-grid > :first-child {
-  grid-row: 1 / 4;
-}
-
-.content-grid > :nth-child(2) {
-  grid-column: 2;
-  grid-row: 1;
-}
-
-.content-grid > :nth-child(3) {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.content-grid > :nth-child(4) {
-  grid-column: 2;
-  grid-row: 3;
 }
 
 /* タブレット対応 */
@@ -238,28 +216,7 @@ const handleActionClick = (action: QuickAction) => {
   }
   
   .content-grid {
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto auto auto;
-  }
-  
-  .content-grid > :first-child {
-    grid-column: 1 / 3;
-    grid-row: 1;
-  }
-  
-  .content-grid > :nth-child(2) {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  
-  .content-grid > :nth-child(3) {
-    grid-column: 2;
-    grid-row: 2;
-  }
-  
-  .content-grid > :nth-child(4) {
-    grid-column: 1 / 3;
-    grid-row: 3;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
 }
 
@@ -287,16 +244,7 @@ const handleActionClick = (action: QuickAction) => {
   
   .content-grid {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto auto;
     gap: 20px;
-  }
-  
-  .content-grid > :first-child,
-  .content-grid > :nth-child(2),
-  .content-grid > :nth-child(3),
-  .content-grid > :nth-child(4) {
-    grid-column: 1;
-    grid-row: auto;
   }
 }
 
