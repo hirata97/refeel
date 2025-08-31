@@ -1,33 +1,33 @@
 <template>
-  <BaseForm
-    title="Login"
-    container-class="login-container"
-    form-class="login-form"
-    @submit="handleLogin"
-  >
-    <template #content>
+  <v-container class="d-flex align-center justify-center" style="min-height: calc(100vh - 64px);">
+    <v-card class="pa-6" max-width="480" width="100%">
+      <h2 class="text-center text-h5 font-weight-bold mb-6">
+        <v-icon start color="primary">mdi-login</v-icon> Login
+      </h2>
+      
+      <v-form ref="formRef" v-model="isValid" @submit.prevent="handleLogin">
       <!-- アカウントロックアウト警告 -->
       <v-alert
         v-if="shouldShowLockoutAlert"
         type="error"
         class="mb-4"
         variant="tonal"
-        :icon="lockoutInfo.isLocked ? 'mdi-lock' : 'mdi-alert'"
+        :icon="lockoutInfo?.isLocked ? 'mdi-lock' : 'mdi-alert'"
       >
-        <div v-if="lockoutInfo.isLocked">
+        <div v-if="lockoutInfo?.isLocked">
           <strong>アカウントがロックされています</strong>
           <div class="text-body-2 mt-1">
             連続ログイン失敗により一時的にロックされました。
-            <div v-if="lockoutInfo.lockoutEnd">
-              解除まで残り: {{ getRemainingTime(lockoutInfo.lockoutEnd) }}
+            <div v-if="lockoutInfo?.lockoutEnd">
+              解除まで残り: {{ getRemainingTime(lockoutInfo?.lockoutEnd!) }}
             </div>
           </div>
         </div>
-        <div v-else-if="lockoutInfo.failedAttempts > 0">
+        <div v-else-if="(lockoutInfo?.failedAttempts ?? 0) > 0">
           <strong>ログイン失敗警告</strong>
           <div class="text-body-2 mt-1">
-            失敗回数: {{ lockoutInfo.failedAttempts }}回 <br />残り試行回数:
-            {{ lockoutInfo.remainingAttempts }}回
+            失敗回数: {{ lockoutInfo?.failedAttempts }}回 <br />残り試行回数:
+            {{ lockoutInfo?.remainingAttempts }}回
             <br />制限に達するとアカウントが一時的にロックされます。
           </div>
         </div>
@@ -52,6 +52,7 @@
         @blur="validateField('email')"
         @input="clearEmailErrorOnInput"
         variant="outlined"
+        density="compact"
         class="mb-3"
         required
         aria-label="Enter your email"
@@ -68,6 +69,7 @@
         @blur="validateField('password')"
         @input="clearPasswordErrorOnInput"
         variant="outlined"
+        density="compact"
         class="mb-4"
         required
         aria-label="Enter your password"
@@ -75,64 +77,30 @@
       />
 
 
-      <!-- セキュリティヒント -->
-      <v-expansion-panels
-        v-if="!lockoutInfo?.isLocked"
-        variant="accordion"
-        class="mb-4"
-      >
-        <v-expansion-panel>
-          <v-expansion-panel-title>
-            <v-icon class="me-2">mdi-information</v-icon>
-            セキュリティ情報
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-list density="compact" class="bg-transparent">
-              <v-list-item>
-                <v-list-item-title class="text-body-2">
-                  <v-icon class="me-2" size="small">mdi-shield-check</v-icon>
-                  強固なパスワードを使用してください
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-2">
-                  <v-icon class="me-2" size="small">mdi-key</v-icon>
-                  2要素認証でアカウントを保護
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item>
-                <v-list-item-title class="text-body-2">
-                  <v-icon class="me-2" size="small">mdi-alert-circle</v-icon>
-                  不審な活動を検出した場合は即座に報告
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
-    </template>
-
-    <template #actions>
-      <BaseButton
-        :loading="authStore.loading || isSubmitting"
-        :disabled="lockoutInfo?.isLocked"
-        type="submit"
-        color="primary"
-        block
-        class="mb-2"
-      >
-        Login
-      </BaseButton>
-      <BaseButton color="secondary" block @click="navigateToTopPage">
-        トップページに戻る
-      </BaseButton>
-    </template>
-  </BaseForm>
+      
+      <v-card-actions class="d-flex flex-column pa-0">
+        <BaseButton
+          :loading="authStore.loading || isSubmitting"
+          :disabled="lockoutInfo?.isLocked"
+          type="submit"
+          color="primary"
+          block
+          class="mb-2"
+        >
+          Login
+        </BaseButton>
+        <BaseButton color="secondary" block @click="navigateToTopPage">
+          トップページに戻る
+        </BaseButton>
+      </v-card-actions>
+      </v-form>
+    </v-card>
+  </v-container>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted, watch, nextTick } from 'vue'
-import { BaseForm, BaseButton, BaseAlert } from '@/components/base'
+import { BaseButton, BaseAlert } from '@/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'
@@ -145,6 +113,10 @@ const { navigateToDashboard, navigateToTop } = useAppRouter()
 const { showError, clearError, error: displayError } = useErrorHandler()
 
 const lockoutCheckInterval = ref<NodeJS.Timeout | null>(null)
+
+// Form validation state
+const formRef = ref()
+const isValid = ref(false)
 
 // シンプルなフォーム管理を使用
 const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit, clearPasswordErrorOnInput, clearEmailErrorOnInput } =
@@ -248,8 +220,11 @@ watch(email, async (newEmail) => {
   }
 })
 
-const handleLogin = async (isValid: boolean) => {
-  if (!isValid || lockoutInfo.value?.isLocked) return
+const handleLogin = async () => {
+  if (formRef.value) {
+    const { valid } = await formRef.value.validate()
+    if (!valid || lockoutInfo.value?.isLocked) return
+  }
 
   let sanitizedEmail = 'unknown'
 
@@ -308,27 +283,22 @@ const navigateToTopPage = navigateToTop
 </script>
 
 <style scoped>
-.login-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-  padding: 24px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.login-form {
-  width: 100%;
-  max-width: 400px;
-}
-
+/* Responsive adjustments for mobile */
 @media (max-width: 600px) {
-  .login-container {
-    height: auto;
-    padding: 16px;
+  .v-container {
+    padding: 16px 8px !important;
+  }
+  
+  .v-card {
+    padding: 24px 16px !important;
+  }
+}
+
+/* Ensure proper spacing on very small screens */
+@media (max-width: 375px) {
+  .v-card {
+    max-width: 100% !important;
+    margin: 0 8px;
   }
 }
 </style>
