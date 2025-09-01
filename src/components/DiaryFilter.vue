@@ -82,6 +82,19 @@
           </div>
         </v-col>
 
+        <!-- 感情タグフィルター -->
+        <v-col cols="12">
+          <div class="emotion-tag-filter">
+            <v-label class="filter-label">感情タグで絞り込み</v-label>
+            <EmotionTagSelector
+              v-model="localFilters.emotion_tags"
+              placeholder="感情タグを選択してフィルタリング"
+              class="mt-2"
+              @update:model-value="handleFilterChange"
+            />
+          </div>
+        </v-col>
+
         <!-- フィルター適用ボタン -->
         <v-col cols="12" md="6" lg="6">
           <div class="filter-actions">
@@ -121,6 +134,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { debounce } from '@/utils/performance'
+import { useEmotionTagsStore } from '@/stores/emotionTags'
+import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
 
 interface FilterValues {
   date_from: string
@@ -128,6 +143,7 @@ interface FilterValues {
   search_text: string
   mood_min: number | null
   mood_max: number | null
+  emotion_tags: string[]
 }
 
 interface Props {
@@ -146,6 +162,9 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+
+// 感情タグストア
+const emotionTagsStore = useEmotionTagsStore()
 
 // ローカルフィルター状態
 const localFilters = ref<FilterValues>({ ...props.filters })
@@ -202,6 +221,20 @@ const activeFiltersList = computed(() => {
     })
   }
 
+  if (localFilters.value.emotion_tags && localFilters.value.emotion_tags.length > 0) {
+    const tagNames = localFilters.value.emotion_tags
+      .map(tagId => emotionTagsStore.getEmotionTagById(tagId)?.name)
+      .filter(Boolean)
+    
+    if (tagNames.length > 0) {
+      filters.push({
+        key: 'emotion_tags',
+        label: '感情タグ',
+        value: tagNames.length > 2 ? `${tagNames.slice(0, 2).join(', ')} 他${tagNames.length - 2}件` : tagNames.join(', '),
+      })
+    }
+  }
+
   return filters
 })
 
@@ -225,6 +258,7 @@ const clearAllFilters = () => {
     search_text: '',
     mood_min: null,
     mood_max: null,
+    emotion_tags: [],
   }
   emit('update:filters', { ...localFilters.value })
   emit('clear-filters')
@@ -234,6 +268,8 @@ const removeFilter = (key: string) => {
   const filterKey = key as keyof FilterValues
   if (filterKey === 'mood_min' || filterKey === 'mood_max') {
     localFilters.value[filterKey] = null
+  } else if (filterKey === 'emotion_tags') {
+    localFilters.value[filterKey] = []
   } else {
     // 文字列型のプロパティに対して空文字を設定
     if (

@@ -126,6 +126,7 @@ export function useDiaries(options: FetchOptions = {}) {
     search_text: '',
     mood_min: null as number | null,
     mood_max: null as number | null,
+    emotion_tags: [] as string[],
   })
 
   // サーバーサイドでページ付きデータを取得
@@ -138,10 +139,21 @@ export function useDiaries(options: FetchOptions = {}) {
       page,
       pageSize: serverPagination.value.pageSize,
       filters: Object.fromEntries(
-        Object.entries(filter.value).filter(
-          ([, value]) => value !== null && value !== undefined && value !== '',
-        ),
-      ),
+        Object.entries(filter.value)
+          .filter(([, value]) => {
+            if (Array.isArray(value)) {
+              return value.length > 0
+            }
+            return value !== null && value !== undefined && value !== ''
+          })
+          .map(([key, value]) => {
+            // emotion_tags配列はカンマ区切り文字列に変換
+            if (key === 'emotion_tags' && Array.isArray(value)) {
+              return [key, value.join(',')]
+            }
+            return [key, value]
+          }),
+      ) as Record<string, string | number | null>,
     }
 
     const result = await dataStore.fetchDiaries(authStore.user.id, forceRefresh, paginationParams)
@@ -194,6 +206,7 @@ export function useDiaries(options: FetchOptions = {}) {
       search_text: '',
       mood_min: null,
       mood_max: null,
+      emotion_tags: [],
     }
     await applyFilters()
   }
