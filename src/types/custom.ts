@@ -18,6 +18,11 @@ export interface DiaryEntry {
   updated_at: string
 }
 
+// 感情タグを含むDiaryEntry拡張型（UI表示用）
+export interface DiaryEntryWithEmotionTags extends DiaryEntry {
+  emotion_tags?: import('./emotion-tags').EmotionTag[]
+}
+
 // 既存コードとの互換性のために残す型定義
 export interface LegacyDiaryEntry {
   id: string
