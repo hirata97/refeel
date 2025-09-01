@@ -36,6 +36,16 @@
         />
         <span class="ml-2">{{ item.mood }}/10</span>
       </template>
+      
+      <template #[`item.emotion_tags`]="{ item }">
+        <EmotionTagChips
+          :tags="(item as DiaryEntryWithEmotionTags).emotion_tags || []"
+          :max-display="3"
+          size="x-small"
+          variant="outlined"
+        />
+      </template>
+      
       <template #[`item.content`]="{ item }">
         <div
           class="diary-content-cell"
@@ -104,6 +114,16 @@
           <span v-if="selectedDiary.mood_reason" class="ml-2">（{{ selectedDiary.mood_reason }}）</span>
         </v-card-subtitle>
         <v-card-text>
+          <!-- 感情タグ表示 -->
+          <div v-if="(selectedDiary as DiaryEntryWithEmotionTags).emotion_tags && (selectedDiary as DiaryEntryWithEmotionTags).emotion_tags!.length > 0" class="emotion-tags-section mb-4">
+            <h4 class="text-subtitle-2 mb-2">感情タグ</h4>
+            <EmotionTagChips
+              :tags="(selectedDiary as DiaryEntryWithEmotionTags).emotion_tags!"
+              size="small"
+              variant="tonal"
+            />
+          </div>
+          
           <div class="diary-content">{{ selectedDiary.content }}</div>
         </v-card-text>
         <v-card-actions>
@@ -121,12 +141,15 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
+import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { useDiaries } from '@/composables/useDataFetch'
-import type { DiaryEntry } from '@/stores/data'
+import EmotionTagChips from '@/components/EmotionTagChips.vue'
+import type { DiaryEntry, DiaryEntryWithEmotionTags } from '@/types/custom'
 
 const router = useRouter()
 const dataStore = useDataStore()
 const authStore = useAuthStore()
+const emotionTagsStore = useEmotionTagsStore()
 
 // 認証チェックとデータ読み込み
 onMounted(async () => {
@@ -137,6 +160,9 @@ onMounted(async () => {
   
   // 初期データ読み込み
   await refresh()
+  
+  // 日記データに感情タグ情報を追加
+  await loadEmotionTagsForDiaries()
 })
 
 // サーバーサイドページネーション対応のデータ取得
@@ -191,6 +217,13 @@ const headers = [
     width: '120px',
   },
   {
+    title: '感情タグ',
+    key: 'emotion_tags',
+    align: 'start' as const,
+    sortable: false,
+    width: '200px',
+  },
+  {
     title: '内容',
     key: 'content',
     align: 'start' as const,
@@ -204,6 +237,29 @@ const headers = [
     width: '150px',
   },
 ]
+
+// 感情タグ読み込み処理
+const loadEmotionTagsForDiaries = async () => {
+  if (!diaries.value || diaries.value.length === 0) return
+
+  try {
+    // 各日記の感情タグを取得して追加
+    const diariesWithTags = await Promise.all(
+      diaries.value.map(async (diary) => {
+        const emotionTags = await emotionTagsStore.getDiaryEmotionTags(diary.id)
+        return {
+          ...diary,
+          emotion_tags: emotionTags
+        } as DiaryEntryWithEmotionTags
+      })
+    )
+    
+    // diariesを更新（リアクティブに）
+    diaries.value = diariesWithTags
+  } catch (error) {
+    console.error('感情タグの取得に失敗しました:', error)
+  }
+}
 
 // ユーティリティ関数
 const formatDate = (dateString: string): string => {
@@ -225,18 +281,24 @@ const editDiary = (diary: DiaryEntry) => {
 }
 
 // ページネーションイベントハンドラー
-const handlePageChange = (page: number) => {
+const handlePageChange = async (page: number) => {
   changePage(page)
+  // ページ変更後にも感情タグを読み込む
+  await loadEmotionTagsForDiaries()
 }
 
 
 // フィルター適用処理
-const handleApplyFilters = () => {
+const handleApplyFilters = async () => {
   applyFilters()
+  // フィルタ後にも感情タグを読み込む
+  await loadEmotionTagsForDiaries()
 }
 
-const handleClearFilters = () => {
+const handleClearFilters = async () => {
   clearFilters()
+  // フィルタクリア後にも感情タグを読み込む
+  await loadEmotionTagsForDiaries()
 }
 
 // 削除処理
