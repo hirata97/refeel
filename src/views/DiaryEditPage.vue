@@ -88,6 +88,12 @@
           </v-card-text>
         </v-card>
 
+        <!-- 感情タグ選択コンポーネント -->
+        <EmotionTagSelector
+          v-model="selectedEmotionTags"
+          class="mt-4"
+        />
+
         <div class="action-buttons">
           <v-btn type="submit" color="primary" :loading="isSubmitting" class="mr-2">
             更新する
@@ -191,15 +197,21 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useDataStore } from '@/stores/data'
+import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
+import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
 import type { DiaryEntry } from '@/stores/data'
 
 const router = useRouter()
 const route = useRoute()
 const authStore = useAuthStore()
 const dataStore = useDataStore()
+const emotionTagsStore = useEmotionTagsStore()
 const performance = usePerformanceMonitor()
+
+// 感情タグ選択状態
+const selectedEmotionTags = ref<string[]>([])
 
 // シンプルなフォーム管理を使用
 const {
@@ -274,6 +286,16 @@ const loadDiary = async () => {
       mood: diaryData.mood || 5, // moodフィールドを使用、デフォルトは5
     })
 
+    // 既存感情タグを取得して設定
+    try {
+      const emotionTags = await emotionTagsStore.getDiaryEmotionTags(diaryData.id)
+      selectedEmotionTags.value = emotionTags.map(tag => tag.id)
+    } catch (emotionTagError) {
+      console.error('感情タグの取得エラー:', emotionTagError)
+      // 感情タグ取得失敗でも日記編集は可能とする
+      selectedEmotionTags.value = []
+    }
+
     performance.end('load_diary_for_edit')
   } catch (error) {
     console.error('日記読み込みエラー:', error)
@@ -313,6 +335,24 @@ const updateDiary = async (): Promise<void> => {
 
       // データストアを使用した更新処理
       await dataStore.updateDiary(diary.value!.id, updateData)
+
+      // 感情タグを更新
+      try {
+        await emotionTagsStore.linkDiaryEmotionTags(diary.value!.id, selectedEmotionTags.value)
+      } catch (emotionTagError) {
+        console.error('感情タグの更新エラー:', emotionTagError)
+        // 感情タグ更新失敗でも日記更新は成功扱いとし、警告メッセージを表示
+        showNotification(
+          '日記は更新されましたが、感情タグの更新に失敗しました',
+          'warning',
+          'mdi-alert'
+        )
+        // 少し待ってからリダイレクト
+        setTimeout(() => {
+          router.push('/diary-view')
+        }, 2000)
+        return
+      }
 
       performance.end('update_diary')
 
