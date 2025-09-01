@@ -100,96 +100,91 @@ updated_at       TIMESTAMPTZ DEFAULT NOW()
 ```
 database/
 ├── README.md                        # このファイル
-├── verify_current_structure.sql     # 現在の構造確認用クエリ
-└── migrations/                      # データベースマイグレーション
-    ├── add_emotion_tags.sql         # 感情タグ機能追加 (Issue #164)
-    ├── add_mood_reason_to_diaries.sql # mood_reason追加 (Issue #142)
-    ├── add_template_type_to_diaries.sql # template_type追加
-    └── tag_goal_integration.sql     # タグ・目標連携機能（現在未使用）
+├── schema/                          # テーブル定義・構造
+│   ├── master.sql                  # 全テーブル作成（新規環境用）
+│   └── 002_emotion_tags.sql        # 感情タグ機能テーブル作成（統合版）
+├── data/                           # 初期・マスターデータ
+│   ├── emotion_tags_master.sql     # 感情タグマスターデータ
+│   └── test_sample_diaries.sql     # サンプル日記データ
+└── maintenance/                    # 運用・メンテナンス
+    ├── verify_current_structure.sql # 現在の構造確認用クエリ
+    └── rls_policies.sql           # RLSポリシー設定（統合版）
 ```
 
 ### 他の関連ファイル (プロジェクト全体)
 ```
-database-setup/                     # 感情タグ関連セットアップ (Issue #180)
-├── emotion_tags_tables.sql         # テーブル作成SQL
-├── insert_emotion_tags_master_data.sql # マスターデータ投入
-├── fix_rls_security.sql           # RLSセキュリティ修正
-└── fix_emotion_tags_rls_policy.sql # 感情タグ用RLSポリシー修正
+scripts/                           # 残存運用スクリプト
+├── minimal-migration.sql          # 最小マイグレーション
+├── supabase-migration-steps.sql   # マイグレーション手順
+└── verify-migration.sql           # マイグレーション検証
 
-scripts/                            # 運用・デバッグ用
-├── check-supabase-tables.sql       # テーブル構造確認
-├── debug-supabase-status.sql       # デバッグ用クエリ
-└── verify-migration.sql            # マイグレーション検証
-
-test-data.sql                       # テスト用データ
-test-data-small.sql                 # 最小テストデータ
-fix-mood-constraint.sql             # mood制約修正
+# 整理済み・削除されたファイル
+# ❌ database-setup/ (削除) → database/に統合
+# ❌ database/migrations/ (削除) → master.sqlに全て統合済み
+# ❌ scripts/check-supabase-tables.sql (削除) → maintenance/に統合 
+# ❌ scripts/debug-supabase-status.sql (削除) → 不要
+# ❌ test-data*.sql (削除) → database/data/に移動
+# ❌ fix-mood-constraint.sql (削除) → master.sqlに統合済み
 ```
 
 ## 🚀 セットアップ手順
 
 ### 新規環境での初期化
 
-1. **基本テーブル作成**
-   ```sql
-   -- Supabaseプロジェクト作成後、以下を順次実行
-   ```
+#### 🚀 **クイックセットアップ（推奨）**
+```bash
+# 1. 全テーブル一括作成
+psql < database/schema/master.sql
 
-2. **マイグレーション適用** (推奨順序)
-   ```bash
-   # 1. 基本構造 (Supabaseダッシュボードで作成済みの想定)
-   # 2. 追加フィールド
-   psql < database/migrations/add_mood_reason_to_diaries.sql
-   psql < database/migrations/add_template_type_to_diaries.sql
-   
-   # 3. 感情タグ機能
-   psql < database/migrations/add_emotion_tags.sql
-   
-   # または統合版を使用
-   psql < database-setup/emotion_tags_tables.sql
-   psql < database-setup/insert_emotion_tags_master_data.sql
-   ```
+# 2. マスターデータ投入
+psql < database/data/emotion_tags_master.sql
 
-3. **RLSポリシー修正** (必要に応じて)
-   ```bash
-   psql < database-setup/fix_rls_security.sql
-   psql < database-setup/fix_emotion_tags_rls_policy.sql
-   ```
+# 3. RLSポリシー設定
+psql < database/maintenance/rls_policies.sql
+```
+
+#### 🔧 **段階的セットアップ（カスタマイズ用）**
+```bash
+# 1. 感情タグ機能のみ追加（既存環境）
+psql < database/schema/002_emotion_tags.sql
+psql < database/data/emotion_tags_master.sql
+
+# 2. 個別RLS設定（必要に応じて）
+psql < database/maintenance/rls_policies.sql
+```
 
 4. **テストデータ投入** (開発環境のみ)
    ```bash
    # user_idを実際の値に置換してから実行
-   psql < test-data-small.sql
+   psql < database/data/test_sample_diaries.sql
    ```
 
 ### 構造確認
 
 ```bash
 # 現在の構造を確認
-psql < database/verify_current_structure.sql
+psql < database/maintenance/verify_current_structure.sql
 ```
 
 ## 🔧 開発・運用ガイド
 
-### マイグレーション追加のルール
+### データベース変更のルール
 
-1. **ファイル命名規則**
-   ```
-   YYYY-MM-DD_description.sql
-   例: 2024-08-31_add_emotion_tags.sql
-   ```
+1. **新機能追加時**
+   - `database/schema/` に新しいテーブル定義を追加
+   - `database/data/` に必要なマスターデータを作成
+   - `database/maintenance/rls_policies.sql` にセキュリティ設定を追加
+   - `master.sql` を更新（新規環境対応）
 
-2. **内容に含めるべき項目**
-   - コメント（Issue番号、目的）
-   - テーブル作成・変更SQL
-   - インデックス作成
-   - RLSポリシー設定
-   - 初期データ投入（必要に応じて）
+2. **テーブル変更時**
+   - 既存環境向けの変更SQLを `database/schema/` に作成
+   - `master.sql` に変更を反映
+   - 影響範囲の確認とテスト実行
 
-3. **テスト**
-   - 新規環境での実行テスト
-   - 既存データへの影響確認
-   - ロールバック手順の検証
+3. **品質保証**
+   - `verify_current_structure.sql` でテーブル構造確認
+   - 新規環境での `master.sql` 実行テスト
+   - RLSポリシーの動作確認
 
 ### トラブルシューティング
 
@@ -230,10 +225,9 @@ CREATE INDEX idx_emotion_tags_category ON emotion_tags(category);
 
 | 日付 | Issue | 変更内容 |
 |------|-------|----------|
+| 2024-09-01 | #182 | データベース構造完全整理・master.sql作成 |
 | 2024-08-31 | #180 | 感情タグ機能の完全実装、既存タグシステム排除 |
 | 2024-08-31 | #164 | 感情タグマスターデータ・関連テーブル追加 |
-| - | #142 | diariesテーブルにmood_reason追加 |
-| - | - | diariesテーブルにtemplate_type追加 |
 
 ## 🔗 関連ドキュメント
 
