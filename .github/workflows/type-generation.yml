@@ -7,13 +7,15 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'database/migrations/**'
+      - 'database/schema/**'
+      - 'database/data/**'
       - '.github/workflows/type-generation.yml'
       - 'scripts/generate-types.js'
   pull_request:
     branches: [ main ]
     paths:
-      - 'database/migrations/**'
+      - 'database/schema/**'
+      - 'database/data/**'
       - '.github/workflows/type-generation.yml'
       - 'scripts/generate-types.js'
   workflow_dispatch: # 手動実行を許可
@@ -46,10 +48,15 @@ jobs:
           done
 
       - name: Generate types (production)
+        if: github.ref == 'refs/heads/main'
         run: npm run generate-types:prod
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+
+      - name: Generate types (local for PR)
+        if: github.ref != 'refs/heads/main'
+        run: npm run generate-types
 
       - name: Check for type changes
         id: type-changes
