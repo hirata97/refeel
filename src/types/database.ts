@@ -1,5 +1,6 @@
 // 自動生成されたデータベース型定義
-// 生成日時: 2025-08-31T12:03:22.545Z
+// 生成日時: 2025-09-01T04:18:34.921Z
+// 手動更新: 2025-09-01 master.sql構造に対応
 
 export interface Database {
   public: {
@@ -15,6 +16,7 @@ export interface Database {
           mood_reason?: string
           goal_category: string
           progress_level: number
+          template_type?: 'free' | 'reflection' | 'mood'
           created_at: string
           updated_at: string
           encrypted_data?: string
@@ -22,13 +24,14 @@ export interface Database {
         Insert: {
           id?: string
           user_id: string
-          date?: string
+          date: string
           title: string
           content: string
-          mood?: number
+          mood: number
           mood_reason?: string
           goal_category: string
-          progress_level?: number
+          progress_level: number
+          template_type?: 'free' | 'reflection' | 'mood'
           created_at?: string
           updated_at?: string
           encrypted_data?: string
@@ -43,6 +46,7 @@ export interface Database {
           mood_reason?: string
           goal_category?: string
           progress_level?: number
+          template_type?: 'free' | 'reflection' | 'mood'
           created_at?: string
           updated_at?: string
           encrypted_data?: string
@@ -103,6 +107,58 @@ export interface Database {
           updated_at?: string
         }
       }
+      emotion_tags: {
+        Row: {
+          id: string
+          name: string
+          category: 'positive' | 'negative' | 'neutral'
+          color: string
+          description?: string
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          category: 'positive' | 'negative' | 'neutral'
+          color?: string
+          description?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          category?: 'positive' | 'negative' | 'neutral'
+          color?: string
+          description?: string
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      diary_emotion_tags: {
+        Row: {
+          id: string
+          diary_id: string
+          emotion_tag_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          diary_id: string
+          emotion_tag_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          diary_id?: string
+          emotion_tag_id?: string
+          created_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -111,9 +167,6 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
       [_ in never]: never
     }
   }
