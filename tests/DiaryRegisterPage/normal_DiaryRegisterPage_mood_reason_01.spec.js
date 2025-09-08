@@ -164,24 +164,10 @@ describe('DiaryRegisterPage - 気分理由入力フィールド', () => {
     })
   })
 
-  describe('テンプレート構造の確認', () => {
-    it('すべてのテンプレート選択肢が存在する', () => {
-      // selectedTemplateの初期値がfreeであることを確認
-      expect(wrapper.vm.selectedTemplate).toBe('free')
-      
-      // テンプレートオプションが3つあることを確認
-      expect(wrapper.vm.templateOptions).toHaveLength(3)
-    })
-
-    it('気分理由フィールドがテンプレート選択に依存しないことを確認', () => {
+  describe('簡素化されたフォーム構造の確認', () => {
+    it('気分理由フィールドが正しく表示される', () => {
       const html = wrapper.html()
-      
-      // 気分理由フィールドがテンプレート条件外に配置されていることを確認
-      // （v-else-ifなどのテンプレート条件内にないことを確認）
       const reasonFieldPosition = html.indexOf('その気分の理由')
-      // const templateConditionEnd = html.indexOf('</div>') // テンプレート条件の終了 - 現在未使用
-      
-      // 気分理由フィールドが見つかることを確認
       expect(reasonFieldPosition).toBeGreaterThan(-1)
     })
   })

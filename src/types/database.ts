@@ -16,7 +16,6 @@ export interface Database {
           mood_reason?: string
           goal_category: string
           progress_level: number
-          template_type?: 'free' | 'reflection' | 'mood'
           created_at: string
           updated_at: string
           encrypted_data?: string
@@ -31,7 +30,6 @@ export interface Database {
           mood_reason?: string
           goal_category: string
           progress_level: number
-          template_type?: 'free' | 'reflection' | 'mood'
           created_at?: string
           updated_at?: string
           encrypted_data?: string
@@ -46,7 +44,6 @@ export interface Database {
           mood_reason?: string
           goal_category?: string
           progress_level?: number
-          template_type?: 'free' | 'reflection' | 'mood'
           created_at?: string
           updated_at?: string
           encrypted_data?: string

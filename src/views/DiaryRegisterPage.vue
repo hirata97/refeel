@@ -4,24 +4,6 @@
     <v-sheet class="form-section pa-4 my-4" elevation="2">
       <h2>新しい日記を追加する</h2>
       <v-form @submit.prevent="addDiary">
-        <!-- 振り返りテンプレート選択 -->
-        <v-select
-          v-model="selectedTemplate"
-          :items="templateOptions"
-          label="振り返りテンプレート"
-          item-title="label"
-          item-value="value"
-          outlined
-          class="mb-4"
-        >
-          <template #item="{ props, item }">
-            <v-list-item v-bind="props">
-              <v-list-item-title>{{ item.raw.label }}</v-list-item-title>
-              <v-list-item-subtitle>{{ item.raw.description }}</v-list-item-subtitle>
-            </v-list-item>
-          </template>
-        </v-select>
-
         <v-text-field
           v-model="title"
           :error-messages="titleError ? [titleError] : []"
@@ -30,9 +12,7 @@
           outlined
           required
         />
-        <!-- フリー記述テンプレート -->
         <v-textarea
-          v-if="selectedTemplate === 'free'"
           v-model="content"
           :error-messages="contentError ? [contentError] : []"
           @blur="validateField('content')"
@@ -41,54 +21,6 @@
           rows="3"
           required
         />
-
-        <!-- 3つの振り返り質問テンプレート -->
-        <div v-else-if="selectedTemplate === 'reflection'">
-          <v-textarea
-            v-model="reflectionAnswers.success"
-            label="1. 今日一番うまくいったことは？"
-            outlined
-            rows="2"
-            class="mb-3"
-            placeholder="例：プレゼンテーションがうまくいった、新しいスキルを学べた"
-          />
-          <v-textarea
-            v-model="reflectionAnswers.challenge"
-            label="2. 困ったこと・それへの対処は？"
-            outlined
-            rows="2"
-            class="mb-3"
-            placeholder="例：時間管理に苦労した → スケジュールを見直す"
-          />
-          <v-textarea
-            v-model="reflectionAnswers.tomorrow"
-            label="3. 明日やること1つは？"
-            outlined
-            rows="2"
-            class="mb-3"
-            placeholder="例：会議資料の準備、運動する時間を作る"
-          />
-        </div>
-
-        <!-- 気分重視記録テンプレート -->
-        <div v-else-if="selectedTemplate === 'mood'">
-          <v-textarea
-            v-model="moodDetails.reason"
-            label="今日の気分の理由は？"
-            outlined
-            rows="2"
-            class="mb-3"
-            placeholder="例：目標達成できた、疲れている、良いことがあった"
-          />
-          <v-textarea
-            v-model="moodDetails.context"
-            label="詳しい状況"
-            outlined
-            rows="3"
-            class="mb-3"
-            placeholder="具体的な状況や感じたことを記録してください"
-          />
-        </div>
         <v-text-field
           v-model="date"
           :error-messages="dateError ? [dateError] : []"
@@ -196,7 +128,6 @@ import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
-import type { TemplateType, TemplateOption, ReflectionAnswers, MoodDetails } from '@/types/custom'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -206,39 +137,6 @@ const loadingStore = useLoadingStore()
 const emotionTagsStore = useEmotionTagsStore()
 const performance = usePerformanceMonitor()
 
-// テンプレート選択
-const selectedTemplate = ref<TemplateType>('free')
-
-// テンプレートオプション
-const templateOptions: TemplateOption[] = [
-  {
-    label: 'フリー記述',
-    value: 'free',
-    description: '自由に内容を記述できます'
-  },
-  {
-    label: '3つの振り返り質問',
-    value: 'reflection', 
-    description: '今日の成功、課題、明日の予定を振り返ります'
-  },
-  {
-    label: '気分重視記録',
-    value: 'mood',
-    description: '気分とその理由に焦点を当てた記録'
-  }
-]
-
-// テンプレート別のデータ
-const reflectionAnswers = ref<ReflectionAnswers>({
-  success: '',
-  challenge: '',
-  tomorrow: ''
-})
-
-const moodDetails = ref<MoodDetails>({
-  reason: '',
-  context: ''
-})
 
 // 新しい気分理由フィールド（すべてのテンプレートで使用）
 const moodReason = ref<string>('')
@@ -305,45 +203,17 @@ const addDiary = async (): Promise<void> => {
 
       performance.start('create_diary')
       
-      // テンプレートに応じた内容を生成
-      let finalContent = sanitizedData.content || ''
-      
-      if (selectedTemplate.value === 'reflection') {
-        finalContent = [
-          `## 今日の振り返り`,
-          '',
-          `**一番うまくいったこと:**`,
-          reflectionAnswers.value.success || '（記録なし）',
-          '',
-          `**困ったこと・対処:**`,
-          reflectionAnswers.value.challenge || '（記録なし）',
-          '',
-          `**明日やること:**`,
-          reflectionAnswers.value.tomorrow || '（記録なし）'
-        ].join('\n')
-      } else if (selectedTemplate.value === 'mood') {
-        finalContent = [
-          `## 今日の気分記録`,
-          '',
-          `**気分の理由:**`,
-          moodDetails.value.reason || '（記録なし）',
-          '',
-          `**詳しい状況:**`,
-          moodDetails.value.context || '（記録なし）'
-        ].join('\n')
-      }
 
       // データストアを使用した最適化された作成処理
       const diaryData = {
         user_id: authStore.user!.id, // 上で既にチェック済み
         title: sanitizedData.title || '',
-        content: finalContent,
+        content: sanitizedData.content || '',
         date: sanitizedData.date || new Date().toISOString().split('T')[0], // YYYY-MM-DD形式
         mood: Number(sanitizedData.mood) || 5, // 1-10の値をそのまま使用、デフォルトは5
         mood_reason: moodReason.value || undefined, // 気分理由（任意）
         goal_category: 'general',
         progress_level: 0,
-        template_type: selectedTemplate.value
       }
 
       const newDiary = await dataStore.createDiary(diaryData)
@@ -372,11 +242,7 @@ const addDiary = async (): Promise<void> => {
       
       // フォームリセット
       resetForm()
-      // テンプレート関連データもリセット
-      selectedTemplate.value = 'free'
-      reflectionAnswers.value = { success: '', challenge: '', tomorrow: '' }
-      moodDetails.value = { reason: '', context: '' }
-      moodReason.value = '' // 新しい気分理由フィールドもリセット
+      moodReason.value = '' // 気分理由フィールドをリセット
       selectedEmotionTags.value = [] // 感情タグ選択もリセット
       
       // オプション: ダッシュボードにリダイレクト
