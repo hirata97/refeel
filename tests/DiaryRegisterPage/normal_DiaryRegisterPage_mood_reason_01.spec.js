@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
+import { createPinia } from 'pinia'
 // import { nextTick } from 'vue' // 現在未使用
 import DiaryRegisterPage from '@/views/DiaryRegisterPage.vue'
 
@@ -34,6 +35,17 @@ vi.mock('@/stores/loading', () => ({
   useLoadingStore: () => ({
     withLoading: vi.fn((key, fn) => fn()),
     isLoading: vi.fn().mockReturnValue(false)
+  })
+}))
+
+vi.mock('@/stores/emotionTags', () => ({
+  useEmotionTagsStore: () => ({
+    fetchEmotionTags: vi.fn().mockResolvedValue(),
+    linkDiaryEmotionTags: vi.fn().mockResolvedValue(),
+    emotionTags: { value: [] },
+    emotionTagsGrouped: { value: { positive: [], negative: [], neutral: [] } },
+    isLoading: { value: false },
+    error: { value: null }
   })
 }))
 
@@ -74,12 +86,14 @@ vi.mock('vue-router', () => ({
 describe('DiaryRegisterPage - 気分理由入力フィールド', () => {
   let wrapper
   let vuetify
+  let pinia
 
   beforeEach(() => {
     vuetify = createVuetify()
+    pinia = createPinia()
     wrapper = mount(DiaryRegisterPage, {
       global: {
-        plugins: [vuetify]
+        plugins: [vuetify, pinia]
       }
     })
   })
