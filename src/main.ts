@@ -12,6 +12,7 @@ import { useAuthStore } from './stores/auth'
 import { useThemeStore } from './stores/theme'
 import { initializeSecurity } from './utils/security'
 import { AuditLogger, AuditEventType } from './utils/audit-logger'
+import { syncService } from './services/syncService'
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -87,11 +88,56 @@ window.addEventListener('error', (event) => {
   })
 })
 
+// PWA Service Worker登録
+const registerPWA = async () => {
+  if ('serviceWorker' in navigator) {
+    try {
+      // Vite PWA Pluginが自動生成するService Workerを登録
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      })
+
+      console.log('PWA Service Worker登録成功:', registration.scope)
+
+      // 更新チェック
+      registration.addEventListener('updatefound', () => {
+        console.log('PWA Service Worker更新が見つかりました')
+      })
+
+      return registration
+    } catch (error) {
+      console.error('PWA Service Worker登録失敗:', error)
+    }
+  }
+}
+
 // 認証状態を初期化してからアプリをマウント
-authStore.initialize().finally(() => {
+authStore.initialize().finally(async () => {
   // アプリをマウント
   app.mount('#app')
 
   // テーマストアを初期化（Vuetifyインスタンスは各コンポーネントで設定）
   themeListenerCleanup = themeStore.initialize()
+
+  // PWA Service Workerを登録
+  await registerPWA()
+
+  // 認証済みユーザーの場合、オフライン機能を初期化
+  if (authStore.isAuthenticated && authStore.user) {
+    // オンライン/オフライン監視を設定
+    syncService.setupOnlineListener(authStore.user.id)
+
+    // 定期同期を設定（15分間隔）
+    syncService.setupPeriodicSync(authStore.user.id, 15)
+
+    // 初回同期を実行
+    if (navigator.onLine) {
+      try {
+        await syncService.syncData(authStore.user.id)
+        console.log('初回データ同期完了')
+      } catch (error) {
+        console.error('初回データ同期エラー:', error)
+      }
+    }
+  }
 })

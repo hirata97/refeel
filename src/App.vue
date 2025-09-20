@@ -58,6 +58,9 @@
     <!-- グローバル通知システム -->
     <GlobalNotification />
 
+    <!-- PWAインストール促進 -->
+    <PWAInstallPrompt />
+
     <!-- グローバルローディング -->
     <v-overlay v-model="loadingStore.globalLoading" class="align-center justify-center">
       <v-progress-circular indeterminate size="64" />
@@ -72,6 +75,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@/stores/loading'
 import GlobalNotification from '@/components/GlobalNotification.vue'
+import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
 
 const route = useRoute()
 const router = useRouter()
