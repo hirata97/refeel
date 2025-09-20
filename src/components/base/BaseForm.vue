@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type ComputedRef } from 'vue'
+import { ref, computed } from 'vue'
 import type { VForm } from 'vuetify/components'
 
 interface Props {
@@ -38,8 +38,8 @@ const isValid = ref(false)
 
 const handleSubmit = async () => {
   if (props.validateOnSubmit && formRef.value) {
-    const { valid } = await (formRef.value.validate() as any)
-    emit('submit', valid)
+    const result = await formRef.value.validate()
+    emit('submit', result.valid)
   } else {
     emit('submit', isValid.value)
   }
@@ -47,7 +47,7 @@ const handleSubmit = async () => {
 
 const validate = async (): Promise<{ valid: boolean }> => {
   if (formRef.value) {
-    const result = await formRef.value.validate() as any
+    const result = await formRef.value.validate()
     return { valid: result.valid }
   }
   return { valid: false }
@@ -65,9 +65,9 @@ const resetValidation = () => {
   }
 }
 
-// BaseFormの公開メソッド（型アサーションでVuetify型エラーを回避）
+// BaseFormの公開メソッド
 defineExpose({
-  validate: validate as any,
+  validate,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value),
