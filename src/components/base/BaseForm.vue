@@ -45,7 +45,7 @@ const handleSubmit = async () => {
   }
 }
 
-const validate = async (): Promise<{ valid: boolean }> => {
+const validate = async () => {
   if (formRef.value) {
     return await formRef.value.validate()
   }

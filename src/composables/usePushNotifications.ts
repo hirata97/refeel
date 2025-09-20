@@ -14,8 +14,8 @@ export function usePushNotifications() {
   const subscription = ref<PushSubscription | null>(null)
   const isSubscribed = ref(false)
 
-  // VAPID公開鍵（本番環境では環境変数で管理）
-  const VAPID_PUBLIC_KEY = 'BCXample...your-vapid-public-key'
+  // VAPID公開鍵（環境変数から取得）
+  const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || ''
 
   // プッシュ通知のサポート状況をチェック
   const checkSupport = () => {
@@ -50,6 +50,11 @@ export function usePushNotifications() {
   // プッシュ通知に登録
   const subscribe = async (): Promise<boolean> => {
     if (!isSupported.value || permission.value !== 'granted') {
+      return false
+    }
+
+    if (!VAPID_PUBLIC_KEY) {
+      console.warn('VAPID公開鍵が設定されていません')
       return false
     }
 
