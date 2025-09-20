@@ -212,12 +212,9 @@ export function useDashboardData() {
       yesterdayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / yesterdayDiaries.length
     )
 
-    // 気分理由の取得（最新の日記から）
-    const currentReason = todayDiaries.length > 0
-      ? todayDiaries[0].mood_reason || undefined
-      : undefined
-    
-    const previousReason = yesterdayDiaries[0].mood_reason || undefined
+    // 気分理由の取得（最新の日記から） - mood_reasonフィールドが存在しないため削除
+    const currentReason = undefined
+    const previousReason = undefined
 
     // 連続記録日数の計算（既存の統計から取得）
     const stats = calculateStats(diaries)

@@ -45,11 +45,11 @@ const handleSubmit = async () => {
   }
 }
 
-const validate = (): Promise<{ valid: boolean }> | { valid: boolean } => {
+const validate = async (): Promise<{ valid: boolean }> => {
   if (formRef.value) {
-    return formRef.value.validate()
+    return await formRef.value.validate()
   }
-  return Promise.resolve({ valid: false })
+  return { valid: false }
 }
 
 const reset = () => {
