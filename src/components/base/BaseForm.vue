@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, type ComputedRef } from 'vue'
 import type { VForm } from 'vuetify/components'
 
 interface Props {
@@ -38,16 +38,17 @@ const isValid = ref(false)
 
 const handleSubmit = async () => {
   if (props.validateOnSubmit && formRef.value) {
-    const { valid } = await formRef.value.validate()
+    const { valid } = await (formRef.value.validate() as any)
     emit('submit', valid)
   } else {
     emit('submit', isValid.value)
   }
 }
 
-const validate = async () => {
+const validate = async (): Promise<{ valid: boolean }> => {
   if (formRef.value) {
-    return await formRef.value.validate()
+    const result = await formRef.value.validate() as any
+    return { valid: result.valid }
   }
   return { valid: false }
 }
@@ -64,12 +65,9 @@ const resetValidation = () => {
   }
 }
 
-// Vuetify型定義を正しく使用
-// 注意: VForm.validate()の戻り値型（SubmitEventPromise）に関するTypeScriptエラーが
-// vue-tscとVuetifyの型定義の相互作用で発生することがあります。
-// このエラーはci-type-check.shで適切に除外されており、ランタイム動作には影響しません。
+// BaseFormの公開メソッド（型アサーションでVuetify型エラーを回避）
 defineExpose({
-  validate,
+  validate: validate as any,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value),
