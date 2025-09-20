@@ -184,16 +184,28 @@ jobs:
     - name: Security Vulnerability Scan
       run: |
         echo "## 🔒 Security Scan Results" >> $GITHUB_STEP_SUMMARY
-        npm audit --audit-level=moderate 2>&1 | tee audit-results.txt
-        
-        # 高リスク脆弱性がある場合は失敗
-        if grep -q "high\|critical" audit-results.txt; then
-          echo "❌ 高リスクまたはクリティカルな脆弱性が発見されました"
-          cat audit-results.txt >> $GITHUB_STEP_SUMMARY
+
+        # npm auditをJSONで実行し、高・クリティカル脆弱性のみをチェック
+        npm audit --json > audit-results.json 2>/dev/null || true
+
+        # jqを使ってhigh/critical脆弱性を抽出
+        high_critical_count=$(jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical") | .key' audit-results.json 2>/dev/null | wc -l || echo "0")
+
+        # 詳細情報をstep summaryに追加
+        total_vulnerabilities=$(jq -r '.metadata.vulnerabilities | .info + .low + .moderate + .high + .critical' audit-results.json 2>/dev/null || echo "0")
+        echo "**Total vulnerabilities found:** $total_vulnerabilities" >> $GITHUB_STEP_SUMMARY
+        echo "**High/Critical vulnerabilities:** $high_critical_count" >> $GITHUB_STEP_SUMMARY
+
+        # 高・クリティカル脆弱性がある場合のみ失敗
+        if [ "$high_critical_count" -gt 0 ]; then
+          echo "❌ 高リスクまたはクリティカルな脆弱性が $high_critical_count 件発見されました" >> $GITHUB_STEP_SUMMARY
+          echo "```json" >> $GITHUB_STEP_SUMMARY
+          jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical")' audit-results.json >> $GITHUB_STEP_SUMMARY
+          echo "```" >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
-        
-        echo "✅ セキュリティスキャン完了" >> $GITHUB_STEP_SUMMARY
+
+        echo "✅ セキュリティスキャン完了（高・クリティカル脆弱性なし）" >> $GITHUB_STEP_SUMMARY
         
     # セキュリティ機能のテスト
     - name: Security Features Test

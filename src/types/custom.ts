@@ -13,7 +13,6 @@ export interface DiaryEntry {
   mood_reason?: string
   goal_category: string
   progress_level: number
-  template_type?: 'free' | 'reflection' | 'mood'
   created_at: string
   updated_at: string
 }
@@ -34,7 +33,6 @@ export interface LegacyDiaryEntry {
   mood_reason?: string
   goal_category: string
   progress_level: number
-  template_type?: 'free' | 'reflection' | 'mood'
   created_at: string
   updated_at: string
 }
@@ -66,28 +64,7 @@ export interface DiaryFormData {
   mood_reason?: string
   goal_category: string
   progress_level: number
-  template_type?: 'free' | 'reflection' | 'mood'
   date?: string
-}
-
-// テンプレート選択関連の型定義
-export type TemplateType = 'free' | 'reflection' | 'mood'
-
-export interface TemplateOption {
-  label: string
-  value: TemplateType
-  description: string
-}
-
-export interface ReflectionAnswers {
-  success: string
-  challenge: string
-  tomorrow: string
-}
-
-export interface MoodDetails {
-  reason: string
-  context: string
 }
 
 // API レスポンス型定義

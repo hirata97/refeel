@@ -41,7 +41,6 @@ export interface MoodDataPoint {
   label: string
 }
 
-
 export interface DashboardData {
   /** 統計データ */
   stats: DashboardStats

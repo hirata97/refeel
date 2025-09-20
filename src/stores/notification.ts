@@ -27,7 +27,7 @@ export const useNotificationStore = defineStore('notification', () => {
     const newNotification: NotificationItem = {
       id,
       timeout: 5000, // デフォルト5秒
-      ...notification
+      ...notification,
     }
 
     notifications.value.push(newNotification)
@@ -48,7 +48,7 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   const removeNotification = (id: string): void => {
-    const index = notifications.value.findIndex(n => n.id === id)
+    const index = notifications.value.findIndex((n) => n.id === id)
     if (index > -1) {
       notifications.value.splice(index, 1)
     }
@@ -59,41 +59,57 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   // 便利なヘルパーメソッド
-  const showSuccess = (title: string, message?: string, options?: Partial<NotificationItem>): string => {
+  const showSuccess = (
+    title: string,
+    message?: string,
+    options?: Partial<NotificationItem>,
+  ): string => {
     return addNotification({
       type: 'success',
       title,
       message,
-      ...options
+      ...options,
     })
   }
 
-  const showError = (title: string, message?: string, options?: Partial<NotificationItem>): string => {
+  const showError = (
+    title: string,
+    message?: string,
+    options?: Partial<NotificationItem>,
+  ): string => {
     return addNotification({
       type: 'error',
       title,
       message,
       timeout: 8000, // エラーは長めに表示
-      ...options
+      ...options,
     })
   }
 
-  const showWarning = (title: string, message?: string, options?: Partial<NotificationItem>): string => {
+  const showWarning = (
+    title: string,
+    message?: string,
+    options?: Partial<NotificationItem>,
+  ): string => {
     return addNotification({
       type: 'warning',
       title,
       message,
       timeout: 6000,
-      ...options
+      ...options,
     })
   }
 
-  const showInfo = (title: string, message?: string, options?: Partial<NotificationItem>): string => {
+  const showInfo = (
+    title: string,
+    message?: string,
+    options?: Partial<NotificationItem>,
+  ): string => {
     return addNotification({
       type: 'info',
       title,
       message,
-      ...options
+      ...options,
     })
   }
 
@@ -105,6 +121,6 @@ export const useNotificationStore = defineStore('notification', () => {
     showSuccess,
     showError,
     showWarning,
-    showInfo
+    showInfo,
   }
 })

@@ -12,7 +12,7 @@
           variant="tonal"
           class="mb-4"
           :text="
-            requestType === 'complete' 
+            requestType === 'complete'
               ? 'この操作は取り消すことができません。アカウントと関連するすべてのデータが完全に削除されます。'
               : '選択したデータタイプが削除されます。この操作は取り消すことができません。'
           "
@@ -20,14 +20,8 @@
 
         <v-form ref="form" v-model="isFormValid">
           <v-radio-group v-model="requestType" label="削除タイプを選択してください">
-            <v-radio
-              label="部分削除 - 特定のデータのみ削除"
-              value="partial"
-            />
-            <v-radio
-              label="完全削除 - アカウントとすべてのデータを削除"
-              value="complete"
-            />
+            <v-radio label="部分削除 - 特定のデータのみ削除" value="partial" />
+            <v-radio label="完全削除 - アカウントとすべてのデータを削除" value="complete" />
           </v-radio-group>
 
           <v-expand-transition>
@@ -83,13 +77,7 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn
-          text
-          @click="closeDialog"
-          :disabled="loading"
-        >
-          キャンセル
-        </v-btn>
+        <v-btn text @click="closeDialog" :disabled="loading"> キャンセル </v-btn>
         <v-btn
           color="error"
           variant="flat"
@@ -129,7 +117,7 @@ const authStore = useAuthStore()
 // Reactive data
 const dialog = computed({
   get: () => props.modelValue,
-  set: (value: boolean) => emit('update:modelValue', value)
+  set: (value: boolean) => emit('update:modelValue', value),
 })
 
 const form = ref<VForm>()
@@ -146,19 +134,19 @@ const availableDataTypes = [
   { label: '進捗記録', value: 'progress', required: false },
   { label: 'カテゴリ設定', value: 'categories', required: false },
   { label: 'タグ設定', value: 'tags', required: false },
-  { label: 'プロフィール情報', value: 'profile', required: false }
+  { label: 'プロフィール情報', value: 'profile', required: false },
 ]
 
 // Validation rules
 const confirmationRules = [
   (v: string) => !!v || '確認テキストの入力は必須です',
-  (v: string) => v === '削除します' || '正確に「削除します」と入力してください'
+  (v: string) => v === '削除します' || '正確に「削除します」と入力してください',
 ]
 
 // Computed
 const canSubmit = computed(() => {
   if (!isFormValid.value || loading.value) return false
-  
+
   if (requestType.value === 'complete') {
     return confirmationText.value === '削除します'
   } else {
@@ -198,7 +186,7 @@ const submitRequest = async () => {
       authStore.user.id,
       requestType.value,
       requestType.value === 'partial' ? selectedDataTypes.value : [],
-      reason.value || undefined
+      reason.value || undefined,
     )
 
     emit('submitted', token)
@@ -207,7 +195,6 @@ const submitRequest = async () => {
     // Success notification
     // TODO: Toast notification implementation
     console.log('データ削除リクエストが送信されました。確認メールをご確認ください。')
-
   } catch (error) {
     console.error('データ削除リクエストに失敗しました:', error)
     // TODO: Error notification implementation

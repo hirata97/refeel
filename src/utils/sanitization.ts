@@ -387,7 +387,7 @@ export const validateDate = (dateString: string): { isValid: boolean; error?: st
   const today = new Date()
   const todayString = today.toISOString().split('T')[0] // YYYY-MM-DD
   const inputDateString = date.toISOString().split('T')[0] // YYYY-MM-DD
-  
+
   if (inputDateString > todayString) {
     return { isValid: false, error: 'Future dates are not allowed' }
   }

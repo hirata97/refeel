@@ -20,7 +20,11 @@ export const useProfileStore = defineStore('profile', () => {
   const hasProfile = computed(() => profile.value !== null)
   const isComplete = computed(() => {
     if (!profile.value) return false
-    return !!(profile.value.display_name && profile.value.timezone && profile.value.preferred_language)
+    return !!(
+      profile.value.display_name &&
+      profile.value.timezone &&
+      profile.value.preferred_language
+    )
   })
 
   // プロフィールの取得
@@ -29,8 +33,11 @@ export const useProfileStore = defineStore('profile', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError) {
         throw new Error(`認証エラー: ${authError.message}`)
       }
@@ -39,13 +46,10 @@ export const useProfileStore = defineStore('profile', () => {
         throw new Error('認証されていません')
       }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
-      if (error && error.code !== 'PGRST116') { // "not found" エラー以外
+      if (error && error.code !== 'PGRST116') {
+        // "not found" エラー以外
         throw new Error(`プロフィール取得エラー: ${error.message}`)
       }
 
@@ -58,7 +62,8 @@ export const useProfileStore = defineStore('profile', () => {
 
       return profile.value
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'プロフィールの取得に失敗しました'
+      const errorMessage =
+        error instanceof Error ? error.message : 'プロフィールの取得に失敗しました'
       console.error('プロフィール取得エラー:', error)
       lastError.value = errorMessage
       return null
@@ -73,8 +78,11 @@ export const useProfileStore = defineStore('profile', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
@@ -99,7 +107,8 @@ export const useProfileStore = defineStore('profile', () => {
       profile.value = data as UserProfile
       return profile.value
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'プロフィールの作成に失敗しました'
+      const errorMessage =
+        error instanceof Error ? error.message : 'プロフィールの作成に失敗しました'
       console.error('プロフィール作成エラー:', error)
       lastError.value = errorMessage
       return null
@@ -119,8 +128,11 @@ export const useProfileStore = defineStore('profile', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
@@ -158,7 +170,8 @@ export const useProfileStore = defineStore('profile', () => {
       profile.value = data as UserProfile
       return true
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'プロフィールの更新に失敗しました'
+      const errorMessage =
+        error instanceof Error ? error.message : 'プロフィールの更新に失敗しました'
       console.error('プロフィール更新エラー:', error)
       lastError.value = errorMessage
       return false
@@ -173,8 +186,11 @@ export const useProfileStore = defineStore('profile', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
@@ -184,7 +200,8 @@ export const useProfileStore = defineStore('profile', () => {
         throw new Error('画像ファイルのみアップロード可能です')
       }
 
-      if (file.size > 5 * 1024 * 1024) { // 5MB制限
+      if (file.size > 5 * 1024 * 1024) {
+        // 5MB制限
         throw new Error('ファイルサイズは5MB以下にしてください')
       }
 
@@ -196,9 +213,7 @@ export const useProfileStore = defineStore('profile', () => {
       if (profile.value?.avatar_url) {
         const oldFileName = profile.value.avatar_url.split('/').pop()
         if (oldFileName) {
-          await supabase.storage
-            .from('avatars')
-            .remove([oldFileName])
+          await supabase.storage.from('avatars').remove([oldFileName])
         }
       }
 
@@ -214,20 +229,21 @@ export const useProfileStore = defineStore('profile', () => {
       }
 
       // パブリックURLを取得
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(uploadData.path)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('avatars').getPublicUrl(uploadData.path)
 
       // プロフィールを更新
       const success = await updateProfile({ avatar_url: publicUrl })
-      
+
       if (!success) {
         throw new Error('プロフィールの更新に失敗しました')
       }
 
       return publicUrl
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'アバターのアップロードに失敗しました'
+      const errorMessage =
+        error instanceof Error ? error.message : 'アバターのアップロードに失敗しました'
       console.error('アバターアップロードエラー:', error)
       lastError.value = errorMessage
       return null
@@ -249,9 +265,7 @@ export const useProfileStore = defineStore('profile', () => {
       // ストレージからファイルを削除
       const fileName = profile.value.avatar_url.split('/').pop()
       if (fileName) {
-        const { error: deleteError } = await supabase.storage
-          .from('avatars')
-          .remove([fileName])
+        const { error: deleteError } = await supabase.storage.from('avatars').remove([fileName])
 
         if (deleteError) {
           console.warn('ストレージからの削除に失敗:', deleteError)

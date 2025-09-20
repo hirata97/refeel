@@ -81,7 +81,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: 'light'
+  modelValue: 'light',
 })
 
 const emit = defineEmits<Emits>()
@@ -95,7 +95,7 @@ const selectedTheme = computed({
   get: () => props.modelValue || themeStore.currentTheme,
   set: (value: ThemeName) => {
     emit('update:modelValue', value)
-  }
+  },
 })
 
 // 現在のテーマ
@@ -107,20 +107,20 @@ const themeOptions = [
     title: 'ライト',
     value: 'light' as ThemeName,
     icon: 'mdi-white-balance-sunny',
-    color: '#1976d2'
+    color: '#1976d2',
   },
   {
     title: 'ダーク',
     value: 'dark' as ThemeName,
     icon: 'mdi-moon-waning-crescent',
-    color: '#bb86fc'
+    color: '#bb86fc',
   },
   {
     title: 'システム設定に従う',
     value: 'system' as ThemeName,
     icon: 'mdi-cog',
-    color: '#4caf50'
-  }
+    color: '#4caf50',
+  },
 ]
 
 // プレビュー用カラー
@@ -130,7 +130,7 @@ const previewColors = computed(() => [
   { name: 'Success', value: vuetifyTheme.current.value.colors.success },
   { name: 'Info', value: vuetifyTheme.current.value.colors.info },
   { name: 'Warning', value: vuetifyTheme.current.value.colors.warning },
-  { name: 'Error', value: vuetifyTheme.current.value.colors.error }
+  { name: 'Error', value: vuetifyTheme.current.value.colors.error },
 ])
 
 // Methods
@@ -153,7 +153,7 @@ watch(
       selectedTheme.value = newTheme
     }
   },
-  { immediate: true }
+  { immediate: true },
 )
 </script>
 

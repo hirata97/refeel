@@ -21,9 +21,9 @@ export class DataEncryption {
         length: this.KEY_LENGTH,
       },
       true, // extractable
-      ['encrypt', 'decrypt']
+      ['encrypt', 'decrypt'],
     )
-    
+
     this.masterKey = key
     return key
   }
@@ -63,19 +63,21 @@ export class DataEncryption {
         iv: iv,
       },
       key,
-      encodedData
+      encodedData,
     )
 
     const encryptedArray = new Uint8Array(encryptedBuffer)
-    const encryptedData = Array.from(encryptedArray, byte => byte.toString(16).padStart(2, '0')).join('')
-    const ivHex = Array.from(iv, byte => byte.toString(16).padStart(2, '0')).join('')
+    const encryptedData = Array.from(encryptedArray, (byte) =>
+      byte.toString(16).padStart(2, '0'),
+    ).join('')
+    const ivHex = Array.from(iv, (byte) => byte.toString(16).padStart(2, '0')).join('')
 
     return {
       data: encryptedData,
       iv: ivHex,
       algorithm: this.ALGORITHM,
       timestamp: Date.now(),
-      version: '1.0'
+      version: '1.0',
     }
   }
 
@@ -88,10 +90,12 @@ export class DataEncryption {
     }
 
     const key = await this.getMasterKey()
-    
+
     // HEX文字列をUint8Arrayに変換
-    const iv = new Uint8Array(encryptedData.iv.match(/.{2}/g)!.map(byte => parseInt(byte, 16)))
-    const encrypted = new Uint8Array(encryptedData.data.match(/.{2}/g)!.map(byte => parseInt(byte, 16)))
+    const iv = new Uint8Array(encryptedData.iv.match(/.{2}/g)!.map((byte) => parseInt(byte, 16)))
+    const encrypted = new Uint8Array(
+      encryptedData.data.match(/.{2}/g)!.map((byte) => parseInt(byte, 16)),
+    )
 
     try {
       const decryptedBuffer = await crypto.subtle.decrypt(
@@ -100,7 +104,7 @@ export class DataEncryption {
           iv: iv,
         },
         key,
-        encrypted
+        encrypted,
       )
 
       const decryptedData = new TextDecoder().decode(decryptedBuffer)
@@ -116,13 +120,13 @@ export class DataEncryption {
   static async exportKey(): Promise<EncryptionKeyInfo> {
     const key = await this.getMasterKey()
     const exportedKey = await crypto.subtle.exportKey('jwk', key)
-    
+
     return {
       keyData: exportedKey,
       algorithm: this.ALGORITHM,
       keyLength: this.KEY_LENGTH,
       createdAt: Date.now(),
-      version: '1.0'
+      version: '1.0',
     }
   }
 
@@ -140,12 +144,12 @@ export class DataEncryption {
         keyInfo.keyData,
         {
           name: this.ALGORITHM,
-          length: keyInfo.keyLength
+          length: keyInfo.keyLength,
         },
         true,
-        ['encrypt', 'decrypt']
+        ['encrypt', 'decrypt'],
       )
-      
+
       this.masterKey = importedKey
     } catch {
       throw new Error('Failed to import encryption key')
@@ -155,7 +159,9 @@ export class DataEncryption {
   /**
    * センシティブフィールドのバッチ暗号化
    */
-  static async encryptSensitiveFields(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  static async encryptSensitiveFields(
+    data: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     const sensitiveFields = ['title', 'content', 'note', 'personal_note', 'reflection']
     const result = { ...data }
 
@@ -171,13 +177,18 @@ export class DataEncryption {
   /**
    * センシティブフィールドのバッチ復号化
    */
-  static async decryptSensitiveFields(data: Record<string, unknown>): Promise<Record<string, unknown>> {
+  static async decryptSensitiveFields(
+    data: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
     const sensitiveFields = ['title', 'content', 'note', 'personal_note', 'reflection']
     const result = { ...data }
 
     for (const field of sensitiveFields) {
-      if (result[field] && typeof result[field] === 'object' && 
-          (result[field] as EncryptedData).data) {
+      if (
+        result[field] &&
+        typeof result[field] === 'object' &&
+        (result[field] as EncryptedData).data
+      ) {
         result[field] = await this.decryptData(result[field] as EncryptedData)
       }
     }
@@ -229,7 +240,7 @@ export class KeyManager {
    */
   static async rotateKey(): Promise<void> {
     const currentKey = await this.retrieveKey()
-    
+
     if (!currentKey || this.isKeyExpired(currentKey)) {
       await DataEncryption.generateMasterKey()
       const keyInfo = await DataEncryption.exportKey()
@@ -281,16 +292,9 @@ export class EncryptionConfigManager {
     algorithm: 'AES-GCM',
     keyLength: 256,
     rotationInterval: 90 * 24 * 60 * 60 * 1000, // 90日
-    sensitiveFields: [
-      'title',
-      'content', 
-      'note',
-      'personal_note',
-      'reflection',
-      'private_data'
-    ],
+    sensitiveFields: ['title', 'content', 'note', 'personal_note', 'reflection', 'private_data'],
     encryptByDefault: true,
-    requireEncryption: ['personal_note', 'private_data']
+    requireEncryption: ['personal_note', 'private_data'],
   }
 
   static getConfig(): EncryptionConfig {
@@ -317,7 +321,7 @@ export async function initializeEncryption(): Promise<void> {
   try {
     // 保存されたキーを復元
     const storedKey = await KeyManager.retrieveKey()
-    
+
     if (storedKey) {
       await DataEncryption.importKey(storedKey)
     } else {
@@ -328,9 +332,12 @@ export async function initializeEncryption(): Promise<void> {
     }
 
     // キーローテーションの設定
-    setInterval(async () => {
-      await KeyManager.rotateKey()
-    }, 24 * 60 * 60 * 1000) // 24時間ごとにチェック
+    setInterval(
+      async () => {
+        await KeyManager.rotateKey()
+      },
+      24 * 60 * 60 * 1000,
+    ) // 24時間ごとにチェック
 
     console.log('🔐 Encryption system initialized')
   } catch (error) {

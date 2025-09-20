@@ -1,5 +1,5 @@
 <template>
-  <div class="emotion-tag-chips" :class="{ 'clickable': clickable }">
+  <div class="emotion-tag-chips" :class="{ clickable: clickable }">
     <v-chip
       v-for="tag in displayTags"
       :key="tag.id"
@@ -14,12 +14,7 @@
       @keydown.enter="handleTagClick(tag)"
       @keydown.space.prevent="handleTagClick(tag)"
     >
-      <v-icon
-        v-if="showIcons"
-        :icon="getCategoryIcon(tag.category)"
-        size="small"
-        class="mr-1"
-      />
+      <v-icon v-if="showIcons" :icon="getCategoryIcon(tag.category)" size="small" class="mr-1" />
       {{ tag.name }}
     </v-chip>
 
@@ -76,7 +71,7 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'tonal',
   clickable: false,
   showIcons: false,
-  emptyMessage: '感情タグなし'
+  emptyMessage: '感情タグなし',
 })
 
 const emit = defineEmits<Emits>()
@@ -109,7 +104,7 @@ const hiddenTags = computed(() => {
 const chipClass = computed(() => {
   return {
     'emotion-chip': true,
-    'emotion-chip--clickable': props.clickable
+    'emotion-chip--clickable': props.clickable,
   }
 })
 
@@ -217,11 +212,11 @@ const handleMoreClick = (): void => {
   .emotion-tag-chips {
     gap: 2px;
   }
-  
+
   .emotion-chip {
     font-size: 0.7rem;
   }
-  
+
   .remaining-count-chip {
     font-size: 0.65rem;
   }

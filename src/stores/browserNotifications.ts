@@ -3,10 +3,7 @@
  */
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type {
-  NotificationSettings,
-  NotificationPermission,
-} from '@/types/settings'
+import type { NotificationSettings, NotificationPermission } from '@/types/settings'
 import { DEFAULT_NOTIFICATION_SETTINGS } from '@/types/settings'
 
 export const useBrowserNotificationStore = defineStore('browserNotifications', () => {
@@ -47,7 +44,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
       const result = await Notification.requestPermission()
       permission.value = result as NotificationPermission
       lastError.value = null
-      
+
       return permission.value
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '通知権限の取得に失敗しました'
@@ -60,7 +57,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
   // 通知の表示
   const showNotification = async (
     title: string,
-    options: NotificationOptions = {}
+    options: NotificationOptions = {},
   ): Promise<boolean> => {
     try {
       if (!canShowNotifications.value) {
@@ -122,9 +119,12 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
     try {
       // 設定の検証
       const updatedSettings = { ...settings.value, ...newSettings }
-      
+
       // 基本的な検証
-      if (typeof updatedSettings.displayDuration !== 'number' || updatedSettings.displayDuration < 1000) {
+      if (
+        typeof updatedSettings.displayDuration !== 'number' ||
+        updatedSettings.displayDuration < 1000
+      ) {
         throw new Error('表示時間は1000ミリ秒以上である必要があります')
       }
 
@@ -229,7 +229,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
   const initialize = () => {
     checkNotificationSupport()
     loadFromStorage()
-    
+
     if (settings.value.diaryReminder) {
       scheduleReminder()
     }

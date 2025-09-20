@@ -89,10 +89,7 @@
         </v-card>
 
         <!-- 感情タグ選択コンポーネント -->
-        <EmotionTagSelector
-          v-model="selectedEmotionTags"
-          class="mt-4"
-        />
+        <EmotionTagSelector v-model="selectedEmotionTags" class="mt-4" />
 
         <div class="action-buttons">
           <v-btn type="submit" color="primary" :loading="isSubmitting" class="mr-2">
@@ -289,7 +286,7 @@ const loadDiary = async () => {
     // 既存感情タグを取得して設定
     try {
       const emotionTags = await emotionTagsStore.getDiaryEmotionTags(diaryData.id)
-      selectedEmotionTags.value = emotionTags.map(tag => tag.id)
+      selectedEmotionTags.value = emotionTags.map((tag) => tag.id)
     } catch (emotionTagError) {
       console.error('感情タグの取得エラー:', emotionTagError)
       // 感情タグ取得失敗でも日記編集は可能とする
@@ -345,7 +342,7 @@ const updateDiary = async (): Promise<void> => {
         showNotification(
           '日記は更新されましたが、感情タグの更新に失敗しました',
           'warning',
-          'mdi-alert'
+          'mdi-alert',
         )
         // 少し待ってからリダイレクト
         setTimeout(() => {

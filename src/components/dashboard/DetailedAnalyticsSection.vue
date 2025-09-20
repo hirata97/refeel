@@ -9,9 +9,7 @@
             詳細分析
           </v-card-title>
           <v-card-text>
-            <div class="text-body-1 mb-4">
-              より詳細な統計分析とレポート機能を準備中です。
-            </div>
+            <div class="text-body-1 mb-4">より詳細な統計分析とレポート機能を準備中です。</div>
             <v-alert type="info" variant="tonal">
               <div class="text-body-2">
                 <strong>今後実装予定の機能：</strong>

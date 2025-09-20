@@ -223,14 +223,17 @@ const activeFiltersList = computed(() => {
 
   if (localFilters.value.emotion_tags && localFilters.value.emotion_tags.length > 0) {
     const tagNames = localFilters.value.emotion_tags
-      .map(tagId => emotionTagsStore.getEmotionTagById(tagId)?.name)
+      .map((tagId) => emotionTagsStore.getEmotionTagById(tagId)?.name)
       .filter(Boolean)
-    
+
     if (tagNames.length > 0) {
       filters.push({
         key: 'emotion_tags',
         label: '感情タグ',
-        value: tagNames.length > 2 ? `${tagNames.slice(0, 2).join(', ')} 他${tagNames.length - 2}件` : tagNames.join(', '),
+        value:
+          tagNames.length > 2
+            ? `${tagNames.slice(0, 2).join(', ')} 他${tagNames.length - 2}件`
+            : tagNames.join(', '),
       })
     }
   }
@@ -272,11 +275,7 @@ const removeFilter = (key: string) => {
     localFilters.value[filterKey] = []
   } else {
     // 文字列型のプロパティに対して空文字を設定
-    if (
-      filterKey === 'date_from' ||
-      filterKey === 'date_to' ||
-      filterKey === 'search_text'
-    ) {
+    if (filterKey === 'date_from' || filterKey === 'date_to' || filterKey === 'search_text') {
       localFilters.value[filterKey] = ''
     }
   }

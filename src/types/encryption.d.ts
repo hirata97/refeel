@@ -78,17 +78,17 @@ export interface PrivacyAuditLog {
   result: 'success' | 'failure' | 'partial' // 実行結果
 }
 
-export type PrivacyAction = 
-  | 'data_access'          // データアクセス
-  | 'data_export'          // データエクスポート
-  | 'data_deletion'        // データ削除
+export type PrivacyAction =
+  | 'data_access' // データアクセス
+  | 'data_export' // データエクスポート
+  | 'data_deletion' // データ削除
   | 'privacy_settings_update' // プライバシー設定更新
-  | 'consent_given'        // 同意付与
-  | 'consent_withdrawn'    // 同意撤回
-  | 'data_encryption'      // データ暗号化
-  | 'data_decryption'      // データ復号化
-  | 'key_rotation'         // キーローテーション
-  | 'breach_detected'      // 侵害検出
+  | 'consent_given' // 同意付与
+  | 'consent_withdrawn' // 同意撤回
+  | 'data_encryption' // データ暗号化
+  | 'data_decryption' // データ復号化
+  | 'key_rotation' // キーローテーション
+  | 'breach_detected' // 侵害検出
 
 export interface ConsentRecord {
   userId: string // ユーザーID
@@ -103,12 +103,12 @@ export interface ConsentRecord {
 }
 
 export type ConsentType =
-  | 'data_processing'      // データ処理
-  | 'analytics'            // アナリティクス
-  | 'marketing'            // マーケティング
-  | 'cookies'              // Cookie使用
-  | 'third_party_sharing'  // 第三者共有
-  | 'data_retention'       // データ保持
+  | 'data_processing' // データ処理
+  | 'analytics' // アナリティクス
+  | 'marketing' // マーケティング
+  | 'cookies' // Cookie使用
+  | 'third_party_sharing' // 第三者共有
+  | 'data_retention' // データ保持
 
 export interface DataSubject {
   userId: string // ユーザーID

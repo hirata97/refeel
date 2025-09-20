@@ -12,7 +12,7 @@
           </div>
         </div>
       </div>
-      
+
       <!-- チャートタイプ切り替え -->
       <div v-if="allowTypeSwitch && availableTypes.length > 1" class="chart-controls">
         <v-btn-toggle
@@ -36,30 +36,16 @@
 
     <v-card-text>
       <!-- エラー表示 -->
-      <v-alert
-        v-if="error"
-        type="error"
-        variant="tonal"
-        class="mb-4"
-      >
+      <v-alert v-if="error" type="error" variant="tonal" class="mb-4">
         {{ error }}
       </v-alert>
 
       <!-- データなし表示 -->
-      <div 
-        v-else-if="!loading && (!chartData || !hasData)"
-        class="empty-state"
-      >
+      <div v-else-if="!loading && (!chartData || !hasData)" class="empty-state">
         <div class="text-center py-8">
-          <v-icon size="64" color="grey-lighten-1">
-            mdi-chart-line-variant
-          </v-icon>
-          <div class="text-h6 mt-2 text-medium-emphasis">
-            データがありません
-          </div>
-          <div class="text-body-2 text-medium-emphasis">
-            選択した期間にデータが存在しません
-          </div>
+          <v-icon size="64" color="grey-lighten-1"> mdi-chart-line-variant </v-icon>
+          <div class="text-h6 mt-2 text-medium-emphasis">データがありません</div>
+          <div class="text-body-2 text-medium-emphasis">選択した期間にデータが存在しません</div>
         </div>
       </div>
 
@@ -77,7 +63,7 @@
       <!-- 統計サマリー -->
       <div v-if="showSummary && summaryData" class="chart-summary mt-4">
         <v-row dense>
-          <v-col 
+          <v-col
             v-for="(item, index) in summaryData"
             :key="index"
             :cols="12 / Math.min(summaryData.length, 4)"
@@ -112,7 +98,7 @@ import {
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 } from 'chart.js'
 import type { ChartData, ChartOptions } from 'chart.js'
 
@@ -128,7 +114,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  Filler
+  Filler,
 )
 
 interface ChartType {
@@ -178,10 +164,10 @@ const props = withDefaults(defineProps<Props>(), {
     { value: 'line', label: 'ライン', icon: 'mdi-chart-line' },
     { value: 'bar', label: 'バー', icon: 'mdi-chart-bar' },
     { value: 'doughnut', label: 'ドーナツ', icon: 'mdi-chart-donut' },
-    { value: 'radar', label: 'レーダー', icon: 'mdi-radar' }
+    { value: 'radar', label: 'レーダー', icon: 'mdi-radar' },
   ],
   showSummary: false,
-  summaryData: () => []
+  summaryData: () => [],
 })
 
 const emit = defineEmits<Emits>()
@@ -203,7 +189,7 @@ const chartComponentMap = {
   line: Line,
   bar: Bar,
   doughnut: Doughnut,
-  radar: Radar
+  radar: Radar,
 }
 
 // 現在のチャートコンポーネント
@@ -214,13 +200,11 @@ const currentChartComponent = computed(() => {
 // チャートデータの存在チェック
 const hasData = computed(() => {
   if (!props.data) return false
-  
+
   if ('datasets' in props.data) {
-    return props.data.datasets.some(dataset => 
-      dataset.data && dataset.data.length > 0
-    )
+    return props.data.datasets.some((dataset) => dataset.data && dataset.data.length > 0)
   }
-  
+
   return false
 })
 
@@ -239,9 +223,9 @@ const defaultOptions = computed<ChartOptions>(() => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
-        position: 'top'
-      }
-    }
+        position: 'top',
+      },
+    },
   }
 
   // チャートタイプ別のオプション
@@ -251,27 +235,27 @@ const defaultOptions = computed<ChartOptions>(() => {
         ...baseOptions,
         scales: {
           y: {
-            beginAtZero: true
-          }
+            beginAtZero: true,
+          },
         },
         elements: {
           point: {
             radius: 4,
-            hoverRadius: 6
-          }
-        }
+            hoverRadius: 6,
+          },
+        },
       }
-    
+
     case 'bar':
       return {
         ...baseOptions,
         scales: {
           y: {
-            beginAtZero: true
-          }
-        }
+            beginAtZero: true,
+          },
+        },
       }
-    
+
     case 'doughnut':
       return {
         ...baseOptions,
@@ -279,21 +263,21 @@ const defaultOptions = computed<ChartOptions>(() => {
         plugins: {
           ...baseOptions.plugins,
           legend: {
-            position: 'bottom'
-          }
-        }
+            position: 'bottom',
+          },
+        },
       }
-    
+
     case 'radar':
       return {
         ...baseOptions,
         scales: {
           r: {
-            beginAtZero: true
-          }
-        }
+            beginAtZero: true,
+          },
+        },
       }
-    
+
     default:
       return baseOptions
   }
@@ -303,14 +287,14 @@ const defaultOptions = computed<ChartOptions>(() => {
 const chartOptions = computed<ChartOptions>(() => {
   return {
     ...defaultOptions.value,
-    ...props.options
+    ...props.options,
   }
 })
 
 // チャートプロパティ
 const chartProps = computed(() => ({
   responsive: true,
-  maintainAspectRatio: false
+  maintainAspectRatio: false,
 }))
 
 // チャートデータ
@@ -326,9 +310,7 @@ const onTypeChange = (index: number) => {
 // 初期化
 const initialize = () => {
   if (props.allowTypeSwitch && props.availableTypes.length > 0) {
-    const initialTypeIndex = props.availableTypes.findIndex(
-      type => type.value === props.type
-    )
+    const initialTypeIndex = props.availableTypes.findIndex((type) => type.value === props.type)
     selectedTypeIndex.value = initialTypeIndex !== -1 ? initialTypeIndex : 0
   }
 }
@@ -338,14 +320,12 @@ watch(
   () => props.type,
   (newType) => {
     if (props.allowTypeSwitch) {
-      const typeIndex = props.availableTypes.findIndex(
-        type => type.value === newType
-      )
+      const typeIndex = props.availableTypes.findIndex((type) => type.value === newType)
       if (typeIndex !== -1) {
         selectedTypeIndex.value = typeIndex
       }
     }
-  }
+  },
 )
 
 onMounted(() => {
@@ -388,7 +368,7 @@ onMounted(() => {
   .chart-container {
     height: v-bind('Math.min(chartHeight, 250) + "px"');
   }
-  
+
   .chart-controls {
     flex-direction: column;
     gap: 4px;

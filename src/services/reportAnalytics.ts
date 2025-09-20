@@ -1,6 +1,6 @@
 /**
  * レポート分析サービス
- * 
+ *
  * Issue #40: レポート機能の大幅拡張
  * diariesテーブルからデータを取得し、各種統計分析を実行
  */
@@ -16,7 +16,7 @@ import type {
   ContinuityStats,
   TimeStats,
   KeywordStats,
-  AnalyticsPeriod
+  AnalyticsPeriod,
 } from '@/types/report'
 import { validateDateRange, getDaysBetween } from '@/utils/dateRange'
 
@@ -28,7 +28,9 @@ export const fetchDiariesForPeriod = async (range: DateRange): Promise<DiaryEntr
     throw new Error('無効な日付範囲です')
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
   if (!user) {
     throw new Error('ユーザーが認証されていません')
   }
@@ -53,24 +55,30 @@ export const fetchDiariesForPeriod = async (range: DateRange): Promise<DiaryEntr
  */
 export const analyzeFrequencyStats = (diaries: DiaryEntry[]): FrequencyStats => {
   const weeklyPattern: Record<string, number> = {
-    '月': 0, '火': 0, '水': 0, '木': 0, '金': 0, '土': 0, '日': 0
+    月: 0,
+    火: 0,
+    水: 0,
+    木: 0,
+    金: 0,
+    土: 0,
+    日: 0,
   }
   const monthlyPattern: Record<string, number> = {}
   const dailyPattern: Record<string, number> = {}
 
   const weekdays = ['日', '月', '火', '水', '木', '金', '土']
 
-  diaries.forEach(diary => {
+  diaries.forEach((diary) => {
     const date = new Date(diary.created_at)
-    
+
     // 曜日別パターン
     const weekday = weekdays[date.getDay()]
     weeklyPattern[weekday]++
-    
+
     // 月別パターン（YYYY-MM）
     const monthKey = date.toISOString().substring(0, 7)
     monthlyPattern[monthKey] = (monthlyPattern[monthKey] || 0) + 1
-    
+
     // 日別パターン（YYYY-MM-DD）
     const dayKey = date.toISOString().substring(0, 10)
     dailyPattern[dayKey] = (dailyPattern[dayKey] || 0) + 1
@@ -79,7 +87,7 @@ export const analyzeFrequencyStats = (diaries: DiaryEntry[]): FrequencyStats => 
   return {
     weeklyPattern,
     monthlyPattern,
-    dailyPattern
+    dailyPattern,
   }
 }
 
@@ -92,11 +100,11 @@ export const analyzeContentStats = (diaries: DiaryEntry[]): ContentStats => {
       averageLength: 0,
       maxLength: 0,
       minLength: 0,
-      lengthDistribution: {}
+      lengthDistribution: {},
     }
   }
 
-  const lengths = diaries.map(diary => {
+  const lengths = diaries.map((diary) => {
     const content = diary.content || ''
     const title = diary.title || ''
     return content.length + title.length
@@ -109,7 +117,7 @@ export const analyzeContentStats = (diaries: DiaryEntry[]): ContentStats => {
 
   // 文字数分布（100文字刻み）
   const lengthDistribution: Record<string, number> = {}
-  lengths.forEach(length => {
+  lengths.forEach((length) => {
     const bucket = Math.floor(length / 100) * 100
     const key = `${bucket}-${bucket + 99}`
     lengthDistribution[key] = (lengthDistribution[key] || 0) + 1
@@ -119,7 +127,7 @@ export const analyzeContentStats = (diaries: DiaryEntry[]): ContentStats => {
     averageLength,
     maxLength,
     minLength,
-    lengthDistribution
+    lengthDistribution,
   }
 }
 
@@ -131,7 +139,9 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
   // 曜日の初期化
   const weekdays = ['日', '月', '火', '水', '木', '金', '土']
   const weeklyAverage: Record<string, number> = {}
-  weekdays.forEach(day => { weeklyAverage[day] = 0 })
+  weekdays.forEach((day) => {
+    weeklyAverage[day] = 0
+  })
 
   if (diaries.length === 0) {
     return {
@@ -139,30 +149,32 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
       max: 0,
       min: 0,
       weeklyAverage,
-      monthlyAverage: {}
+      monthlyAverage: {},
     }
   }
 
-  const moods = diaries.map(diary => diary.mood || 5)
+  const moods = diaries.map((diary) => diary.mood || 5)
   const average = Math.round(moods.reduce((sum, mood) => sum + mood, 0) / moods.length)
   const max = Math.max(...moods)
   const min = Math.min(...moods)
 
   // 曜日別平均
   const weeklyGroups: Record<string, number[]> = {}
-  weekdays.forEach(day => { weeklyGroups[day] = [] })
+  weekdays.forEach((day) => {
+    weeklyGroups[day] = []
+  })
 
   // 月別平均
   const monthlyGroups: Record<string, number[]> = {}
 
-  diaries.forEach(diary => {
+  diaries.forEach((diary) => {
     const date = new Date(diary.created_at)
     const mood = diary.mood || 5
-    
+
     // 曜日別グループ化
     const weekday = weekdays[date.getDay()]
     weeklyGroups[weekday].push(mood)
-    
+
     // 月別グループ化
     const monthKey = date.toISOString().substring(0, 7)
     if (!monthlyGroups[monthKey]) {
@@ -173,16 +185,14 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
 
   // 平均計算
   Object.entries(weeklyGroups).forEach(([day, values]) => {
-    weeklyAverage[day] = values.length > 0 
-      ? Math.round(values.reduce((sum, val) => sum + val, 0) / values.length)
-      : 0
+    weeklyAverage[day] =
+      values.length > 0 ? Math.round(values.reduce((sum, val) => sum + val, 0) / values.length) : 0
   })
 
   const monthlyAverage: Record<string, number> = {}
   Object.entries(monthlyGroups).forEach(([month, values]) => {
-    monthlyAverage[month] = values.length > 0
-      ? Math.round(values.reduce((sum, val) => sum + val, 0) / values.length)
-      : 0
+    monthlyAverage[month] =
+      values.length > 0 ? Math.round(values.reduce((sum, val) => sum + val, 0) / values.length) : 0
   })
 
   return {
@@ -190,27 +200,28 @@ export const analyzeMoodStats = (diaries: DiaryEntry[]): MoodStats => {
     max,
     min,
     weeklyAverage,
-    monthlyAverage
+    monthlyAverage,
   }
 }
 
 /**
  * 継続性統計を計算
  */
-export const analyzeContinuityStats = (diaries: DiaryEntry[], period: DateRange): ContinuityStats => {
+export const analyzeContinuityStats = (
+  diaries: DiaryEntry[],
+  period: DateRange,
+): ContinuityStats => {
   if (diaries.length === 0) {
     return {
       currentStreak: 0,
       longestStreak: 0,
       totalActiveDays: 0,
-      averageFrequency: 0
+      averageFrequency: 0,
     }
   }
 
   // 投稿日をセットに変換（重複除去）
-  const activeDates = new Set(
-    diaries.map(diary => diary.created_at.substring(0, 10))
-  )
+  const activeDates = new Set(diaries.map((diary) => diary.created_at.substring(0, 10)))
   const totalActiveDays = activeDates.size
 
   // 日付を昇順ソート
@@ -222,7 +233,7 @@ export const analyzeContinuityStats = (diaries: DiaryEntry[], period: DateRange)
   let tempStreak = 1
 
   const today = new Date().toISOString().substring(0, 10)
-  
+
   // 現在の連続記録を計算（今日または昨日まで）
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
@@ -233,7 +244,7 @@ export const analyzeContinuityStats = (diaries: DiaryEntry[], period: DateRange)
     // 昨日以前の連続記録をチェック
     const checkDate = new Date()
     checkDate.setDate(checkDate.getDate() - 1)
-    
+
     while (activeDates.has(checkDate.toISOString().substring(0, 10))) {
       currentStreak++
       checkDate.setDate(checkDate.getDate() - 1)
@@ -243,7 +254,7 @@ export const analyzeContinuityStats = (diaries: DiaryEntry[], period: DateRange)
     // 一昨日以前の連続記録をチェック
     const checkDate2 = new Date()
     checkDate2.setDate(checkDate2.getDate() - 2)
-    
+
     while (activeDates.has(checkDate2.toISOString().substring(0, 10))) {
       currentStreak++
       checkDate2.setDate(checkDate2.getDate() - 1)
@@ -267,13 +278,14 @@ export const analyzeContinuityStats = (diaries: DiaryEntry[], period: DateRange)
 
   // 平均投稿頻度（投稿日数/期間）
   const totalDays = getDaysBetween(period)
-  const averageFrequency = totalDays > 0 ? Number((totalActiveDays / (totalDays / 7)).toFixed(1)) : 0
+  const averageFrequency =
+    totalDays > 0 ? Number((totalActiveDays / (totalDays / 7)).toFixed(1)) : 0
 
   return {
     currentStreak,
     longestStreak,
     totalActiveDays,
-    averageFrequency
+    averageFrequency,
   }
 }
 
@@ -282,13 +294,13 @@ export const analyzeContinuityStats = (diaries: DiaryEntry[], period: DateRange)
  */
 export const analyzeTimeStats = (diaries: DiaryEntry[]): TimeStats => {
   const hourlyPattern: Record<string, number> = {}
-  
+
   // 0-23時で初期化
   for (let i = 0; i < 24; i++) {
     hourlyPattern[i.toString()] = 0
   }
 
-  diaries.forEach(diary => {
+  diaries.forEach((diary) => {
     const date = new Date(diary.created_at)
     const hour = date.getHours().toString()
     hourlyPattern[hour]++
@@ -302,7 +314,7 @@ export const analyzeTimeStats = (diaries: DiaryEntry[]): TimeStats => {
 
   return {
     hourlyPattern,
-    peakHours
+    peakHours,
   }
 }
 
@@ -313,18 +325,29 @@ export const analyzeTimeStats = (diaries: DiaryEntry[]): TimeStats => {
 export const analyzeKeywordStats = (diaries: DiaryEntry[]): KeywordStats => {
   const wordCounts: Record<string, number> = {}
   const emotionalWords = {
-    positive: ['嬉しい', '楽しい', '幸せ', '満足', '良い', 'よい', '成功', '達成', '頑張', 'がんば'],
+    positive: [
+      '嬉しい',
+      '楽しい',
+      '幸せ',
+      '満足',
+      '良い',
+      'よい',
+      '成功',
+      '達成',
+      '頑張',
+      'がんば',
+    ],
     negative: ['悲しい', '辛い', 'つらい', '疲れ', '不安', '心配', '失敗', '困難', '大変', 'だめ'],
-    neutral: ['普通', '平常', '日常', 'いつも', '通り', '変化', '状況', '今日', 'きょう']
+    neutral: ['普通', '平常', '日常', 'いつも', '通り', '変化', '状況', '今日', 'きょう'],
   }
 
-  diaries.forEach(diary => {
+  diaries.forEach((diary) => {
     const text = `${diary.title || ''} ${diary.content || ''}`.toLowerCase()
-    
+
     // 簡易的な単語分割（ひらがな・カタカナ・漢字の2-4文字）
     const words = text.match(/[ひらがなカタカナ漢字]{2,4}/g) || []
-    
-    words.forEach(word => {
+
+    words.forEach((word) => {
       if (word.length >= 2) {
         wordCounts[word] = (wordCounts[word] || 0) + 1
       }
@@ -338,14 +361,18 @@ export const analyzeKeywordStats = (diaries: DiaryEntry[]): KeywordStats => {
     .map(([word, count]) => ({ word, count }))
 
   // 感情キーワード分析
-  const emotionalKeywords: Array<{ word: string; count: number; sentiment: 'positive' | 'negative' | 'neutral' }> = []
-  
+  const emotionalKeywords: Array<{
+    word: string
+    count: number
+    sentiment: 'positive' | 'negative' | 'neutral'
+  }> = []
+
   Object.entries(wordCounts).forEach(([word, count]) => {
-    if (emotionalWords.positive.some(ew => word.includes(ew))) {
+    if (emotionalWords.positive.some((ew) => word.includes(ew))) {
       emotionalKeywords.push({ word, count, sentiment: 'positive' })
-    } else if (emotionalWords.negative.some(ew => word.includes(ew))) {
+    } else if (emotionalWords.negative.some((ew) => word.includes(ew))) {
       emotionalKeywords.push({ word, count, sentiment: 'negative' })
-    } else if (emotionalWords.neutral.some(ew => word.includes(ew))) {
+    } else if (emotionalWords.neutral.some((ew) => word.includes(ew))) {
       emotionalKeywords.push({ word, count, sentiment: 'neutral' })
     }
   })
@@ -355,31 +382,26 @@ export const analyzeKeywordStats = (diaries: DiaryEntry[]): KeywordStats => {
 
   return {
     topKeywords,
-    emotionalKeywords: emotionalKeywords.slice(0, 15)
+    emotionalKeywords: emotionalKeywords.slice(0, 15),
   }
 }
 
 /**
  * 包括的な分析を実行
  */
-export const generateAnalyticsReport = async (period: AnalyticsPeriod): Promise<AnalyticsResult> => {
+export const generateAnalyticsReport = async (
+  period: AnalyticsPeriod,
+): Promise<AnalyticsResult> => {
   try {
     const diaries = await fetchDiariesForPeriod(period.range)
-    
-    const [
-      frequency,
-      content,
-      mood,
-      continuity,
-      time,
-      keywords
-    ] = await Promise.all([
+
+    const [frequency, content, mood, continuity, time, keywords] = await Promise.all([
       Promise.resolve(analyzeFrequencyStats(diaries)),
       Promise.resolve(analyzeContentStats(diaries)),
       Promise.resolve(analyzeMoodStats(diaries)),
       Promise.resolve(analyzeContinuityStats(diaries, period.range)),
       Promise.resolve(analyzeTimeStats(diaries)),
-      Promise.resolve(analyzeKeywordStats(diaries))
+      Promise.resolve(analyzeKeywordStats(diaries)),
     ])
 
     return {
@@ -390,7 +412,7 @@ export const generateAnalyticsReport = async (period: AnalyticsPeriod): Promise<
       continuity,
       time,
       keywords,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     }
   } catch (error) {
     console.error('Analytics generation error:', error)

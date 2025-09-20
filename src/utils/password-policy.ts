@@ -91,6 +91,17 @@ export class PasswordValidator {
       suggestions: [],
     }
 
+    // null/undefined チェック
+    if (password == null) {
+      result.errors.push('パスワードが指定されていません')
+      return result
+    }
+
+    // 非文字列データの処理
+    if (typeof password !== 'string') {
+      password = String(password)
+    }
+
     // 基本的なバリデーション
     this.validateBasicRequirements(password, result)
 
@@ -308,6 +319,16 @@ export class PasswordValidator {
    * 注意: 実際のハッシュ化はSupabaseが行うため、これは検証用
    */
   async hashPassword(password: string): Promise<string> {
+    // null/undefined チェック
+    if (password == null) {
+      throw new Error('パスワードが指定されていません')
+    }
+
+    // 非文字列データの処理
+    if (typeof password !== 'string') {
+      password = String(password)
+    }
+
     // bcryptライブラリが必要な場合のプレースホルダー
     // 実際の実装では適切なハッシュライブラリを使用
     const encoder = new TextEncoder()

@@ -34,11 +34,18 @@ export interface ProgressNotificationSettings {
   motivationalMessages: boolean
 }
 
-export type WeekDay = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
+export type WeekDay =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday'
 
-export type ReminderType = 
+export type ReminderType =
   | 'diary_entry'
-  | 'goal_review' 
+  | 'goal_review'
   | 'weekly_summary'
   | 'monthly_summary'
   | 'custom'
@@ -67,7 +74,7 @@ export class NotificationUtils {
 
     const permission = await Notification.requestPermission()
     localStorage.setItem(this.NOTIFICATION_PERMISSION_KEY, 'true')
-    
+
     return permission
   }
 
@@ -78,7 +85,7 @@ export class NotificationUtils {
     if (!('Notification' in window)) {
       return 'denied'
     }
-    
+
     return Notification.permission
   }
 
@@ -86,11 +93,11 @@ export class NotificationUtils {
    * ブラウザ通知を表示
    */
   static async showBrowserNotification(
-    title: string, 
-    options: NotificationOptions = {}
+    title: string,
+    options: NotificationOptions = {},
   ): Promise<Notification | null> {
     const permission = this.getNotificationPermission()
-    
+
     if (permission !== 'granted') {
       console.warn('通知の許可が必要です')
       return null
@@ -99,7 +106,7 @@ export class NotificationUtils {
     const defaultOptions: NotificationOptions = {
       icon: '/favicon.ico',
       badge: '/favicon.ico',
-      ...options
+      ...options,
     }
 
     return new Notification(title, defaultOptions)
@@ -117,7 +124,7 @@ export class NotificationUtils {
    */
   static loadNotificationSettings(): NotificationSettings {
     const saved = localStorage.getItem(this.NOTIFICATION_SETTINGS_KEY)
-    
+
     if (saved) {
       return JSON.parse(saved)
     }
@@ -132,8 +139,8 @@ export class NotificationUtils {
       quietHours: {
         enabled: false,
         startTime: '22:00',
-        endTime: '08:00'
-      }
+        endTime: '08:00',
+      },
     }
   }
 
@@ -149,7 +156,7 @@ export class NotificationUtils {
    */
   static loadReminderSettings(): ReminderSettings[] {
     const saved = localStorage.getItem(this.REMINDER_SETTINGS_KEY)
-    
+
     if (saved) {
       return JSON.parse(saved)
     }
@@ -165,8 +172,8 @@ export class NotificationUtils {
         title: '日記を書く時間です',
         message: '今日の目標の進捗を記録しましょう',
         snoozeEnabled: true,
-        snoozeDuration: 10
-      }
+        snoozeDuration: 10,
+      },
     ]
   }
 
@@ -182,7 +189,7 @@ export class NotificationUtils {
    */
   static loadProgressSettings(): ProgressNotificationSettings {
     const saved = localStorage.getItem(this.PROGRESS_SETTINGS_KEY)
-    
+
     if (saved) {
       return JSON.parse(saved)
     }
@@ -193,7 +200,7 @@ export class NotificationUtils {
       goalAchievementNotifications: true,
       weeklyReports: true,
       monthlyReports: true,
-      motivationalMessages: true
+      motivationalMessages: true,
     }
   }
 
@@ -207,14 +214,14 @@ export class NotificationUtils {
 
     const now = new Date()
     const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`
-    
+
     const { startTime, endTime } = settings.quietHours
-    
+
     // 深夜をまたぐ場合の処理
     if (startTime > endTime) {
       return currentTime >= startTime || currentTime <= endTime
     }
-    
+
     return currentTime >= startTime && currentTime <= endTime
   }
 
@@ -228,24 +235,24 @@ export class NotificationUtils {
 
     const now = new Date()
     const [hours, minutes] = reminder.time.split(':').map(Number)
-    
+
     for (let i = 0; i < 7; i++) {
       const targetDate = new Date(now)
       targetDate.setDate(now.getDate() + i)
       targetDate.setHours(hours, minutes, 0, 0)
-      
+
       // 今日の場合は現在時刻より後かチェック
       if (i === 0 && targetDate <= now) {
         continue
       }
-      
+
       const dayOfWeek = this.getDayOfWeekString(targetDate.getDay())
-      
+
       if (reminder.days.includes(dayOfWeek)) {
         return targetDate
       }
     }
-    
+
     return null
   }
 
@@ -253,7 +260,15 @@ export class NotificationUtils {
    * 曜日数値を文字列に変換
    */
   private static getDayOfWeekString(dayNum: number): WeekDay {
-    const days: WeekDay[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+    const days: WeekDay[] = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ]
     return days[dayNum]
   }
 

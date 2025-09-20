@@ -4,11 +4,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
-import type {
-  DataManagementSettings,
-  ExportData,
-  ImportData,
-} from '@/types/settings'
+import type { DataManagementSettings, ExportData, ImportData } from '@/types/settings'
 import { DEFAULT_DATA_MANAGEMENT_SETTINGS } from '@/types/settings'
 
 export const useDataManagementStore = defineStore('dataManagement', () => {
@@ -27,8 +23,11 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
   // ストレージ使用量の取得
   const fetchStorageUsage = async () => {
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
@@ -44,9 +43,10 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
       }
 
       // データサイズの概算計算（文字数ベース）
-      const estimatedSize = diaries?.reduce((total, diary) => {
-        return total + (diary.content?.length || 0) + 50 // メタデータの概算
-      }, 0) || 0
+      const estimatedSize =
+        diaries?.reduce((total, diary) => {
+          return total + (diary.content?.length || 0) + 50 // メタデータの概算
+        }, 0) || 0
 
       storageUsage.value = {
         used: estimatedSize,
@@ -64,8 +64,11 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
@@ -85,10 +88,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
       if (exportOptions.dataTypes.includes('diaries')) {
         exportProgress.value = 30
 
-        let query = supabase
-          .from('diaries')
-          .select('*')
-          .eq('user_id', user.id)
+        let query = supabase.from('diaries').select('*').eq('user_id', user.id)
 
         if (exportOptions.dateRange) {
           query = query
@@ -96,7 +96,9 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
             .lte('created_at', exportOptions.dateRange.to)
         }
 
-        const { data: diaries, error: diaryError } = await query.order('created_at', { ascending: true })
+        const { data: diaries, error: diaryError } = await query.order('created_at', {
+          ascending: true,
+        })
 
         if (diaryError) {
           throw new Error(`日記データエクスポートエラー: ${diaryError.message}`)
@@ -149,10 +151,16 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
         _fileName = `goal_diary_backup_${new Date().toISOString().split('T')[0]}.json`
       } else if (exportOptions.format === 'csv') {
         // CSV形式の場合は日記データのみをエクスポート
-        if (exportedData.diaries && Array.isArray(exportedData.diaries) && exportedData.diaries.length > 0) {
+        if (
+          exportedData.diaries &&
+          Array.isArray(exportedData.diaries) &&
+          exportedData.diaries.length > 0
+        ) {
           const headers = Object.keys(exportedData.diaries[0] as Record<string, unknown>).join(',')
           const rows = exportedData.diaries.map((diary: Record<string, unknown>) =>
-            Object.values(diary).map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+            Object.values(diary)
+              .map((val) => `"${String(val).replace(/"/g, '""')}"`)
+              .join(','),
           )
           content = [headers, ...rows].join('\n')
         } else {
@@ -168,7 +176,8 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
 
       return new Blob([content], { type: mimeType })
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'データのエクスポートに失敗しました'
+      const errorMessage =
+        error instanceof Error ? error.message : 'データのエクスポートに失敗しました'
       console.error('エクスポートエラー:', error)
       lastError.value = errorMessage
       return null
@@ -185,8 +194,11 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
@@ -203,9 +215,9 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
       } else if (importOptions.format === 'csv') {
         // CSV形式のパース（簡単な実装）
         const lines = fileContent.split('\n')
-        const headers = lines[0].split(',').map(h => h.replace(/"/g, ''))
-        const rows = lines.slice(1).map(line => {
-          const values = line.split(',').map(v => v.replace(/"/g, ''))
+        const headers = lines[0].split(',').map((h) => h.replace(/"/g, ''))
+        const rows = lines.slice(1).map((line) => {
+          const values = line.split(',').map((v) => v.replace(/"/g, ''))
           const obj: Record<string, unknown> = {}
           headers.forEach((header, index) => {
             obj[header] = values[index]
@@ -245,9 +257,9 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
           }
         }
 
-        const { error: insertError } = await supabase
-          .from('diaries')
-          .upsert(diaries, { onConflict: importOptions.conflictResolution === 'merge' ? 'id' : undefined })
+        const { error: insertError } = await supabase.from('diaries').upsert(diaries, {
+          onConflict: importOptions.conflictResolution === 'merge' ? 'id' : undefined,
+        })
 
         if (insertError) {
           throw new Error(`日記データインポートエラー: ${insertError.message}`)
@@ -270,7 +282,8 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
       importProgress.value = 100
       return true
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'データのインポートに失敗しました'
+      const errorMessage =
+        error instanceof Error ? error.message : 'データのインポートに失敗しました'
       console.error('インポートエラー:', error)
       lastError.value = errorMessage
       return false
@@ -286,17 +299,17 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
     lastError.value = null
 
     try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser()
+
       if (authError || !user) {
         throw new Error('認証されていません')
       }
 
       // 日記データの削除
-      const { error: diaryError } = await supabase
-        .from('diaries')
-        .delete()
-        .eq('user_id', user.id)
+      const { error: diaryError } = await supabase.from('diaries').delete().eq('user_id', user.id)
 
       if (diaryError) {
         throw new Error(`日記データ削除エラー: ${diaryError.message}`)

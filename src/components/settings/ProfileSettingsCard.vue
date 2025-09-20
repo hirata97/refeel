@@ -16,16 +16,10 @@
                 class="mb-4 elevation-4"
                 :color="profileData.avatar_url ? undefined : 'grey-lighten-2'"
               >
-                <v-img
-                  v-if="profileData.avatar_url"
-                  :src="profileData.avatar_url"
-                  alt="アバター"
-                />
-                <v-icon v-else size="60" color="grey-darken-1">
-                  mdi-account
-                </v-icon>
+                <v-img v-if="profileData.avatar_url" :src="profileData.avatar_url" alt="アバター" />
+                <v-icon v-else size="60" color="grey-darken-1"> mdi-account </v-icon>
               </v-avatar>
-              
+
               <div class="avatar-actions d-flex gap-2 justify-center">
                 <v-btn
                   color="primary"
@@ -37,7 +31,7 @@
                 >
                   アップロード
                 </v-btn>
-                
+
                 <v-btn
                   v-if="profileData.avatar_url"
                   color="error"
@@ -50,7 +44,7 @@
                   削除
                 </v-btn>
               </div>
-              
+
               <input
                 ref="fileInput"
                 type="file"
@@ -148,10 +142,8 @@
           <!-- プライバシー設定 -->
           <v-col cols="12">
             <v-card variant="outlined" class="pa-4">
-              <v-card-title class="text-subtitle-2 pa-0 pb-2">
-                プライバシー設定
-              </v-card-title>
-              
+              <v-card-title class="text-subtitle-2 pa-0 pb-2"> プライバシー設定 </v-card-title>
+
               <v-switch
                 v-model="profileData.public_profile"
                 label="プロファイルを公開する"
@@ -159,7 +151,7 @@
                 hide-details
                 density="compact"
               />
-              
+
               <v-switch
                 v-model="profileData.show_achievements"
                 label="達成状況を表示する"
@@ -185,7 +177,7 @@
             >
               保存
             </v-btn>
-            
+
             <v-btn
               color="secondary"
               variant="outlined"
@@ -201,11 +193,7 @@
         <!-- 最終更新日時 -->
         <v-row v-if="profileData.updated_at">
           <v-col cols="12">
-            <v-alert
-              type="info"
-              variant="text"
-              density="compact"
-            >
+            <v-alert type="info" variant="text" density="compact">
               最終更新: {{ formatDate(profileData.updated_at) }}
             </v-alert>
           </v-col>
@@ -234,7 +222,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: () => ({})
+  modelValue: () => ({}),
 })
 
 const emit = defineEmits<Emits>()
@@ -265,30 +253,26 @@ const profileData = ref<UserProfile>({
   show_achievements: true,
   created_at: '',
   updated_at: '',
-  ...props.modelValue
+  ...props.modelValue,
 })
 
 // Options
 const languageOptions = [
   { title: '日本語', value: 'ja' },
-  { title: 'English', value: 'en' }
+  { title: 'English', value: 'en' },
 ]
 
 const timezoneOptions = [
   { title: 'Asia/Tokyo', value: 'Asia/Tokyo' },
   { title: 'UTC', value: 'UTC' },
   { title: 'America/New_York', value: 'America/New_York' },
-  { title: 'Europe/London', value: 'Europe/London' }
+  { title: 'Europe/London', value: 'Europe/London' },
 ]
 
 // Validation Rules
-const displayNameRules = [
-  (v: string) => v.length <= 50 || '表示名は50文字以内で入力してください'
-]
+const displayNameRules = [(v: string) => v.length <= 50 || '表示名は50文字以内で入力してください']
 
-const bioRules = [
-  (v: string) => !v || v.length <= 500 || '自己紹介は500文字以内で入力してください'
-]
+const bioRules = [(v: string) => !v || v.length <= 500 || '自己紹介は500文字以内で入力してください']
 
 // Computed
 const hasChanges = computed(() => {
@@ -318,9 +302,9 @@ const saveProfile = async () => {
   saveLoading.value = true
   try {
     await profileStore.updateProfile(profileData.value)
-    
+
     originalProfile.value = { ...profileData.value }
-    
+
     emit('update:modelValue', profileData.value)
     emit('profileUpdated', profileData.value)
   } catch (error) {
@@ -384,7 +368,7 @@ watch(
       profileData.value = { ...profileData.value, ...newValue }
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 // Lifecycle

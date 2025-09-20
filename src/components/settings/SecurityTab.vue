@@ -33,9 +33,7 @@
       >
         <v-icon
           start
-          :icon="
-            themeStore.isDarkMode ? 'mdi-moon-waning-crescent' : 'mdi-white-balance-sunny'
-          "
+          :icon="themeStore.isDarkMode ? 'mdi-moon-waning-crescent' : 'mdi-white-balance-sunny'"
         />
         現在: {{ themeStore.isDarkMode ? 'ダークモード' : 'ライトモード' }}
       </v-chip>
@@ -82,7 +80,7 @@ const themeOptions = [
 ]
 
 const handleThemeChange = (value: string) => {
-  const themeName = value === 'auto' ? 'system' : value as ThemeName
+  const themeName = value === 'auto' ? 'system' : (value as ThemeName)
   themeStore.setTheme(themeName)
   theme.global.name.value = themeStore.isDarkMode ? 'dark' : 'light'
 }

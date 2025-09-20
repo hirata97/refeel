@@ -29,22 +29,23 @@
             <span class="comparison-label">気分:</span>
             <div class="comparison-values">
               <span class="previous-value">{{ comparison.previousMood }}</span>
-              <v-icon 
-                :icon="getMoodChangeIcon()" 
-                :color="getMoodChangeColor()" 
+              <v-icon
+                :icon="getMoodChangeIcon()"
+                :color="getMoodChangeColor()"
                 class="change-icon"
               />
               <span class="current-value">{{ comparison.currentMood }}</span>
-              <span 
-                :class="['change-amount', getMoodChangeColor()]"
-              >
+              <span :class="['change-amount', getMoodChangeColor()]">
                 ({{ getMoodChangeText() }})
               </span>
             </div>
           </div>
 
           <!-- 気分理由の比較（ある場合のみ） -->
-          <div v-if="comparison.previousReason || comparison.currentReason" class="reason-comparison">
+          <div
+            v-if="comparison.previousReason || comparison.currentReason"
+            class="reason-comparison"
+          >
             <div v-if="comparison.previousReason" class="reason-item">
               <span class="reason-label">昨日:</span>
               <span class="reason-text">{{ comparison.previousReason }}</span>
@@ -59,9 +60,7 @@
         <!-- 連続記録 -->
         <div class="streak-info">
           <v-icon icon="mdi-fire" color="orange" class="streak-icon" />
-          <span class="streak-text">
-            {{ comparison.streakDays }}日連続記録中
-          </span>
+          <span class="streak-text"> {{ comparison.streakDays }}日連続記録中 </span>
         </div>
       </div>
     </v-card-text>
@@ -93,7 +92,7 @@ const props = withDefaults(defineProps<Props>(), {
 // 気分変化のアイコンを取得
 const getMoodChangeIcon = (): string => {
   if (!props.comparison) return 'mdi-minus'
-  
+
   const change = props.comparison.currentMood - props.comparison.previousMood
   if (change > 0) return 'mdi-trending-up'
   if (change < 0) return 'mdi-trending-down'
@@ -103,7 +102,7 @@ const getMoodChangeIcon = (): string => {
 // 気分変化の色を取得
 const getMoodChangeColor = (): string => {
   if (!props.comparison) return 'grey'
-  
+
   const change = props.comparison.currentMood - props.comparison.previousMood
   if (change > 0) return 'success'
   if (change < 0) return 'error'
@@ -113,7 +112,7 @@ const getMoodChangeColor = (): string => {
 // 気分変化のテキストを取得
 const getMoodChangeText = (): string => {
   if (!props.comparison) return '±0'
-  
+
   const change = props.comparison.currentMood - props.comparison.previousMood
   if (change > 0) return `+${change}`
   if (change < 0) return `${change}`
@@ -318,20 +317,20 @@ const getMoodChangeText = (): string => {
     padding: 16px 20px 12px;
     font-size: 1rem;
   }
-  
+
   .card-content {
     padding: 0 20px 20px;
   }
-  
+
   .comparison-values {
     font-size: 1.1rem;
     gap: 8px;
   }
-  
+
   .change-icon {
     font-size: 1.3rem;
   }
-  
+
   .reason-comparison {
     padding: 12px;
   }
@@ -342,20 +341,20 @@ const getMoodChangeText = (): string => {
     padding: 12px 16px 8px;
     font-size: 0.95rem;
   }
-  
+
   .card-content {
     padding: 0 16px 16px;
   }
-  
+
   .comparison-content {
     gap: 20px;
   }
-  
+
   .comparison-values {
     font-size: 1rem;
     gap: 6px;
   }
-  
+
   .streak-info {
     padding: 10px 12px;
   }

@@ -21,7 +21,7 @@
             <v-icon class="mr-2">mdi-lock</v-icon>
             データセキュリティ
           </h3>
-          
+
           <v-switch
             v-model="localSettings.dataEncryption"
             label="データ暗号化を有効にする"
@@ -41,7 +41,7 @@
             <v-icon class="mr-2">mdi-share-variant</v-icon>
             データ共有
           </h3>
-          
+
           <v-switch
             v-model="localSettings.shareAnalytics"
             label="アナリティクスデータの共有を許可"
@@ -95,7 +95,7 @@
             <v-icon class="mr-2">mdi-cookie</v-icon>
             Cookie設定
           </h3>
-          
+
           <v-switch
             v-model="localSettings.allowCookies"
             label="Cookieの使用を許可"
@@ -115,7 +115,7 @@
             <v-icon class="mr-2">mdi-bell</v-icon>
             通知設定
           </h3>
-          
+
           <v-switch
             v-model="localSettings.emailNotifications"
             label="メール通知を受け取る"
@@ -135,7 +135,7 @@
             <v-icon class="mr-2">mdi-database</v-icon>
             データ保持
           </h3>
-          
+
           <v-select
             v-model="localSettings.dataRetentionPeriod"
             :items="retentionOptions"
@@ -156,7 +156,7 @@
             <v-icon class="mr-2">mdi-gavel</v-icon>
             データ権利 (GDPR準拠)
           </h3>
-          
+
           <v-switch
             v-model="localSettings.dataExport"
             label="データエクスポート権限"
@@ -205,13 +205,7 @@
 
       <v-spacer />
 
-      <v-btn
-        text
-        @click="resetSettings"
-        :disabled="loading || !hasChanges"
-      >
-        リセット
-      </v-btn>
+      <v-btn text @click="resetSettings" :disabled="loading || !hasChanges"> リセット </v-btn>
 
       <v-btn
         color="primary"
@@ -225,10 +219,7 @@
     </v-card-actions>
 
     <!-- データ削除ダイアログ -->
-    <DataDeletionDialog
-      v-model="showDataDeletionDialog"
-      @submitted="onDataDeletionSubmitted"
-    />
+    <DataDeletionDialog v-model="showDataDeletionDialog" @submitted="onDataDeletionSubmitted" />
   </v-card>
 </template>
 
@@ -264,7 +255,7 @@ const localSettings = ref<PrivacySettings>({
   dataExport: true,
   dataDelete: true,
   updatedAt: '',
-  version: 1
+  version: 1,
 })
 
 // Data retention options
@@ -272,27 +263,31 @@ const retentionOptions = [
   { title: '1年', value: 365 },
   { title: '2年', value: 730 },
   { title: '3年', value: 1095 },
-  { title: '5年', value: 1825 }
+  { title: '5年', value: 1825 },
 ]
 
 // Computed
 const hasChanges = computed(() => {
   if (!originalSettings.value) return false
-  
+
   return JSON.stringify(localSettings.value) !== JSON.stringify(originalSettings.value)
 })
 
 // Watch for auto-save
-watch(localSettings, async () => {
-  if (!originalSettings.value || !hasChanges.value) return
-  
-  // Auto-save after 2 seconds of no changes
-  setTimeout(async () => {
-    if (hasChanges.value) {
-      await saveSettings()
-    }
-  }, 2000)
-}, { deep: true })
+watch(
+  localSettings,
+  async () => {
+    if (!originalSettings.value || !hasChanges.value) return
+
+    // Auto-save after 2 seconds of no changes
+    setTimeout(async () => {
+      if (hasChanges.value) {
+        await saveSettings()
+      }
+    }, 2000)
+  },
+  { deep: true },
+)
 
 // Methods
 const loadSettings = async () => {
@@ -320,12 +315,12 @@ const saveSettings = async () => {
   try {
     const updatedSettings = await PrivacyManager.updatePrivacySettings(
       authStore.user.id,
-      localSettings.value
+      localSettings.value,
     )
-    
+
     originalSettings.value = { ...updatedSettings }
     localSettings.value = { ...updatedSettings }
-    
+
     // TODO: Success notification
     console.log('プライバシー設定を保存しました')
   } catch (error) {
@@ -348,7 +343,7 @@ const exportData = async () => {
   exportLoading.value = true
   try {
     const dataBlob = await GDPRCompliance.exerciseRightToDataPortability(authStore.user.id)
-    
+
     // Download the data
     const url = URL.createObjectURL(dataBlob)
     const a = document.createElement('a')
@@ -358,7 +353,7 @@ const exportData = async () => {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
-    
+
     // TODO: Success notification
     console.log('データのエクスポートが完了しました')
   } catch (error) {

@@ -8,12 +8,7 @@
       <v-spacer />
       <v-menu location="bottom">
         <template #activator="{ props }">
-          <v-btn
-            icon="mdi-dots-vertical"
-            variant="text"
-            size="small"
-            v-bind="props"
-          />
+          <v-btn icon="mdi-dots-vertical" variant="text" size="small" v-bind="props" />
         </template>
         <v-list density="compact">
           <v-list-item @click="refresh">
@@ -39,13 +34,7 @@
     </div>
 
     <!-- エラー状態 -->
-    <v-alert
-      v-else-if="error"
-      type="error"
-      variant="tonal"
-      density="compact"
-      class="ma-4"
-    >
+    <v-alert v-else-if="error" type="error" variant="tonal" density="compact" class="ma-4">
       {{ error }}
     </v-alert>
 
@@ -122,25 +111,13 @@
         <v-card-text class="pb-3">
           <h4 class="section-title mb-3">最近のトレンド</h4>
           <div v-if="recentTrends.length > 0" class="trends-list">
-            <div
-              v-for="trend in recentTrends.slice(0, 3)"
-              :key="trend.tagName"
-              class="trend-item"
-            >
-              <v-chip
-                :color="trend.color"
-                size="small"
-                variant="flat"
-                class="trend-chip"
-              >
+            <div v-for="trend in recentTrends.slice(0, 3)" :key="trend.tagName" class="trend-item">
+              <v-chip :color="trend.color" size="small" variant="flat" class="trend-chip">
                 {{ trend.tagName }}
               </v-chip>
               <div class="trend-info">
                 <div class="trend-direction">
-                  <v-icon
-                    :color="getTrendColor(trend.direction)"
-                    size="small"
-                  >
+                  <v-icon :color="getTrendColor(trend.direction)" size="small">
                     {{ getTrendIcon(trend.direction) }}
                   </v-icon>
                   <span class="trend-text">{{ getTrendText(trend.direction) }}</span>
@@ -151,9 +128,7 @@
           </div>
           <div v-else class="no-trends">
             <v-icon color="grey" size="large" class="mb-2">mdi-chart-line</v-icon>
-            <p class="text-caption text-medium-emphasis">
-              まだトレンドデータがありません
-            </p>
+            <p class="text-caption text-medium-emphasis">まだトレンドデータがありません</p>
           </div>
         </v-card-text>
       </div>
@@ -179,7 +154,7 @@ interface Emits {
 
 withDefaults(defineProps<Props>(), {
   loading: false,
-  error: null
+  error: null,
 })
 
 const emit = defineEmits<Emits>()
@@ -188,7 +163,7 @@ const emit = defineEmits<Emits>()
 const analysisData = ref({
   totalTags: 12,
   mostUsedTag: { name: '集中', color: '#2196F3' },
-  positiveRatio: 68
+  positiveRatio: 68,
 })
 
 const categoryAnalysis = ref([
@@ -201,8 +176,8 @@ const categoryAnalysis = ref([
     topTags: [
       { name: '集中', color: '#2196F3' },
       { name: '達成感', color: '#4CAF50' },
-      { name: '安心', color: '#009688' }
-    ]
+      { name: '安心', color: '#009688' },
+    ],
   },
   {
     category: 'negative' as EmotionCategory,
@@ -212,8 +187,8 @@ const categoryAnalysis = ref([
     percentage: 24,
     topTags: [
       { name: '疲労', color: '#795548' },
-      { name: '不安', color: '#9C27B0' }
-    ]
+      { name: '不安', color: '#9C27B0' },
+    ],
   },
   {
     category: 'neutral' as EmotionCategory,
@@ -221,10 +196,8 @@ const categoryAnalysis = ref([
     color: '#757575',
     count: 3,
     percentage: 8,
-    topTags: [
-      { name: '平常', color: '#757575' }
-    ]
-  }
+    topTags: [{ name: '平常', color: '#757575' }],
+  },
 ])
 
 const recentTrends = ref([
@@ -232,56 +205,72 @@ const recentTrends = ref([
     tagName: '集中',
     color: '#2196F3',
     direction: 'up' as const,
-    description: '先週より3回多く使用'
+    description: '先週より3回多く使用',
   },
   {
     tagName: '疲労',
     color: '#795548',
     direction: 'down' as const,
-    description: '先週より2回減少'
+    description: '先週より2回減少',
   },
   {
     tagName: '安心',
     color: '#009688',
     direction: 'stable' as const,
-    description: '先週と同程度の使用'
-  }
+    description: '先週と同程度の使用',
+  },
 ])
 
 // Helper functions
 const getCategoryIcon = (category: EmotionCategory): string => {
   switch (category) {
-    case 'positive': return 'mdi-emoticon-happy'
-    case 'negative': return 'mdi-emoticon-sad'
-    case 'neutral': return 'mdi-emoticon-neutral'
-    default: return 'mdi-tag'
+    case 'positive':
+      return 'mdi-emoticon-happy'
+    case 'negative':
+      return 'mdi-emoticon-sad'
+    case 'neutral':
+      return 'mdi-emoticon-neutral'
+    default:
+      return 'mdi-tag'
   }
 }
 
 const getTrendIcon = (direction: 'up' | 'down' | 'stable'): string => {
   switch (direction) {
-    case 'up': return 'mdi-trending-up'
-    case 'down': return 'mdi-trending-down'
-    case 'stable': return 'mdi-trending-neutral'
-    default: return 'mdi-minus'
+    case 'up':
+      return 'mdi-trending-up'
+    case 'down':
+      return 'mdi-trending-down'
+    case 'stable':
+      return 'mdi-trending-neutral'
+    default:
+      return 'mdi-minus'
   }
 }
 
 const getTrendColor = (direction: 'up' | 'down' | 'stable'): string => {
   switch (direction) {
-    case 'up': return 'success'
-    case 'down': return 'warning'
-    case 'stable': return 'info'
-    default: return 'grey'
+    case 'up':
+      return 'success'
+    case 'down':
+      return 'warning'
+    case 'stable':
+      return 'info'
+    default:
+      return 'grey'
   }
 }
 
 const getTrendText = (direction: 'up' | 'down' | 'stable'): string => {
   switch (direction) {
-    case 'up': return '増加傾向'
-    case 'down': return '減少傾向'
-    case 'stable': return '安定'
-    default: return '-'
+    case 'up':
+      return '増加傾向'
+    case 'down':
+      return '減少傾向'
+    case 'stable':
+      return '安定'
+    default:
+      return '-'
   }
 }
 
@@ -450,11 +439,11 @@ onMounted(() => {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-  
+
   .summary-value {
     font-size: 1.25rem;
   }
-  
+
   .trend-item {
     gap: 8px;
   }

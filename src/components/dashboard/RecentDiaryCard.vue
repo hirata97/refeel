@@ -3,13 +3,13 @@
     <div v-if="loading" class="loading-state">
       <v-skeleton-loader type="list-item-three-line" />
     </div>
-    
+
     <div v-else-if="error" class="error-state">
       <v-alert type="error" variant="outlined">
         {{ error }}
       </v-alert>
     </div>
-    
+
     <div v-else-if="recentDiaries.length === 0" class="empty-state">
       <div class="empty-content">
         <v-icon size="64" color="grey-lighten-1">mdi-notebook-outline</v-icon>
@@ -19,7 +19,7 @@
         </v-btn>
       </div>
     </div>
-    
+
     <div v-else class="diary-list">
       <div
         v-for="diary in recentDiaries"
@@ -33,27 +33,20 @@
             {{ diary.goal_category }}
           </v-chip>
         </div>
-        
+
         <p class="diary-preview">{{ diary.preview }}</p>
-        
+
         <div class="diary-footer">
           <span class="diary-date">{{ formatDate(diary.created_at) }}</span>
           <div class="mood-indicator">
-            <v-icon size="16" :color="getMoodColor(diary.mood)">
-              mdi-emoticon
-            </v-icon>
+            <v-icon size="16" :color="getMoodColor(diary.mood)"> mdi-emoticon </v-icon>
             <span class="mood-value">{{ diary.mood }}/10</span>
           </div>
         </div>
       </div>
-      
+
       <div class="view-all">
-        <v-btn 
-          variant="text" 
-          color="primary" 
-          block
-          @click="$emit('view-all')"
-        >
+        <v-btn variant="text" color="primary" block @click="$emit('view-all')">
           すべての日記を見る
           <v-icon end>mdi-arrow-right</v-icon>
         </v-btn>
@@ -212,7 +205,7 @@ const getMoodColor = (mood: number): string => {
     align-items: flex-start;
     gap: 4px;
   }
-  
+
   .diary-title {
     white-space: normal;
     line-height: 1.3;

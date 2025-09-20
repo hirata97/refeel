@@ -1,98 +1,95 @@
 <template>
-  <v-container class="d-flex align-center justify-center" style="min-height: calc(100vh - 64px);">
+  <v-container class="d-flex align-center justify-center" style="min-height: calc(100vh - 64px)">
     <v-card class="pa-6" max-width="480" width="100%">
       <h2 class="text-center text-h5 font-weight-bold mb-6">
         <v-icon start color="primary">mdi-login</v-icon> Login
       </h2>
-      
+
       <v-form ref="formRef" v-model="isValid" @submit.prevent="handleLogin">
-      <!-- アカウントロックアウト警告 -->
-      <v-alert
-        v-if="shouldShowLockoutAlert"
-        type="error"
-        class="mb-4"
-        variant="tonal"
-        :icon="lockoutInfo?.isLocked ? 'mdi-lock' : 'mdi-alert'"
-      >
-        <div v-if="lockoutInfo?.isLocked">
-          <strong>アカウントがロックされています</strong>
-          <div class="text-body-2 mt-1">
-            連続ログイン失敗により一時的にロックされました。
-            <div v-if="lockoutInfo?.lockoutEnd">
-              解除まで残り: {{ getRemainingTime(lockoutInfo?.lockoutEnd!) }}
+        <!-- アカウントロックアウト警告 -->
+        <v-alert
+          v-if="shouldShowLockoutAlert"
+          type="error"
+          class="mb-4"
+          variant="tonal"
+          :icon="lockoutInfo?.isLocked ? 'mdi-lock' : 'mdi-alert'"
+        >
+          <div v-if="lockoutInfo?.isLocked">
+            <strong>アカウントがロックされています</strong>
+            <div class="text-body-2 mt-1">
+              連続ログイン失敗により一時的にロックされました。
+              <div v-if="lockoutInfo?.lockoutEnd">
+                解除まで残り: {{ getRemainingTime(lockoutInfo?.lockoutEnd!) }}
+              </div>
             </div>
           </div>
-        </div>
-        <div v-else-if="(lockoutInfo?.failedAttempts ?? 0) > 0">
-          <strong>ログイン失敗警告</strong>
-          <div class="text-body-2 mt-1">
-            失敗回数: {{ lockoutInfo?.failedAttempts }}回 <br />残り試行回数:
-            {{ lockoutInfo?.remainingAttempts }}回
-            <br />制限に達するとアカウントが一時的にロックされます。
+          <div v-else-if="(lockoutInfo?.failedAttempts ?? 0) > 0">
+            <strong>ログイン失敗警告</strong>
+            <div class="text-body-2 mt-1">
+              失敗回数: {{ lockoutInfo?.failedAttempts }}回 <br />残り試行回数:
+              {{ lockoutInfo?.remainingAttempts }}回
+              <br />制限に達するとアカウントが一時的にロックされます。
+            </div>
           </div>
-        </div>
-      </v-alert>
+        </v-alert>
 
-      <!-- 一般的なエラー表示 -->
-      <BaseAlert
-        v-if="finalDisplayError && finalDisplayError.trim()"
-        v-model="showErrorState"
-        type="error"
-        closable
-        :message="finalDisplayError"
-        @close="clearDisplayError"
-      />
+        <!-- 一般的なエラー表示 -->
+        <BaseAlert
+          v-if="finalDisplayError && finalDisplayError.trim()"
+          v-model="showErrorState"
+          type="error"
+          closable
+          :message="finalDisplayError"
+          @close="clearDisplayError"
+        />
 
-
-      <!-- メールアドレス入力 -->
-      <v-text-field
-        label="Email"
-        v-model="email"
-        :error-messages="emailError && emailError.trim() ? [emailError] : []"
-        @blur="validateField('email')"
-        @input="clearEmailErrorOnInput"
-        variant="outlined"
-        density="compact"
-        class="mb-3"
-        required
-        aria-label="Enter your email"
-        :disabled="lockoutInfo?.isLocked"
-        autofocus
-      />
-
-      <!-- パスワード入力 -->
-      <v-text-field
-        label="Password"
-        type="password"
-        v-model="password"
-        :error-messages="passwordError && passwordError.trim() ? [passwordError] : []"
-        @blur="validateField('password')"
-        @input="clearPasswordErrorOnInput"
-        variant="outlined"
-        density="compact"
-        class="mb-4"
-        required
-        aria-label="Enter your password"
-        :disabled="lockoutInfo?.isLocked"
-      />
-
-
-      
-      <v-card-actions class="d-flex flex-column pa-0">
-        <BaseButton
-          :loading="authStore.loading || isSubmitting"
+        <!-- メールアドレス入力 -->
+        <v-text-field
+          label="Email"
+          v-model="email"
+          :error-messages="emailError && emailError.trim() ? [emailError] : []"
+          @blur="validateField('email')"
+          @input="clearEmailErrorOnInput"
+          variant="outlined"
+          density="compact"
+          class="mb-3"
+          required
+          aria-label="Enter your email"
           :disabled="lockoutInfo?.isLocked"
-          type="submit"
-          color="primary"
-          block
-          class="mb-2"
-        >
-          Login
-        </BaseButton>
-        <BaseButton color="secondary" block @click="navigateToTopPage">
-          トップページに戻る
-        </BaseButton>
-      </v-card-actions>
+          autofocus
+        />
+
+        <!-- パスワード入力 -->
+        <v-text-field
+          label="Password"
+          type="password"
+          v-model="password"
+          :error-messages="passwordError && passwordError.trim() ? [passwordError] : []"
+          @blur="validateField('password')"
+          @input="clearPasswordErrorOnInput"
+          variant="outlined"
+          density="compact"
+          class="mb-4"
+          required
+          aria-label="Enter your password"
+          :disabled="lockoutInfo?.isLocked"
+        />
+
+        <v-card-actions class="d-flex flex-column pa-0">
+          <BaseButton
+            :loading="authStore.loading || isSubmitting"
+            :disabled="lockoutInfo?.isLocked"
+            type="submit"
+            color="primary"
+            block
+            class="mb-2"
+          >
+            Login
+          </BaseButton>
+          <BaseButton color="secondary" block @click="navigateToTopPage">
+            トップページに戻る
+          </BaseButton>
+        </v-card-actions>
       </v-form>
     </v-card>
   </v-container>
@@ -119,8 +116,17 @@ const formRef = ref()
 const isValid = ref(false)
 
 // シンプルなフォーム管理を使用
-const { email, password, emailError, passwordError, isSubmitting, validateField, handleSubmit, clearPasswordErrorOnInput, clearEmailErrorOnInput } =
-  useSimpleLoginForm()
+const {
+  email,
+  password,
+  emailError,
+  passwordError,
+  isSubmitting,
+  validateField,
+  handleSubmit,
+  clearPasswordErrorOnInput,
+  clearEmailErrorOnInput,
+} = useSimpleLoginForm()
 
 // アカウントロックアウト情報を取得
 const lockoutInfo = computed(() => authStore.lockoutStatus)
@@ -138,18 +144,18 @@ const finalDisplayError = computed(() => {
   if (authStore.loading) {
     return null
   }
-  
+
   if (lockoutInfo.value?.isLocked) {
     return null // ロックアウト時は別途表示
   }
-  
+
   // エラーメッセージの統一処理（空白のみを完全排除）
   const msg =
     (typeof displayError.value === 'string' ? displayError.value : '') ||
     (typeof authStore.error === 'string' ? authStore.error : '')
   const trimmed = msg.trim()
   if (trimmed.length > 0) return trimmed
-  
+
   return null
 })
 
@@ -198,7 +204,6 @@ const stopLockoutStatusCheck = () => {
   }
 }
 
-
 // 認証済みユーザーのリダイレクト処理は useAuthGuard で自動処理
 
 // コンポーネント破棄時のクリーンアップ
@@ -232,7 +237,7 @@ const handleLogin = async () => {
     // サインイン開始時にエラー状態をクリア（フラッシュ表示を防ぐ）
     clearError()
     authStore.clearError()
-    
+
     // バリデーションとサニタイゼーションを実行
     const sanitizedData = await handleSubmit()
     if (!sanitizedData) return
@@ -288,7 +293,7 @@ const navigateToTopPage = navigateToTop
   .v-container {
     padding: 16px 8px !important;
   }
-  
+
   .v-card {
     padding: 24px 16px !important;
   }

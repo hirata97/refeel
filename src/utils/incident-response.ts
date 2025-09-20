@@ -4,7 +4,7 @@ import type {
   SecurityAction,
   ThreatLevel,
   SecurityEvent,
-  SecurityAlert
+  SecurityAlert,
 } from '@/types/security-monitoring'
 
 /**
@@ -37,7 +37,7 @@ export class IncidentResponseManager {
     description: string,
     severity: ThreatLevel,
     relatedEvents: SecurityEvent[] = [],
-    assignedTo?: string
+    assignedTo?: string,
   ): SecurityIncident {
     const incident: SecurityIncident = {
       id: crypto.randomUUID(),
@@ -53,18 +53,20 @@ export class IncidentResponseManager {
       impact: {
         affectedUsers: this.extractAffectedUsers(relatedEvents),
         affectedSystems: ['web_app'],
-        estimatedDamage: 'Under assessment'
+        estimatedDamage: 'Under assessment',
       },
-      timeline: [{
-        timestamp: new Date().toISOString(),
-        event: 'Incident created',
-        actor: 'Security Monitoring System'
-      }]
+      timeline: [
+        {
+          timestamp: new Date().toISOString(),
+          event: 'Incident created',
+          actor: 'Security Monitoring System',
+        },
+      ],
     }
 
     this.incidents.push(incident)
     this.triggerIncidentResponse(incident)
-    
+
     console.log(`🚨 Security incident created: ${incident.id} - ${title}`)
     return incident
   }
@@ -74,12 +76,12 @@ export class IncidentResponseManager {
    */
   createIncidentFromAlert(alert: SecurityAlert): SecurityIncident {
     const severity = this.mapAlertSeverityToIncident(alert.severity)
-    
+
     return this.createIncident(
       `Alert: ${alert.ruleName}`,
       `Security alert triggered: ${alert.ruleName}. ${alert.event.action}`,
       severity,
-      [alert.event]
+      [alert.event],
     )
   }
 
@@ -94,35 +96,38 @@ export class IncidentResponseManager {
    * アクティブなインシデント取得
    */
   getActiveIncidents(): SecurityIncident[] {
-    return this.incidents.filter(i => i.status === 'open' || i.status === 'investigating')
+    return this.incidents.filter((i) => i.status === 'open' || i.status === 'investigating')
   }
 
   /**
    * 重要度別インシデント取得
    */
   getIncidentsBySeverity(severity: ThreatLevel): SecurityIncident[] {
-    return this.incidents.filter(i => i.severity === severity)
+    return this.incidents.filter((i) => i.severity === severity)
   }
 
   /**
    * 単一インシデント取得
    */
   getIncident(incidentId: string): SecurityIncident | undefined {
-    return this.incidents.find(i => i.id === incidentId)
+    return this.incidents.find((i) => i.id === incidentId)
   }
 
   /**
    * ステータス別インシデント取得
    */
   getIncidentsByStatus(status: string): SecurityIncident[] {
-    return this.incidents.filter(i => i.status === status)
+    return this.incidents.filter((i) => i.status === status)
   }
 
   /**
    * インシデントステータス更新
    */
-  updateIncidentStatus(incidentId: string, status: 'open' | 'investigating' | 'resolved' | 'closed'): SecurityIncident | null {
-    const incident = this.incidents.find(i => i.id === incidentId)
+  updateIncidentStatus(
+    incidentId: string,
+    status: 'open' | 'investigating' | 'resolved' | 'closed',
+  ): SecurityIncident | null {
+    const incident = this.incidents.find((i) => i.id === incidentId)
     if (!incident) return null
 
     incident.status = status
@@ -130,7 +135,7 @@ export class IncidentResponseManager {
     incident.timeline.push({
       timestamp: new Date().toISOString(),
       event: `Status updated to ${status}`,
-      actor: 'System'
+      actor: 'System',
     })
 
     console.log(`📋 Incident ${incidentId} status updated to ${status}`)
@@ -141,7 +146,7 @@ export class IncidentResponseManager {
    * インシデント担当者割り当て
    */
   assignIncident(incidentId: string, assignedTo: string): SecurityIncident | null {
-    const incident = this.incidents.find(i => i.id === incidentId)
+    const incident = this.incidents.find((i) => i.id === incidentId)
     if (!incident) return null
 
     incident.assignedTo = assignedTo
@@ -149,7 +154,7 @@ export class IncidentResponseManager {
     incident.timeline.push({
       timestamp: new Date().toISOString(),
       event: `Assigned to ${assignedTo}`,
-      actor: 'System'
+      actor: 'System',
     })
 
     console.log(`👤 Incident ${incidentId} assigned to ${assignedTo}`)
@@ -160,7 +165,7 @@ export class IncidentResponseManager {
    * インシデント解決
    */
   resolveIncident(incidentId: string, resolution?: string): SecurityIncident | null {
-    const incident = this.incidents.find(i => i.id === incidentId)
+    const incident = this.incidents.find((i) => i.id === incidentId)
     if (!incident) return null
 
     incident.status = 'resolved'
@@ -171,7 +176,7 @@ export class IncidentResponseManager {
     incident.timeline.push({
       timestamp: new Date().toISOString(),
       event: `Incident resolved${resolution ? ': ' + resolution : ''}`,
-      actor: 'System'
+      actor: 'System',
     })
 
     console.log(`✅ Incident ${incidentId} resolved${resolution ? ': ' + resolution : ''}`)
@@ -182,7 +187,7 @@ export class IncidentResponseManager {
    * 関連イベント追加
    */
   addRelatedEvent(incidentId: string, event: SecurityEvent): SecurityIncident | null {
-    const incident = this.incidents.find(i => i.id === incidentId)
+    const incident = this.incidents.find((i) => i.id === incidentId)
     if (!incident) return null
 
     incident.relatedEvents.push(event)
@@ -190,7 +195,7 @@ export class IncidentResponseManager {
     incident.timeline.push({
       timestamp: new Date().toISOString(),
       event: `Related event added: ${event.type}`,
-      actor: 'System'
+      actor: 'System',
     })
 
     console.log(`🔗 Related event added to incident ${incidentId}:`, event)
@@ -200,8 +205,12 @@ export class IncidentResponseManager {
   /**
    * セキュリティアクション実行
    */
-  executeAction(incidentId: string, actionType: 'block_ip' | 'lock_account' | 'throttle_api' | 'alert_admin' | 'log_event', description: string): SecurityAction | null {
-    const incident = this.incidents.find(i => i.id === incidentId)
+  executeAction(
+    incidentId: string,
+    actionType: 'block_ip' | 'lock_account' | 'throttle_api' | 'alert_admin' | 'log_event',
+    description: string,
+  ): SecurityAction | null {
+    const incident = this.incidents.find((i) => i.id === incidentId)
     if (!incident) return null
 
     const action: SecurityAction = {
@@ -211,7 +220,7 @@ export class IncidentResponseManager {
       executedAt: new Date().toISOString(),
       executedBy: 'System',
       parameters: {},
-      result: 'success'
+      result: 'success',
     }
 
     incident.actions.push(action)
@@ -219,7 +228,7 @@ export class IncidentResponseManager {
     incident.timeline.push({
       timestamp: new Date().toISOString(),
       event: `Action executed: ${actionType}`,
-      actor: 'System'
+      actor: 'System',
     })
 
     console.log(`⚡ Action executed for incident ${incidentId}:`, action)
@@ -244,12 +253,15 @@ export class IncidentResponseManager {
   /**
    * ハンドラーの実行
    */
-  private async executeHandler(incident: SecurityIncident, handler: IncidentHandler): Promise<void> {
+  private async executeHandler(
+    incident: SecurityIncident,
+    handler: IncidentHandler,
+  ): Promise<void> {
     try {
       console.log(`🔧 Executing incident handler: ${handler.name} for ${incident.id}`)
-      
+
       const actions = await handler.handle(incident)
-      
+
       for (const actionData of actions) {
         this.addAction(incident.id, actionData)
       }
@@ -261,14 +273,17 @@ export class IncidentResponseManager {
   /**
    * インシデントにアクションを追加
    */
-  addAction(incidentId: string, action: Omit<SecurityAction, 'id' | 'executedAt'>): SecurityAction | null {
-    const incident = this.incidents.find(i => i.id === incidentId)
+  addAction(
+    incidentId: string,
+    action: Omit<SecurityAction, 'id' | 'executedAt'>,
+  ): SecurityAction | null {
+    const incident = this.incidents.find((i) => i.id === incidentId)
     if (!incident) return null
 
     const fullAction: SecurityAction = {
       id: crypto.randomUUID(),
       executedAt: new Date().toISOString(),
-      ...action
+      ...action,
     }
 
     incident.actions.push(fullAction)
@@ -300,7 +315,7 @@ export class IncidentResponseManager {
    */
   private extractAffectedUsers(events: SecurityEvent[]): string[] {
     const users = new Set<string>()
-    events.forEach(event => {
+    events.forEach((event) => {
       if (event.userId) users.add(event.userId)
     })
     return Array.from(users)
@@ -314,7 +329,7 @@ export class IncidentResponseManager {
       low: 'low',
       medium: 'medium',
       high: 'high',
-      critical: 'critical'
+      critical: 'critical',
     }
     return mapping[alertSeverity] || 'medium'
   }
@@ -325,16 +340,16 @@ export class IncidentResponseManager {
   private setupDefaultHandlers(): void {
     this.responseHandlers.set('auth_failure_handler', {
       name: 'Authentication Failure Handler',
-      shouldHandle: (incident) => 
-        incident.relatedEvents.some(e => e.type === 'auth_failure') &&
+      shouldHandle: (incident) =>
+        incident.relatedEvents.some((e) => e.type === 'auth_failure') &&
         incident.severity !== 'low',
-      handle: async () => []
+      handle: async () => [],
     })
 
     this.responseHandlers.set('critical_incident_handler', {
       name: 'Critical Incident Handler',
       shouldHandle: (incident) => incident.severity === 'critical',
-      handle: async () => []
+      handle: async () => [],
     })
   }
 
@@ -348,8 +363,8 @@ export class IncidentResponseManager {
         condition: (incident) => incident.severity === 'critical',
         execute: (incident) => {
           console.log(`🚨 Critical incident auto-escalated: ${incident.id}`)
-        }
-      }
+        },
+      },
     ]
   }
 }
@@ -377,9 +392,9 @@ export class AutomatedResponseSystem {
    * 管理者通知
    */
   async notifyAdministrators(
-    message: string, 
+    message: string,
     _severity: ThreatLevel,
-    channels: string[] = ['console']
+    channels: string[] = ['console'],
   ): Promise<void> {
     console.log(`📢 ADMIN ALERT: ${message}`)
     for (const channel of channels) {
@@ -409,17 +424,17 @@ export class AutomatedResponseSystem {
   /**
    * レスポンスルール取得
    */
-  getResponseRules(): Array<{id: string, eventType: string, enabled: boolean}> {
+  getResponseRules(): Array<{ id: string; eventType: string; enabled: boolean }> {
     return [
       { id: 'suspicious_activity', eventType: 'suspicious_activity', enabled: true },
-      { id: 'data_breach', eventType: 'data_breach_attempt', enabled: true }
+      { id: 'data_breach', eventType: 'data_breach_attempt', enabled: true },
     ]
   }
 
   /**
    * レスポンスルール追加
    */
-  addResponseRule(rule: {eventType: string, actions: string[], enabled?: boolean}): string {
+  addResponseRule(rule: { eventType: string; actions: string[]; enabled?: boolean }): string {
     const ruleId = crypto.randomUUID()
     console.log(`🔧 Response rule added: ${ruleId} for ${rule.eventType}`)
     return ruleId
@@ -463,9 +478,12 @@ export class AutomatedResponseSystem {
   /**
    * レスポンスアクション実行
    */
-  async executeResponseAction(actionType: string, parameters: Record<string, unknown>): Promise<{success: boolean, message: string}> {
+  async executeResponseAction(
+    actionType: string,
+    parameters: Record<string, unknown>,
+  ): Promise<{ success: boolean; message: string }> {
     console.log(`⚡ Executing response action: ${actionType}`, parameters)
-    
+
     try {
       switch (actionType) {
         case 'block_ip':
@@ -489,7 +507,7 @@ export class AutomatedResponseSystem {
   /**
    * メトリクス取得
    */
-  getMetrics(): {executedActions: number, successRate: number, failedActions: number} {
+  getMetrics(): { executedActions: number; successRate: number; failedActions: number } {
     return { executedActions: 0, successRate: 100, failedActions: 0 }
   }
 
@@ -498,19 +516,19 @@ export class AutomatedResponseSystem {
    */
   async processEvent(event: SecurityEvent): Promise<void> {
     console.log(`🔄 Processing security event: ${event.type}`)
-    
+
     // イベントタイプに基づく自動応答
     const rules = this.getResponseRules()
-    const matchingRule = rules.find(rule => rule.eventType === event.type && rule.enabled)
-    
+    const matchingRule = rules.find((rule) => rule.eventType === event.type && rule.enabled)
+
     if (matchingRule) {
       console.log(`✅ Auto-response triggered for ${event.type}`)
-      
+
       // 重要度に応じた自動アクション
       if (event.severity === 'high' || event.severity === 'critical') {
         await this.executeResponseAction('admin_alert', {
           message: `High severity ${event.type} detected`,
-          eventId: event.id
+          eventId: event.id,
         })
       }
     } else {
