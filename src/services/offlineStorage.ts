@@ -43,7 +43,7 @@ class OfflineDatabase extends Dexie {
     this.version(1).stores({
       diaries: '++id, supabaseId, user_id, created_at, is_synced, sync_action',
       userSettings: '++id, user_id, is_synced',
-      cache: '++id, key, expires_at'
+      cache: '++id, key, expires_at',
     })
   }
 }
@@ -51,7 +51,6 @@ class OfflineDatabase extends Dexie {
 export const offlineDB = new OfflineDatabase()
 
 export class OfflineStorageService {
-
   // 日記関連
   async saveDiaryOffline(diary: Omit<OfflineDiary, 'id'>): Promise<number> {
     return await offlineDB.diaries.add(diary)
@@ -61,30 +60,26 @@ export class OfflineStorageService {
     await offlineDB.diaries.update(id, {
       ...updates,
       updated_at: new Date().toISOString(),
-      is_synced: false
+      is_synced: false,
     })
   }
 
   async getDiariesOffline(userId: string): Promise<OfflineDiary[]> {
-    return await offlineDB.diaries
-      .where('user_id')
-      .equals(userId)
-      .reverse()
-      .sortBy('created_at')
+    return await offlineDB.diaries.where('user_id').equals(userId).reverse().sortBy('created_at')
   }
 
   async getUnsyncedDiaries(userId: string): Promise<OfflineDiary[]> {
     return await offlineDB.diaries
       .where('user_id')
       .equals(userId)
-      .and(diary => !diary.is_synced)
+      .and((diary) => !diary.is_synced)
       .toArray()
   }
 
   async markDiarySynced(id: number, supabaseId?: string): Promise<void> {
     const updates: Partial<OfflineDiary> = {
       is_synced: true,
-      sync_action: null
+      sync_action: null,
     }
 
     if (supabaseId) {
@@ -100,7 +95,7 @@ export class OfflineStorageService {
       // Supabaseに存在する場合は削除をマーク
       await offlineDB.diaries.update(id, {
         sync_action: 'delete',
-        is_synced: false
+        is_synced: false,
       })
     } else {
       // ローカルのみの場合は直接削除
@@ -110,16 +105,13 @@ export class OfflineStorageService {
 
   // ユーザー設定関連
   async saveUserSettingsOffline(settings: Omit<OfflineUserSettings, 'id'>): Promise<void> {
-    const existing = await offlineDB.userSettings
-      .where('user_id')
-      .equals(settings.user_id)
-      .first()
+    const existing = await offlineDB.userSettings.where('user_id').equals(settings.user_id).first()
 
     if (existing) {
       await offlineDB.userSettings.update(existing.id!, {
         settings: settings.settings,
         updated_at: new Date().toISOString(),
-        is_synced: false
+        is_synced: false,
       })
     } else {
       await offlineDB.userSettings.add(settings)
@@ -127,10 +119,7 @@ export class OfflineStorageService {
   }
 
   async getUserSettingsOffline(userId: string): Promise<OfflineUserSettings | undefined> {
-    return await offlineDB.userSettings
-      .where('user_id')
-      .equals(userId)
-      .first()
+    return await offlineDB.userSettings.where('user_id').equals(userId).first()
   }
 
   // キャッシュ関連
@@ -143,14 +132,14 @@ export class OfflineStorageService {
     if (existing) {
       await offlineDB.cache.update(existing.id!, {
         data,
-        expires_at: expiresAt.toISOString()
+        expires_at: expiresAt.toISOString(),
       })
     } else {
       await offlineDB.cache.add({
         key,
         data,
         expires_at: expiresAt.toISOString(),
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
       })
     }
   }
@@ -179,7 +168,7 @@ export class OfflineStorageService {
     await Promise.all([
       offlineDB.diaries.clear(),
       offlineDB.userSettings.clear(),
-      offlineDB.cache.clear()
+      offlineDB.cache.clear(),
     ])
   }
 
@@ -192,14 +181,14 @@ export class OfflineStorageService {
     const [diariesCount, userSettingsCount, cacheCount] = await Promise.all([
       offlineDB.diaries.count(),
       offlineDB.userSettings.count(),
-      offlineDB.cache.count()
+      offlineDB.cache.count(),
     ])
 
     return {
       diaries: diariesCount,
       userSettings: userSettingsCount,
       cache: cacheCount,
-      total: diariesCount + userSettingsCount + cacheCount
+      total: diariesCount + userSettingsCount + cacheCount,
     }
   }
 }

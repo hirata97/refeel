@@ -19,9 +19,8 @@ export function usePushNotifications() {
 
   // プッシュ通知のサポート状況をチェック
   const checkSupport = () => {
-    isSupported.value = 'serviceWorker' in navigator &&
-                       'PushManager' in window &&
-                       'Notification' in window
+    isSupported.value =
+      'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
   }
 
   // 通知許可を要求
@@ -68,7 +67,7 @@ export function usePushNotifications() {
       // 新しい購読を作成
       const newSubscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
       })
 
       subscription.value = newSubscription
@@ -128,9 +127,9 @@ export function usePushNotifications() {
             title: 'Refeel テスト通知',
             body: 'プッシュ通知が正常に動作しています！',
             icon: '/pwa-192x192.svg',
-            badge: '/favicon.ico'
-          }
-        })
+            badge: '/favicon.ico',
+          },
+        }),
       })
 
       if (response.ok) {
@@ -160,8 +159,8 @@ export function usePushNotifications() {
         },
         body: JSON.stringify({
           subscription: subscription.value,
-          settings
-        })
+          settings,
+        }),
       })
 
       if (response.ok) {
@@ -185,7 +184,7 @@ export function usePushNotifications() {
       reminderTime: '20:00',
       weeklyReport: false,
       reportDay: 0, // Sunday
-      motivationalQuotes: false
+      motivationalQuotes: false,
     }
 
     try {
@@ -208,7 +207,7 @@ export function usePushNotifications() {
       const notification = new Notification(title, {
         icon: '/pwa-192x192.svg',
         badge: '/favicon.ico',
-        ...options
+        ...options,
       })
 
       // 3秒後に自動的に閉じる
@@ -233,8 +232,8 @@ export function usePushNotifications() {
         body: JSON.stringify({
           subscription: sub,
           userAgent: navigator.userAgent,
-          timestamp: new Date().toISOString()
-        })
+          timestamp: new Date().toISOString(),
+        }),
       })
 
       if (!response.ok) {
@@ -255,8 +254,8 @@ export function usePushNotifications() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          subscription: sub
-        })
+          subscription: sub,
+        }),
       })
 
       if (!response.ok) {
@@ -269,10 +268,8 @@ export function usePushNotifications() {
 
   // VAPID キーをUint8Arrayに変換
   const urlBase64ToUint8Array = (base64String: string): Uint8Array => {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4)
-    const base64 = (base64String + padding)
-      .replace(/-/g, '+')
-      .replace(/_/g, '/')
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/')
 
     const rawData = window.atob(base64)
     const outputArray = new Uint8Array(rawData.length)
@@ -326,6 +323,6 @@ export function usePushNotifications() {
     sendTestNotification,
     saveNotificationSettings,
     loadNotificationSettings,
-    showLocalNotification
+    showLocalNotification,
   }
 }

@@ -1,19 +1,9 @@
 <template>
-  <v-snackbar
-    v-model="showPrompt"
-    :timeout="15000"
-    location="bottom"
-    color="primary"
-    elevation="8"
-  >
+  <v-snackbar v-model="showPrompt" :timeout="15000" location="bottom" color="primary" elevation="8">
     <div class="d-flex align-center">
-      <v-icon class="mr-3">
-        mdi-download
-      </v-icon>
+      <v-icon class="mr-3"> mdi-download </v-icon>
       <div class="flex-grow-1">
-        <div class="text-subtitle2 font-weight-medium">
-          Refeelをインストール
-        </div>
+        <div class="text-subtitle2 font-weight-medium">Refeelをインストール</div>
         <div class="text-caption">
           {{ installMessage }}
         </div>
@@ -21,34 +11,18 @@
     </div>
 
     <template #actions>
-      <v-btn
-        variant="text"
-        size="small"
-        @click="dismissPrompt"
-      >
-        後で
-      </v-btn>
-      <v-btn
-        variant="tonal"
-        size="small"
-        @click="handleInstall"
-        :loading="installing"
-      >
+      <v-btn variant="text" size="small" @click="dismissPrompt"> 後で </v-btn>
+      <v-btn variant="tonal" size="small" @click="handleInstall" :loading="installing">
         インストール
       </v-btn>
     </template>
   </v-snackbar>
 
   <!-- iOS用インストール手順ダイアログ -->
-  <v-dialog
-    v-model="showIOSDialog"
-    max-width="400"
-  >
+  <v-dialog v-model="showIOSDialog" max-width="400">
     <v-card>
       <v-card-title class="d-flex align-center">
-        <v-icon class="mr-2">
-          mdi-apple
-        </v-icon>
+        <v-icon class="mr-2"> mdi-apple </v-icon>
         {{ iosInstructions.title }}
       </v-card-title>
 
@@ -60,11 +34,7 @@
             class="pa-0 mb-2"
           >
             <template #prepend>
-              <v-avatar
-                size="24"
-                color="primary"
-                class="mr-3"
-              >
+              <v-avatar size="24" color="primary" class="mr-3">
                 <span class="text-caption">{{ index + 1 }}</span>
               </v-avatar>
             </template>
@@ -77,53 +47,24 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn
-          color="primary"
-          @click="showIOSDialog = false"
-        >
-          わかりました
-        </v-btn>
+        <v-btn color="primary" @click="showIOSDialog = false"> わかりました </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 
   <!-- PWA更新通知 -->
-  <v-snackbar
-    v-model="showUpdatePrompt"
-    :timeout="0"
-    location="top"
-    color="info"
-  >
+  <v-snackbar v-model="showUpdatePrompt" :timeout="0" location="top" color="info">
     <div class="d-flex align-center">
-      <v-icon class="mr-3">
-        mdi-update
-      </v-icon>
+      <v-icon class="mr-3"> mdi-update </v-icon>
       <div class="flex-grow-1">
-        <div class="text-subtitle2">
-          新しいバージョンが利用可能です
-        </div>
-        <div class="text-caption">
-          最新機能を利用するために更新してください
-        </div>
+        <div class="text-subtitle2">新しいバージョンが利用可能です</div>
+        <div class="text-caption">最新機能を利用するために更新してください</div>
       </div>
     </div>
 
     <template #actions>
-      <v-btn
-        variant="text"
-        size="small"
-        @click="showUpdatePrompt = false"
-      >
-        後で
-      </v-btn>
-      <v-btn
-        variant="tonal"
-        size="small"
-        @click="updateApp"
-        :loading="updating"
-      >
-        更新
-      </v-btn>
+      <v-btn variant="text" size="small" @click="showUpdatePrompt = false"> 後で </v-btn>
+      <v-btn variant="tonal" size="small" @click="updateApp" :loading="updating"> 更新 </v-btn>
     </template>
   </v-snackbar>
 </template>
@@ -138,7 +79,7 @@ const {
   isIOS,
   showInstallPrompt,
   showIOSInstallInstructions,
-  trackInstallEvent
+  trackInstallEvent,
 } = usePWAInstall()
 
 const showPrompt = ref(false)
@@ -203,7 +144,7 @@ const updateApp = () => {
 
   // Service Worker の更新をトリガー
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(registrations => {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const registration of registrations) {
         registration.update()
       }

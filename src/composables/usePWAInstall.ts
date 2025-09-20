@@ -19,11 +19,14 @@ export function usePWAInstall() {
   // インストール可能性をチェック
   const checkInstallability = () => {
     // PWA が既にインストールされているかチェック
-    isStandalone.value = window.matchMedia('(display-mode: standalone)').matches ||
-                        (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+    isStandalone.value =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true
 
     // iOSデバイスかチェック
-    isIOS.value = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as Window & { MSStream?: unknown }).MSStream
+    isIOS.value =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+      !(window as Window & { MSStream?: unknown }).MSStream
 
     // 既にインストール済みの場合
     if (isStandalone.value) {
@@ -76,8 +79,8 @@ export function usePWAInstall() {
       steps: [
         'Safari の下部にある共有ボタン（□↗）をタップ',
         'メニューから「ホーム画面に追加」を選択',
-        '「追加」ボタンをタップしてインストール完了'
-      ]
+        '「追加」ボタンをタップしてインストール完了',
+      ],
     }
   }
 
@@ -98,7 +101,9 @@ export function usePWAInstall() {
   }
 
   // インストール統計の記録
-  const trackInstallEvent = async (event: 'prompt_shown' | 'install_accepted' | 'install_dismissed') => {
+  const trackInstallEvent = async (
+    event: 'prompt_shown' | 'install_accepted' | 'install_dismissed',
+  ) => {
     try {
       // 分析データを記録（実装に応じて調整）
       console.log('PWA Install Event:', event)
@@ -118,9 +123,11 @@ export function usePWAInstall() {
     return {
       isIOS: isIOS.value,
       isAndroid: /Android/.test(navigator.userAgent),
-      isDesktop: !(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)),
+      isDesktop: !/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent,
+      ),
       browser: getBrowserName(),
-      standalone: isStandalone.value
+      standalone: isStandalone.value,
     }
   }
 
@@ -140,8 +147,9 @@ export function usePWAInstall() {
       serviceWorker: 'serviceWorker' in navigator,
       webAppManifest: 'onbeforeinstallprompt' in window,
       pushNotifications: 'PushManager' in window,
-      backgroundSync: 'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
-      offlineStorage: 'indexedDB' in window
+      backgroundSync:
+        'serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype,
+      offlineStorage: 'indexedDB' in window,
     }
   }
 
@@ -190,6 +198,6 @@ export function usePWAInstall() {
     checkPWASupport,
 
     // 内部状態（デバッグ用）
-    installPromptEvent
+    installPromptEvent,
   }
 }

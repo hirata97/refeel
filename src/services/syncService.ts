@@ -23,7 +23,7 @@ export class SyncService {
         success: false,
         synced: 0,
         errors: ['オフライン状態です'],
-        conflicts: 0
+        conflicts: 0,
       }
     }
 
@@ -31,7 +31,7 @@ export class SyncService {
       success: true,
       synced: 0,
       errors: [],
-      conflicts: 0
+      conflicts: 0,
     }
 
     try {
@@ -54,7 +54,6 @@ export class SyncService {
 
       // 4. 期限切れキャッシュをクリア
       await offlineStorage.clearExpiredCache()
-
     } catch (error) {
       result.success = false
       result.errors.push(`同期処理エラー: ${error}`)
@@ -87,14 +86,10 @@ export class SyncService {
       content: diary.content,
       tags: diary.tags,
       goal_category: 'general', // デフォルト値
-      created_at: diary.created_at
+      created_at: diary.created_at,
     }
 
-    const { data, error } = await supabase
-      .from('diaries')
-      .insert(insertData)
-      .select()
-      .single()
+    const { data, error } = await supabase.from('diaries').insert(insertData).select().single()
 
     if (error) {
       throw new Error(`Supabase作成エラー: ${error.message}`)
@@ -130,13 +125,10 @@ export class SyncService {
       title: diary.title,
       content: diary.content,
       tags: diary.tags,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     }
 
-    const { error } = await supabase
-      .from('diaries')
-      .update(updateData)
-      .eq('id', diary.supabaseId)
+    const { error } = await supabase.from('diaries').update(updateData).eq('id', diary.supabaseId)
 
     if (error) {
       throw new Error(`Supabase更新エラー: ${error.message}`)
@@ -153,10 +145,7 @@ export class SyncService {
       return
     }
 
-    const { error } = await supabase
-      .from('diaries')
-      .delete()
-      .eq('id', diary.supabaseId)
+    const { error } = await supabase.from('diaries').delete().eq('id', diary.supabaseId)
 
     if (error) {
       throw new Error(`Supabase削除エラー: ${error.message}`)
@@ -183,7 +172,7 @@ export class SyncService {
     // ローカルデータと比較してマージ
     for (const serverDiary of serverDiaries) {
       const localDiaries = await offlineStorage.getDiariesOffline(userId)
-      const existingLocal = localDiaries.find(d => d.supabaseId === serverDiary.id)
+      const existingLocal = localDiaries.find((d) => d.supabaseId === serverDiary.id)
 
       if (!existingLocal) {
         // サーバーにのみ存在するデータをローカルに追加
@@ -196,17 +185,19 @@ export class SyncService {
           created_at: serverDiary.created_at,
           updated_at: serverDiary.updated_at,
           is_synced: true,
-          sync_action: null
+          sync_action: null,
         })
-      } else if (existingLocal.is_synced &&
-                 new Date(serverDiary.updated_at) > new Date(existingLocal.updated_at)) {
+      } else if (
+        existingLocal.is_synced &&
+        new Date(serverDiary.updated_at) > new Date(existingLocal.updated_at)
+      ) {
         // サーバーの方が新しい場合はローカルを更新
         await offlineStorage.updateDiaryOffline(existingLocal.id!, {
           title: serverDiary.title,
           content: serverDiary.content,
           tags: serverDiary.tags || [],
           updated_at: serverDiary.updated_at,
-          is_synced: true
+          is_synced: true,
         })
       }
     }
@@ -239,11 +230,14 @@ export class SyncService {
 
   // 定期同期設定
   setupPeriodicSync(userId: string, intervalMinutes: number = 15): void {
-    setInterval(async () => {
-      if (this.isOnline()) {
-        await this.syncData(userId)
-      }
-    }, intervalMinutes * 60 * 1000)
+    setInterval(
+      async () => {
+        if (this.isOnline()) {
+          await this.syncData(userId)
+        }
+      },
+      intervalMinutes * 60 * 1000,
+    )
   }
 }
 

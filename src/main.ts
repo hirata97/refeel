@@ -94,7 +94,7 @@ const registerPWA = async () => {
     try {
       // Vite PWA Pluginが自動生成するService Workerを登録
       const registration = await navigator.serviceWorker.register('/sw.js', {
-        scope: '/'
+        scope: '/',
       })
 
       console.log('PWA Service Worker登録成功:', registration.scope)
