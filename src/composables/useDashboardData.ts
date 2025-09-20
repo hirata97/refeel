@@ -220,7 +220,7 @@ export function useDashboardData() {
       yesterdayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / yesterdayDiaries.length,
     )
 
-    // 気分理由の取得（最新の日記から） - mood_reasonフィールドが存在しないため削除
+    // 気分理由の取得（最新の日記から） - mood_reasonフィールドが削除されたため無効化
     const currentReason = undefined
     const previousReason = undefined
 
