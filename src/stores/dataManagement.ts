@@ -257,11 +257,9 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
           }
         }
 
-        const { error: insertError } = await supabase
-          .from('diaries')
-          .upsert(diaries, {
-            onConflict: importOptions.conflictResolution === 'merge' ? 'id' : undefined,
-          })
+        const { error: insertError } = await supabase.from('diaries').upsert(diaries, {
+          onConflict: importOptions.conflictResolution === 'merge' ? 'id' : undefined,
+        })
 
         if (insertError) {
           throw new Error(`日記データインポートエラー: ${insertError.message}`)
