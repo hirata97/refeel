@@ -15,6 +15,18 @@ vi.mock('@/lib/supabase', () => ({
       updateUser: vi.fn(),
       onAuthStateChange: vi.fn()
     }
+  },
+  supabase: {
+    auth: {
+      signInWithPassword: vi.fn(),
+      signUp: vi.fn(),
+      signOut: vi.fn(),
+      getSession: vi.fn(),
+      getUser: vi.fn(),
+      refreshSession: vi.fn(),
+      updateUser: vi.fn(),
+      onAuthStateChange: vi.fn()
+    }
   }
 }))
 
@@ -25,6 +37,12 @@ vi.mock('@/utils/sanitization', () => ({
 
 vi.mock('@/utils/account-lockout', () => ({
   default: {
+    checkLockoutStatus: vi.fn(),
+    recordLoginAttempt: vi.fn(),
+    shouldLockAccount: vi.fn(),
+    lockAccount: vi.fn()
+  },
+  accountLockoutManager: {
     checkLockoutStatus: vi.fn(),
     recordLoginAttempt: vi.fn(),
     shouldLockAccount: vi.fn(),
@@ -62,6 +80,11 @@ vi.mock('@/utils/two-factor-auth', () => ({
 
 vi.mock('@/utils/password-policy', () => ({
   default: {
+    validatePassword: vi.fn(),
+    hashPassword: vi.fn(),
+    getStrengthLabel: vi.fn()
+  },
+  passwordValidator: {
     validatePassword: vi.fn(),
     hashPassword: vi.fn(),
     getStrengthLabel: vi.fn()
@@ -353,7 +376,8 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
 
   describe('パスワード変更のエラーハンドリング', () => {
     it('changePassword - 未認証ユーザーでエラーを返す', async () => {
-      authStore.setUser(null)
+      // ユーザーが認証されていない状態をテスト
+      authStore.user = null
 
       const result = await authStore.changePassword('current', 'newPassword123!')
 
@@ -364,7 +388,7 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
     it('changePassword - パスワードポリシー違反でエラーを返す', async () => {
       const { default: passwordValidator } = await import('@/utils/password-policy')
       
-      authStore.setUser({
+      authStore.user =({
         id: 'user-1',
         email: 'test@example.com'
       })
@@ -384,7 +408,7 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
     it('changePassword - パスワード再利用でエラーを返す', async () => {
       const { default: passwordValidator } = await import('@/utils/password-policy')
       
-      authStore.setUser({
+      authStore.user =({
         id: 'user-1',
         email: 'test@example.com'
       })
@@ -415,13 +439,13 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
 
   describe('2要素認証のエラーハンドリング', () => {
     it('setup2FA - 未認証ユーザーでエラーを投げる', async () => {
-      authStore.setUser(null)
+      authStore.user =(null)
 
       await expect(authStore.setup2FA()).rejects.toThrow('ユーザーが認証されていません')
     })
 
     it('enable2FA - 未認証ユーザーでエラーを投げる', async () => {
-      authStore.setUser(null)
+      authStore.user =(null)
 
       await expect(
         authStore.enable2FA('123456', 'secret', ['backup1', 'backup2'])
@@ -429,7 +453,7 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
     })
 
     it('disable2FA - 未認証ユーザーでエラーを投げる', async () => {
-      authStore.setUser(null)
+      authStore.user =(null)
 
       await expect(authStore.disable2FA('123456')).rejects.toThrow('ユーザーが認証されていません')
     })
@@ -439,7 +463,7 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
     it('signOut - Supabaseエラーでもローカル状態をクリアする', async () => {
       const { default: supabase } = await import('@/lib/supabase')
       
-      authStore.setUser({ id: 'user-1', email: 'test@example.com' })
+      authStore.user =({ id: 'user-1', email: 'test@example.com' })
       authStore.setSession({ access_token: 'token-123' })
 
       supabase.auth.signOut.mockResolvedValue({
@@ -456,7 +480,7 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
     it('invalidateSession - Supabaseエラーでもローカル状態をクリアする', async () => {
       const { default: supabase } = await import('@/lib/supabase')
       
-      authStore.setUser({ id: 'user-1', email: 'test@example.com' })
+      authStore.user =({ id: 'user-1', email: 'test@example.com' })
       authStore.setSession({ access_token: 'token-123' })
 
       supabase.auth.signOut.mockRejectedValue(new Error('Network error'))

@@ -48,7 +48,7 @@ export const useSecurityStore = defineStore('security', () => {
     email: string,
     success: boolean,
     clientIP: string,
-    userAgent: string
+    userAgent: string,
   ) => {
     return await accountLockoutManager.recordLoginAttempt(email, success, clientIP, userAgent)
   }
@@ -65,7 +65,7 @@ export const useSecurityStore = defineStore('security', () => {
   const validatePassword = (
     password: string,
     email?: string,
-    name?: string
+    name?: string,
   ): PasswordValidationResult => {
     const result = passwordValidator.validatePassword(password, email, name)
     passwordValidationResult.value = result
@@ -89,13 +89,12 @@ export const useSecurityStore = defineStore('security', () => {
     return await passwordHistoryManager.isPasswordReused(userId, passwordHash)
   }
 
-
   // セッション管理
   const createSession = async (
     userId: string,
     sessionId: string,
     userAgent: string,
-    clientIP: string
+    clientIP: string,
   ) => {
     return await enhancedSessionManager.createSession(userId, sessionId, userAgent, clientIP)
   }
@@ -120,7 +119,7 @@ export const useSecurityStore = defineStore('security', () => {
   const logSecurityEvent = async (
     eventType: AuditEventType,
     description: string,
-    metadata?: Record<string, unknown>
+    metadata?: Record<string, unknown>,
   ) => {
     return await auditLogger.log(eventType, description, metadata)
   }

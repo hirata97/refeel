@@ -4,16 +4,23 @@
     <v-card variant="outlined" class="mb-4">
       <v-card-title class="d-flex align-center justify-space-between">
         <span>システム感情タグ</span>
-        <v-btn color="primary" size="small" @click="refreshTags" :loading="!!(loading.fetchEmotionTags || refreshing)">
+        <v-btn
+          color="primary"
+          size="small"
+          @click="refreshTags"
+          :loading="!!(loading.fetchEmotionTags || refreshing)"
+        >
           <v-icon start>mdi-refresh</v-icon>
           更新
         </v-btn>
       </v-card-title>
-      
+
       <v-card-text>
         <div v-if="emotionTagGroups && emotionTagGroups.length > 0">
           <div v-for="group in emotionTagGroups" :key="group.category" class="mb-4">
-            <div class="text-subtitle-1 font-weight-medium mb-2 text-medium-emphasis">{{ group.label }} ({{ group.tags.length }}個)</div>
+            <div class="text-subtitle-1 font-weight-medium mb-2 text-medium-emphasis">
+              {{ group.label }} ({{ group.tags.length }}個)
+            </div>
             <div class="d-flex flex-wrap gap-2">
               <v-chip
                 v-for="tag in group.tags"
@@ -46,7 +53,7 @@
         <v-icon class="mr-2">mdi-chart-bar</v-icon>
         使用統計
       </v-card-title>
-      
+
       <v-card-text>
         <v-row>
           <v-col cols="12" md="4">
@@ -57,7 +64,7 @@
               </v-card-text>
             </v-card>
           </v-col>
-          
+
           <v-col cols="12" md="4">
             <v-card variant="tonal" color="error">
               <v-card-text class="text-center">
@@ -66,7 +73,7 @@
               </v-card-text>
             </v-card>
           </v-col>
-          
+
           <v-col cols="12" md="4">
             <v-card variant="tonal" color="info">
               <v-card-text class="text-center">
@@ -104,7 +111,6 @@ const emotionTagsStore = useEmotionTagsStore()
 // リアクティブな参照
 const { emotionTagGroups, loading, error } = storeToRefs(emotionTagsStore)
 
-
 // ローカル状態
 const refreshing = ref(false)
 
@@ -116,7 +122,7 @@ const totalTags = computed(() => {
 
 const getTagCountByCategory = (category: string): number => {
   if (!emotionTagGroups.value) return 0
-  const group = emotionTagGroups.value.find(g => g.category === category)
+  const group = emotionTagGroups.value.find((g) => g.category === category)
   return group?.tags.length || 0
 }
 

@@ -74,7 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
       clearError()
 
       await authenticationStore.initialize()
-      
+
       // セッションの有効性を検証
       if (sessionStore.session.value) {
         const isValid = await sessionStore.validateSession()
@@ -94,7 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
   const enhancedSignIn = async (email: string, password: string) => {
     // ロックアウト状態をチェック
     const lockStatus = await lockoutStore.checkLockoutStatus(email)
-    
+
     return await authenticationStore.signIn(
       email,
       password,
@@ -134,15 +134,15 @@ export const useAuthStore = defineStore('auth', () => {
     sessionTimeout: sessionStore.sessionTimeout,
     isSessionExpired: sessionStore.isSessionExpired,
     timeUntilExpiry: sessionStore.timeUntilExpiry,
-    
+
     // 認証ストアの状態とメソッド
     user: authenticationStore.user,
     passwordValidationResult: authenticationStore.passwordValidationResult,
-    
+
     // ロックアウトストアの状態とメソッド
     lockoutStatus: lockoutStore.lockoutStatus,
     isAccountLocked: lockoutStore.isAccountLocked,
-    
+
     // セキュリティストアの状態とメソッド
     securityStats: updatedSecurityStore.securityStats,
 

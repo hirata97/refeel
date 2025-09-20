@@ -178,16 +178,29 @@
                     <v-row align="center">
                       <v-col>
                         <div class="text-h6">ストレージ使用量</div>
-                        <div class="text-caption">使用中: {{ formatBytes(dataManagementStore.storageUsage.used) }} / {{ formatBytes(dataManagementStore.storageUsage.total) }}</div>
+                        <div class="text-caption">
+                          使用中: {{ formatBytes(dataManagementStore.storageUsage.used) }} /
+                          {{ formatBytes(dataManagementStore.storageUsage.total) }}
+                        </div>
                       </v-col>
                       <v-col cols="auto">
                         <v-progress-circular
-                          :model-value="(dataManagementStore.storageUsage.used / dataManagementStore.storageUsage.total) * 100"
+                          :model-value="
+                            (dataManagementStore.storageUsage.used /
+                              dataManagementStore.storageUsage.total) *
+                            100
+                          "
                           size="60"
                           width="4"
                           color="primary"
                         >
-                          {{ Math.round((dataManagementStore.storageUsage.used / dataManagementStore.storageUsage.total) * 100) }}%
+                          {{
+                            Math.round(
+                              (dataManagementStore.storageUsage.used /
+                                dataManagementStore.storageUsage.total) *
+                                100,
+                            )
+                          }}%
                         </v-progress-circular>
                       </v-col>
                     </v-row>
@@ -199,7 +212,10 @@
                 <div class="text-h6 mb-2">データエクスポート</div>
                 <v-select
                   v-model="exportFormat"
-                  :items="[{title: 'JSON形式', value: 'json'}, {title: 'CSV形式', value: 'csv'}]"
+                  :items="[
+                    { title: 'JSON形式', value: 'json' },
+                    { title: 'CSV形式', value: 'csv' },
+                  ]"
                   label="エクスポート形式"
                   variant="outlined"
                   class="mb-2"
@@ -268,13 +284,13 @@
                 <v-btn
                   variant="outlined"
                   prepend-icon="mdi-key"
-                  href="https://supabase.com" 
+                  href="https://supabase.com"
                   target="_blank"
                   class="mb-2"
                 >
                   パスワード変更
                 </v-btn>
-                <br>
+                <br />
                 <v-btn
                   variant="outlined"
                   prepend-icon="mdi-download"
@@ -283,7 +299,7 @@
                 >
                   個人データをダウンロード
                 </v-btn>
-                <br>
+                <br />
                 <v-btn
                   variant="outlined"
                   color="error"
@@ -311,7 +327,6 @@
           </v-card-text>
         </v-card>
       </v-tabs-window-item>
-
     </v-tabs-window>
 
     <!-- データ削除確認ダイアログ -->
@@ -323,7 +338,7 @@
         </v-card-title>
         <v-card-text>
           すべての日記データと設定が削除されます。この操作は取り消せません。
-          <br><br>
+          <br /><br />
           本当に削除しますか？
         </v-card-text>
         <v-card-actions>
@@ -343,7 +358,7 @@
         </v-card-title>
         <v-card-text>
           アカウントとすべてのデータが完全に削除されます。この操作は取り消せません。
-          <br><br>
+          <br /><br />
           本当にアカウントを削除しますか？
         </v-card-text>
         <v-card-actions>
@@ -414,11 +429,10 @@ const toggleTheme = () => {
   themeStore.toggleTheme()
 }
 
-
 // プロフィール更新
 const updateProfile = async () => {
   if (!profileStore.profile) return
-  
+
   try {
     await profileStore.updateProfile({
       display_name: profileStore.profile.display_name,
@@ -460,7 +474,7 @@ const exportData = async () => {
       dataTypes: ['diaries', 'settings', 'profile'],
       compressed: false,
     })
-    
+
     if (blob) {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -479,18 +493,18 @@ const exportData = async () => {
 // データインポート
 const importData = async () => {
   if (!importFile.value.length) return
-  
+
   try {
     const file = importFile.value[0]
     const format = file.name.endsWith('.json') ? 'json' : 'csv'
-    
+
     const success = await dataManagementStore.importData({
       format,
       file,
       conflictResolution: 'merge',
       validateData: true,
     })
-    
+
     if (success) {
       importFile.value = []
       // ページを再読み込みしてデータを反映
@@ -526,7 +540,7 @@ const deleteAccount = async () => {
   try {
     // まずデータを削除
     await dataManagementStore.deleteAllData()
-    
+
     // アカウントを削除（Supabaseの機能を使用）
     // 注意: 実際の実装では適切なAPIエンドポイントを使用する必要があります
     showAccountDeleteDialog.value = false
@@ -540,11 +554,11 @@ const deleteAccount = async () => {
 // バイト数のフォーマット
 const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes'
-  
+
   const k = 1024
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
-  
+
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 

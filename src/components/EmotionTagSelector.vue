@@ -2,12 +2,7 @@
   <v-card variant="outlined" class="emotion-tag-selector">
     <v-card-subtitle class="pb-2">
       今日の感情（複数選択可）
-      <v-chip
-        v-if="selectedTags.length > 0"
-        size="x-small"
-        color="primary"
-        class="ml-2"
-      >
+      <v-chip v-if="selectedTags.length > 0" size="x-small" color="primary" class="ml-2">
         {{ selectedTags.length }}個選択中
       </v-chip>
     </v-card-subtitle>
@@ -20,13 +15,7 @@
       </div>
 
       <!-- エラー状態 -->
-      <v-alert
-        v-else-if="error"
-        type="error"
-        variant="tonal"
-        class="mb-4"
-        density="compact"
-      >
+      <v-alert v-else-if="error" type="error" variant="tonal" class="mb-4" density="compact">
         {{ error }}
       </v-alert>
 
@@ -72,12 +61,7 @@
               {{ negativeTagsGroup.label }}
             </span>
           </div>
-          <v-chip-group
-            v-model="selectedNegativeTags"
-            multiple
-            color="error"
-            class="emotion-chips"
-          >
+          <v-chip-group v-model="selectedNegativeTags" multiple color="error" class="emotion-chips">
             <v-chip
               v-for="tag in negativeTagsGroup.tags"
               :key="tag.id"
@@ -102,12 +86,7 @@
               {{ neutralTagsGroup.label }}
             </span>
           </div>
-          <v-chip-group
-            v-model="selectedNeutralTags"
-            multiple
-            color="info"
-            class="emotion-chips"
-          >
+          <v-chip-group v-model="selectedNeutralTags" multiple color="info" class="emotion-chips">
             <v-chip
               v-for="tag in neutralTagsGroup.tags"
               :key="tag.id"
@@ -163,7 +142,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  disabled: false
+  disabled: false,
 })
 
 const emit = defineEmits<Emits>()
@@ -179,9 +158,15 @@ const emotionTags = computed(() => emotionTagsStore.emotionTags)
 // 感情タグをカテゴリ別に分類
 const categorizeEmotionTags = (tags: EmotionTag[]): Record<EmotionCategory, EmotionTag[]> => {
   return {
-    positive: tags.filter(tag => tag.category === 'positive').sort((a, b) => a.display_order - b.display_order),
-    negative: tags.filter(tag => tag.category === 'negative').sort((a, b) => a.display_order - b.display_order),
-    neutral: tags.filter(tag => tag.category === 'neutral').sort((a, b) => a.display_order - b.display_order)
+    positive: tags
+      .filter((tag) => tag.category === 'positive')
+      .sort((a, b) => a.display_order - b.display_order),
+    negative: tags
+      .filter((tag) => tag.category === 'negative')
+      .sort((a, b) => a.display_order - b.display_order),
+    neutral: tags
+      .filter((tag) => tag.category === 'neutral')
+      .sort((a, b) => a.display_order - b.display_order),
   }
 }
 
@@ -192,17 +177,17 @@ const positiveTagsGroup = computed((): EmotionTagGroup => {
     category: 'positive',
     label: 'ポジティブ',
     tags: categories.positive,
-    color: '#4CAF50'
+    color: '#4CAF50',
   }
 })
 
 const negativeTagsGroup = computed((): EmotionTagGroup => {
   const categories = categorizeEmotionTags(emotionTags.value)
   return {
-    category: 'negative', 
+    category: 'negative',
     label: 'ネガティブ',
     tags: categories.negative,
-    color: '#F44336'
+    color: '#F44336',
   }
 })
 
@@ -212,7 +197,7 @@ const neutralTagsGroup = computed((): EmotionTagGroup => {
     category: 'neutral',
     label: '中性',
     tags: categories.neutral,
-    color: '#757575'
+    color: '#757575',
   }
 })
 
@@ -225,34 +210,48 @@ const selectedNeutralTags = ref<string[]>([])
 const allSelectedTagIds = computed<string[]>(() => [
   ...selectedPositiveTags.value,
   ...selectedNegativeTags.value,
-  ...selectedNeutralTags.value
+  ...selectedNeutralTags.value,
 ])
 
 // 選択されたタグオブジェクト
 const selectedTags = computed<EmotionTag[]>(() => {
-  return emotionTags.value.filter(tag => allSelectedTagIds.value.includes(tag.id))
+  return emotionTags.value.filter((tag) => allSelectedTagIds.value.includes(tag.id))
 })
 
 // modelValueとの双方向バインディング
-watch(allSelectedTagIds, (newIds) => {
-  emit('update:modelValue', newIds)
-}, { immediate: true })
+watch(
+  allSelectedTagIds,
+  (newIds) => {
+    emit('update:modelValue', newIds)
+  },
+  { immediate: true },
+)
 
-watch(() => props.modelValue, (newValue) => {
-  if (JSON.stringify(newValue) !== JSON.stringify(allSelectedTagIds.value)) {
-    // カテゴリ別に分類して設定
-    const categories = categorizeEmotionTags(emotionTags.value)
-    selectedPositiveTags.value = newValue.filter(id => categories.positive.some(tag => tag.id === id))
-    selectedNegativeTags.value = newValue.filter(id => categories.negative.some(tag => tag.id === id))
-    selectedNeutralTags.value = newValue.filter(id => categories.neutral.some(tag => tag.id === id))
-  }
-}, { immediate: true })
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (JSON.stringify(newValue) !== JSON.stringify(allSelectedTagIds.value)) {
+      // カテゴリ別に分類して設定
+      const categories = categorizeEmotionTags(emotionTags.value)
+      selectedPositiveTags.value = newValue.filter((id) =>
+        categories.positive.some((tag) => tag.id === id),
+      )
+      selectedNegativeTags.value = newValue.filter((id) =>
+        categories.negative.some((tag) => tag.id === id),
+      )
+      selectedNeutralTags.value = newValue.filter((id) =>
+        categories.neutral.some((tag) => tag.id === id),
+      )
+    }
+  },
+  { immediate: true },
+)
 
 // タグ削除
 const removeTag = (tagId: string): void => {
-  selectedPositiveTags.value = selectedPositiveTags.value.filter(id => id !== tagId)
-  selectedNegativeTags.value = selectedNegativeTags.value.filter(id => id !== tagId)
-  selectedNeutralTags.value = selectedNeutralTags.value.filter(id => id !== tagId)
+  selectedPositiveTags.value = selectedPositiveTags.value.filter((id) => id !== tagId)
+  selectedNegativeTags.value = selectedNegativeTags.value.filter((id) => id !== tagId)
+  selectedNeutralTags.value = selectedNeutralTags.value.filter((id) => id !== tagId)
 }
 
 // 感情タグデータの読み込み
@@ -282,11 +281,11 @@ onMounted(() => {
 }
 
 .emotion-category:nth-child(1) {
-  border-left-color: #4CAF50; /* ポジティブ */
+  border-left-color: #4caf50; /* ポジティブ */
 }
 
 .emotion-category:nth-child(2) {
-  border-left-color: #F44336; /* ネガティブ */
+  border-left-color: #f44336; /* ネガティブ */
 }
 
 .emotion-category:nth-child(3) {
@@ -332,7 +331,7 @@ onMounted(() => {
     font-size: 0.7rem;
     height: 28px;
   }
-  
+
   .category-header {
     font-size: 0.85rem;
   }

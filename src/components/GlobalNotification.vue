@@ -58,7 +58,7 @@ const getIcon = (type: string): string => {
     success: 'mdi-check-circle',
     error: 'mdi-alert-circle',
     warning: 'mdi-alert',
-    info: 'mdi-information'
+    info: 'mdi-information',
   }
   return iconMap[type as keyof typeof iconMap] || 'mdi-information'
 }
@@ -69,7 +69,7 @@ const getSnackbarColor = (type: string): string => {
     success: 'success',
     error: 'error',
     warning: 'warning',
-    info: 'info'
+    info: 'info',
   }
   return colorMap[type as keyof typeof colorMap] || 'info'
 }
@@ -89,18 +89,18 @@ const handleVisibilityChange = (id: string, visible: boolean): void => {
 watch(
   () => notifications,
   (newNotifications) => {
-    newNotifications.forEach(notification => {
+    newNotifications.forEach((notification) => {
       if (!(notification.id in visibleStates.value)) {
         visibleStates.value[notification.id] = true
       }
     })
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 )
 
 // コンポーネントマウント時の初期化
 onMounted(() => {
-  notifications.forEach(notification => {
+  notifications.forEach((notification) => {
     visibleStates.value[notification.id] = true
   })
 })

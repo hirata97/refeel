@@ -8,7 +8,7 @@
   >
     <!-- トリガー要素（スロットで提供） -->
     <slot :preview-visible="isVisible" />
-    
+
     <!-- プレビューカード -->
     <v-menu
       v-model="isVisible"
@@ -20,11 +20,7 @@
       max-width="400"
       no-click-animation
     >
-      <v-card
-        v-if="diary && isVisible"
-        class="diary-preview-card"
-        elevation="8"
-      >
+      <v-card v-if="diary && isVisible" class="diary-preview-card" elevation="8">
         <!-- ヘッダー -->
         <v-card-subtitle class="preview-header pa-3 pb-2">
           <v-row no-gutters class="align-center">
@@ -47,40 +43,28 @@
             </v-col>
           </v-row>
         </v-card-subtitle>
-        
+
         <!-- コンテンツプレビュー -->
         <v-card-text class="preview-content pa-3 pt-0">
           <div class="content-text">
             {{ truncatedContent }}
             <span v-if="isTruncated" class="text-primary">...続きを読む</span>
           </div>
-          
+
           <!-- メタ情報 -->
           <v-row no-gutters class="mt-2 align-center">
             <v-col cols="auto" class="me-3">
-              <v-icon
-                icon="mdi-folder-outline"
-                size="small"
-                class="me-1"
-              />
+              <v-icon icon="mdi-folder-outline" size="small" class="me-1" />
               <span class="text-caption">{{ diary.goal_category }}</span>
             </v-col>
-            
+
             <v-col cols="auto" class="me-3">
-              <v-icon
-                icon="mdi-text"
-                size="small"
-                class="me-1"
-              />
+              <v-icon icon="mdi-text" size="small" class="me-1" />
               <span class="text-caption">{{ diary.content.length }}文字</span>
             </v-col>
-            
+
             <v-col cols="auto" v-if="(diary as any).mood_score !== undefined">
-              <v-icon
-                icon="mdi-emoticon-outline"
-                size="small"
-                class="me-1"
-              />
+              <v-icon icon="mdi-emoticon-outline" size="small" class="me-1" />
               <v-rating
                 :model-value="(diary as any).mood_score"
                 readonly
@@ -89,7 +73,7 @@
               />
             </v-col>
           </v-row>
-          
+
           <!-- プログレスバー -->
           <v-progress-linear
             :model-value="diary.progress_level"
@@ -99,7 +83,7 @@
             rounded
           />
         </v-card-text>
-        
+
         <!-- フッター -->
         <v-card-actions class="preview-footer pa-2">
           <v-btn
@@ -111,9 +95,9 @@
           >
             詳細表示
           </v-btn>
-          
+
           <v-spacer />
-          
+
           <v-btn
             size="small"
             variant="text"
@@ -162,31 +146,31 @@ const hideTimeout = ref<number | null>(null)
 // 計算されたプロパティ
 const truncatedContent = computed(() => {
   if (!props.diary?.content) return ''
-  
+
   const content = props.diary.content.trim()
   if (content.length <= props.maxLength) {
     return content
   }
-  
+
   // 文の境界で切り詰める
   const truncated = content.substring(0, props.maxLength)
   const lastSentenceEnd = Math.max(
     truncated.lastIndexOf('。'),
     truncated.lastIndexOf('！'),
     truncated.lastIndexOf('？'),
-    truncated.lastIndexOf('\n')
+    truncated.lastIndexOf('\n'),
   )
-  
+
   if (lastSentenceEnd > props.maxLength * 0.7) {
     return content.substring(0, lastSentenceEnd + 1)
   }
-  
+
   // 単語の境界で切り詰める
   const lastSpace = truncated.lastIndexOf(' ')
   if (lastSpace > props.maxLength * 0.8) {
     return content.substring(0, lastSpace)
   }
-  
+
   return truncated
 })
 
@@ -211,23 +195,23 @@ const getProgressColor = (progress: number): string => {
 // イベントハンドラー
 const showPreview = async () => {
   if (!props.diary) return
-  
+
   // 非表示のタイムアウトをクリア
   if (hideTimeout.value) {
     clearTimeout(hideTimeout.value)
     hideTimeout.value = null
   }
-  
+
   // 表示のタイムアウトを設定
   showTimeout.value = window.setTimeout(async () => {
     await nextTick()
-    
+
     // トリガー要素を設定
     const wrapper = document.querySelector('.diary-preview-wrapper')
     if (wrapper) {
       triggerElement.value = wrapper as HTMLElement
     }
-    
+
     isVisible.value = true
   }, props.previewDelay)
 }
@@ -238,7 +222,7 @@ const hidePreview = () => {
     clearTimeout(showTimeout.value)
     showTimeout.value = null
   }
-  
+
   // 非表示のタイムアウトを設定
   hideTimeout.value = window.setTimeout(() => {
     isVisible.value = false

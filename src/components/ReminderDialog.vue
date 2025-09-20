@@ -1,5 +1,9 @@
 <template>
-  <v-dialog :model-value="modelValue" max-width="600" @update:model-value="$emit('update:modelValue', $event)">
+  <v-dialog
+    :model-value="modelValue"
+    max-width="600"
+    @update:model-value="$emit('update:modelValue', $event)"
+  >
     <v-card>
       <v-card-title>
         <v-icon left>mdi-bell-plus</v-icon>
@@ -60,14 +64,7 @@
             <v-col cols="12">
               <v-label class="text-subtitle-2 mb-2">通知する曜日</v-label>
               <v-row>
-                <v-col 
-                  v-for="day in weekDays" 
-                  :key="day.value" 
-                  cols="12" 
-                  sm="6" 
-                  md="4" 
-                  lg="3"
-                >
+                <v-col v-for="day in weekDays" :key="day.value" cols="12" sm="6" md="4" lg="3">
                   <v-checkbox
                     v-model="formData.days"
                     :label="day.text"
@@ -79,34 +76,10 @@
               </v-row>
               <v-row class="mt-2">
                 <v-col cols="12">
-                  <v-btn 
-                    variant="text" 
-                    size="small" 
-                    @click="selectAllDays"
-                  >
-                    すべて選択
-                  </v-btn>
-                  <v-btn 
-                    variant="text" 
-                    size="small" 
-                    @click="selectWeekdays"
-                  >
-                    平日のみ
-                  </v-btn>
-                  <v-btn 
-                    variant="text" 
-                    size="small" 
-                    @click="selectWeekends"
-                  >
-                    土日のみ
-                  </v-btn>
-                  <v-btn 
-                    variant="text" 
-                    size="small" 
-                    @click="clearDays"
-                  >
-                    クリア
-                  </v-btn>
+                  <v-btn variant="text" size="small" @click="selectAllDays"> すべて選択 </v-btn>
+                  <v-btn variant="text" size="small" @click="selectWeekdays"> 平日のみ </v-btn>
+                  <v-btn variant="text" size="small" @click="selectWeekends"> 土日のみ </v-btn>
+                  <v-btn variant="text" size="small" @click="clearDays"> クリア </v-btn>
                 </v-col>
               </v-row>
             </v-col>
@@ -147,11 +120,7 @@
       <v-card-actions>
         <v-spacer />
         <v-btn @click="handleCancel">キャンセル</v-btn>
-        <v-btn 
-          color="primary" 
-          :loading="saving"
-          @click="handleSubmit"
-        >
+        <v-btn color="primary" :loading="saving" @click="handleSubmit">
           {{ isEditing ? '更新' : '作成' }}
         </v-btn>
       </v-card-actions>
@@ -191,7 +160,7 @@ const formData = ref<Omit<ReminderSettings, 'id'>>({
   title: '',
   message: '',
   snoozeEnabled: true,
-  snoozeDuration: 10
+  snoozeDuration: 10,
 })
 
 // Constants
@@ -200,7 +169,7 @@ const reminderTypes = [
   { title: '目標レビュー', value: 'goal_review' },
   { title: '週間サマリー', value: 'weekly_summary' },
   { title: '月間サマリー', value: 'monthly_summary' },
-  { title: 'カスタム', value: 'custom' }
+  { title: 'カスタム', value: 'custom' },
 ]
 
 const weekDays = [
@@ -210,18 +179,18 @@ const weekDays = [
   { text: '木曜日', value: 'thursday' },
   { text: '金曜日', value: 'friday' },
   { text: '土曜日', value: 'saturday' },
-  { text: '日曜日', value: 'sunday' }
+  { text: '日曜日', value: 'sunday' },
 ]
 
 // Validation rules
 const rules = {
   required: (value: string) => !!value || '必須項目です',
-  snoozeRange: (value: number) => (value >= 1 && value <= 60) || '1-60分の範囲で入力してください'
+  snoozeRange: (value: number) => (value >= 1 && value <= 60) || '1-60分の範囲で入力してください',
 }
 
 // Methods
 const selectAllDays = () => {
-  formData.value.days = weekDays.map(day => day.value as WeekDay)
+  formData.value.days = weekDays.map((day) => day.value as WeekDay)
 }
 
 const selectWeekdays = () => {
@@ -248,7 +217,7 @@ const resetForm = () => {
       message: props.reminder.message,
       sound: props.reminder.sound,
       snoozeEnabled: props.reminder.snoozeEnabled,
-      snoozeDuration: props.reminder.snoozeDuration
+      snoozeDuration: props.reminder.snoozeDuration,
     }
   } else {
     // 新規作成モード - デフォルト値を設定
@@ -261,7 +230,7 @@ const resetForm = () => {
       title: defaults.title,
       message: defaults.message,
       snoozeEnabled: true,
-      snoozeDuration: 10
+      snoozeDuration: 10,
     }
   }
 }
@@ -270,41 +239,41 @@ const getDefaultsByType = (type: ReminderType) => {
   const defaults = {
     diary_entry: {
       title: '日記を書く時間です',
-      message: '今日の目標の進捗を記録しましょう'
+      message: '今日の目標の進捗を記録しましょう',
     },
     goal_review: {
       title: '目標をレビューしましょう',
-      message: '設定した目標の進捗を確認しましょう'
+      message: '設定した目標の進捗を確認しましょう',
     },
     weekly_summary: {
       title: '週間振り返りの時間です',
-      message: '今週の成果を振り返ってみましょう'
+      message: '今週の成果を振り返ってみましょう',
     },
     monthly_summary: {
       title: '月間サマリーの確認',
-      message: '今月の目標達成度を確認しましょう'
+      message: '今月の目標達成度を確認しましょう',
     },
     custom: {
       title: 'リマインダー',
-      message: 'カスタムリマインダーです'
-    }
+      message: 'カスタムリマインダーです',
+    },
   }
-  
+
   return defaults[type] || defaults.custom
 }
 
 const handleSubmit = async () => {
   const { valid } = await formRef.value?.validate()
-  
+
   if (!valid) return
-  
+
   if (formData.value.days.length === 0) {
     // 曜日が選択されていない場合のバリデーション
     return
   }
 
   saving.value = true
-  
+
   try {
     emit('save', { ...formData.value })
   } finally {
@@ -317,20 +286,26 @@ const handleCancel = () => {
 }
 
 // Watch for type changes to update default title/message
-watch(() => formData.value.type, (newType) => {
-  if (!isEditing.value) {
-    const defaults = getDefaultsByType(newType)
-    formData.value.title = defaults.title
-    formData.value.message = defaults.message
-  }
-})
+watch(
+  () => formData.value.type,
+  (newType) => {
+    if (!isEditing.value) {
+      const defaults = getDefaultsByType(newType)
+      formData.value.title = defaults.title
+      formData.value.message = defaults.message
+    }
+  },
+)
 
 // Watch for dialog opening to reset form
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen) {
-    resetForm()
-  }
-})
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen) {
+      resetForm()
+    }
+  },
+)
 </script>
 
 <style scoped>

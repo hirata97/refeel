@@ -298,10 +298,7 @@ export class AuditLogger {
       AuditEventType.PASSWORD_POLICY_VIOLATION,
     ]
 
-    const mediumEvents = [
-      AuditEventType.AUTH_FAILED_LOGIN,
-      AuditEventType.AUTH_MASS_LOGOUT,
-    ]
+    const mediumEvents = [AuditEventType.AUTH_FAILED_LOGIN, AuditEventType.AUTH_MASS_LOGOUT]
 
     if (criticalEvents.includes(eventType)) {
       return AuditEventSeverity.CRITICAL

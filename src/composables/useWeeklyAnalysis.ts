@@ -107,19 +107,19 @@ export function useWeeklyAnalysis() {
   // ユーティリティ関数
   const getWeekRange = (weekOffset: number = 0) => {
     const now = new Date()
-    
+
     // 今週の開始日（月曜日）を計算
     const dayOfWeek = now.getDay()
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
     const monday = new Date(now)
-    monday.setDate(now.getDate() + mondayOffset - (weekOffset * 7))
+    monday.setDate(now.getDate() + mondayOffset - weekOffset * 7)
     monday.setHours(0, 0, 0, 0)
-    
+
     // 今週の終了日（日曜日）を計算
     const sunday = new Date(monday)
     sunday.setDate(monday.getDate() + 6)
     sunday.setHours(23, 59, 59, 999)
-    
+
     return {
       start: monday,
       end: sunday,
@@ -148,26 +148,33 @@ export function useWeeklyAnalysis() {
   }
 
   // 週間気分データの作成
-  const createWeeklyMoodData = (diaries: DiaryEntry[], weekRange: ReturnType<typeof getWeekRange>): WeeklyMoodData[] => {
+  const createWeeklyMoodData = (
+    diaries: DiaryEntry[],
+    weekRange: ReturnType<typeof getWeekRange>,
+  ): WeeklyMoodData[] => {
     const moodData: WeeklyMoodData[] = []
-    
+
     // 1週間の各日について処理
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekRange.start)
       date.setDate(weekRange.start.getDate() + i)
       const dateString = date.toISOString().split('T')[0]
-      
+
       // その日の日記を検索
-      const dayDiaries = diaries.filter(diary => {
+      const dayDiaries = diaries.filter((diary) => {
         const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
         return diaryDate === dateString
       })
-      
+
       // その日の平均気分スコアを計算
-      const averageMood = dayDiaries.length > 0
-        ? Math.round(dayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / dayDiaries.length * 10) / 10
-        : 0
-      
+      const averageMood =
+        dayDiaries.length > 0
+          ? Math.round(
+              (dayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / dayDiaries.length) *
+                10,
+            ) / 10
+          : 0
+
       moodData.push({
         date: dateString,
         mood: averageMood,
@@ -175,7 +182,7 @@ export function useWeeklyAnalysis() {
         dayOfWeek: getDayOfWeekLabel(date),
       })
     }
-    
+
     return moodData
   }
 
@@ -189,22 +196,22 @@ export function useWeeklyAnalysis() {
   // 週間進捗データの作成
   const createWeeklyProgressData = (diaries: DiaryEntry[]): WeeklyProgressData[] => {
     const progressByCategory: Record<string, { sum: number; count: number }> = {}
-    
-    diaries.forEach(diary => {
+
+    diaries.forEach((diary) => {
       const category = diary.goal_category
       const progress = diary.progress_level || 0
-      
+
       if (!progressByCategory[category]) {
         progressByCategory[category] = { sum: 0, count: 0 }
       }
       progressByCategory[category].sum += progress
       progressByCategory[category].count++
     })
-    
+
     return Object.entries(progressByCategory)
       .map(([goalCategory, data]) => ({
         goalCategory,
-        averageProgress: Math.round(data.sum / data.count * 10) / 10,
+        averageProgress: Math.round((data.sum / data.count) * 10) / 10,
         entries: data.count,
         trend: 'stable' as const, // 実際は前週との比較で決定
       }))
@@ -215,16 +222,18 @@ export function useWeeklyAnalysis() {
   const generateAnalysisComments = (
     moodData: WeeklyMoodData[],
     emotionTags: WeeklyEmotionTag[],
-    progressData: WeeklyProgressData[]
+    progressData: WeeklyProgressData[],
   ): WeeklyAnalysisComment[] => {
     const comments: WeeklyAnalysisComment[] = []
-    
+
     // 気分に関するコメント
-    const validMoods = moodData.filter(d => d.mood > 0)
+    const validMoods = moodData.filter((d) => d.mood > 0)
     if (validMoods.length > 0) {
       const averageMood = validMoods.reduce((sum, d) => sum + d.mood, 0) / validMoods.length
-      const highestDay = validMoods.reduce((prev, current) => prev.mood > current.mood ? prev : current)
-      
+      const highestDay = validMoods.reduce((prev, current) =>
+        prev.mood > current.mood ? prev : current,
+      )
+
       if (averageMood >= 7) {
         comments.push({
           type: 'mood',
@@ -247,7 +256,7 @@ export function useWeeklyAnalysis() {
           color: 'warning',
         })
       }
-      
+
       comments.push({
         type: 'mood',
         message: `${highestDay.dayOfWeek}曜日（${highestDay.label}）の気分が特に良好でした`,
@@ -255,7 +264,7 @@ export function useWeeklyAnalysis() {
         color: 'success',
       })
     }
-    
+
     // 感情タグに関するコメント
     if (emotionTags.length > 0) {
       const dominantEmotion = emotionTags[0]
@@ -266,7 +275,7 @@ export function useWeeklyAnalysis() {
         color: 'info',
       })
     }
-    
+
     // 進捗に関するコメント
     if (progressData.length > 0) {
       const bestCategory = progressData[0]
@@ -277,28 +286,35 @@ export function useWeeklyAnalysis() {
         color: 'success',
       })
     }
-    
+
     return comments
   }
 
   // 統計データの計算
-  const calculateWeeklyStats = (moodData: WeeklyMoodData[], diaries: DiaryEntry[], emotionTags: WeeklyEmotionTag[]) => {
-    const validMoods = moodData.filter(d => d.mood > 0)
-    const moods = validMoods.map(d => d.mood)
-    
+  const calculateWeeklyStats = (
+    moodData: WeeklyMoodData[],
+    diaries: DiaryEntry[],
+    emotionTags: WeeklyEmotionTag[],
+  ) => {
+    const validMoods = moodData.filter((d) => d.mood > 0)
+    const moods = validMoods.map((d) => d.mood)
+
     const mostActiveDay = moodData.reduce((prev, current) => {
-      const prevEntries = diaries.filter(d => 
-        new Date(d.created_at).toISOString().split('T')[0] === prev.date
+      const prevEntries = diaries.filter(
+        (d) => new Date(d.created_at).toISOString().split('T')[0] === prev.date,
       ).length
-      const currentEntries = diaries.filter(d => 
-        new Date(d.created_at).toISOString().split('T')[0] === current.date
+      const currentEntries = diaries.filter(
+        (d) => new Date(d.created_at).toISOString().split('T')[0] === current.date,
       ).length
       return currentEntries > prevEntries ? current : prev
     })
-    
+
     return {
       totalEntries: diaries.length,
-      averageMood: moods.length > 0 ? Math.round(moods.reduce((a, b) => a + b, 0) / moods.length * 10) / 10 : 0,
+      averageMood:
+        moods.length > 0
+          ? Math.round((moods.reduce((a, b) => a + b, 0) / moods.length) * 10) / 10
+          : 0,
       highestMood: moods.length > 0 ? Math.max(...moods) : 0,
       lowestMood: moods.length > 0 ? Math.min(...moods) : 0,
       mostActiveDay: mostActiveDay.dayOfWeek,
@@ -319,13 +335,13 @@ export function useWeeklyAnalysis() {
       selectedWeekOffset.value = weekOffset
 
       const weekRange = getWeekRange(weekOffset)
-      
+
       // 日記データを取得（指定された週の範囲で絞り込み）
       await dataStore.fetchDiaries(authStore.user.id, true)
       const allDiaries = dataStore.sortedDiaries
-      
+
       // 指定された週の日記のみフィルタリング
-      const weeklyDiaries = allDiaries.filter(diary => {
+      const weeklyDiaries = allDiaries.filter((diary) => {
         const diaryDate = new Date(diary.created_at)
         return diaryDate >= weekRange.start && diaryDate <= weekRange.end
       })
@@ -350,7 +366,6 @@ export function useWeeklyAnalysis() {
         comments,
         stats,
       }
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '週間データの取得に失敗しました'
       error.value.overall = errorMessage
@@ -372,11 +387,11 @@ export function useWeeklyAnalysis() {
   // Chart.jsデータ形式への変換
   const chartData = computed(() => {
     return {
-      labels: reflectionData.value.moodData.map(point => `${point.dayOfWeek}(${point.label})`),
+      labels: reflectionData.value.moodData.map((point) => `${point.dayOfWeek}(${point.label})`),
       datasets: [
         {
           label: '気分スコア',
-          data: reflectionData.value.moodData.map(point => point.mood),
+          data: reflectionData.value.moodData.map((point) => point.mood),
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           tension: 0.1,
@@ -419,11 +434,21 @@ export function useWeeklyAnalysis() {
   })
 
   const hasError = computed(() => {
-    return !!(error.value.overall || error.value.moodData || error.value.emotionTags || error.value.progressData)
+    return !!(
+      error.value.overall ||
+      error.value.moodData ||
+      error.value.emotionTags ||
+      error.value.progressData
+    )
   })
 
   const isLoading = computed(() => {
-    return !!(loading.value.overall || loading.value.moodData || loading.value.emotionTags || loading.value.progressData)
+    return !!(
+      loading.value.overall ||
+      loading.value.moodData ||
+      loading.value.emotionTags ||
+      loading.value.progressData
+    )
   })
 
   return {
@@ -432,19 +457,19 @@ export function useWeeklyAnalysis() {
     loading: computed(() => loading.value),
     error: computed(() => error.value),
     selectedWeekOffset: computed(() => selectedWeekOffset.value),
-    
+
     // 計算プロパティ
     hasData,
     hasError,
     isLoading,
     chartData,
     chartOptions,
-    
+
     // メソッド
     fetchWeeklyReflection,
     changeWeek,
     refresh,
-    
+
     // ユーティリティ
     getWeekLabel,
     getWeekRange,

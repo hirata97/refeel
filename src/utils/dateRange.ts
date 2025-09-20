@@ -1,6 +1,6 @@
 /**
  * 日付範囲ユーティリティ
- * 
+ *
  * Issue #40: レポート機能の期間選択機能
  */
 
@@ -39,7 +39,7 @@ export const getWeekStart = (date: Date = new Date()): string => {
 export const getWeekEnd = (date: Date = new Date()): string => {
   const d = new Date(date)
   const day = d.getDay()
-  const diff = d.getDate() + (7 - day) % 7
+  const diff = d.getDate() + ((7 - day) % 7)
   d.setDate(diff)
   return d.toISOString().split('T')[0]
 }
@@ -80,8 +80,8 @@ export const dateRangePresets: PresetDateRange[] = [
     label: '今日',
     getRange: () => ({
       startDate: getToday(),
-      endDate: getToday()
-    })
+      endDate: getToday(),
+    }),
   },
   {
     id: 'yesterday',
@@ -90,17 +90,17 @@ export const dateRangePresets: PresetDateRange[] = [
       const yesterday = getDaysAgo(1)
       return {
         startDate: yesterday,
-        endDate: yesterday
+        endDate: yesterday,
       }
-    }
+    },
   },
   {
     id: 'thisWeek',
     label: '今週',
     getRange: () => ({
       startDate: getWeekStart(),
-      endDate: getWeekEnd()
-    })
+      endDate: getWeekEnd(),
+    }),
   },
   {
     id: 'lastWeek',
@@ -110,17 +110,17 @@ export const dateRangePresets: PresetDateRange[] = [
       lastWeekDate.setDate(lastWeekDate.getDate() - 7)
       return {
         startDate: getWeekStart(lastWeekDate),
-        endDate: getWeekEnd(lastWeekDate)
+        endDate: getWeekEnd(lastWeekDate),
       }
-    }
+    },
   },
   {
     id: 'thisMonth',
     label: '今月',
     getRange: () => ({
       startDate: getMonthStart(),
-      endDate: getMonthEnd()
-    })
+      endDate: getMonthEnd(),
+    }),
   },
   {
     id: 'lastMonth',
@@ -130,57 +130,57 @@ export const dateRangePresets: PresetDateRange[] = [
       lastMonthDate.setMonth(lastMonthDate.getMonth() - 1)
       return {
         startDate: getMonthStart(lastMonthDate),
-        endDate: getMonthEnd(lastMonthDate)
+        endDate: getMonthEnd(lastMonthDate),
       }
-    }
+    },
   },
   {
     id: 'last7Days',
     label: '過去7日間',
     getRange: () => ({
       startDate: getDaysAgo(6),
-      endDate: getToday()
-    })
+      endDate: getToday(),
+    }),
   },
   {
     id: 'last30Days',
     label: '過去30日間',
     getRange: () => ({
       startDate: getDaysAgo(29),
-      endDate: getToday()
-    })
+      endDate: getToday(),
+    }),
   },
   {
     id: 'last3Months',
     label: '過去3ヶ月',
     getRange: () => ({
       startDate: getMonthsAgo(3),
-      endDate: getToday()
-    })
+      endDate: getToday(),
+    }),
   },
   {
     id: 'last6Months',
     label: '過去6ヶ月',
     getRange: () => ({
       startDate: getMonthsAgo(6),
-      endDate: getToday()
-    })
+      endDate: getToday(),
+    }),
   },
   {
     id: 'lastYear',
     label: '過去1年',
     getRange: () => ({
       startDate: getMonthsAgo(12),
-      endDate: getToday()
-    })
-  }
+      endDate: getToday(),
+    }),
+  },
 ]
 
 /**
  * プリセットIDから期間を取得
  */
 export const getPresetRange = (presetId: string): DateRange | null => {
-  const preset = dateRangePresets.find(p => p.id === presetId)
+  const preset = dateRangePresets.find((p) => p.id === presetId)
   return preset ? preset.getRange() : null
 }
 
@@ -190,12 +190,12 @@ export const getPresetRange = (presetId: string): DateRange | null => {
 export const validateDateRange = (range: DateRange): boolean => {
   const start = new Date(range.startDate)
   const end = new Date(range.endDate)
-  
+
   // 日付の妥当性
   if (isNaN(start.getTime()) || isNaN(end.getTime())) {
     return false
   }
-  
+
   // 開始日 <= 終了日
   return start <= end
 }
@@ -205,7 +205,7 @@ export const validateDateRange = (range: DateRange): boolean => {
  */
 export const getDaysBetween = (range: DateRange): number => {
   if (!validateDateRange(range)) return 0
-  
+
   const start = new Date(range.startDate)
   const end = new Date(range.endDate)
   const diffTime = end.getTime() - start.getTime()
@@ -218,22 +218,22 @@ export const getDaysBetween = (range: DateRange): number => {
 export const formatDateRange = (range: DateRange): string => {
   const start = new Date(range.startDate)
   const end = new Date(range.endDate)
-  
-  const startStr = start.toLocaleDateString('ja-JP', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+
+  const startStr = start.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   })
-  
-  const endStr = end.toLocaleDateString('ja-JP', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+
+  const endStr = end.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   })
-  
+
   if (range.startDate === range.endDate) {
     return startStr
   }
-  
+
   return `${startStr} ～ ${endStr}`
 }

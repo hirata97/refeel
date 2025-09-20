@@ -10,23 +10,15 @@
   >
     <v-card v-if="diary" class="diary-detail-modal">
       <!-- ヘッダー -->
-      <v-toolbar
-        color="primary"
-        dark
-        class="diary-header"
-      >
-        <v-btn
-          icon="mdi-close"
-          @click="closeDiary"
-          aria-label="詳細モーダルを閉じる"
-        />
-        
+      <v-toolbar color="primary" dark class="diary-header">
+        <v-btn icon="mdi-close" @click="closeDiary" aria-label="詳細モーダルを閉じる" />
+
         <v-toolbar-title class="diary-title">
           {{ diary.title }}
         </v-toolbar-title>
-        
+
         <v-spacer />
-        
+
         <!-- ナビゲーションボタン -->
         <v-btn
           icon="mdi-chevron-left"
@@ -34,24 +26,20 @@
           @click="navigatePrevious"
           aria-label="前の日記"
         />
-        
+
         <v-btn
           icon="mdi-chevron-right"
           :disabled="!hasNext"
           @click="navigateNext"
           aria-label="次の日記"
         />
-        
+
         <!-- アクションメニュー -->
         <v-menu>
           <template #activator="{ props }">
-            <v-btn
-              icon="mdi-dots-vertical"
-              v-bind="props"
-              aria-label="アクションメニュー"
-            />
+            <v-btn icon="mdi-dots-vertical" v-bind="props" aria-label="アクションメニュー" />
           </template>
-          
+
           <v-list>
             <v-list-item @click="editDiary">
               <template #prepend>
@@ -59,14 +47,14 @@
               </template>
               <v-list-item-title>編集</v-list-item-title>
             </v-list-item>
-            
+
             <v-list-item @click="copyContent">
               <template #prepend>
                 <v-icon icon="mdi-content-copy" />
               </template>
               <v-list-item-title>内容をコピー</v-list-item-title>
             </v-list-item>
-            
+
             <v-list-item @click="toggleFavorite">
               <template #prepend>
                 <v-icon :icon="(diary as any).is_favorite ? 'mdi-heart' : 'mdi-heart-outline'" />
@@ -78,7 +66,7 @@
           </v-list>
         </v-menu>
       </v-toolbar>
-      
+
       <!-- メタデータ -->
       <v-card-subtitle class="diary-metadata pa-4">
         <v-row no-gutters class="align-center">
@@ -92,7 +80,7 @@
               進捗 {{ diary.progress_level }}%
             </v-chip>
           </v-col>
-          
+
           <v-col cols="auto" class="me-4">
             <v-chip
               color="primary"
@@ -103,41 +91,26 @@
               {{ diary.goal_category }}
             </v-chip>
           </v-col>
-          
+
           <v-col cols="auto" class="me-4">
-            <v-chip
-              color="info"
-              size="small"
-              variant="outlined"
-              prepend-icon="mdi-calendar"
-            >
+            <v-chip color="info" size="small" variant="outlined" prepend-icon="mdi-calendar">
               {{ formatDate(diary.created_at) }}
             </v-chip>
           </v-col>
-          
+
           <v-col cols="auto" class="me-4">
-            <v-chip
-              color="secondary"
-              size="small"
-              variant="outlined"
-              prepend-icon="mdi-text"
-            >
+            <v-chip color="secondary" size="small" variant="outlined" prepend-icon="mdi-text">
               {{ contentLength }}文字
             </v-chip>
           </v-col>
-          
+
           <v-col cols="auto" v-if="diary.updated_at !== diary.created_at">
-            <v-chip
-              color="warning"
-              size="small"
-              variant="outlined"
-              prepend-icon="mdi-pencil"
-            >
+            <v-chip color="warning" size="small" variant="outlined" prepend-icon="mdi-pencil">
               {{ formatDate(diary.updated_at) }} 更新
             </v-chip>
           </v-col>
         </v-row>
-        
+
         <!-- 気分スコア表示 -->
         <v-row v-if="(diary as any).mood_score !== undefined" class="mt-2" no-gutters>
           <v-col cols="auto" class="align-center d-flex">
@@ -154,7 +127,7 @@
           </v-col>
         </v-row>
       </v-card-subtitle>
-      
+
       <!-- 進捗バー -->
       <v-card-text class="pa-4 pb-0">
         <v-progress-linear
@@ -167,7 +140,7 @@
           <strong>{{ diary.progress_level }}%</strong>
         </v-progress-linear>
       </v-card-text>
-      
+
       <!-- メインコンテンツ -->
       <v-card-text class="diary-content-wrapper pa-4">
         <div
@@ -175,7 +148,7 @@
           :style="{ fontSize: fontSize + 'px' }"
           v-html="formattedContent"
         />
-        
+
         <!-- フォントサイズ調整 -->
         <v-card class="font-size-controls mt-4" flat outlined>
           <v-card-text class="py-2">
@@ -195,46 +168,24 @@
                 />
               </v-col>
               <v-col cols="auto">
-                <v-btn
-                  size="small"
-                  variant="text"
-                  @click="resetFontSize"
-                >
-                  リセット
-                </v-btn>
+                <v-btn size="small" variant="text" @click="resetFontSize"> リセット </v-btn>
               </v-col>
             </v-row>
           </v-card-text>
         </v-card>
       </v-card-text>
-      
+
       <!-- フッターアクション -->
       <v-card-actions class="diary-footer pa-4">
-        <v-btn
-          variant="outlined"
-          color="warning"
-          @click="editDiary"
-          prepend-icon="mdi-pencil"
-        >
+        <v-btn variant="outlined" color="warning" @click="editDiary" prepend-icon="mdi-pencil">
           編集
         </v-btn>
-        
-        <v-btn
-          variant="text"
-          @click="copyContent"
-          prepend-icon="mdi-content-copy"
-        >
-          コピー
-        </v-btn>
-        
+
+        <v-btn variant="text" @click="copyContent" prepend-icon="mdi-content-copy"> コピー </v-btn>
+
         <v-spacer />
-        
-        <v-btn
-          variant="text"
-          @click="closeDiary"
-        >
-          閉じる
-        </v-btn>
+
+        <v-btn variant="text" @click="closeDiary"> 閉じる </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -281,7 +232,7 @@ const contentLength = computed(() => {
 
 const formattedContent = computed(() => {
   if (!props.diary?.content) return ''
-  
+
   // 改行を<br>に変換し、段落を適切に表示
   return props.diary.content
     .replace(/\n\n+/g, '</p><p>')
@@ -330,7 +281,7 @@ const editDiary = () => {
 
 const copyContent = async () => {
   if (!props.diary?.content) return
-  
+
   try {
     await navigator.clipboard.writeText(props.diary.content)
     // TODO: スナックバー通知を追加
@@ -425,7 +376,7 @@ watch(isVisible, (newValue) => {
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .diary-metadata .v-col {
     width: 100%;
   }
@@ -438,11 +389,11 @@ watch(isVisible, (newValue) => {
   .font-size-controls {
     display: none !important;
   }
-  
+
   .diary-content-wrapper {
     overflow: visible;
   }
-  
+
   .diary-content {
     font-size: 12pt;
     line-height: 1.6;
@@ -467,7 +418,7 @@ watch(isVisible, (newValue) => {
   .diary-footer {
     border-color: rgba(var(--v-theme-outline), 0.38);
   }
-  
+
   .progress-bar {
     border: 1px solid rgba(var(--v-theme-outline), 0.38);
   }

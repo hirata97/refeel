@@ -84,7 +84,7 @@
             </v-btn-toggle>
           </v-card-text>
         </v-card>
-        
+
         <!-- 気分理由入力フィールド（気分が選択された場合に表示） -->
         <v-text-field
           v-if="mood"
@@ -99,15 +99,12 @@
         />
 
         <!-- 感情タグ選択コンポーネント -->
-        <EmotionTagSelector
-          v-model="selectedEmotionTags"
-          class="mt-4"
-        />
-        
-        <v-btn 
-          type="submit" 
-          color="primary" 
-          block 
+        <EmotionTagSelector v-model="selectedEmotionTags" class="mt-4" />
+
+        <v-btn
+          type="submit"
+          color="primary"
+          block
           :loading="isSubmitting || loadingStore.isLoading('create_diary')"
         >
           日記を追加
@@ -136,7 +133,6 @@ const notificationStore = useNotificationStore()
 const loadingStore = useLoadingStore()
 const emotionTagsStore = useEmotionTagsStore()
 const performance = usePerformanceMonitor()
-
 
 // 新しい気分理由フィールド（すべてのテンプレートで使用）
 const moodReason = ref<string>('')
@@ -187,10 +183,7 @@ onMounted(() => {
 const addDiary = async (): Promise<void> => {
   // 認証状態を再確認
   if (!authStore.isAuthenticated || !authStore.user) {
-    notificationStore.showError(
-      '認証が必要です',
-      'ログインしてください。'
-    )
+    notificationStore.showError('認証が必要です', 'ログインしてください。')
     router.push('/login')
     return
   }
@@ -202,7 +195,6 @@ const addDiary = async (): Promise<void> => {
       if (!sanitizedData) return
 
       performance.start('create_diary')
-      
 
       // データストアを使用した最適化された作成処理
       const diaryData = {
@@ -217,7 +209,7 @@ const addDiary = async (): Promise<void> => {
       }
 
       const newDiary = await dataStore.createDiary(diaryData)
-      
+
       // 感情タグがある場合は関連付けを保存
       if (selectedEmotionTags.value.length > 0) {
         try {
@@ -227,24 +219,21 @@ const addDiary = async (): Promise<void> => {
           // 感情タグ保存失敗でも日記作成は成功扱いとする
           notificationStore.showError(
             '感情タグの保存に失敗しました',
-            '日記は作成されましたが、感情タグの保存に失敗しました。'
+            '日記は作成されましたが、感情タグの保存に失敗しました。',
           )
         }
       }
-      
+
       performance.end('create_diary')
-      
+
       // 成功メッセージ
-      notificationStore.showSuccess(
-        '日記が登録されました！',
-        'ダッシュボードに移動します。'
-      )
-      
+      notificationStore.showSuccess('日記が登録されました！', 'ダッシュボードに移動します。')
+
       // フォームリセット
       resetForm()
       moodReason.value = '' // 気分理由フィールドをリセット
       selectedEmotionTags.value = [] // 感情タグ選択もリセット
-      
+
       // オプション: ダッシュボードにリダイレクト
       router.push('/dashboard')
     })
@@ -252,7 +241,7 @@ const addDiary = async (): Promise<void> => {
     console.error('日記作成エラー:', error)
     notificationStore.showError(
       '日記の作成に失敗しました',
-      error instanceof Error ? error.message : 'Unknown error'
+      error instanceof Error ? error.message : 'Unknown error',
     )
   }
 }

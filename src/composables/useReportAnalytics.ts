@@ -1,6 +1,6 @@
 /**
  * レポート分析機能のコンポーザブル
- * 
+ *
  * Issue #40: レポート機能の大幅拡張
  */
 
@@ -17,11 +17,7 @@ interface UseReportAnalyticsOptions {
 }
 
 export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
-  const {
-    defaultPreset = 'last30Days',
-    autoRefresh = true,
-    enableCache = true
-  } = options
+  const { defaultPreset = 'last30Days', autoRefresh = true, enableCache = true } = options
 
   // 状態管理
   const loading = ref(false)
@@ -38,7 +34,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
     if (range) {
       currentPeriod.value = {
         range,
-        preset: defaultPreset
+        preset: defaultPreset,
       }
     }
   }
@@ -61,7 +57,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
     try {
       const cacheKey = getCacheKey(targetPeriod)
-      
+
       // キャッシュチェック
       if (enableCache && cache[cacheKey]) {
         analyticsResult.value = cache[cacheKey]
@@ -71,7 +67,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
       // 分析実行
       const result = await generateAnalyticsReport(targetPeriod)
-      
+
       // 結果を保存
       analyticsResult.value = result
       if (enableCache) {
@@ -102,7 +98,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
     if (range) {
       await updatePeriod({
         range,
-        preset: presetId
+        preset: presetId,
       })
     }
   }
@@ -114,7 +110,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
   // キャッシュをクリア
   const clearCache = () => {
-    Object.keys(cache).forEach(key => {
+    Object.keys(cache).forEach((key) => {
       delete cache[key]
     })
   }
@@ -127,17 +123,19 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
     const { weeklyPattern } = analyticsResult.value.frequency
     const weekdays = ['月', '火', '水', '木', '金', '土', '日']
-    
+
     return {
       labels: weekdays,
-      datasets: [{
-        label: '投稿数',
-        data: weekdays.map(day => weeklyPattern[day] || 0),
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 2,
-        tension: 0.1
-      }]
+      datasets: [
+        {
+          label: '投稿数',
+          data: weekdays.map((day) => weeklyPattern[day] || 0),
+          backgroundColor: 'rgba(54, 162, 235, 0.2)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 2,
+          tension: 0.1,
+        },
+      ],
     }
   })
 
@@ -147,18 +145,20 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
     const { weeklyAverage } = analyticsResult.value.mood
     const weekdays = ['月', '火', '水', '木', '金', '土', '日']
-    
+
     return {
       labels: weekdays,
-      datasets: [{
-        label: '平均気分スコア',
-        data: weekdays.map(day => weeklyAverage[day] || 0),
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 2,
-        tension: 0.1,
-        fill: true
-      }]
+      datasets: [
+        {
+          label: '平均気分スコア',
+          data: weekdays.map((day) => weeklyAverage[day] || 0),
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 2,
+          tension: 0.1,
+          fill: true,
+        },
+      ],
     }
   })
 
@@ -168,16 +168,18 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
     const { hourlyPattern } = analyticsResult.value.time
     const hours = Array.from({ length: 24 }, (_, i) => `${i}:00`)
-    
+
     return {
       labels: hours,
-      datasets: [{
-        label: '投稿数',
-        data: hours.map((_, i) => hourlyPattern[i.toString()] || 0),
-        backgroundColor: 'rgba(153, 102, 255, 0.2)',
-        borderColor: 'rgba(153, 102, 255, 1)',
-        borderWidth: 2
-      }]
+      datasets: [
+        {
+          label: '投稿数',
+          data: hours.map((_, i) => hourlyPattern[i.toString()] || 0),
+          backgroundColor: 'rgba(153, 102, 255, 0.2)',
+          borderColor: 'rgba(153, 102, 255, 1)',
+          borderWidth: 2,
+        },
+      ],
     }
   })
 
@@ -187,30 +189,32 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
     const { lengthDistribution } = analyticsResult.value.content
     const labels = Object.keys(lengthDistribution).sort()
-    
+
     return {
-      labels: labels.map(label => label.replace('-', '〜') + '文字'),
-      datasets: [{
-        label: '投稿数',
-        data: labels.map(label => lengthDistribution[label] || 0),
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 205, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)'
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 205, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
-        ],
-        borderWidth: 1
-      }]
+      labels: labels.map((label) => label.replace('-', '〜') + '文字'),
+      datasets: [
+        {
+          label: '投稿数',
+          data: labels.map((label) => lengthDistribution[label] || 0),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.2)',
+            'rgba(54, 162, 235, 0.2)',
+            'rgba(255, 205, 86, 0.2)',
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+          ],
+          borderColor: [
+            'rgba(255, 99, 132, 1)',
+            'rgba(54, 162, 235, 1)',
+            'rgba(255, 205, 86, 1)',
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+          ],
+          borderWidth: 1,
+        },
+      ],
     }
   })
 
@@ -219,49 +223,49 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
     if (!analyticsResult.value) return null
 
     const result = analyticsResult.value
-    
+
     return {
       frequency: [
         {
           label: '総投稿数',
           value: result.continuity.totalActiveDays,
-          color: 'primary'
+          color: 'primary',
         },
         {
           label: '週平均投稿',
           value: `${result.continuity.averageFrequency}回`,
-          color: 'success'
-        }
+          color: 'success',
+        },
       ],
       mood: [
         {
           label: '平均気分',
           value: result.mood.average,
-          color: 'info'
+          color: 'info',
         },
         {
           label: '最高気分',
           value: result.mood.max,
-          color: 'success'
+          color: 'success',
         },
         {
           label: '最低気分',
           value: result.mood.min,
-          color: 'warning'
-        }
+          color: 'warning',
+        },
       ],
       continuity: [
         {
           label: '現在の連続記録',
           value: `${result.continuity.currentStreak}日`,
-          color: 'success'
+          color: 'success',
         },
         {
           label: '最長連続記録',
           value: `${result.continuity.longestStreak}日`,
-          color: 'primary'
-        }
-      ]
+          color: 'primary',
+        },
+      ],
     }
   })
 
@@ -273,7 +277,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
         generateReport(newPeriod)
       }
     },
-    { deep: true }
+    { deep: true },
   )
 
   // 初期化
@@ -285,24 +289,24 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
     error,
     currentPeriod,
     analyticsResult,
-    
+
     // アクション
     generateReport,
     updatePeriod,
     setPresetPeriod,
     setCustomPeriod,
     clearCache,
-    
+
     // チャートデータ
     weeklyFrequencyChartData,
     moodTrendChartData,
     hourlyPostsChartData,
     lengthDistributionChartData,
-    
+
     // 統計データ
     statisticsSummary,
-    
+
     // ユーティリティ
-    presets: dateRangePresets
+    presets: dateRangePresets,
   }
 }

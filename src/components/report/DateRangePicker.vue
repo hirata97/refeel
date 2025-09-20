@@ -5,7 +5,7 @@
         <v-icon class="me-2">mdi-calendar-range</v-icon>
         期間選択
       </v-card-title>
-      
+
       <v-card-text>
         <!-- プリセット期間 -->
         <div class="preset-section mb-4">
@@ -76,9 +76,7 @@
                 <div v-if="isValidRange" class="text-caption">
                   {{ getDaysBetween(dateRange) }}日間の期間
                 </div>
-                <div v-else class="text-caption">
-                  無効な期間です
-                </div>
+                <div v-else class="text-caption">無効な期間です</div>
               </div>
             </div>
           </v-alert>
@@ -86,18 +84,8 @@
       </v-card-text>
 
       <v-card-actions class="justify-end">
-        <v-btn
-          variant="text"
-          @click="resetToDefault"
-        >
-          リセット
-        </v-btn>
-        <v-btn
-          :disabled="!isValidRange"
-          color="primary"
-          variant="elevated"
-          @click="applyRange"
-        >
+        <v-btn variant="text" @click="resetToDefault"> リセット </v-btn>
+        <v-btn :disabled="!isValidRange" color="primary" variant="elevated" @click="applyRange">
           適用
         </v-btn>
       </v-card-actions>
@@ -108,12 +96,12 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import type { DateRange } from '@/types/report'
-import { 
-  dateRangePresets, 
-  getToday, 
-  validateDateRange, 
-  getDaysBetween, 
-  formatDateRange 
+import {
+  dateRangePresets,
+  getToday,
+  validateDateRange,
+  getDaysBetween,
+  formatDateRange,
 } from '@/utils/dateRange'
 
 interface Props {
@@ -128,7 +116,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: undefined,
-  defaultPreset: 'last30Days'
+  defaultPreset: 'last30Days',
 })
 
 const emit = defineEmits<Emits>()
@@ -146,7 +134,7 @@ const dateRange = computed<DateRange | null>(() => {
   if (customStartDate.value && customEndDate.value) {
     return {
       startDate: customStartDate.value,
-      endDate: customEndDate.value
+      endDate: customEndDate.value,
     }
   }
   return null
@@ -160,13 +148,13 @@ const isValidRange = computed(() => {
 // プリセット選択ハンドラー
 const onPresetSelect = (index: number | null) => {
   if (index === null || index < 0) return
-  
+
   const preset = availablePresets.value[index]
   if (preset) {
     const range = preset.getRange()
     customStartDate.value = range.startDate
     customEndDate.value = range.endDate
-    
+
     if (isValidRange.value && dateRange.value) {
       emit('update:modelValue', dateRange.value)
     }
@@ -177,7 +165,7 @@ const onPresetSelect = (index: number | null) => {
 const onCustomDateChange = () => {
   // プリセット選択をクリア
   selectedPresetIndex.value = null
-  
+
   if (isValidRange.value && dateRange.value) {
     emit('update:modelValue', dateRange.value)
   }
@@ -192,10 +180,8 @@ const applyRange = () => {
 
 // リセット
 const resetToDefault = () => {
-  const defaultPresetIndex = availablePresets.value.findIndex(
-    p => p.id === props.defaultPreset
-  )
-  
+  const defaultPresetIndex = availablePresets.value.findIndex((p) => p.id === props.defaultPreset)
+
   if (defaultPresetIndex !== -1) {
     selectedPresetIndex.value = defaultPresetIndex
     onPresetSelect(defaultPresetIndex)
@@ -208,14 +194,16 @@ const initialize = () => {
     // プロパティから初期値を設定
     customStartDate.value = props.modelValue.startDate
     customEndDate.value = props.modelValue.endDate
-    
+
     // 該当するプリセットがあるかチェック
-    const matchingPresetIndex = availablePresets.value.findIndex(preset => {
+    const matchingPresetIndex = availablePresets.value.findIndex((preset) => {
       const range = preset.getRange()
-      return range.startDate === props.modelValue!.startDate && 
-             range.endDate === props.modelValue!.endDate
+      return (
+        range.startDate === props.modelValue!.startDate &&
+        range.endDate === props.modelValue!.endDate
+      )
     })
-    
+
     if (matchingPresetIndex !== -1) {
       selectedPresetIndex.value = matchingPresetIndex
     }
@@ -229,15 +217,15 @@ const initialize = () => {
 watch(
   () => props.modelValue,
   (newValue) => {
-    if (newValue && (
-      newValue.startDate !== customStartDate.value ||
-      newValue.endDate !== customEndDate.value
-    )) {
+    if (
+      newValue &&
+      (newValue.startDate !== customStartDate.value || newValue.endDate !== customEndDate.value)
+    ) {
       customStartDate.value = newValue.startDate
       customEndDate.value = newValue.endDate
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 onMounted(() => {

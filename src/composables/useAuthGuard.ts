@@ -14,12 +14,7 @@ export interface AuthGuardOptions {
  * 認証状態をチェックし、適切なリダイレクトを行う
  */
 export function useAuthGuard(options: AuthGuardOptions = {}) {
-  const {
-    redirectTo = '/login',
-    requireAuth = true,
-    onAuthenticated,
-    onUnauthenticated
-  } = options
+  const { redirectTo = '/login', requireAuth = true, onAuthenticated, onUnauthenticated } = options
 
   const router = useRouter()
   const authStore = useAuthStore()
@@ -60,6 +55,6 @@ export function useAuthGuard(options: AuthGuardOptions = {}) {
     authStore,
     router,
     checkAuth,
-    isAuthenticated: () => authStore.isAuthenticated
+    isAuthenticated: () => authStore.isAuthenticated,
   }
 }

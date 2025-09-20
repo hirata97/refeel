@@ -7,15 +7,8 @@
 
     <v-card-text>
       <!-- 通知権限の状態 -->
-      <v-alert
-        v-if="!notificationStore.hasPermission"
-        type="info"
-        variant="tonal"
-        class="mb-4"
-      >
-        <template #text>
-          ブラウザの通知を受け取るには、通知の許可が必要です。
-        </template>
+      <v-alert v-if="!notificationStore.hasPermission" type="info" variant="tonal" class="mb-4">
+        <template #text> ブラウザの通知を受け取るには、通知の許可が必要です。 </template>
         <template #append>
           <v-btn
             color="primary"
@@ -29,14 +22,7 @@
         </template>
       </v-alert>
 
-      <v-alert
-        v-else
-        type="success"
-        variant="tonal"
-        class="mb-4"
-      >
-        通知の許可が有効です
-      </v-alert>
+      <v-alert v-else type="success" variant="tonal" class="mb-4"> 通知の許可が有効です </v-alert>
 
       <v-divider class="mb-4" />
 
@@ -157,12 +143,7 @@
               <li><strong>目標期限アラート:</strong> 設定した目標の期限が近づくとお知らせします</li>
               <li><strong>達成通知:</strong> 目標を達成したときにお祝いメッセージを表示します</li>
             </ul>
-            <v-alert
-              type="info"
-              variant="text"
-              density="compact"
-              class="mt-2"
-            >
+            <v-alert type="info" variant="text" density="compact" class="mt-2">
               ブラウザの通知設定も有効にしてください。
             </v-alert>
           </v-expansion-panel-text>
@@ -188,7 +169,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: () => ({})
+  modelValue: () => ({}),
 })
 
 const emit = defineEmits<Emits>()
@@ -201,7 +182,7 @@ const permissionLoading = ref(false)
 const testLoading = ref(false)
 const localSettings = ref<NotificationSettings>({
   ...notificationStore.settings,
-  ...props.modelValue
+  ...props.modelValue,
 })
 
 // Options
@@ -213,7 +194,7 @@ const timeOptions = [
   { title: '19:00', value: '19:00' },
   { title: '20:00', value: '20:00' },
   { title: '21:00', value: '21:00' },
-  { title: '22:00', value: '22:00' }
+  { title: '22:00', value: '22:00' },
 ]
 
 const dayOptions = [
@@ -223,7 +204,7 @@ const dayOptions = [
   { title: '水', value: 3 },
   { title: '木', value: 4 },
   { title: '金', value: 5 },
-  { title: '土', value: 6 }
+  { title: '土', value: 6 },
 ]
 
 // Methods
@@ -251,7 +232,9 @@ const updateSettings = async () => {
 const sendTestNotification = async () => {
   testLoading.value = true
   try {
-    await notificationStore.showNotification('Goal Categorization Diaryからのテスト通知です。設定が正しく動作しています！')
+    await notificationStore.showNotification(
+      'Goal Categorization Diaryからのテスト通知です。設定が正しく動作しています！',
+    )
   } catch (error) {
     console.error('テスト通知の送信に失敗:', error)
   } finally {
@@ -267,7 +250,7 @@ watch(
       localSettings.value = { ...localSettings.value, ...newValue }
     }
   },
-  { deep: true }
+  { deep: true },
 )
 
 watch(
@@ -275,7 +258,7 @@ watch(
   (newSettings) => {
     localSettings.value = { ...localSettings.value, ...newSettings }
   },
-  { deep: true }
+  { deep: true },
 )
 </script>
 

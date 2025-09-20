@@ -139,7 +139,7 @@ export const useThemeStore = defineStore('theme', () => {
 
         // Vuetifyテーマに即座に反映
         applyThemeToVuetify(selectedTheme.value)
-        
+
         // CSS変数も更新
         updateCSSVariables()
       }
@@ -221,7 +221,7 @@ export const useThemeStore = defineStore('theme', () => {
 
       // デザイントークンからCSS変数を生成
       const designTokenProperties = generateCSSCustomProperties()
-      
+
       // デザイントークンを適用
       Object.entries(designTokenProperties).forEach(([property, value]) => {
         root.style.setProperty(property, value)

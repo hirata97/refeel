@@ -99,7 +99,7 @@ const formattedValue = computed(() => {
   .value {
     font-size: 2rem;
   }
-  
+
   .stat-icon {
     display: none;
   }

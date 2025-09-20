@@ -6,12 +6,7 @@
         <h1 class="dashboard-title">ダッシュボード</h1>
         <p class="dashboard-description">あなたの振り返り活動の概要と詳細分析を確認できます</p>
       </div>
-      <v-btn
-        icon="mdi-refresh"
-        variant="text"
-        :loading="isLoading"
-        @click="refresh"
-      />
+      <v-btn icon="mdi-refresh" variant="text" :loading="isLoading" @click="refresh" />
     </header>
 
     <!-- タブナビゲーション -->
@@ -27,13 +22,7 @@
     </v-tabs>
 
     <!-- エラー表示 -->
-    <v-alert
-      v-if="hasError && !isLoading"
-      type="error"
-      variant="outlined"
-      class="mb-6"
-      dismissible
-    >
+    <v-alert v-if="hasError && !isLoading" type="error" variant="outlined" class="mb-6" dismissible>
       データの読み込みに失敗しました。リフレッシュボタンをお試しください。
     </v-alert>
 
@@ -111,7 +100,6 @@
         <DetailedAnalyticsSection />
       </v-window-item>
     </v-window>
-
   </v-container>
 </template>
 
@@ -133,7 +121,7 @@ useAuthGuard({
   onAuthenticated: async () => {
     // 認証成功時にダッシュボードデータを取得
     await fetchDashboardData()
-  }
+  },
 })
 
 // ダッシュボードデータコンポーザブル
@@ -151,8 +139,6 @@ const {
 } = useDashboardData()
 
 // 認証チェックとデータ取得は useAuthGuard で自動処理
-
-
 </script>
 
 <style scoped>
@@ -214,7 +200,7 @@ const {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .content-grid {
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   }
@@ -225,23 +211,23 @@ const {
   .dashboard-page {
     padding: 16px;
   }
-  
+
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
     margin-bottom: 24px;
   }
-  
+
   .dashboard-title {
     font-size: 2rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .content-grid {
     grid-template-columns: 1fr;
     gap: 20px;
@@ -253,11 +239,11 @@ const {
   .dashboard-page {
     padding: 12px;
   }
-  
+
   .dashboard-title {
     font-size: 1.75rem;
   }
-  
+
   .dashboard-description {
     font-size: 1rem;
   }

@@ -1,16 +1,7 @@
 <template>
-  <v-card 
-    :class="['stats-card', `stats-card--${variant}`]"
-    :loading="loading"
-    elevation="2"
-  >
+  <v-card :class="['stats-card', `stats-card--${variant}`]" :loading="loading" elevation="2">
     <v-card-title class="d-flex align-center">
-      <v-icon 
-        v-if="icon"
-        :color="iconColor" 
-        class="me-2"
-        size="large"
-      >
+      <v-icon v-if="icon" :color="iconColor" class="me-2" size="large">
         {{ icon }}
       </v-icon>
       <div class="flex-grow-1">
@@ -19,13 +10,7 @@
           {{ subtitle }}
         </div>
       </div>
-      <v-btn
-        v-if="showDetails"
-        icon
-        size="small"
-        variant="text"
-        @click="toggleExpanded"
-      >
+      <v-btn v-if="showDetails" icon size="small" variant="text" @click="toggleExpanded">
         <v-icon>
           {{ isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
         </v-icon>
@@ -35,9 +20,7 @@
     <v-card-text class="pb-2">
       <!-- メイン値表示 -->
       <div class="stats-main">
-        <div 
-          :class="['stats-value', `text-${valueColor}`]"
-        >
+        <div :class="['stats-value', `text-${valueColor}`]">
           {{ formattedMainValue }}
         </div>
         <div v-if="unit" class="stats-unit text-medium-emphasis">
@@ -46,10 +29,7 @@
       </div>
 
       <!-- 変化率表示 -->
-      <div 
-        v-if="change !== undefined" 
-        class="stats-change mt-2"
-      >
+      <div v-if="change !== undefined" class="stats-change mt-2">
         <v-chip
           :color="getChangeColor(change)"
           :prepend-icon="getChangeIcon(change)"
@@ -66,7 +46,7 @@
       <!-- サブ統計 -->
       <div v-if="subStats && subStats.length > 0" class="stats-sub mt-3">
         <v-row dense>
-          <v-col 
+          <v-col
             v-for="(stat, index) in subStats"
             :key="index"
             :cols="12 / Math.min(subStats.length, 3)"
@@ -92,20 +72,14 @@
           <div v-if="details" class="text-body-2">
             {{ details }}
           </div>
-          <div v-else class="text-center text-medium-emphasis">
-            詳細情報はありません
-          </div>
+          <div v-else class="text-center text-medium-emphasis">詳細情報はありません</div>
         </slot>
       </v-card-text>
     </v-expand-transition>
 
     <!-- エラー表示 -->
     <v-card-text v-if="error">
-      <v-alert
-        type="error"
-        density="compact"
-        variant="tonal"
-      >
+      <v-alert type="error" density="compact" variant="tonal">
         {{ error }}
       </v-alert>
     </v-card-text>
@@ -156,7 +130,7 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'default',
   valueColor: 'primary',
   loading: false,
-  error: undefined
+  error: undefined,
 })
 
 const emit = defineEmits<Emits>()
@@ -265,7 +239,7 @@ const toggleExpanded = () => {
   .stats-value {
     font-size: 2rem;
   }
-  
+
   .stats-main {
     flex-direction: column;
     gap: 4px;

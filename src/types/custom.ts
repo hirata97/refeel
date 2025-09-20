@@ -67,7 +67,6 @@ export interface DiaryFormData {
   date?: string
 }
 
-
 // API レスポンス型定義
 export interface PaginatedResponse<T> {
   data: T[]

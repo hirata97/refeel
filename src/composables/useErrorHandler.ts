@@ -39,21 +39,14 @@ export function useErrorHandler() {
   const hasError = computed(() => !!error.value && error.value.trim() !== '')
   const displayError = computed(() => {
     const errorValue = error.value
-    return (errorValue && errorValue.trim()) ? errorValue : null
+    return errorValue && errorValue.trim() ? errorValue : null
   })
 
   /**
    * 通知を表示
    */
-  const showNotification = (
-    message: string,
-    options: NotificationOptions = {}
-  ) => {
-    const {
-      type = 'info',
-      timeout = 5000,
-      icon
-    } = options
+  const showNotification = (message: string, options: NotificationOptions = {}) => {
+    const { type = 'info', timeout = 5000, icon } = options
 
     // アイコンの自動設定
     let notificationIcon = icon
@@ -156,12 +149,12 @@ export function useErrorHandler() {
       successMessage?: string
       errorMessage?: string
       showSuccessNotification?: boolean
-    }
+    },
   ): Promise<T | null> => {
     const {
       successMessage,
       errorMessage = '処理中にエラーが発生しました',
-      showSuccessNotification = false
+      showSuccessNotification = false,
     } = options || {}
 
     try {

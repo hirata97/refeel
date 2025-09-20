@@ -16,7 +16,7 @@ export const useLoadingStore = defineStore('loading', () => {
 
   // 何かがローディング中かどうか
   const hasAnyLoading = computed((): boolean => {
-    return globalLoading.value || Object.values(loadingStates.value).some(state => state)
+    return globalLoading.value || Object.values(loadingStates.value).some((state) => state)
   })
 
   const setLoading = (key: string, loading: boolean): void => {
@@ -32,10 +32,7 @@ export const useLoadingStore = defineStore('loading', () => {
   }
 
   // 非同期操作を自動的にローディング状態で包む
-  const withLoading = async <T>(
-    key: string,
-    operation: () => Promise<T>
-  ): Promise<T> => {
+  const withLoading = async <T>(key: string, operation: () => Promise<T>): Promise<T> => {
     try {
       setLoading(key, true)
       return await operation()
@@ -45,9 +42,7 @@ export const useLoadingStore = defineStore('loading', () => {
   }
 
   // グローバルローディング用のヘルパー
-  const withGlobalLoading = async <T>(
-    operation: () => Promise<T>
-  ): Promise<T> => {
+  const withGlobalLoading = async <T>(operation: () => Promise<T>): Promise<T> => {
     try {
       setGlobalLoading(true)
       return await operation()
@@ -61,11 +56,9 @@ export const useLoadingStore = defineStore('loading', () => {
     operations: Array<{
       key: string
       operation: () => Promise<T>
-    }>
+    }>,
   ): Promise<T[]> => {
-    const promises = operations.map(({ key, operation }) => 
-      withLoading(key, operation)
-    )
+    const promises = operations.map(({ key, operation }) => withLoading(key, operation))
     return Promise.all(promises)
   }
 
@@ -73,7 +66,7 @@ export const useLoadingStore = defineStore('loading', () => {
   const getLoadingStates = computed(() => {
     return {
       global: globalLoading.value,
-      specific: { ...loadingStates.value }
+      specific: { ...loadingStates.value },
     }
   })
 
@@ -87,6 +80,6 @@ export const useLoadingStore = defineStore('loading', () => {
     withLoading,
     withGlobalLoading,
     withMultipleLoading,
-    getLoadingStates
+    getLoadingStates,
   }
 })

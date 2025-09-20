@@ -71,7 +71,7 @@ export function useDashboardData() {
     const now = new Date()
     const weekAgo = new Date(now)
     weekAgo.setDate(now.getDate() - 7)
-    
+
     const sevenDaysAgo = new Date(now)
     sevenDaysAgo.setDate(now.getDate() - 6) // 今日を含む7日間
 
@@ -89,22 +89,23 @@ export function useDashboardData() {
   // 統計データの計算
   const calculateStats = (diaries: DiaryEntry[]): DashboardStats => {
     const { weekAgo } = getDateRanges()
-    
+
     // 今週の日記をフィルタリング
-    const weeklyDiaries = diaries.filter(diary => 
-      new Date(diary.created_at) >= new Date(weekAgo)
-    )
+    const weeklyDiaries = diaries.filter((diary) => new Date(diary.created_at) >= new Date(weekAgo))
 
     // 平均気分スコアの計算（moodフィールドを使用）
-    const averageMood = diaries.length > 0
-      ? Math.round(diaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / diaries.length * 10) / 10
-      : 0
+    const averageMood =
+      diaries.length > 0
+        ? Math.round(
+            (diaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / diaries.length) * 10,
+          ) / 10
+        : 0
 
     // 連続投稿日数の計算（簡易版）
     const sortedDiaries = [...diaries].sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
     )
-    
+
     let streakDays = 0
     const currentDate = new Date()
     currentDate.setHours(0, 0, 0, 0)
@@ -112,10 +113,10 @@ export function useDashboardData() {
     for (const diary of sortedDiaries) {
       const diaryDate = new Date(diary.created_at)
       diaryDate.setHours(0, 0, 0, 0)
-      
+
       const diffTime = currentDate.getTime() - diaryDate.getTime()
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-      
+
       if (diffDays === streakDays) {
         streakDays++
         currentDate.setDate(currentDate.getDate() - 1)
@@ -136,7 +137,7 @@ export function useDashboardData() {
   const createRecentDiaries = (diaries: DiaryEntry[]): RecentDiary[] => {
     return diaries
       .slice(0, 5) // 最新5件
-      .map(diary => ({
+      .map((diary) => ({
         id: diary.id,
         title: diary.title,
         preview: truncateText(diary.content, 50),
@@ -151,23 +152,27 @@ export function useDashboardData() {
   // 7日間の気分データの作成
   const createMoodData = (diaries: DiaryEntry[]): MoodDataPoint[] => {
     const moodData: MoodDataPoint[] = []
-    
+
     // 過去7日間の各日付を生成
     for (let i = 6; i >= 0; i--) {
       const date = new Date()
       date.setDate(date.getDate() - i)
       const dateString = date.toISOString().split('T')[0]
-      
+
       // その日の日記を検索
-      const dayDiaries = diaries.filter(diary => {
+      const dayDiaries = diaries.filter((diary) => {
         const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
         return diaryDate === dateString
       })
-      
+
       // その日の平均気分スコアを計算（moodフィールドを使用）
-      const averageMood = dayDiaries.length > 0
-        ? Math.round(dayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / dayDiaries.length * 10) / 10
-        : null
+      const averageMood =
+        dayDiaries.length > 0
+          ? Math.round(
+              (dayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / dayDiaries.length) *
+                10,
+            ) / 10
+          : null
 
       if (averageMood !== null) {
         moodData.push({
@@ -177,7 +182,7 @@ export function useDashboardData() {
         })
       }
     }
-    
+
     return moodData
   }
 
@@ -186,13 +191,13 @@ export function useDashboardData() {
     const { today, yesterday } = getDateRanges()
 
     // 今日の日記を検索
-    const todayDiaries = diaries.filter(diary => {
+    const todayDiaries = diaries.filter((diary) => {
       const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
       return diaryDate === today
     })
 
     // 昨日の日記を検索
-    const yesterdayDiaries = diaries.filter(diary => {
+    const yesterdayDiaries = diaries.filter((diary) => {
       const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
       return diaryDate === yesterday
     })
@@ -203,13 +208,16 @@ export function useDashboardData() {
     }
 
     // 今日の平均気分（データがない場合は5をデフォルト）
-    const currentMood = todayDiaries.length > 0
-      ? Math.round(todayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / todayDiaries.length)
-      : 5
+    const currentMood =
+      todayDiaries.length > 0
+        ? Math.round(
+            todayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / todayDiaries.length,
+          )
+        : 5
 
     // 昨日の平均気分
     const previousMood = Math.round(
-      yesterdayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / yesterdayDiaries.length
+      yesterdayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / yesterdayDiaries.length,
     )
 
     // 気分理由の取得（最新の日記から） - mood_reasonフィールドが存在しないため削除
@@ -227,7 +235,6 @@ export function useDashboardData() {
       streakDays: stats.streakDays,
     }
   }
-
 
   // データの取得と更新
   const fetchDashboardData = async (): Promise<void> => {
@@ -262,14 +269,13 @@ export function useDashboardData() {
         recentDiaries,
         moodData,
       }
-      
+
       comparisonData.value = comparison
       comparisonError.value = null
-
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'データの取得に失敗しました'
       error.value.overall = errorMessage
-      
+
       // 比較データのエラーも設定（全体のエラーとは別扱い）
       comparisonError.value = '前日比較データの取得に失敗しました'
     } finally {
@@ -295,21 +301,31 @@ export function useDashboardData() {
   })
 
   const hasError = computed(() => {
-    return !!(error.value.overall || error.value.stats || error.value.recentDiaries || error.value.moodData)
+    return !!(
+      error.value.overall ||
+      error.value.stats ||
+      error.value.recentDiaries ||
+      error.value.moodData
+    )
   })
 
   const isLoading = computed(() => {
-    return !!(loading.value.overall || loading.value.stats || loading.value.recentDiaries || loading.value.moodData)
+    return !!(
+      loading.value.overall ||
+      loading.value.stats ||
+      loading.value.recentDiaries ||
+      loading.value.moodData
+    )
   })
 
   // Chart.jsデータ形式への変換
   const chartData = computed(() => {
     return {
-      labels: dashboardData.value.moodData.map(point => point.label),
+      labels: dashboardData.value.moodData.map((point) => point.label),
       datasets: [
         {
           label: '気分スコア',
-          data: dashboardData.value.moodData.map(point => point.mood),
+          data: dashboardData.value.moodData.map((point) => point.mood),
           borderColor: 'rgb(75, 192, 192)',
           backgroundColor: 'rgba(75, 192, 192, 0.2)',
           tension: 0.1,
@@ -347,19 +363,19 @@ export function useDashboardData() {
     dashboardData: computed(() => dashboardData.value),
     loading: computed(() => loading.value),
     error: computed(() => error.value),
-    
+
     // 前日比較データ
     comparisonData: computed(() => comparisonData.value),
     comparisonLoading: computed(() => comparisonLoading.value),
     comparisonError: computed(() => comparisonError.value),
-    
+
     // 計算プロパティ
     hasData,
     hasError,
     isLoading,
     chartData,
     chartOptions,
-    
+
     // メソッド
     fetchDashboardData,
     refresh,

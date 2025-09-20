@@ -5,7 +5,7 @@ import type {
   MonitoringMetrics,
   AlertRule,
   SecurityAlert,
-  ThreatLevel
+  ThreatLevel,
 } from '@/types/security-monitoring'
 
 /**
@@ -42,7 +42,7 @@ export class SecurityMonitor {
     this.isMonitoring = true
     this.setupEventListeners()
     this.startMetricsCollection()
-    
+
     console.log('🔍 Security monitoring started')
   }
 
@@ -61,7 +61,7 @@ export class SecurityMonitor {
     const fullEvent: SecurityEvent = {
       id: crypto.randomUUID(),
       timestamp: new Date().toISOString(),
-      ...event
+      ...event,
     }
 
     this.events.push(fullEvent)
@@ -77,14 +77,10 @@ export class SecurityMonitor {
   /**
    * 不正アクセス試行の検知
    */
-  detectSuspiciousActivity(
-    userId: string,
-    action: string,
-    details: Record<string, unknown>
-  ): void {
+  detectSuspiciousActivity(userId: string, action: string, details: Record<string, unknown>): void {
     const recentEvents = this.getRecentEventsByUser(userId, 5 * 60 * 1000) // 5分間
-    const failedAttempts = recentEvents.filter(e => 
-      e.type === 'auth_failure' || e.type === 'access_denied'
+    const failedAttempts = recentEvents.filter(
+      (e) => e.type === 'auth_failure' || e.type === 'access_denied',
     ).length
 
     if (failedAttempts >= this.config.thresholds.maxFailedAttempts) {
@@ -96,8 +92,8 @@ export class SecurityMonitor {
         details: {
           ...details,
           failedAttempts,
-          pattern: 'repeated_failures'
-        }
+          pattern: 'repeated_failures',
+        },
       })
 
       // インシデントレポートに記録
@@ -108,8 +104,8 @@ export class SecurityMonitor {
           userId,
           action,
           failedAttempts,
-          recentEvents: recentEvents.length
-        }
+          recentEvents: recentEvents.length,
+        },
       })
     }
   }
@@ -121,7 +117,7 @@ export class SecurityMonitor {
     endpoint: string,
     userId: string,
     responseTime: number,
-    statusCode: number
+    statusCode: number,
   ): void {
     this.recordEvent({
       type: 'api_call',
@@ -132,13 +128,13 @@ export class SecurityMonitor {
         endpoint,
         responseTime,
         statusCode,
-        userAgent: navigator.userAgent
-      }
+        userAgent: navigator.userAgent,
+      },
     })
 
     // 異常な頻度チェック
     const recentCalls = this.getRecentEventsByUser(userId, 60 * 1000) // 1分間
-      .filter(e => e.type === 'api_call' && e.details?.endpoint === endpoint)
+      .filter((e) => e.type === 'api_call' && e.details?.endpoint === endpoint)
 
     if (recentCalls.length > this.config.thresholds.maxAPICallsPerMinute) {
       this.recordEvent({
@@ -149,8 +145,8 @@ export class SecurityMonitor {
         details: {
           endpoint,
           callCount: recentCalls.length,
-          timeWindow: '1 minute'
-        }
+          timeWindow: '1 minute',
+        },
       })
     }
 
@@ -164,8 +160,8 @@ export class SecurityMonitor {
         details: {
           endpoint,
           responseTime,
-          threshold: this.config.thresholds.maxResponseTime
-        }
+          threshold: this.config.thresholds.maxResponseTime,
+        },
       })
     }
   }
@@ -175,9 +171,9 @@ export class SecurityMonitor {
    */
   assessThreatLevel(): ThreatLevel {
     const recentEvents = this.getRecentEvents(60 * 60 * 1000) // 1時間
-    const criticalEvents = recentEvents.filter(e => e.severity === 'critical').length
-    const highEvents = recentEvents.filter(e => e.severity === 'high').length
-    const mediumEvents = recentEvents.filter(e => e.severity === 'medium').length
+    const criticalEvents = recentEvents.filter((e) => e.severity === 'critical').length
+    const highEvents = recentEvents.filter((e) => e.severity === 'high').length
+    const mediumEvents = recentEvents.filter((e) => e.severity === 'medium').length
 
     if (criticalEvents > 0) return 'critical'
     if (highEvents >= 3) return 'high'
@@ -218,13 +214,13 @@ export class SecurityMonitor {
         maxFailedAttempts: 5,
         maxAPICallsPerMinute: 100,
         maxResponseTime: 5000,
-        suspiciousPatternThreshold: 3
+        suspiciousPatternThreshold: 3,
       },
       alerting: {
         enabled: true,
         channels: ['console', 'storage'],
-        severityLevels: ['high', 'critical']
-      }
+        severityLevels: ['high', 'critical'],
+      },
     }
   }
 
@@ -239,7 +235,7 @@ export class SecurityMonitor {
       activeUsers: new Set(),
       avgResponseTime: 0,
       currentThreatLevel: 'low',
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     }
   }
 
@@ -251,27 +247,28 @@ export class SecurityMonitor {
       {
         id: 'multiple-auth-failures',
         name: '複数認証失敗',
-        condition: (event) => 
-          event.type === 'auth_failure' && 
-          this.getRecentEventsByUser(event.userId || '', 5 * 60 * 1000)
-            .filter(e => e.type === 'auth_failure').length >= 3,
+        condition: (event) =>
+          event.type === 'auth_failure' &&
+          this.getRecentEventsByUser(event.userId || '', 5 * 60 * 1000).filter(
+            (e) => e.type === 'auth_failure',
+          ).length >= 3,
         severity: 'high',
-        action: 'alert'
+        action: 'alert',
       },
       {
         id: 'suspicious-activity',
         name: '不審なアクティビティ',
         condition: (event) => event.type === 'suspicious_activity',
         severity: 'critical',
-        action: 'alert'
+        action: 'alert',
       },
       {
         id: 'rate-limit-exceeded',
         name: 'レート制限超過',
         condition: (event) => event.type === 'rate_limit_exceeded',
         severity: 'medium',
-        action: 'alert'
-      }
+        action: 'alert',
+      },
     ]
   }
 
@@ -290,8 +287,8 @@ export class SecurityMonitor {
             message: event.message,
             filename: event.filename,
             lineno: event.lineno,
-            colno: event.colno
-          }
+            colno: event.colno,
+          },
         })
       }
     })
@@ -304,8 +301,8 @@ export class SecurityMonitor {
           severity: 'medium',
           action: 'Network Error',
           details: {
-            reason: event.reason.message
-          }
+            reason: event.reason.message,
+          },
         })
       }
     })
@@ -325,20 +322,20 @@ export class SecurityMonitor {
    */
   private updateMetrics(event: SecurityEvent): void {
     this.metrics.totalEvents++
-    
+
     // イベントタイプ別カウント
     const typeCount = this.metrics.eventsByType.get(event.type) || 0
     this.metrics.eventsByType.set(event.type, typeCount + 1)
-    
+
     // 重要度別カウント
     const severityCount = this.metrics.eventsBySeverity.get(event.severity) || 0
     this.metrics.eventsBySeverity.set(event.severity, severityCount + 1)
-    
+
     // アクティブユーザー
     if (event.userId) {
       this.metrics.activeUsers.add(event.userId)
     }
-    
+
     this.metrics.lastUpdated = new Date().toISOString()
     this.metrics.currentThreatLevel = this.assessThreatLevel()
   }
@@ -348,11 +345,13 @@ export class SecurityMonitor {
    */
   private updateAggregateMetrics(): void {
     const recentEvents = this.getRecentEvents(60 * 60 * 1000) // 1時間
-    const apiEvents = recentEvents.filter(e => e.type === 'api_call')
-    
+    const apiEvents = recentEvents.filter((e) => e.type === 'api_call')
+
     if (apiEvents.length > 0) {
-      const totalResponseTime = apiEvents.reduce((sum, event) => 
-        sum + (event.details?.responseTime as number || 0), 0)
+      const totalResponseTime = apiEvents.reduce(
+        (sum, event) => sum + ((event.details?.responseTime as number) || 0),
+        0,
+      )
       this.metrics.avgResponseTime = totalResponseTime / apiEvents.length
     }
   }
@@ -362,18 +361,14 @@ export class SecurityMonitor {
    */
   private getRecentEvents(timeWindow: number): SecurityEvent[] {
     const cutoff = Date.now() - timeWindow
-    return this.events.filter(event => 
-      new Date(event.timestamp).getTime() > cutoff
-    )
+    return this.events.filter((event) => new Date(event.timestamp).getTime() > cutoff)
   }
 
   /**
    * ユーザー別最近のイベント取得
    */
   private getRecentEventsByUser(userId: string, timeWindow: number): SecurityEvent[] {
-    return this.getRecentEvents(timeWindow).filter(event => 
-      event.userId === userId
-    )
+    return this.getRecentEvents(timeWindow).filter((event) => event.userId === userId)
   }
 
   /**
@@ -389,7 +384,7 @@ export class SecurityMonitor {
           severity: rule.severity,
           event,
           triggeredAt: new Date().toISOString(),
-          acknowledged: false
+          acknowledged: false,
         })
       }
     }
@@ -418,7 +413,7 @@ export class SecurityAlertManager {
    */
   triggerAlert(alert: SecurityAlert): void {
     this.alerts.push(alert)
-    
+
     // アラートハンドラーの実行
     for (const [, handler] of this.alertHandlers) {
       try {
@@ -454,7 +449,7 @@ export class SecurityAlertManager {
    * アラートの承認
    */
   acknowledgeAlert(alertId: string): void {
-    const alert = this.alerts.find(a => a.id === alertId)
+    const alert = this.alerts.find((a) => a.id === alertId)
     if (alert) {
       alert.acknowledged = true
       alert.acknowledgedAt = new Date().toISOString()
@@ -472,7 +467,7 @@ export class SecurityAlertManager {
    * 未承認アラート取得
    */
   getUnacknowledgedAlerts(): SecurityAlert[] {
-    return this.alerts.filter(alert => !alert.acknowledged)
+    return this.alerts.filter((alert) => !alert.acknowledged)
   }
 
   /**
@@ -491,7 +486,7 @@ export class SecurityAlertManager {
       low: '🟢',
       medium: '🟡',
       high: '🟠',
-      critical: '🔴'
+      critical: '🔴',
     }
     return emojis[severity] || '⚪'
   }
@@ -503,7 +498,7 @@ export class SecurityAlertManager {
     try {
       const existingAlerts = JSON.parse(localStorage.getItem('security_alerts') || '[]')
       existingAlerts.push(alert)
-      
+
       // 最新100件のみ保持
       const limitedAlerts = existingAlerts.slice(-100)
       localStorage.setItem('security_alerts', JSON.stringify(limitedAlerts))
@@ -536,9 +531,9 @@ export class SecurityMetricsCollector {
     if (!this.performanceData[metric]) {
       this.performanceData[metric] = []
     }
-    
+
     this.performanceData[metric].push(value)
-    
+
     // 最新1000件を保持
     if (this.performanceData[metric].length > 1000) {
       this.performanceData[metric] = this.performanceData[metric].slice(-1000)
@@ -561,7 +556,7 @@ export class SecurityMetricsCollector {
       avg: data.reduce((sum, val) => sum + val, 0) / data.length,
       min: Math.min(...data),
       max: Math.max(...data),
-      count: data.length
+      count: data.length,
     }
   }
 

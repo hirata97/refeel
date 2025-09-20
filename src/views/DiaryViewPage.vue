@@ -27,16 +27,10 @@
         {{ formatDate(item.date) }}
       </template>
       <template #[`item.mood`]="{ item }">
-        <v-rating
-          :model-value="item.mood"
-          readonly
-          size="small"
-          color="amber"
-          half-increments
-        />
+        <v-rating :model-value="item.mood" readonly size="small" color="amber" half-increments />
         <span class="ml-2">{{ item.mood }}/10</span>
       </template>
-      
+
       <template #[`item.emotion_tags`]="{ item }">
         <EmotionTagChips
           :tags="(item as DiaryEntryWithEmotionTags).emotion_tags || []"
@@ -45,7 +39,7 @@
           variant="outlined"
         />
       </template>
-      
+
       <template #[`item.content`]="{ item }">
         <div
           class="diary-content-cell"
@@ -111,11 +105,19 @@
         <v-card-title>{{ selectedDiary.title }}</v-card-title>
         <v-card-subtitle>
           {{ formatDate(selectedDiary.date) }} | 気分: {{ selectedDiary.mood }}/10
-          <span v-if="selectedDiary.mood_reason" class="ml-2">（{{ selectedDiary.mood_reason }}）</span>
+          <span v-if="selectedDiary.mood_reason" class="ml-2"
+            >（{{ selectedDiary.mood_reason }}）</span
+          >
         </v-card-subtitle>
         <v-card-text>
           <!-- 感情タグ表示 -->
-          <div v-if="(selectedDiary as DiaryEntryWithEmotionTags).emotion_tags && (selectedDiary as DiaryEntryWithEmotionTags).emotion_tags!.length > 0" class="emotion-tags-section mb-4">
+          <div
+            v-if="
+              (selectedDiary as DiaryEntryWithEmotionTags).emotion_tags &&
+              (selectedDiary as DiaryEntryWithEmotionTags).emotion_tags!.length > 0
+            "
+            class="emotion-tags-section mb-4"
+          >
             <h4 class="text-subtitle-2 mb-2">感情タグ</h4>
             <EmotionTagChips
               :tags="(selectedDiary as DiaryEntryWithEmotionTags).emotion_tags!"
@@ -123,7 +125,7 @@
               variant="tonal"
             />
           </div>
-          
+
           <div class="diary-content">{{ selectedDiary.content }}</div>
         </v-card-text>
         <v-card-actions>
@@ -157,29 +159,21 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  
+
   // 初期データ読み込み
   await refresh()
-  
+
   // 日記データに感情タグ情報を追加
   await loadEmotionTagsForDiaries()
 })
 
 // サーバーサイドページネーション対応のデータ取得
-const {
-  diaries,
-  loading,
-  filter,
-  pagination,
-  changePage,
-  applyFilters,
-  clearFilters,
-  refresh,
-} = useDiaries({
-  immediate: false, // 手動で初期化
-  cache: true,
-  debounceMs: 300,
-})
+const { diaries, loading, filter, pagination, changePage, applyFilters, clearFilters, refresh } =
+  useDiaries({
+    immediate: false, // 手動で初期化
+    cache: true,
+    debounceMs: 300,
+  })
 
 // UI状態
 const isDeleting = ref(false)
@@ -249,11 +243,11 @@ const loadEmotionTagsForDiaries = async () => {
         const emotionTags = await emotionTagsStore.getDiaryEmotionTags(diary.id)
         return {
           ...diary,
-          emotion_tags: emotionTags
+          emotion_tags: emotionTags,
         } as DiaryEntryWithEmotionTags
-      })
+      }),
     )
-    
+
     // diariesを更新（リアクティブに）
     diaries.value = diariesWithTags
   } catch (error) {
@@ -265,7 +259,6 @@ const loadEmotionTagsForDiaries = async () => {
 const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString('ja-JP')
 }
-
 
 // 日記詳細表示
 const viewDiary = (diary: DiaryEntry) => {
@@ -286,7 +279,6 @@ const handlePageChange = async (page: number) => {
   // ページ変更後にも感情タグを読み込む
   await loadEmotionTagsForDiaries()
 }
-
 
 // フィルター適用処理
 const handleApplyFilters = async () => {

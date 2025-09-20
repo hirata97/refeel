@@ -5,7 +5,7 @@
       データ管理
     </v-card-title>
     <v-card-subtitle>データのインポート・エクスポート・削除ができます。</v-card-subtitle>
-    
+
     <v-card-text>
       <!-- データエクスポート -->
       <v-row class="mb-4">
@@ -48,7 +48,7 @@
                 accept=".json,.csv"
                 variant="outlined"
                 class="mb-3"
-                :rules="[v => !v || v.length > 0 || 'ファイルを選択してください']"
+                :rules="[(v) => !v || v.length > 0 || 'ファイルを選択してください']"
               />
               <v-btn
                 color="success"
@@ -82,12 +82,8 @@
               >
                 全データを削除
               </v-btn>
-              
-              <v-btn
-                color="error"
-                @click="showAccountDeleteDialog = true"
-                block
-              >
+
+              <v-btn color="error" @click="showAccountDeleteDialog = true" block>
                 アカウント削除
               </v-btn>
             </v-card-text>
@@ -106,11 +102,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="showDeleteDialog = false">キャンセル</v-btn>
-          <v-btn
-            color="error"
-            @click="deleteAllData"
-            :loading="dataManagementStore.loading"
-          >
+          <v-btn color="error" @click="deleteAllData" :loading="dataManagementStore.loading">
             削除
           </v-btn>
         </v-card-actions>
@@ -127,11 +119,7 @@
         <v-card-actions>
           <v-spacer />
           <v-btn @click="showAccountDeleteDialog = false">キャンセル</v-btn>
-          <v-btn
-            color="error"
-            @click="deleteAccount"
-            :loading="dataManagementStore.loading"
-          >
+          <v-btn color="error" @click="deleteAccount" :loading="dataManagementStore.loading">
             アカウント削除
           </v-btn>
         </v-card-actions>
@@ -157,7 +145,7 @@ const exportData = async () => {
   const exportOptions = {
     format: exportFormat.value as 'json' | 'csv',
     dataTypes: ['diaries', 'settings', 'profile'] as Array<'diaries' | 'settings' | 'profile'>,
-    compressed: false
+    compressed: false,
   }
   await dataManagementStore.exportData(exportOptions)
 }
@@ -168,7 +156,7 @@ const importData = async () => {
       format: 'json' as 'json' | 'csv',
       file: importFile.value[0],
       conflictResolution: 'merge' as 'overwrite' | 'merge' | 'skip',
-      validateData: true
+      validateData: true,
     }
     await dataManagementStore.importData(importOptions)
     importFile.value = []

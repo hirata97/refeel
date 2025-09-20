@@ -35,7 +35,7 @@ export const createAuthenticationStore = (
       // 保存された最終活動時間を復元
       const savedActivity = localStorage.getItem('lastActivity')
       if (savedActivity) {
-        // lastActivity.value = parseInt(savedActivity, 10) 
+        // lastActivity.value = parseInt(savedActivity, 10)
         // セッションストアで管理されるため、ここでは復元のみ
       }
 
@@ -71,7 +71,12 @@ export const createAuthenticationStore = (
     password: string,
     lockoutStatus: LockoutStatus | null,
     accountLockoutManager: {
-      recordLoginAttempt: (email: string, success: boolean, clientIP: string, userAgent: string) => Promise<void>
+      recordLoginAttempt: (
+        email: string,
+        success: boolean,
+        clientIP: string,
+        userAgent: string,
+      ) => Promise<void>
       shouldLockAccount: (email: string) => Promise<boolean>
       checkLockoutStatus: (email: string) => Promise<LockoutStatus>
       lockAccount: (email: string, attemptCount: number) => Promise<unknown>
@@ -134,7 +139,7 @@ export const createAuthenticationStore = (
       if (data.session && data.user) {
         // ログイン成功時にエラー状態をクリア
         clearErrorFn()
-        
+
         // ログイン成功を記録
         await accountLockoutManager.recordLoginAttempt(email, true, clientIP, userAgent)
 

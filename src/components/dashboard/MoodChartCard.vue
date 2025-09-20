@@ -3,13 +3,13 @@
     <div v-if="loading" class="loading-state">
       <v-skeleton-loader type="image" height="200" />
     </div>
-    
+
     <div v-else-if="error" class="error-state">
       <v-alert type="error" variant="outlined">
         {{ error }}
       </v-alert>
     </div>
-    
+
     <div v-else-if="moodData.length === 0" class="empty-state">
       <div class="empty-content">
         <v-icon size="48" color="grey-lighten-1">mdi-chart-line</v-icon>
@@ -17,20 +17,11 @@
         <p class="empty-subtitle">7日間のデータが蓄積されると表示されます</p>
       </div>
     </div>
-    
+
     <div v-else class="chart-container">
-      <Line 
-        :data="chartData" 
-        :options="chartOptions"
-        class="mood-chart"
-      />
+      <Line :data="chartData" :options="chartOptions" class="mood-chart" />
       <div class="chart-footer">
-        <v-btn 
-          variant="text" 
-          color="primary" 
-          size="small"
-          @click="$emit('view-details')"
-        >
+        <v-btn variant="text" color="primary" size="small" @click="$emit('view-details')">
           詳細レポートを見る
           <v-icon end size="16">mdi-arrow-right</v-icon>
         </v-btn>
@@ -80,11 +71,11 @@ defineEmits<Emits>()
 
 const chartData = computed(() => {
   return {
-    labels: props.moodData.map(point => point.label),
+    labels: props.moodData.map((point) => point.label),
     datasets: [
       {
         label: '気分スコア',
-        data: props.moodData.map(point => point.mood),
+        data: props.moodData.map((point) => point.mood),
         borderColor: 'rgb(75, 192, 192)',
         backgroundColor: 'rgba(75, 192, 192, 0.1)',
         tension: 0.4,
@@ -213,7 +204,7 @@ const chartOptions = computed(() => ({
   .chart-container {
     height: 240px;
   }
-  
+
   .mood-chart {
     height: 160px;
   }

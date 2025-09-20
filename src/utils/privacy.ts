@@ -1,11 +1,11 @@
 import { supabase } from '@/lib/supabase'
-import type { 
-  PrivacySettings, 
+import type {
+  PrivacySettings,
   PrivacyAuditLog,
   ConsentRecord,
   ConsentType,
   PrivacyAction,
-  GDPR 
+  GDPR,
 } from '@/types/encryption'
 
 /**
@@ -23,7 +23,7 @@ export class PrivacyManager {
     emailNotifications: true,
     dataExport: true,
     dataDelete: true,
-    version: 1
+    version: 1,
   }
 
   /**
@@ -59,7 +59,7 @@ export class PrivacyManager {
         dataExport: data.data_export,
         dataDelete: data.data_delete,
         updatedAt: data.updated_at,
-        version: data.version
+        version: data.version,
       }
     } catch (error) {
       console.error('Failed to get privacy settings:', error)
@@ -71,8 +71,8 @@ export class PrivacyManager {
    * プライバシー設定を更新
    */
   static async updatePrivacySettings(
-    userId: string, 
-    settings: Partial<PrivacySettings>
+    userId: string,
+    settings: Partial<PrivacySettings>,
   ): Promise<PrivacySettings> {
     try {
       const updatedSettings = {
@@ -88,7 +88,7 @@ export class PrivacyManager {
         data_export: settings.dataExport,
         data_delete: settings.dataDelete,
         updated_at: new Date().toISOString(),
-        version: (settings.version || 1) + 1
+        version: (settings.version || 1) + 1,
       }
 
       const { data, error } = await supabase
@@ -102,7 +102,7 @@ export class PrivacyManager {
       // 監査ログに記録
       await this.logPrivacyAction(userId, 'privacy_settings_update', {
         changes: settings,
-        version: updatedSettings.version
+        version: updatedSettings.version,
       })
 
       return {
@@ -118,7 +118,7 @@ export class PrivacyManager {
         dataExport: data.data_export,
         dataDelete: data.data_delete,
         updatedAt: data.updated_at,
-        version: data.version
+        version: data.version,
       }
     } catch (error) {
       console.error('Failed to update privacy settings:', error)
@@ -133,7 +133,7 @@ export class PrivacyManager {
     const settings = {
       ...this.DEFAULT_SETTINGS,
       userId,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     }
 
     await this.updatePrivacySettings(userId, settings)
@@ -147,7 +147,7 @@ export class PrivacyManager {
     userId: string,
     action: PrivacyAction,
     details: Record<string, unknown> = {},
-    result: 'success' | 'failure' | 'partial' = 'success'
+    result: 'success' | 'failure' | 'partial' = 'success',
   ): Promise<void> {
     try {
       const auditLog: Omit<PrivacyAuditLog, 'id'> = {
@@ -157,20 +157,18 @@ export class PrivacyManager {
         timestamp: new Date().toISOString(),
         ipAddress: await this.getCurrentIP(),
         userAgent: navigator.userAgent,
-        result
+        result,
       }
 
-      const { error } = await supabase
-        .from('privacy_audit_log')
-        .insert({
-          user_id: auditLog.userId,
-          action: auditLog.action,
-          details: auditLog.details,
-          timestamp: auditLog.timestamp,
-          ip_address: auditLog.ipAddress,
-          user_agent: auditLog.userAgent,
-          result: auditLog.result
-        })
+      const { error } = await supabase.from('privacy_audit_log').insert({
+        user_id: auditLog.userId,
+        action: auditLog.action,
+        details: auditLog.details,
+        timestamp: auditLog.timestamp,
+        ip_address: auditLog.ipAddress,
+        user_agent: auditLog.userAgent,
+        result: auditLog.result,
+      })
 
       if (error) {
         console.error('Failed to log privacy action:', error)
@@ -205,7 +203,7 @@ export class ConsentManager {
     userId: string,
     consentType: ConsentType,
     granted: boolean,
-    version: string = '1.0'
+    version: string = '1.0',
   ): Promise<void> {
     try {
       const consentRecord = {
@@ -217,12 +215,10 @@ export class ConsentManager {
         version,
         ip_address: await PrivacyManager['getCurrentIP'](),
         user_agent: navigator.userAgent,
-        evidence: `User ${granted ? 'granted' : 'withdrew'} consent for ${consentType}`
+        evidence: `User ${granted ? 'granted' : 'withdrew'} consent for ${consentType}`,
       }
 
-      const { error } = await supabase
-        .from('consent_records')
-        .insert(consentRecord)
+      const { error } = await supabase.from('consent_records').insert(consentRecord)
 
       if (error) throw error
 
@@ -230,7 +226,7 @@ export class ConsentManager {
       await PrivacyManager.logPrivacyAction(
         userId,
         granted ? 'consent_given' : 'consent_withdrawn',
-        { consentType, version }
+        { consentType, version },
       )
     } catch (error) {
       console.error('Failed to record consent:', error)
@@ -251,7 +247,7 @@ export class ConsentManager {
 
       if (error) throw error
 
-      return data.map(record => ({
+      return data.map((record) => ({
         userId: record.user_id,
         consentType: record.consent_type,
         granted: record.granted,
@@ -260,7 +256,7 @@ export class ConsentManager {
         version: record.version,
         ipAddress: record.ip_address,
         userAgent: record.user_agent,
-        evidence: record.evidence
+        evidence: record.evidence,
       }))
     } catch (error) {
       console.error('Failed to get consent status:', error)
@@ -303,7 +299,7 @@ export class DataDeletionManager {
     userId: string,
     requestType: 'partial' | 'complete',
     dataTypes: string[] = [],
-    reason?: string
+    reason?: string,
   ): Promise<string> {
     try {
       const confirmationToken = crypto.randomUUID()
@@ -316,12 +312,10 @@ export class DataDeletionManager {
         scheduled_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30日後
         status: 'pending' as const,
         confirmation_token: confirmationToken,
-        verification_required: requestType === 'complete'
+        verification_required: requestType === 'complete',
       }
 
-      const { error } = await supabase
-        .from('data_deletion_requests')
-        .insert(deletionRequest)
+      const { error } = await supabase.from('data_deletion_requests').insert(deletionRequest)
 
       if (error) throw error
 
@@ -329,7 +323,7 @@ export class DataDeletionManager {
       await PrivacyManager.logPrivacyAction(userId, 'data_deletion', {
         requestType,
         dataTypes,
-        scheduledAt: deletionRequest.scheduled_at
+        scheduledAt: deletionRequest.scheduled_at,
       })
 
       return confirmationToken
@@ -364,7 +358,7 @@ export class DataDeletionManager {
         .from('data_deletion_requests')
         .update({
           status: success ? 'completed' : 'failed',
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
         .eq('confirmation_token', confirmationToken)
 
@@ -409,12 +403,12 @@ export class DataDeletionManager {
   private static async deleteAllUserData(userId: string): Promise<void> {
     const tables = [
       'goals',
-      'progress_entries', 
+      'progress_entries',
       'categories',
       'user_profiles',
       'privacy_settings',
       'consent_records',
-      'privacy_audit_log'
+      'privacy_audit_log',
     ]
 
     for (const table of tables) {
@@ -433,10 +427,10 @@ export class DataDeletionManager {
    */
   private static async deletePartialUserData(userId: string, dataTypes: string[]): Promise<void> {
     const tableMapping: Record<string, string> = {
-      'goals': 'goals',
-      'progress': 'progress_entries',
-      'categories': 'categories',
-      'profile': 'user_profiles'
+      goals: 'goals',
+      progress: 'progress_entries',
+      categories: 'categories',
+      profile: 'user_profiles',
     }
 
     for (const dataType of dataTypes) {
@@ -459,7 +453,7 @@ export class GDPRCompliance {
     rightToRestrictProcessing: true,
     rightToDataPortability: true,
     rightToObject: true,
-    rightNotToBeSubject: true
+    rightNotToBeSubject: true,
   }
 
   /**
@@ -471,12 +465,9 @@ export class GDPRCompliance {
 
       // 各テーブルからデータを取得
       const tables = ['goals', 'progress_entries', 'categories', 'user_profiles']
-      
+
       for (const table of tables) {
-        const { data, error } = await supabase
-          .from(table)
-          .select('*')
-          .eq('user_id', userId)
+        const { data, error } = await supabase.from(table).select('*').eq('user_id', userId)
 
         if (!error && data) {
           userData[table] = data
@@ -490,7 +481,7 @@ export class GDPRCompliance {
       // 監査ログに記録
       await PrivacyManager.logPrivacyAction(userId, 'data_access', {
         exportedTables: Object.keys(userData),
-        recordCount: Object.values(userData).flat().length
+        recordCount: Object.values(userData).flat().length,
       })
 
       return userData

@@ -29,13 +29,7 @@
     </header>
 
     <!-- エラー表示 -->
-    <v-alert
-      v-if="hasError && !isLoading"
-      type="error"
-      variant="outlined"
-      class="mb-6"
-      dismissible
-    >
+    <v-alert v-if="hasError && !isLoading" type="error" variant="outlined" class="mb-6" dismissible>
       データの読み込みに失敗しました。リフレッシュボタンをお試しください。
     </v-alert>
 
@@ -98,7 +92,9 @@
             unit="/10"
             icon="mdi-emoticon-excited"
             icon-color="warning"
-            :description="reflectionData.stats.highestMood > 0 ? `週間で最も高い気分スコア` : 'データなし'"
+            :description="
+              reflectionData.stats.highestMood > 0 ? `週間で最も高い気分スコア` : 'データなし'
+            "
           />
           <StatCard
             title="最も活発な曜日"
@@ -128,12 +124,8 @@
             </v-chip>
           </v-card-title>
           <v-card-text>
-            <div class="chart-container" style="height: 300px; position: relative;">
-              <Line
-                :data="chartData"
-                :options="chartOptions"
-                style="max-height: 300px;"
-              />
+            <div class="chart-container" style="height: 300px; position: relative">
+              <Line :data="chartData" :options="chartOptions" style="max-height: 300px" />
             </div>
           </v-card-text>
         </v-card>
@@ -148,7 +140,10 @@
             <span>感情タグ頻度</span>
           </v-card-title>
           <v-card-text>
-            <div v-if="reflectionData.emotionTags.length === 0" class="text-center text-medium-emphasis py-4">
+            <div
+              v-if="reflectionData.emotionTags.length === 0"
+              class="text-center text-medium-emphasis py-4"
+            >
               感情タグが記録されていません
             </div>
             <div v-else class="emotion-tags-list">
@@ -188,7 +183,10 @@
             <span>進捗パターン</span>
           </v-card-title>
           <v-card-text>
-            <div v-if="reflectionData.progressData.length === 0" class="text-center text-medium-emphasis py-4">
+            <div
+              v-if="reflectionData.progressData.length === 0"
+              class="text-center text-medium-emphasis py-4"
+            >
               進捗データが記録されていません
             </div>
             <div v-else class="progress-list">
@@ -201,11 +199,7 @@
                   <span class="text-body-1 font-weight-medium flex-grow-1">
                     {{ progress.goalCategory }}
                   </span>
-                  <v-chip
-                    :color="getTrendColor(progress.trend)"
-                    variant="elevated"
-                    size="small"
-                  >
+                  <v-chip :color="getTrendColor(progress.trend)" variant="elevated" size="small">
                     <v-icon :icon="getTrendIcon(progress.trend)" size="14" class="mr-1" />
                     {{ getTrendText(progress.trend) }}
                   </v-chip>
@@ -237,7 +231,10 @@
             <span>週間分析</span>
           </v-card-title>
           <v-card-text>
-            <div v-if="reflectionData.comments.length === 0" class="text-center text-medium-emphasis py-4">
+            <div
+              v-if="reflectionData.comments.length === 0"
+              class="text-center text-medium-emphasis py-4"
+            >
               分析コメントがありません
             </div>
             <div v-else class="comments-list">
@@ -261,9 +258,11 @@
     <!-- データなし状態 -->
     <div v-else-if="!isLoading && !hasError" class="no-data-container text-center py-12">
       <v-icon size="96" color="grey-lighten-1" class="mb-4">mdi-calendar-blank</v-icon>
-      <h3 class="text-h5 text-medium-emphasis mb-2">{{ reflectionData.weekLabel }}のデータがありません</h3>
+      <h3 class="text-h5 text-medium-emphasis mb-2">
+        {{ reflectionData.weekLabel }}のデータがありません
+      </h3>
       <p class="text-body-1 text-medium-emphasis mb-4">
-        この期間には日記が投稿されていません。<br>
+        この期間には日記が投稿されていません。<br />
         他の週を選択するか、振り返りを書いてみましょう。
       </p>
       <v-btn
@@ -282,12 +281,31 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js'
 import { useWeeklyAnalysis } from '@/composables/useWeeklyAnalysis'
 import StatCard from '@/components/dashboard/StatCard.vue'
 
 // Chart.js登録
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+)
 
 const router = useRouter()
 
@@ -308,10 +326,10 @@ const {
 // ユーティリティ関数
 const formatDateRange = (startDate: string, endDate: string): string => {
   if (!startDate || !endDate) return ''
-  
+
   const start = new Date(startDate)
   const end = new Date(endDate)
-  
+
   return `${start.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })} 〜 ${end.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' })}`
 }
 
@@ -325,7 +343,7 @@ const getMoodColor = (mood: number): string => {
 const getTagColor = (category: string): string => {
   const colors: Record<string, string> = {
     positive: 'success',
-    negative: 'error', 
+    negative: 'error',
     neutral: 'primary',
     general: 'info',
   }
@@ -344,9 +362,9 @@ const getTrendColor = (trend: string): string => {
 const getAlertType = (type: string): 'error' | 'success' | 'warning' | 'info' => {
   const alertTypes: Record<string, 'error' | 'success' | 'warning' | 'info'> = {
     mood: 'info',
-    emotion: 'warning', 
+    emotion: 'warning',
     progress: 'success',
-    general: 'info'
+    general: 'info',
   }
   return alertTypes[type] || 'info'
 }
@@ -354,7 +372,7 @@ const getAlertType = (type: string): 'error' | 'success' | 'warning' | 'info' =>
 const getTrendIcon = (trend: string): string => {
   const icons: Record<string, string> = {
     up: 'mdi-trending-up',
-    down: 'mdi-trending-down', 
+    down: 'mdi-trending-down',
     stable: 'mdi-trending-neutral',
   }
   return icons[trend] || 'mdi-trending-neutral'
@@ -452,17 +470,17 @@ onMounted(async () => {
   .analysis-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .header-content {
     justify-content: center;
     text-align: center;
   }
-  
+
   .header-actions {
     justify-content: center;
   }
@@ -490,7 +508,7 @@ onMounted(async () => {
 }
 
 .min-width-60 {
-  min-width: 60px;  
+  min-width: 60px;
   text-align: right;
 }
 

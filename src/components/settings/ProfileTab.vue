@@ -9,21 +9,11 @@
       <v-row>
         <v-col cols="12" class="text-center">
           <v-avatar size="120" class="mb-4">
-            <v-img
-              v-if="profileStore.avatarUrl"
-              :src="profileStore.avatarUrl"
-              alt="アバター"
-            />
+            <v-img v-if="profileStore.avatarUrl" :src="profileStore.avatarUrl" alt="アバター" />
             <v-icon v-else size="60">mdi-account-circle</v-icon>
           </v-avatar>
           <div>
-            <v-btn
-              color="primary"
-              class="mb-2 mr-2"
-              @click="uploadAvatar"
-            >
-              アバター変更
-            </v-btn>
+            <v-btn color="primary" class="mb-2 mr-2" @click="uploadAvatar"> アバター変更 </v-btn>
             <v-btn
               v-if="profileStore.avatarUrl"
               color="error"
@@ -43,7 +33,7 @@
           label="表示名"
           variant="outlined"
           class="mb-3"
-          :rules="[v => !!v || '表示名は必須です']"
+          :rules="[(v) => !!v || '表示名は必須です']"
         />
 
         <v-text-field
@@ -63,7 +53,7 @@
           rows="3"
           class="mb-3"
           counter="200"
-          :rules="[v => !v || v.length <= 200 || '200文字以内で入力してください']"
+          :rules="[(v) => !v || v.length <= 200 || '200文字以内で入力してください']"
         />
 
         <v-select
@@ -90,11 +80,7 @@
 
     <v-card-actions>
       <v-spacer />
-      <v-btn
-        color="primary"
-        @click="updateProfile"
-        :loading="profileStore.loading"
-      >
+      <v-btn color="primary" @click="updateProfile" :loading="profileStore.loading">
         プロフィール更新
       </v-btn>
     </v-card-actions>

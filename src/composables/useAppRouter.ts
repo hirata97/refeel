@@ -17,10 +17,11 @@ export function useAppRouter() {
    */
   const navigateTo = (path: string | RouteLocationRaw, options: NavigationOptions = {}) => {
     const routeOptions = {
-      ...options.query && { query: options.query },
+      ...(options.query && { query: options.query }),
     }
 
-    const route = typeof path === 'string' ? { path, ...routeOptions } : { ...path, ...routeOptions }
+    const route =
+      typeof path === 'string' ? { path, ...routeOptions } : { ...path, ...routeOptions }
 
     if (options.replace) {
       router.replace(route)
@@ -117,7 +118,7 @@ export function useAppRouter() {
     navigateTo,
     goBack,
     refreshPage,
-    
+
     // App-specific navigation
     navigateToTop,
     navigateToDashboard,

@@ -1,6 +1,6 @@
 /**
  * レポート機能の型定義
- * 
+ *
  * Issue #40: レポート機能の大幅拡張
  */
 
@@ -83,7 +83,11 @@ export interface KeywordStats {
   /** キーワード頻度（上位20件） */
   topKeywords: Array<{ word: string; count: number }>
   /** 感情関連キーワード */
-  emotionalKeywords: Array<{ word: string; count: number; sentiment: 'positive' | 'negative' | 'neutral' }>
+  emotionalKeywords: Array<{
+    word: string
+    count: number
+    sentiment: 'positive' | 'negative' | 'neutral'
+  }>
 }
 
 // チャートデータ型

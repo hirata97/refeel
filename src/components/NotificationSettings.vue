@@ -8,12 +8,12 @@
             <v-icon left>mdi-bell-outline</v-icon>
             リマインダー設定
           </v-card-title>
-          
+
           <v-card-text>
             <!-- 通知許可状態 -->
-            <v-alert 
-              v-if="!reminderStore.hasNotificationPermission" 
-              type="warning" 
+            <v-alert
+              v-if="!reminderStore.hasNotificationPermission"
+              type="warning"
               variant="tonal"
               class="mb-4"
             >
@@ -23,9 +23,9 @@
               <div>
                 <strong>通知許可が必要です</strong>
                 <p class="mb-2">リマインダー機能を利用するにはブラウザの通知許可が必要です。</p>
-                <v-btn 
-                  color="warning" 
-                  size="small" 
+                <v-btn
+                  color="warning"
+                  size="small"
                   @click="reminderStore.requestNotificationPermission()"
                 >
                   通知を許可する
@@ -63,8 +63,8 @@
                 />
               </v-col>
               <v-col cols="12" md="6">
-                <v-btn 
-                  variant="outlined" 
+                <v-btn
+                  variant="outlined"
                   prepend-icon="mdi-test-tube"
                   @click="reminderStore.testNotification()"
                 >
@@ -75,7 +75,7 @@
 
             <!-- 静寂時間設定 -->
             <v-divider class="my-4" />
-            
+
             <v-row>
               <v-col cols="12">
                 <v-switch
@@ -118,11 +118,7 @@
             <v-icon left>mdi-clock-outline</v-icon>
             リマインダー一覧
             <v-spacer />
-            <v-btn 
-              color="primary" 
-              prepend-icon="mdi-plus"
-              @click="showAddReminderDialog = true"
-            >
+            <v-btn color="primary" prepend-icon="mdi-plus" @click="showAddReminderDialog = true">
               追加
             </v-btn>
           </v-card-title>
@@ -153,16 +149,16 @@
                 </v-list-item-subtitle>
 
                 <template #append>
-                  <v-btn 
-                    icon="mdi-pencil" 
-                    size="small" 
+                  <v-btn
+                    icon="mdi-pencil"
+                    size="small"
                     variant="text"
                     @click="editReminder(reminder)"
                   />
-                  <v-btn 
-                    icon="mdi-delete" 
-                    size="small" 
-                    variant="text" 
+                  <v-btn
+                    icon="mdi-delete"
+                    size="small"
+                    variant="text"
                     color="error"
                     @click="confirmDeleteReminder(reminder)"
                   />
@@ -316,7 +312,7 @@ const handleReminderSave = (reminderData: Omit<ReminderSettings, 'id'>) => {
   } else {
     reminderStore.addReminder(reminderData)
   }
-  
+
   showAddReminderDialog.value = false
   editingReminder.value = null
 }
@@ -342,42 +338,42 @@ const formatDays = (days: WeekDay[]): string => {
     thursday: '木',
     friday: '金',
     saturday: '土',
-    sunday: '日'
+    sunday: '日',
   }
-  
+
   if (days.length === 7) {
     return '毎日'
   }
-  
+
   if (days.length === 5 && !days.includes('saturday') && !days.includes('sunday')) {
     return '平日のみ'
   }
-  
+
   if (days.length === 2 && days.includes('saturday') && days.includes('sunday')) {
     return '土日のみ'
   }
-  
-  return days.map(day => dayNames[day]).join(', ')
+
+  return days.map((day) => dayNames[day]).join(', ')
 }
 
 const formatNextReminderTime = (time: Date | null): string => {
   if (!time) return ''
-  
+
   const now = new Date()
   const diff = time.getTime() - now.getTime()
-  
+
   if (diff < 0) return '実行済み'
-  
+
   const hours = Math.floor(diff / (1000 * 60 * 60))
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-  
+
   if (hours < 24) {
     return `${hours}時間${minutes}分後`
   }
-  
+
   const days = Math.floor(hours / 24)
   const remainingHours = hours % 24
-  
+
   return `${days}日${remainingHours}時間後`
 }
 
