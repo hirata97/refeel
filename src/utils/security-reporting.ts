@@ -824,7 +824,7 @@ export class SecurityReportDistributor {
   /**
    * レポートのスケジュール設定
    */
-  private scheduleReport(type: 'daily' | 'weekly' | 'monthly', cron: string): void {
+  private scheduleReport(_type: 'daily' | 'weekly' | 'monthly', _cron: string): void {
     // 簡易実装：実際にはcronライブラリを使用
     // console.log(`📅 Scheduled ${type} report: ${cron}`)
   }
