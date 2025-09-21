@@ -10,6 +10,7 @@ import type {
   SecurityEvent,
   SecurityAlert,
   ThreatLevel,
+  NotificationChannel,
 } from '@/types/security-monitoring'
 
 /**
@@ -664,7 +665,12 @@ export class SecurityReportGenerator {
 export class SecurityReportDistributor {
   private static instance: SecurityReportDistributor
   private reportGenerator: SecurityReportGenerator
-  private config: any = {
+  private config: {
+    enabled: boolean
+    defaultRecipients: string[]
+    notificationChannels: NotificationChannel[]
+    [key: string]: unknown
+  } = {
     enabled: true,
     defaultRecipients: [],
     notificationChannels: []
@@ -822,7 +828,7 @@ export class SecurityReportDistributor {
   /**
    * 設定の更新
    */
-  updateConfig(newConfig: any): void {
+  updateConfig(newConfig: Record<string, unknown>): void {
     if (typeof newConfig === 'object' && newConfig !== null) {
       this.config = { ...this.config, ...newConfig }
       console.log('📊 Distribution config updated:', this.config)
@@ -834,7 +840,7 @@ export class SecurityReportDistributor {
   /**
    * 通知チャネルの追加
    */
-  addNotificationChannel(channel: any): void {
+  addNotificationChannel(channel: NotificationChannel): void {
     if (!this.config.notificationChannels) {
       this.config.notificationChannels = []
     }
@@ -863,14 +869,14 @@ export class SecurityReportDistributor {
   /**
    * 設定の取得
    */
-  getConfig(): any {
+  getConfig(): typeof this.config {
     return { ...this.config }
   }
 
   /**
    * 通知チャネルの取得
    */
-  getNotificationChannels(): any[] {
+  getNotificationChannels(): NotificationChannel[] {
     return [...(this.config.notificationChannels || [])]
   }
 

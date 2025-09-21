@@ -15,6 +15,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { VForm } from 'vuetify/components'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type VFormInstance = VForm & any
 
 interface Props {
   title?: string
@@ -33,7 +35,7 @@ const emit = defineEmits<{
   submit: [isValid: boolean]
 }>()
 
-const formRef = ref<VForm>()
+const formRef = ref<VFormInstance>()
 const isValid = ref(false)
 
 const handleSubmit = async (): Promise<void> => {
