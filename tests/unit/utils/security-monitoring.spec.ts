@@ -31,24 +31,49 @@ Object.defineProperty(global, 'localStorage', {
   }
 })
 
+// PromiseRejectionEventのモック
+global.PromiseRejectionEvent = class PromiseRejectionEvent extends Event {
+  promise: Promise<unknown>
+  reason: unknown
+
+  constructor(type: string, eventInitDict: { promise: Promise<unknown>; reason: unknown }) {
+    super(type)
+    this.promise = eventInitDict.promise
+    this.reason = eventInitDict.reason
+  }
+}
+
 describe('SecurityMonitor', () => {
   let securityMonitor: SecurityMonitor
   let mockIncidentReporter: MockedFunction<typeof SecurityIncidentReporter.reportIncident>
+  let consoleLogSpy: vi.SpyInstance
+  let consoleWarnSpy: vi.SpyInstance
+  let consoleErrorSpy: vi.SpyInstance
 
   beforeEach(() => {
     vi.useFakeTimers()
     vi.clearAllMocks()
-    
+
+    // コンソール出力をモック（テスト高速化）
+    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     // シングルトンのリセット
     ;(SecurityMonitor as unknown).instance = null
     securityMonitor = SecurityMonitor.getInstance()
-    
+
     mockIncidentReporter = SecurityIncidentReporter.reportIncident as MockedFunction<typeof SecurityIncidentReporter.reportIncident>
   })
 
   afterEach(() => {
     vi.useRealTimers()
     securityMonitor.stopMonitoring()
+
+    // コンソールスパイをリストア
+    consoleLogSpy?.mockRestore()
+    consoleWarnSpy?.mockRestore()
+    consoleErrorSpy?.mockRestore()
   })
 
   describe('シングルトンパターン', () => {
@@ -62,29 +87,23 @@ describe('SecurityMonitor', () => {
 
   describe('監視開始・停止', () => {
     it('監視を開始できる', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      
       securityMonitor.startMonitoring()
-      
-      expect(consoleSpy).toHaveBeenCalledWith('🔍 Security monitoring started')
+
+      expect(consoleLogSpy).toHaveBeenCalledWith('🔍 Security monitoring started')
     })
 
     it('監視を停止できる', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      
       securityMonitor.startMonitoring()
       securityMonitor.stopMonitoring()
-      
-      expect(consoleSpy).toHaveBeenCalledWith('🔍 Security monitoring stopped')
+
+      expect(consoleLogSpy).toHaveBeenCalledWith('🔍 Security monitoring stopped')
     })
 
     it('重複した監視開始をスキップする', () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      
       securityMonitor.startMonitoring()
       securityMonitor.startMonitoring()
-      
-      expect(consoleSpy).toHaveBeenCalledTimes(1)
+
+      expect(consoleLogSpy).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -354,15 +373,20 @@ describe('SecurityMonitor', () => {
       })
     })
 
-    it('ネットワークエラーを検知する', () => {
+    it('ネットワークエラーを検知する', async () => {
       securityMonitor.startMonitoring()
 
       const networkError = new Error('Network failure')
       networkError.name = 'NetworkError'
 
+      // Promise拒否をキャッチして処理
+      const rejectedPromise = Promise.reject(networkError).catch(() => {
+        // エラーを適切にキャッチして未処理エラーを防ぐ
+      })
+
       // ネットワークエラーイベントをシミュレート
       const rejectionEvent = new PromiseRejectionEvent('unhandledrejection', {
-        promise: Promise.reject(networkError),
+        promise: rejectedPromise,
         reason: networkError
       })
 
@@ -370,7 +394,7 @@ describe('SecurityMonitor', () => {
 
       const events = securityMonitor.getEvents(10)
       const networkErrorEvent = events.find(e => e.type === 'network_error')
-      
+
       expect(networkErrorEvent).toBeDefined()
       expect(networkErrorEvent?.details).toMatchObject({
         reason: 'Network failure'
@@ -641,9 +665,31 @@ describe('SecurityAlertManager', () => {
 
     it('最新100件のアラートのみ保持する', () => {
       const setItemSpy = vi.spyOn(localStorage, 'setItem')
-      // const getItemSpy = vi.spyOn(localStorage, 'getItem').mockReturnValue(
 
-      const mockAlert: SecurityAlert = {
+      // 既存の99件のアラートをローカルストレージに設定
+      const existingAlerts = Array.from({ length: 99 }, (_, i) => ({
+        id: `alert-${i}`,
+        ruleId: `rule-${i}`,
+        ruleName: `アラート${i}`,
+        severity: 'low' as const,
+        event: {
+          id: `event-${i}`,
+          type: 'api_call' as const,
+          severity: 'low' as const,
+          timestamp: new Date().toISOString(),
+          action: `test-${i}`,
+          details: {}
+        },
+        triggeredAt: new Date().toISOString(),
+        acknowledged: false
+      }))
+
+      // ローカルストレージに既存アラートを設定
+      const getItemSpy = vi.spyOn(localStorage, 'getItem')
+      getItemSpy.mockReturnValue(JSON.stringify(existingAlerts))
+
+      // 新しいアラートを追加（100件目）
+      const newAlert: SecurityAlert = {
         id: 'alert-new',
         ruleId: 'rule-new',
         ruleName: '新しいアラート',
@@ -660,9 +706,15 @@ describe('SecurityAlertManager', () => {
         acknowledged: false
       }
 
-      alertManager.triggerAlert(mockAlert)
+      alertManager.triggerAlert(newAlert)
 
-      const savedData = JSON.parse((setItemSpy.mock.calls[0] as unknown)[1])
+      // 永続化の確認
+      expect(setItemSpy).toHaveBeenCalledWith(
+        'security_alerts',
+        expect.any(String)
+      )
+
+      const savedData = JSON.parse(setItemSpy.mock.calls[0][1])
       expect(savedData).toHaveLength(100)
       expect(savedData[99].id).toBe('alert-new')
     })
