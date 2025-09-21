@@ -38,7 +38,7 @@ const isValid = ref(false)
 
 const handleSubmit = async (): Promise<void> => {
   if (props.validateOnSubmit && formRef.value) {
-    const result = await formRef.value.validate() as { valid: boolean }
+    const result = (await formRef.value.validate()) as { valid: boolean }
     emit('submit', result.valid)
   } else {
     emit('submit', isValid.value)
@@ -47,7 +47,7 @@ const handleSubmit = async (): Promise<void> => {
 
 const validate = async (): Promise<{ valid: boolean }> => {
   if (formRef.value) {
-    const result = await formRef.value.validate() as { valid: boolean }
+    const result = (await formRef.value.validate()) as { valid: boolean }
     return { valid: result.valid }
   }
   return { valid: false }
