@@ -36,9 +36,9 @@ const emit = defineEmits<{
 const formRef = ref<VForm>()
 const isValid = ref(false)
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   if (props.validateOnSubmit && formRef.value) {
-    const result = await formRef.value.validate()
+    const result = await formRef.value.validate() as { valid: boolean }
     emit('submit', result.valid)
   } else {
     emit('submit', isValid.value)
@@ -47,7 +47,7 @@ const handleSubmit = async () => {
 
 const validate = async (): Promise<{ valid: boolean }> => {
   if (formRef.value) {
-    const result = await formRef.value.validate()
+    const result = await formRef.value.validate() as { valid: boolean }
     return { valid: result.valid }
   }
   return { valid: false }
@@ -67,7 +67,7 @@ const resetValidation = () => {
 
 // BaseFormの公開メソッド
 defineExpose({
-  validate,
+  validate: validate as () => Promise<{ valid: boolean }>,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value),

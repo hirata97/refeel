@@ -1,14 +1,11 @@
 // 自動生成されたSupabaseクライアント型定義
-// 生成日時: 2025-09-20T18:27:18.215Z
+// 生成日時: 2025-09-21T03:05:19.678Z
 
 import type { Database } from './database'
 
-export type Tables<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Row']
-export type Inserts<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Insert']
-export type Updates<T extends keyof Database['public']['Tables']> =
-  Database['public']['Tables'][T]['Update']
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+export type Inserts<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert']
+export type Updates<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update']
 
 // 具体的な型エイリアス
 export type DiaryEntry = Tables<'diaries'>
