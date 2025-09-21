@@ -772,7 +772,7 @@ export class SecurityReportDistributor {
     const result = {
       success: true,
       channels: [] as string[],
-      errors: [] as string[]
+      errors: [] as string[],
     }
 
     // 通知チャネルの処理
@@ -786,7 +786,7 @@ export class SecurityReportDistributor {
               await fetch('/api/send-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ report, channel: channel.config })
+                body: JSON.stringify({ report, channel: channel.config }),
               })
               result.channels.push('email')
             } else if (channel.type === 'slack') {
@@ -794,7 +794,7 @@ export class SecurityReportDistributor {
               await fetch('/api/send-slack', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ report, channel: channel.config })
+                body: JSON.stringify({ report, channel: channel.config }),
               })
               result.channels.push('slack')
             } else if (channel.type === 'webhook') {
@@ -802,7 +802,7 @@ export class SecurityReportDistributor {
               await fetch(channel.config.url as string, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(report)
+                body: JSON.stringify(report),
               })
               result.channels.push('webhook')
             }
