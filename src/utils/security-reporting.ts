@@ -758,25 +758,67 @@ export class SecurityReportDistributor {
   /**
    * レポートの配信
    */
-  private async distributeReport(
+  async distributeReport(
     report: SecurityReport,
     _recipients: string[] = [],
     urgent = false,
-  ): Promise<void> {
+  ): Promise<{ success: boolean; channels: string[]; errors?: string[] }> {
     // コンソール出力
     // console.log(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
 
     // ローカルストレージに保存
     this.storeReport(report)
 
-    // TODO: 実際の配信機能の実装
-    // - メール送信
-    // - Slack通知
-    // - Webhook呼び出し
+    const result = {
+      success: true,
+      channels: [] as string[],
+      errors: [] as string[]
+    }
+
+    // 通知チャネルの処理
+    if (this.config.notificationChannels) {
+      for (const channel of this.config.notificationChannels) {
+        if (channel.enabled) {
+          try {
+            // 各チャネルタイプに応じた配信処理
+            if (channel.type === 'email') {
+              // メール配信の模擬実装
+              await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report, channel: channel.config })
+              })
+              result.channels.push('email')
+            } else if (channel.type === 'slack') {
+              // Slack配信の模擬実装
+              await fetch('/api/send-slack', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ report, channel: channel.config })
+              })
+              result.channels.push('slack')
+            } else if (channel.type === 'webhook') {
+              // Webhook配信の模擬実装
+              await fetch(channel.config.url as string, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(report)
+              })
+              result.channels.push('webhook')
+            }
+          } catch (error) {
+            result.errors.push(`Failed to send to ${channel.type}: ${error}`)
+            result.success = false
+          }
+        }
+      }
+    }
 
     if (urgent) {
       // console.log('🚨 URGENT: Incident report requires immediate attention')
     }
+
+    return result
   }
 
   /**
