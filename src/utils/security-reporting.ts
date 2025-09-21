@@ -130,14 +130,14 @@ export class SecurityReportGenerator {
       try {
         const events = this.eventProvider?.() || []
         if (events.length > 0) {
-          console.log(`📊 Automatic report: ${events.length} events processed`)
+          // console.log(`📊 Automatic report: ${events.length} events processed`)
         }
       } catch (error) {
         console.error('Automatic reporting error:', error)
       }
     }, intervalMs)
 
-    console.log('📊 Automatic reporting started')
+    // console.log('📊 Automatic reporting started')
   }
 
   /**
@@ -149,7 +149,7 @@ export class SecurityReportGenerator {
       this.automaticReportingInterval = undefined
     }
     this.eventProvider = undefined
-    console.log('📊 Automatic reporting stopped')
+    // console.log('📊 Automatic reporting stopped')
   }
 
   /**
@@ -732,7 +732,7 @@ export class SecurityReportDistributor {
 
       const recipients: string[] = [] // Simplified implementation
       await this.distributeReport(report, recipients)
-      console.log(`${type} security report sent successfully`)
+      // console.log(`${type} security report sent successfully`)
     } catch (error) {
       console.error(`Failed to send ${type} report:`, error)
     }
@@ -749,7 +749,7 @@ export class SecurityReportDistributor {
       const report = await this.reportGenerator.generateIncidentReport(__incidentId)
       const recipients: string[] = [] // Simplified implementation
       await this.distributeReport(report, recipients, true)
-      console.log('Urgent incident report sent successfully')
+      // console.log('Urgent incident report sent successfully')
     } catch (error) {
       console.error('Failed to send urgent incident report:', error)
     }
@@ -764,7 +764,7 @@ export class SecurityReportDistributor {
     urgent = false,
   ): Promise<void> {
     // コンソール出力
-    console.log(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
+    // console.log(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
 
     // ローカルストレージに保存
     this.storeReport(report)
@@ -775,7 +775,7 @@ export class SecurityReportDistributor {
     // - Webhook呼び出し
 
     if (urgent) {
-      console.log('🚨 URGENT: Incident report requires immediate attention')
+      // console.log('🚨 URGENT: Incident report requires immediate attention')
     }
   }
 
@@ -784,7 +784,7 @@ export class SecurityReportDistributor {
    */
   private scheduleReport(type: 'daily' | 'weekly' | 'monthly', cron: string): void {
     // 簡易実装：実際にはcronライブラリを使用
-    console.log(`📅 Scheduled ${type} report: ${cron}`)
+    // console.log(`📅 Scheduled ${type} report: ${cron}`)
   }
 
   /**
@@ -831,7 +831,7 @@ export class SecurityReportDistributor {
   updateConfig(newConfig: Record<string, unknown>): void {
     if (typeof newConfig === 'object' && newConfig !== null) {
       this.config = { ...this.config, ...newConfig }
-      console.log('📊 Distribution config updated:', this.config)
+      // console.log('📊 Distribution config updated:', this.config)
     } else {
       throw new Error('Invalid config object')
     }
@@ -847,7 +847,7 @@ export class SecurityReportDistributor {
 
     if (channel && typeof channel === 'object') {
       this.config.notificationChannels.push(channel)
-      console.log('📊 Notification channel added:', channel)
+      // console.log('📊 Notification channel added:', channel)
     } else {
       throw new Error('Invalid notification channel')
     }
@@ -885,14 +885,14 @@ export class SecurityReportDistributor {
    */
   startScheduledDistribution(): void {
     this.startScheduledReports()
-    console.log('📊 Scheduled distribution started')
+    // console.log('📊 Scheduled distribution started')
   }
 
   /**
    * 定期配信の停止
    */
   stopScheduledDistribution(): void {
-    console.log('📊 Scheduled distribution stopped')
+    // console.log('📊 Scheduled distribution stopped')
   }
 }
 
@@ -903,5 +903,5 @@ export function initializeSecurityReporting(): void {
   const distributor = SecurityReportDistributor.getInstance()
   distributor.startScheduledReports()
 
-  console.log('📊 Security reporting system initialized')
+  // console.log('📊 Security reporting system initialized')
 }
