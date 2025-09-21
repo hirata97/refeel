@@ -253,7 +253,7 @@ export class SecurityReportGenerator {
    */
   private async generateReportFromEvents(
     type: 'daily' | 'weekly' | 'monthly' | 'incident',
-    events: SecurityEvent[]
+    events: SecurityEvent[],
   ): Promise<SecurityReport> {
     const alerts: SecurityAlert[] = [] // Simplified implementation
 
@@ -673,7 +673,7 @@ export class SecurityReportDistributor {
   } = {
     enabled: true,
     defaultRecipients: [],
-    notificationChannels: []
+    notificationChannels: [],
   }
   private distributionHistory: Array<{
     reportId: string
@@ -805,7 +805,7 @@ export class SecurityReportDistributor {
         type: report.type,
         timestamp: new Date().toISOString(),
         recipients: this.config.defaultRecipients || [],
-        status: 'success'
+        status: 'success',
       })
 
       // 履歴は最新100件まで保持
@@ -820,7 +820,7 @@ export class SecurityReportDistributor {
         type: 'unknown',
         timestamp: new Date().toISOString(),
         recipients: [],
-        status: 'failed'
+        status: 'failed',
       })
     }
   }
