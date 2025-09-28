@@ -1,9 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { SecurityReportGenerator, SecurityReportDistributor } from '@/utils/security-reporting'
-import type { 
-  SecurityReport, 
-  SecurityEvent, 
-  ThreatLevel, 
+import type {
+  SecurityReport,
+  SecurityEvent,
   SecurityConfiguration,
   NotificationChannel
 } from '@/types/security-monitoring'

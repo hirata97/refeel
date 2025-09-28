@@ -640,13 +640,6 @@ export class SecurityReportGenerator {
     return []
   }
 
-  /**
-   * インシデントID取得
-   */
-  private async getIncidentById(__incidentId: string): Promise<SecurityIncident | null> {
-    // 簡易実装：実際のインシデントストレージから取得すべき
-    return null
-  }
 
   /**
    * コンプライアンス評価
