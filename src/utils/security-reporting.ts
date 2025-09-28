@@ -120,9 +120,9 @@ export class SecurityReportGenerator {
         impact: {
           affectedUsers: ['user1', 'user2'],
           affectedSystems: ['auth'],
-          estimatedDamage: 'minimal'
+          estimatedDamage: 'minimal',
         },
-        timeline: []
+        timeline: [],
       }
     }
     return null
@@ -639,7 +639,6 @@ export class SecurityReportGenerator {
     // 簡易実装：実際のインシデントストレージから取得すべき
     return []
   }
-
 
   /**
    * コンプライアンス評価
