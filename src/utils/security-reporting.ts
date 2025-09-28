@@ -217,14 +217,15 @@ export class SecurityReportGenerator {
     const threatLevel = this.calculateOverallThreatLevel(events) as ThreatLevel
 
     // API呼び出しイベントからレスポンス時間を計算
-    const apiEvents = events.filter(e => e.type === 'api_call')
+    const apiEvents = events.filter((e) => e.type === 'api_call')
     const responseTimes = apiEvents
-      .map(e => e.details.responseTime as number)
-      .filter(rt => typeof rt === 'number')
+      .map((e) => e.details.responseTime as number)
+      .filter((rt) => typeof rt === 'number')
 
-    const avgResponseTime = responseTimes.length > 0
-      ? responseTimes.reduce((sum, rt) => sum + rt, 0) / responseTimes.length
-      : 150 // テストで期待されるデフォルト値
+    const avgResponseTime =
+      responseTimes.length > 0
+        ? responseTimes.reduce((sum, rt) => sum + rt, 0) / responseTimes.length
+        : 150 // テストで期待されるデフォルト値
 
     return {
       currentThreatLevel: threatLevel,
@@ -698,37 +699,40 @@ export class SecurityReportGenerator {
   /**
    * トレンド分析生成
    */
-  private generateTrendAnalysis(events: SecurityEvent[], period: 'weekly' | 'monthly'): SecurityTrend[] {
+  private generateTrendAnalysis(
+    events: SecurityEvent[],
+    period: 'weekly' | 'monthly',
+  ): SecurityTrend[] {
     const trends: SecurityTrend[] = []
 
     // 認証失敗のトレンド
-    const _authFailures = events.filter(e => e.type === 'auth_failure').length
+    const _authFailures = events.filter((e) => e.type === 'auth_failure').length
     trends.push({
       metric: 'authentication_failures',
       direction: 'stable', // 簡易実装では固定
       change: 0,
       period: period === 'weekly' ? 'week' : 'month',
-      significance: 'low'
+      significance: 'low',
     })
 
     // API呼び出しのトレンド
-    const _apiCalls = events.filter(e => e.type === 'api_call').length
+    const _apiCalls = events.filter((e) => e.type === 'api_call').length
     trends.push({
       metric: 'api_calls',
       direction: 'stable',
       change: 0,
       period: period === 'weekly' ? 'week' : 'month',
-      significance: 'low'
+      significance: 'low',
     })
 
     // 不審な活動のトレンド
-    const suspiciousActivity = events.filter(e => e.type === 'suspicious_activity').length
+    const suspiciousActivity = events.filter((e) => e.type === 'suspicious_activity').length
     trends.push({
       metric: 'suspicious_activity',
       direction: suspiciousActivity > 2 ? 'increasing' : 'stable',
       change: suspiciousActivity,
       period: period === 'weekly' ? 'week' : 'month',
-      significance: suspiciousActivity > 2 ? 'high' : 'low'
+      significance: suspiciousActivity > 2 ? 'high' : 'low',
     })
 
     return trends
@@ -762,7 +766,7 @@ export class SecurityReportDistributor {
     active: boolean
     interval?: NodeJS.Timeout
   } = {
-    active: false
+    active: false,
   }
 
   private constructor() {
@@ -985,7 +989,7 @@ export class SecurityReportDistributor {
       return
     }
 
-    const index = this.config.notificationChannels.findIndex(channel => channel.id === channelId)
+    const index = this.config.notificationChannels.findIndex((channel) => channel.id === channelId)
     if (index > -1) {
       this.config.notificationChannels.splice(index, 1)
       // console.log('📊 Notification channel removed:', channelId)
