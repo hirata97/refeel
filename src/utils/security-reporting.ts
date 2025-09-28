@@ -11,6 +11,7 @@ import type {
   SecurityAlert,
   ThreatLevel,
   NotificationChannel,
+  SecurityTrend,
 } from '@/types/security-monitoring'
 
 /**
@@ -701,7 +702,7 @@ export class SecurityReportGenerator {
     const trends: SecurityTrend[] = []
 
     // 認証失敗のトレンド
-    const authFailures = events.filter(e => e.type === 'auth_failure').length
+    const _authFailures = events.filter(e => e.type === 'auth_failure').length
     trends.push({
       metric: 'authentication_failures',
       direction: 'stable', // 簡易実装では固定
@@ -711,7 +712,7 @@ export class SecurityReportGenerator {
     })
 
     // API呼び出しのトレンド
-    const apiCalls = events.filter(e => e.type === 'api_call').length
+    const _apiCalls = events.filter(e => e.type === 'api_call').length
     trends.push({
       metric: 'api_calls',
       direction: 'stable',
