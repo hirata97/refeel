@@ -4,7 +4,7 @@ import { useDataStore } from '@/stores/data'
 
 // モックの設定
 vi.mock('@/lib/supabase', () => ({
-  default: {
+  supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({

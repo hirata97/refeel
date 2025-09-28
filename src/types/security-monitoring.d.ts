@@ -118,7 +118,17 @@ export interface SecurityReport {
   }
   incidents: SecurityIncident[]
   recommendations: SecurityRecommendation[]
+  trends?: SecurityTrend[]
+  compliance?: ComplianceReport
   generatedAt: string
+}
+
+export interface SecurityTrend {
+  metric: string
+  direction: 'increasing' | 'decreasing' | 'stable'
+  change: number
+  period: 'day' | 'week' | 'month'
+  significance: 'low' | 'medium' | 'high'
 }
 
 export interface SecurityIncident {
