@@ -115,7 +115,7 @@ interface Props {
 
 // 3. Props定義（withDefaults使用）
 const props = withDefaults(defineProps<Props>(), {
-  loading: false
+  loading: false,
 })
 
 // 4. Emits定義
@@ -198,11 +198,15 @@ watchEffect(() => {
 })
 
 // ✅ 良い例：watch使用
-watch(() => props.userId, async (newUserId) => {
-  if (newUserId) {
-    await fetchUserData(newUserId)
-  }
-}, { immediate: true })
+watch(
+  () => props.userId,
+  async (newUserId) => {
+    if (newUserId) {
+      await fetchUserData(newUserId)
+    }
+  },
+  { immediate: true },
+)
 ```
 
 ## 🧩 コンポーネント設計パターン
@@ -221,12 +225,7 @@ watch(() => props.userId, async (newUserId) => {
 ```vue
 <!-- BaseButton.vue の使用例 -->
 <template>
-  <BaseButton
-    :loading="isSubmitting"
-    color="primary"
-    variant="elevated"
-    @click="handleSubmit"
-  >
+  <BaseButton :loading="isSubmitting" color="primary" variant="elevated" @click="handleSubmit">
     送信
   </BaseButton>
 </template>
@@ -261,7 +260,7 @@ const props = defineProps<Props>()
 const changeClass = computed(() => ({
   'stat-change--positive': props.changeType === 'increase',
   'stat-change--negative': props.changeType === 'decrease',
-  'stat-change--neutral': props.changeType === 'neutral'
+  'stat-change--neutral': props.changeType === 'neutral',
 }))
 </script>
 ```
@@ -308,7 +307,7 @@ interface Props {
 
 // ✅ withDefaults使用
 const props = withDefaults(defineProps<Props>(), {
-  config: () => ({ showIcons: true, sortable: false })
+  config: () => ({ showIcons: true, sortable: false }),
 })
 ```
 
@@ -321,7 +320,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
   'item:select': [item: Item, index: number]
   'item:delete': [itemId: string]
-  'error': [error: Error]
+  error: [error: Error]
 }>()
 ```
 
@@ -397,7 +396,7 @@ export function useAuth() {
     auth: useAuthStore(),
     session: useSessionStore(),
     security: useSecurityStore(),
-    lockout: useLockoutStore()
+    lockout: useLockoutStore(),
   }
 }
 ```
@@ -410,19 +409,19 @@ export function useAuth() {
 // ✅ 動詞 + 名詞の形式
 export const useAuthStore = defineStore('auth', () => {
   // CRUD操作
-  const fetchUser = async () => { }      // 取得
-  const createUser = async () => { }     // 作成
-  const updateUser = async () => { }     // 更新
-  const deleteUser = async () => { }     // 削除
+  const fetchUser = async () => {} // 取得
+  const createUser = async () => {} // 作成
+  const updateUser = async () => {} // 更新
+  const deleteUser = async () => {} // 削除
 
   // 状態変更
-  const setLoading = (loading: boolean) => { }
-  const resetState = () => { }
-  const clearErrors = () => { }
+  const setLoading = (loading: boolean) => {}
+  const resetState = () => {}
+  const clearErrors = () => {}
 
   // ビジネスロジック
-  const validateSession = async () => { }
-  const refreshToken = async () => { }
+  const validateSession = async () => {}
+  const refreshToken = async () => {}
 })
 ```
 
@@ -449,7 +448,7 @@ export const useDataStore = defineStore('data', () => {
 
   // 2. ゲッター
   const filteredDiaries = computed(() => {
-    return diaries.value.filter(diary => diary.mood > 5)
+    return diaries.value.filter((diary) => diary.mood > 5)
   })
 
   // 3. アクション
@@ -481,7 +480,7 @@ export const useDataStore = defineStore('data', () => {
     filteredDiaries,
     // アクション
     fetchDiaries,
-    $reset
+    $reset,
   }
 })
 ```
@@ -546,16 +545,12 @@ export interface DiaryEntryWithEmotionTags extends DiaryEntry {
 
 ```typescript
 // ✅ 適切な型の使い分け
-import type { DiaryRow } from '@/types/database'        // DB操作用
-import type { DiaryEntry } from '@/types/custom'        // アプリケーション用
-import type { DiaryInsert } from '@/types/database'     // 挿入操作用
+import type { DiaryRow } from '@/types/database' // DB操作用
+import type { DiaryEntry } from '@/types/custom' // アプリケーション用
+import type { DiaryInsert } from '@/types/database' // 挿入操作用
 
 const fetchDiary = async (id: string): Promise<DiaryEntry> => {
-  const { data } = await supabase
-    .from('diaries')
-    .select('*')
-    .eq('id', id)
-    .single()
+  const { data } = await supabase.from('diaries').select('*').eq('id', id).single()
 
   return data as DiaryEntry // 必要に応じて変換
 }
@@ -567,11 +562,11 @@ const fetchDiary = async (id: string): Promise<DiaryEntry> => {
 
 ```typescript
 // ✅ 推奨命名パターン
-interface UserProfile { }        // エンティティ型
-interface CreateUserRequest { }  // リクエスト型
-interface UserResponse { }       // レスポンス型
-interface UserFormData { }       // フォーム用型
-interface UserDisplayProps { }   // コンポーネントProps型
+interface UserProfile {} // エンティティ型
+interface CreateUserRequest {} // リクエスト型
+interface UserResponse {} // レスポンス型
+interface UserFormData {} // フォーム用型
+interface UserDisplayProps {} // コンポーネントProps型
 ```
 
 #### 2. ジェネリック活用
@@ -647,7 +642,6 @@ const emit = defineEmits<{
 }>()
 
 // 4. ロジック実装
-
 </script>
 
 <style scoped>
@@ -686,7 +680,7 @@ describe('ComponentName - 正常系', () => {
     const wrapper = mount(ComponentName, {
       props: {
         // 必要なprops
-      }
+      },
     })
 
     expect(wrapper.exists()).toBe(true)
@@ -730,7 +724,7 @@ const useDataService = (repository: DataRepository) => {
 
 // 実装
 const supabaseRepository: DataRepository = {
-  fetchData: () => supabase.from('data').select('*')
+  fetchData: () => supabase.from('data').select('*'),
 }
 ```
 
@@ -740,9 +734,7 @@ const supabaseRepository: DataRepository = {
 
 ```typescript
 // ✅ コンポーネントの遅延読み込み
-const DiaryEditPage = defineAsyncComponent(() =>
-  import('@/views/DiaryEditPage.vue')
-)
+const DiaryEditPage = defineAsyncComponent(() => import('@/views/DiaryEditPage.vue'))
 
 // ✅ ストアの遅延初期化
 const initializeStoreIfNeeded = () => {
@@ -765,7 +757,7 @@ watch(
   () => props.searchQuery,
   debounce(async (newQuery) => {
     await searchData(newQuery)
-  }, 300)
+  }, 300),
 )
 ```
 
@@ -800,6 +792,7 @@ router.beforeEach((to, from, next) => {
 ---
 
 **📋 関連ドキュメント**
+
 - [CLAUDE.md](../CLAUDE.md) - プロジェクト開発指針
 - [tests/README.md](../tests/README.md) - テスト戦略・構造ガイド
 - [docs/DEVELOPMENT/ARCHITECTURE.md](../docs/DEVELOPMENT/ARCHITECTURE.md) - 詳細アーキテクチャ
