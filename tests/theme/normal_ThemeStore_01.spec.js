@@ -78,17 +78,18 @@ describe('ThemeStore - 正常系', () => {
   })
 
   it('自動テーマ（システム設定に従う）に設定できる', () => {
-    mockMatchMedia.mockReturnValue({
-      matches: true,
+    // matchMediaのモックを再設定（ダークモード検知）
+    mockMatchMedia.mockImplementation((query) => ({
+      matches: query === '(prefers-color-scheme: dark)' ? true : false,
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
       addListener: vi.fn(),
       removeListener: vi.fn(),
-    })
-    
-    themeStore.setTheme('auto')
-    
-    expect(themeStore.selectedTheme).toBe('auto')
+    }))
+
+    themeStore.setTheme('system')
+
+    expect(themeStore.selectedTheme).toBe('system')
     expect(themeStore.effectiveTheme).toBe('dark') // システムがダークモードの場合
   })
 
@@ -97,12 +98,12 @@ describe('ThemeStore - 正常系', () => {
     themeStore.setTheme('light')
     themeStore.toggleTheme()
     expect(themeStore.selectedTheme).toBe('dark')
-    
-    // dark -> auto
+
+    // dark -> system
     themeStore.toggleTheme()
-    expect(themeStore.selectedTheme).toBe('auto')
-    
-    // auto -> light
+    expect(themeStore.selectedTheme).toBe('system')
+
+    // system -> light
     themeStore.toggleTheme()
     expect(themeStore.selectedTheme).toBe('light')
   })
@@ -147,7 +148,7 @@ describe('ThemeStore - 正常系', () => {
     })
     expect(options[2]).toEqual({
       title: 'システム設定に従う',
-      value: 'auto',
+      value: 'system',
       icon: 'mdi-theme-light-dark'
     })
   })

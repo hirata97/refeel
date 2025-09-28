@@ -15,6 +15,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { VForm } from 'vuetify/components'
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type VFormInstance = VForm & any
 
 interface Props {
   title?: string
@@ -33,21 +35,22 @@ const emit = defineEmits<{
   submit: [isValid: boolean]
 }>()
 
-const formRef = ref<VForm>()
+const formRef = ref<VFormInstance>()
 const isValid = ref(false)
 
-const handleSubmit = async () => {
+const handleSubmit = async (): Promise<void> => {
   if (props.validateOnSubmit && formRef.value) {
-    const { valid } = await formRef.value.validate()
-    emit('submit', valid)
+    const result = (await formRef.value.validate()) as { valid: boolean }
+    emit('submit', result.valid)
   } else {
     emit('submit', isValid.value)
   }
 }
 
-const validate = async () => {
+const validate = async (): Promise<{ valid: boolean }> => {
   if (formRef.value) {
-    return await formRef.value.validate()
+    const result = (await formRef.value.validate()) as { valid: boolean }
+    return { valid: result.valid }
   }
   return { valid: false }
 }
@@ -64,12 +67,9 @@ const resetValidation = () => {
   }
 }
 
-// Vuetify型定義を正しく使用
-// 注意: VForm.validate()の戻り値型（SubmitEventPromise）に関するTypeScriptエラーが
-// vue-tscとVuetifyの型定義の相互作用で発生することがあります。
-// このエラーはci-type-check.shで適切に除外されており、ランタイム動作には影響しません。
+// BaseFormの公開メソッド
 defineExpose({
-  validate,
+  validate: validate as () => Promise<{ valid: boolean }>,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value),

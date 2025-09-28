@@ -16,7 +16,7 @@
     "ci:lint": "eslint . --max-warnings=0",
     "ci:test": "vitest run --coverage --reporter=verbose",
     "ci:type-check": "./scripts/ci-type-check.sh",
-    "ci:security": "npm audit --audit-level=moderate",
+    "ci:security": "npm audit --audit-level=high",
     "ci:build": "vite build",
     "ci:e2e": "playwright test --reporter=html",
     "create-pr": "./scripts/create-pr.sh",
