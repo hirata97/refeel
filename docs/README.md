@@ -8,12 +8,13 @@
 
 | ファイル                                               | 説明                         | 主な内容                                           |
 | ------------------------------------------------------ | ---------------------------- | -------------------------------------------------- |
-| [DEVELOPMENT_COMMANDS.md](DEVELOPMENT_COMMANDS.md)     | 開発コマンド集               | npm scripts、自動化コマンド、Issue管理フロー       |
-| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)     | 開発ワークフロー             | ブランチ戦略、PR作成手順、開発プロセス             |
-| [ARCHITECTURE.md](ARCHITECTURE.md)                     | システムアーキテクチャ       | 技術スタック、コンポーネント構造、ディレクトリ構成 |
-| [CODING_STANDARDS.md](CODING_STANDARDS.md)             | コーディング規則             | 命名規則、テスト規則、Git ワークフロー             |
-| [BEST_PRACTICES.md](BEST_PRACTICES.md)                 | 開発ベストプラクティス       | 実装前チェックリスト、段階的開発プロセス           |
-| [PR_TESTING_GUIDE.md](PR_TESTING_GUIDE.md)             | PRテスト・検証ガイド         | 自動テスト、手動検証、品質チェック手順             |
+| [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md)     | 開発コマンド集               | npm scripts、自動化コマンド、Issue管理フロー       |
+| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT/DEVELOPMENT_WORKFLOW.md)     | 開発ワークフロー             | ブランチ戦略、PR作成手順、開発プロセス             |
+| [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                     | システムアーキテクチャ       | 技術スタック、コンポーネント構造、ディレクトリ構成 |
+| [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)             | コーディング規則             | 命名規則、テスト規則、Git ワークフロー             |
+| [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)                 | 開発ベストプラクティス       | 実装前チェックリスト、段階的開発プロセス           |
+| [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)       | ドキュメント管理ガイド       | README.md作成方針、ドキュメント品質基準、テンプレート |
+| [PR_TESTING_GUIDE.md](PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md)             | PRテスト・検証ガイド         | 自動テスト、手動検証、品質チェック手順             |
 
 ### ⚙️ 環境・設定
 
@@ -108,5 +109,12 @@
 
 ---
 
-**最終更新**: 2025-08-17  
+**最終更新**: 2025-09-28
 **管理**: hirata
+
+## 🔄 更新履歴
+
+| 日付 | 更新内容 |
+|------|----------|
+| 2025-09-28 | ドキュメント管理ガイド（DOCUMENTATION_GUIDE.md）を追加・ISSUE_CREATION_GUIDE.mdから分離独立 |
+| 2025-08-17 | 初版作成 |
