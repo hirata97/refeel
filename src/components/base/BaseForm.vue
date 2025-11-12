@@ -1,12 +1,12 @@
 <template>
   <v-container :class="containerClass">
-    <v-form ref="formRef" v-model="isValid" @submit.prevent="handleSubmit" :class="formClass">
+    <v-form ref="formRef" v-model="isValid" @submit.prevent="onFormSubmit" :class="formClass">
       <h1 v-if="title" class="form-title mb-4 text-center">{{ title }}</h1>
 
       <slot name="content" :isValid="isValid" />
 
       <div v-if="$slots.actions" class="form-actions mt-4">
-        <slot name="actions" :isValid="isValid" :submit="() => handleSubmit()" />
+        <slot name="actions" :isValid="isValid" :submit="handleSubmit" />
       </div>
     </v-form>
   </v-container>
@@ -15,6 +15,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { VForm } from 'vuetify/components'
+
+// Vuetify型定義（Issue #213対応）
+interface FormValidationResult {
+  valid: boolean
+  errors: Array<{
+    id: number | string
+    errorMessages: string[]
+  }>
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type VFormInstance = VForm & any
 
@@ -38,6 +48,14 @@ const emit = defineEmits<{
 const formRef = ref<VFormInstance>()
 const isValid = ref(false)
 
+// Issue #213対応: フォームのsubmitイベントハンドラーを分離
+// onFormSubmit: DOMイベントを受け取る（Vuetifyの@submitで使用）
+const onFormSubmit = (): void => {
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  handleSubmit()
+}
+
+// handleSubmit: プログラマティックな呼び出し用（スロット経由で公開）
 const handleSubmit = async (): Promise<void> => {
   if (props.validateOnSubmit && formRef.value) {
     const result = (await formRef.value.validate()) as { valid: boolean }
@@ -47,12 +65,18 @@ const handleSubmit = async (): Promise<void> => {
   }
 }
 
-const validate = async (): Promise<{ valid: boolean }> => {
-  if (formRef.value) {
-    const result = (await formRef.value.validate()) as { valid: boolean }
-    return { valid: result.valid }
-  }
-  return { valid: false }
+const validate = (): Promise<FormValidationResult> => {
+  return new Promise(async (resolve) => {
+    if (formRef.value) {
+      const result = await formRef.value.validate()
+      resolve({
+        valid: result.valid,
+        errors: result.errors || [],
+      })
+    } else {
+      resolve({ valid: false, errors: [] })
+    }
+  })
 }
 
 const reset = () => {
@@ -69,7 +93,7 @@ const resetValidation = () => {
 
 // BaseFormの公開メソッド
 defineExpose({
-  validate: validate as () => Promise<{ valid: boolean }>,
+  validate,
   reset,
   resetValidation,
   isValid: computed(() => isValid.value),

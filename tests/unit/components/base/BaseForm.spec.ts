@@ -148,12 +148,12 @@ describe('BaseForm', () => {
       expect(result.valid).toBe(true)
     })
 
-    it('formRefがない場合、validateメソッドはfalseを返す', () => {
+    it('formRefがない場合、validateメソッドはfalseを返す', async () => {
       const wrapper = createWrapper()
       wrapper.vm.formRef = null
-      
-      const result = wrapper.vm.validate()
-      
+
+      const result = await wrapper.vm.validate()
+
       expect(result.valid).toBe(false)
     })
 
