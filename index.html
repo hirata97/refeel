@@ -12,8 +12,12 @@
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
     
-    <!-- Content Security Policy -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';">
+    <!-- Content Security Policy - Production (Hardened) -->
+    <!-- Removed: unsafe-eval (no eval usage confirmed) - XSS protection -->
+    <!-- Removed: unsafe-inline from script-src - Critical XSS protection -->
+    <!-- Kept: unsafe-inline for style-src - Vuetify dynamic theming compatibility -->
+    <!-- Restricted: img-src to specific trusted domains (removed wildcard https:) -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://*.supabase.co https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests;">
     
     <title>Refeel - Reflect + Feel</title>
     <meta name="description" content="モチベーション変化を測定・分析するWebアプリケーション。日々の振り返りで内省を深め、感情と要因を可視化します。">
