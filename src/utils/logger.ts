@@ -23,7 +23,7 @@ class Logger {
       level: this.getDefaultLevel(),
       enabled: this.isEnabled(),
       prefix: '',
-      ...config
+      ...config,
     }
   }
 
