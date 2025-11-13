@@ -76,6 +76,9 @@ import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@/stores/loading'
 import GlobalNotification from '@/components/GlobalNotification.vue'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('APP')
 
 const route = useRoute()
 const router = useRouter()
@@ -129,12 +132,12 @@ const handleLogout = async () => {
         notificationStore.showSuccess('ログアウトしました')
         await router.push('/login')
       } else {
-        console.error('ログアウトエラー:', result.error)
+        logger.error('ログアウトエラー:', result.error)
         notificationStore.showError('ログアウトに失敗しました', 'ログアウトに失敗しました')
       }
     })
   } catch (error) {
-    console.error('ログアウトエラー:', error)
+    logger.error('ログアウトエラー:', error)
     notificationStore.showError(
       'ログアウトに失敗しました',
       error instanceof Error ? error.message : 'Unknown error',

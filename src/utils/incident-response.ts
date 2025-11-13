@@ -1,4 +1,7 @@
 import { SecurityAlertManager } from '@/utils/security-monitoring'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('INCIDENT-RESPONSE')
 import type {
   SecurityIncident,
   SecurityAction,
@@ -67,7 +70,7 @@ export class IncidentResponseManager {
     this.incidents.push(incident)
     this.triggerIncidentResponse(incident)
 
-    console.log(`🚨 Security incident created: ${incident.id} - ${title}`)
+    logger.debug(`🚨 Security incident created: ${incident.id} - ${title}`)
     return incident
   }
 
@@ -138,7 +141,7 @@ export class IncidentResponseManager {
       actor: 'System',
     })
 
-    console.log(`📋 Incident ${incidentId} status updated to ${status}`)
+    logger.debug(`📋 Incident ${incidentId} status updated to ${status}`)
     return incident
   }
 
@@ -157,7 +160,7 @@ export class IncidentResponseManager {
       actor: 'System',
     })
 
-    console.log(`👤 Incident ${incidentId} assigned to ${assignedTo}`)
+    logger.debug(`👤 Incident ${incidentId} assigned to ${assignedTo}`)
     return incident
   }
 
@@ -179,7 +182,7 @@ export class IncidentResponseManager {
       actor: 'System',
     })
 
-    console.log(`✅ Incident ${incidentId} resolved${resolution ? ': ' + resolution : ''}`)
+    logger.debug(`✅ Incident ${incidentId} resolved${resolution ? ': ' + resolution : ''}`)
     return incident
   }
 
@@ -198,7 +201,7 @@ export class IncidentResponseManager {
       actor: 'System',
     })
 
-    console.log(`🔗 Related event added to incident ${incidentId}:`, event)
+    logger.debug(`🔗 Related event added to incident ${incidentId}:`, event)
     return incident
   }
 
@@ -231,7 +234,7 @@ export class IncidentResponseManager {
       actor: 'System',
     })
 
-    console.log(`⚡ Action executed for incident ${incidentId}:`, action)
+    logger.debug(`⚡ Action executed for incident ${incidentId}:`, action)
     return action
   }
 
@@ -258,7 +261,7 @@ export class IncidentResponseManager {
     handler: IncidentHandler,
   ): Promise<void> {
     try {
-      console.log(`🔧 Executing incident handler: ${handler.name} for ${incident.id}`)
+      logger.debug(`🔧 Executing incident handler: ${handler.name} for ${incident.id}`)
 
       const actions = await handler.handle(incident)
 
@@ -266,7 +269,7 @@ export class IncidentResponseManager {
         this.addAction(incident.id, actionData)
       }
     } catch (error) {
-      console.error(`Failed to execute handler ${handler.name}:`, error)
+      logger.error(`Failed to execute handler ${handler.name}:`, error)
     }
   }
 
@@ -287,7 +290,7 @@ export class IncidentResponseManager {
     }
 
     incident.actions.push(fullAction)
-    console.log(`⚡ Action added to incident ${incidentId}:`, fullAction)
+    logger.debug(`⚡ Action added to incident ${incidentId}:`, fullAction)
     return fullAction
   }
 
@@ -306,7 +309,7 @@ export class IncidentResponseManager {
    * インシデントのエスカレーション
    */
   private escalateIncident(incident: SecurityIncident, rule: EscalationRule): void {
-    console.log(`⬆️ Escalating incident ${incident.id} - Rule: ${rule.name}`)
+    logger.debug(`⬆️ Escalating incident ${incident.id} - Rule: ${rule.name}`)
     rule.execute(incident)
   }
 
@@ -362,7 +365,7 @@ export class IncidentResponseManager {
         name: 'Critical Severity Auto-Escalation',
         condition: (incident) => incident.severity === 'critical',
         execute: (incident) => {
-          console.log(`🚨 Critical incident auto-escalated: ${incident.id}`)
+          logger.debug(`🚨 Critical incident auto-escalated: ${incident.id}`)
         },
       },
     ]
@@ -396,7 +399,7 @@ export class AutomatedResponseSystem {
     _severity: ThreatLevel,
     channels: string[] = ['console'],
   ): Promise<void> {
-    console.log(`📢 ADMIN ALERT: ${message}`)
+    logger.debug(`📢 ADMIN ALERT: ${message}`)
     for (const channel of channels) {
       await this.sendNotification(channel, message)
     }
@@ -408,16 +411,16 @@ export class AutomatedResponseSystem {
   private async sendNotification(channel: string, message: string): Promise<void> {
     switch (channel) {
       case 'console':
-        console.log(`📢 ${message}`)
+        logger.debug(`📢 ${message}`)
         break
       case 'email':
-        console.log(`📧 Email notification sent: ${message}`)
+        logger.debug(`📧 Email notification sent: ${message}`)
         break
       case 'slack':
-        console.log(`💬 Slack notification sent: ${message}`)
+        logger.debug(`💬 Slack notification sent: ${message}`)
         break
       default:
-        console.log(`📣 Unknown channel ${channel}: ${message}`)
+        logger.debug(`📣 Unknown channel ${channel}: ${message}`)
     }
   }
 
@@ -436,7 +439,7 @@ export class AutomatedResponseSystem {
    */
   addResponseRule(rule: { eventType: string; actions: string[]; enabled?: boolean }): string {
     const ruleId = crypto.randomUUID()
-    console.log(`🔧 Response rule added: ${ruleId} for ${rule.eventType}`)
+    logger.debug(`🔧 Response rule added: ${ruleId} for ${rule.eventType}`)
     return ruleId
   }
 
@@ -444,7 +447,7 @@ export class AutomatedResponseSystem {
    * レスポンスルール無効化
    */
   disableResponseRule(ruleId: string): boolean {
-    console.log(`🚫 Response rule disabled: ${ruleId}`)
+    logger.debug(`🚫 Response rule disabled: ${ruleId}`)
     return true
   }
 
@@ -454,7 +457,7 @@ export class AutomatedResponseSystem {
   startMonitoring(): void {
     if (!this.isMonitoring) {
       this.isMonitoring = true
-      console.log('🔍 Automated response monitoring started')
+      logger.debug('🔍 Automated response monitoring started')
     }
   }
 
@@ -464,7 +467,7 @@ export class AutomatedResponseSystem {
   stopMonitoring(): void {
     if (this.isMonitoring) {
       this.isMonitoring = false
-      console.log('🛑 Automated response monitoring stopped')
+      logger.debug('🛑 Automated response monitoring stopped')
     }
   }
 
@@ -482,7 +485,7 @@ export class AutomatedResponseSystem {
     actionType: string,
     parameters: Record<string, unknown>,
   ): Promise<{ success: boolean; message: string }> {
-    console.log(`⚡ Executing response action: ${actionType}`, parameters)
+    logger.debug(`⚡ Executing response action: ${actionType}`, parameters)
 
     try {
       switch (actionType) {
@@ -499,7 +502,7 @@ export class AutomatedResponseSystem {
           throw new Error(`Unknown action type: ${actionType}`)
       }
     } catch (error) {
-      console.error(`Failed to execute action ${actionType}:`, error)
+      logger.error(`Failed to execute action ${actionType}:`, error)
       return { success: false, message: `Action failed: ${(error as Error).message}` }
     }
   }
@@ -515,14 +518,14 @@ export class AutomatedResponseSystem {
    * イベント処理
    */
   async processEvent(event: SecurityEvent): Promise<void> {
-    console.log(`🔄 Processing security event: ${event.type}`)
+    logger.debug(`🔄 Processing security event: ${event.type}`)
 
     // イベントタイプに基づく自動応答
     const rules = this.getResponseRules()
     const matchingRule = rules.find((rule) => rule.eventType === event.type && rule.enabled)
 
     if (matchingRule) {
-      console.log(`✅ Auto-response triggered for ${event.type}`)
+      logger.debug(`✅ Auto-response triggered for ${event.type}`)
 
       // 重要度に応じた自動アクション
       if (event.severity === 'high' || event.severity === 'critical') {
@@ -532,7 +535,7 @@ export class AutomatedResponseSystem {
         })
       }
     } else {
-      console.log(`⏭️ No auto-response rule for ${event.type}`)
+      logger.debug(`⏭️ No auto-response rule for ${event.type}`)
     }
   }
 }
@@ -570,5 +573,5 @@ export function initializeIncidentResponse(): void {
     }
   })
 
-  console.log('🚨 Incident response system initialized')
+  logger.debug('🚨 Incident response system initialized')
 }

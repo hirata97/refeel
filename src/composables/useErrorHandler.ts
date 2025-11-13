@@ -171,7 +171,7 @@ export function useErrorHandler() {
     } catch (err) {
       const message = err instanceof Error ? err.message : errorMessage
       showError(message)
-      console.error('Error in withErrorHandling:', err)
+      logger.error('Error in withErrorHandling:', err)
       return null
     } finally {
       setLoading(false)

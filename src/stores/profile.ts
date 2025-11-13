@@ -6,6 +6,9 @@ import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 import type { UserProfile } from '@/types/settings'
 import { DEFAULT_USER_PROFILE } from '@/types/settings'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('PROFILE')
 
 export const useProfileStore = defineStore('profile', () => {
   // 状態
@@ -64,7 +67,7 @@ export const useProfileStore = defineStore('profile', () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'プロフィールの取得に失敗しました'
-      console.error('プロフィール取得エラー:', error)
+      logger.error('プロフィール取得エラー:', error)
       lastError.value = errorMessage
       return null
     } finally {
@@ -109,7 +112,7 @@ export const useProfileStore = defineStore('profile', () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'プロフィールの作成に失敗しました'
-      console.error('プロフィール作成エラー:', error)
+      logger.error('プロフィール作成エラー:', error)
       lastError.value = errorMessage
       return null
     } finally {
@@ -172,7 +175,7 @@ export const useProfileStore = defineStore('profile', () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'プロフィールの更新に失敗しました'
-      console.error('プロフィール更新エラー:', error)
+      logger.error('プロフィール更新エラー:', error)
       lastError.value = errorMessage
       return false
     } finally {
@@ -244,7 +247,7 @@ export const useProfileStore = defineStore('profile', () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'アバターのアップロードに失敗しました'
-      console.error('アバターアップロードエラー:', error)
+      logger.error('アバターアップロードエラー:', error)
       lastError.value = errorMessage
       return null
     } finally {
@@ -268,7 +271,7 @@ export const useProfileStore = defineStore('profile', () => {
         const { error: deleteError } = await supabase.storage.from('avatars').remove([fileName])
 
         if (deleteError) {
-          console.warn('ストレージからの削除に失敗:', deleteError)
+          logger.warn('ストレージからの削除に失敗:', deleteError)
           // ストレージ削除の失敗は非クリティカルなのでログのみ
         }
       }
@@ -278,7 +281,7 @@ export const useProfileStore = defineStore('profile', () => {
       return success
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'アバターの削除に失敗しました'
-      console.error('アバター削除エラー:', error)
+      logger.error('アバター削除エラー:', error)
       lastError.value = errorMessage
       return false
     } finally {

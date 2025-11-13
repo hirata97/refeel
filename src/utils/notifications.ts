@@ -99,7 +99,7 @@ export class NotificationUtils {
     const permission = this.getNotificationPermission()
 
     if (permission !== 'granted') {
-      console.warn('通知の許可が必要です')
+      logger.warn('通知の許可が必要です')
       return null
     }
 
@@ -295,15 +295,15 @@ export class NotificationUtils {
     if (!soundUrl) {
       // デフォルト音
       const audio = new Audio('/sounds/notification.mp3')
-      audio.play().catch(console.warn)
+      audio.play().catch((err) => logger.warn('音声再生失敗:', err))
       return
     }
 
     try {
       const audio = new Audio(soundUrl)
-      audio.play().catch(console.warn)
+      audio.play().catch((err) => logger.warn('音声再生失敗:', err))
     } catch (error) {
-      console.warn('通知音の再生に失敗しました:', error)
+      logger.warn('通知音の再生に失敗しました:', error)
     }
   }
 

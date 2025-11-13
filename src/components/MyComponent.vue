@@ -10,9 +10,9 @@ onMounted(async () => {
   const { data, error } = await supabase.from('table_name').select('*')
 
   if (error) {
-    console.error(error)
+    logger.error(error)
   } else {
-    console.log(data)
+    logger.debug(data)
   }
 })
 </script>

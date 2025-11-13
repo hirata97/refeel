@@ -52,9 +52,9 @@ export const createSessionStore = () => {
       sessionExpiresAt.value = null
       localStorage.removeItem('user')
       localStorage.removeItem('lastActivity')
-      console.log('セッションを強制無効化しました')
+      logger.debug('セッションを強制無効化しました')
     } catch (err) {
-      console.error('セッション無効化エラー:', err)
+      logger.error('セッション無効化エラー:', err)
     }
   }
 
@@ -74,7 +74,7 @@ export const createSessionStore = () => {
 
       if (data.session) {
         setSession(data.session)
-        console.log('セッションIDを再生成しました')
+        logger.debug('セッションIDを再生成しました')
         return { success: true }
       }
 
@@ -93,14 +93,14 @@ export const createSessionStore = () => {
       // アクティビティタイムアウトチェック
       const inactiveTime = Date.now() - lastActivity.value
       if (inactiveTime > sessionTimeout.value) {
-        console.log('セッションがタイムアウトしました')
+        logger.debug('セッションがタイムアウトしました')
         await invalidateSession()
         return false
       }
 
       // セッション有効期限チェック
       if (isSessionExpired.value) {
-        console.log('セッションの有効期限が切れました')
+        logger.debug('セッションの有効期限が切れました')
         await invalidateSession()
         return false
       }
@@ -112,7 +112,7 @@ export const createSessionStore = () => {
       } = await supabase.auth.getUser()
 
       if (error || !user) {
-        console.log('Supabaseセッションが無効です')
+        logger.debug('Supabaseセッションが無効です')
         await invalidateSession()
         return false
       }
@@ -120,7 +120,7 @@ export const createSessionStore = () => {
       updateLastActivity()
       return true
     } catch (err) {
-      console.error('セッション検証エラー:', err)
+      logger.error('セッション検証エラー:', err)
       await invalidateSession()
       return false
     }
@@ -141,7 +141,7 @@ export const createSessionStore = () => {
       if (session) {
         setSession(session)
         localStorage.setItem('lastActivity', lastActivity.value.toString())
-        console.log('セッションを更新しました')
+        logger.debug('セッションを更新しました')
         return true
       }
 
@@ -149,7 +149,7 @@ export const createSessionStore = () => {
       await invalidateSession()
       return false
     } catch (err) {
-      console.error('セッション更新エラー:', err)
+      logger.error('セッション更新エラー:', err)
       // エラーの場合も状態をクリア
       await invalidateSession()
       return false
@@ -161,7 +161,7 @@ export const createSessionStore = () => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('認証状態変更:', event, session)
+      logger.debug('認証状態変更:', event, session)
 
       switch (event) {
         case 'SIGNED_IN':

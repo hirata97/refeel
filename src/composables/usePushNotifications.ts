@@ -26,7 +26,7 @@ export function usePushNotifications() {
   // 通知許可を要求
   const requestPermission = async (): Promise<boolean> => {
     if (!isSupported.value) {
-      console.warn('プッシュ通知がサポートされていません')
+      logger.warn('プッシュ通知がサポートされていません')
       return false
     }
 
@@ -35,14 +35,14 @@ export function usePushNotifications() {
       permission.value = result
 
       if (result === 'granted') {
-        console.log('プッシュ通知が許可されました')
+        logger.debug('プッシュ通知が許可されました')
         return true
       } else {
-        console.log('プッシュ通知が拒否されました')
+        logger.debug('プッシュ通知が拒否されました')
         return false
       }
     } catch (error) {
-      console.error('通知許可要求エラー:', error)
+      logger.error('通知許可要求エラー:', error)
       return false
     }
   }
@@ -54,7 +54,7 @@ export function usePushNotifications() {
     }
 
     if (!VAPID_PUBLIC_KEY) {
-      console.warn('VAPID公開鍵が設定されていません')
+      logger.warn('VAPID公開鍵が設定されていません')
       return false
     }
 
@@ -81,10 +81,10 @@ export function usePushNotifications() {
       // サーバーに購読情報を送信
       await sendSubscriptionToServer(newSubscription)
 
-      console.log('プッシュ通知に登録しました')
+      logger.debug('プッシュ通知に登録しました')
       return true
     } catch (error) {
-      console.error('プッシュ通知登録エラー:', error)
+      logger.error('プッシュ通知登録エラー:', error)
       return false
     }
   }
@@ -104,10 +104,10 @@ export function usePushNotifications() {
       subscription.value = null
       isSubscribed.value = false
 
-      console.log('プッシュ通知を解除しました')
+      logger.debug('プッシュ通知を解除しました')
       return true
     } catch (error) {
-      console.error('プッシュ通知解除エラー:', error)
+      logger.error('プッシュ通知解除エラー:', error)
       return false
     }
   }
@@ -115,7 +115,7 @@ export function usePushNotifications() {
   // テスト通知を送信
   const sendTestNotification = async (): Promise<boolean> => {
     if (!isSubscribed.value || !subscription.value) {
-      console.warn('プッシュ通知に登録されていません')
+      logger.warn('プッシュ通知に登録されていません')
       return false
     }
 
@@ -138,14 +138,14 @@ export function usePushNotifications() {
       })
 
       if (response.ok) {
-        console.log('テスト通知を送信しました')
+        logger.debug('テスト通知を送信しました')
         return true
       } else {
-        console.error('テスト通知送信に失敗しました')
+        logger.error('テスト通知送信に失敗しました')
         return false
       }
     } catch (error) {
-      console.error('テスト通知エラー:', error)
+      logger.error('テスト通知エラー:', error)
       return false
     }
   }
@@ -170,14 +170,14 @@ export function usePushNotifications() {
 
       if (response.ok) {
         localStorage.setItem('notification_settings', JSON.stringify(settings))
-        console.log('通知設定を保存しました')
+        logger.debug('通知設定を保存しました')
         return true
       } else {
-        console.error('通知設定保存に失敗しました')
+        logger.error('通知設定保存に失敗しました')
         return false
       }
     } catch (error) {
-      console.error('通知設定保存エラー:', error)
+      logger.error('通知設定保存エラー:', error)
       return false
     }
   }
@@ -196,7 +196,7 @@ export function usePushNotifications() {
       const saved = localStorage.getItem('notification_settings')
       return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings
     } catch (error) {
-      console.error('通知設定読み込みエラー:', error)
+      logger.error('通知設定読み込みエラー:', error)
       return defaultSettings
     }
   }
@@ -204,7 +204,7 @@ export function usePushNotifications() {
   // ローカル通知を表示（フォールバック）
   const showLocalNotification = (title: string, options?: NotificationOptions) => {
     if (permission.value !== 'granted') {
-      console.warn('通知が許可されていません')
+      logger.warn('通知が許可されていません')
       return
     }
 
@@ -222,7 +222,7 @@ export function usePushNotifications() {
 
       return notification
     } catch (error) {
-      console.error('ローカル通知エラー:', error)
+      logger.error('ローカル通知エラー:', error)
     }
   }
 
@@ -245,7 +245,7 @@ export function usePushNotifications() {
         throw new Error('購読情報送信に失敗しました')
       }
     } catch (error) {
-      console.error('購読情報送信エラー:', error)
+      logger.error('購読情報送信エラー:', error)
       // サーバー送信に失敗してもローカルでは購読状態を維持
     }
   }
@@ -267,7 +267,7 @@ export function usePushNotifications() {
         throw new Error('購読情報削除に失敗しました')
       }
     } catch (error) {
-      console.error('購読情報削除エラー:', error)
+      logger.error('購読情報削除エラー:', error)
     }
   }
 
@@ -301,7 +301,7 @@ export function usePushNotifications() {
         isSubscribed.value = false
       }
     } catch (error) {
-      console.error('購読状態確認エラー:', error)
+      logger.error('購読状態確認エラー:', error)
     }
   }
 

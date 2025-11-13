@@ -1,4 +1,7 @@
 import type { SecurityConfig, SecurityHeaders, CSRFToken } from '@/types/security'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SECURITY')
 
 export type Environment = 'development' | 'production' | 'test'
 
@@ -159,7 +162,7 @@ export class SecurityConfigManager {
 
       return true
     } catch (error) {
-      console.error('Security config validation error:', error)
+      logger.error('Security config validation error:', error)
       return false
     }
   }

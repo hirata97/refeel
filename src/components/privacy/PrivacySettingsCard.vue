@@ -229,6 +229,9 @@ import { PrivacyManager, GDPRCompliance } from '@/utils/privacy'
 import { useAuthStore } from '@/stores/auth'
 import DataDeletionDialog from './DataDeletionDialog.vue'
 import type { PrivacySettings } from '@/types/encryption'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('PRIVACYSETTINGSCARD')
 import type { VForm } from 'vuetify/components'
 
 // Composables
@@ -301,7 +304,7 @@ const loadSettings = async () => {
       originalSettings.value = { ...settings }
     }
   } catch (error) {
-    console.error('プライバシー設定の読み込みに失敗しました:', error)
+    logger.error('プライバシー設定の読み込みに失敗しました:', error)
     // TODO: Error notification
   } finally {
     loading.value = false
@@ -322,9 +325,9 @@ const saveSettings = async () => {
     localSettings.value = { ...updatedSettings }
 
     // TODO: Success notification
-    console.log('プライバシー設定を保存しました')
+    logger.debug('プライバシー設定を保存しました')
   } catch (error) {
-    console.error('プライバシー設定の保存に失敗しました:', error)
+    logger.error('プライバシー設定の保存に失敗しました:', error)
     // TODO: Error notification
   } finally {
     saveLoading.value = false
@@ -355,9 +358,9 @@ const exportData = async () => {
     URL.revokeObjectURL(url)
 
     // TODO: Success notification
-    console.log('データのエクスポートが完了しました')
+    logger.debug('データのエクスポートが完了しました')
   } catch (error) {
-    console.error('データエクスポートに失敗しました:', error)
+    logger.error('データエクスポートに失敗しました:', error)
     // TODO: Error notification
   } finally {
     exportLoading.value = false
@@ -370,7 +373,7 @@ const openDataDeletionDialog = () => {
 
 const onDataDeletionSubmitted = (token: string) => {
   // TODO: Success notification with token information
-  console.log('データ削除リクエストが送信されました。トークン:', token)
+  logger.debug('データ削除リクエストが送信されました。トークン:', token)
 }
 
 // Lifecycle

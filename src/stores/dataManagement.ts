@@ -6,6 +6,9 @@ import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 import type { DataManagementSettings, ExportData, ImportData } from '@/types/settings'
 import { DEFAULT_DATA_MANAGEMENT_SETTINGS } from '@/types/settings'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DATAMANAGEMENT')
 
 export const useDataManagementStore = defineStore('dataManagement', () => {
   // 状態
@@ -53,7 +56,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
         total: 1024 * 1024 * 100, // 100MBの制限（仮想的な値）
       }
     } catch (error) {
-      console.error('ストレージ使用量取得エラー:', error)
+      logger.error('ストレージ使用量取得エラー:', error)
     }
   }
 
@@ -178,7 +181,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'データのエクスポートに失敗しました'
-      console.error('エクスポートエラー:', error)
+      logger.error('エクスポートエラー:', error)
       lastError.value = errorMessage
       return null
     } finally {
@@ -284,7 +287,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : 'データのインポートに失敗しました'
-      console.error('インポートエラー:', error)
+      logger.error('インポートエラー:', error)
       lastError.value = errorMessage
       return false
     } finally {
@@ -328,7 +331,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
       return true
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '全データの削除に失敗しました'
-      console.error('データ削除エラー:', error)
+      logger.error('データ削除エラー:', error)
       lastError.value = errorMessage
       return false
     } finally {
@@ -347,7 +350,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
     try {
       localStorage.setItem('data-management-settings', JSON.stringify(settings.value))
     } catch (error) {
-      console.error('データ管理設定の保存に失敗:', error)
+      logger.error('データ管理設定の保存に失敗:', error)
     }
   }
 
@@ -359,7 +362,7 @@ export const useDataManagementStore = defineStore('dataManagement', () => {
         settings.value = { ...DEFAULT_DATA_MANAGEMENT_SETTINGS, ...JSON.parse(saved) }
       }
     } catch (error) {
-      console.error('データ管理設定の読み込みに失敗:', error)
+      logger.error('データ管理設定の読み込みに失敗:', error)
     }
   }
 

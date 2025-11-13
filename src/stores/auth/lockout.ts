@@ -16,7 +16,7 @@ export const createLockoutStore = () => {
       lockoutStatus.value = status
       return status
     } catch (err) {
-      console.error('ロックアウトステータス確認エラー:', err)
+      logger.error('ロックアウトステータス確認エラー:', err)
       return null
     }
   }

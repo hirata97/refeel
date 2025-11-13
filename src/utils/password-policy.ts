@@ -389,7 +389,7 @@ export class PasswordHistoryManager {
         createdAt: new Date(entry.createdAt),
       }))
     } catch (error) {
-      console.warn('パスワード履歴の取得に失敗:', error)
+      logger.warn('パスワード履歴の取得に失敗:', error)
       return []
     }
   }
@@ -401,7 +401,7 @@ export class PasswordHistoryManager {
     try {
       localStorage.setItem(`pwd_history_${userId}`, JSON.stringify(history))
     } catch (error) {
-      console.warn('パスワード履歴の保存に失敗:', error)
+      logger.warn('パスワード履歴の保存に失敗:', error)
     }
   }
 

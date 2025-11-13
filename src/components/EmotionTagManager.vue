@@ -104,6 +104,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEmotionTagsStore } from '@/stores/emotionTags'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('EMOTIONTAGMANAGER')
 
 // ストア
 const emotionTagsStore = useEmotionTagsStore()
@@ -132,7 +135,7 @@ const refreshTags = async (): Promise<void> => {
     refreshing.value = true
     await emotionTagsStore.fetchEmotionTags()
   } catch (err) {
-    console.error('感情タグの更新に失敗:', err)
+    logger.error('感情タグの更新に失敗:', err)
   } finally {
     refreshing.value = false
   }

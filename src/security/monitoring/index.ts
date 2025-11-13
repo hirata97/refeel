@@ -7,6 +7,9 @@ import type {
   SecurityAlert,
   ThreatLevel,
 } from '@/types/security-monitoring'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SECURITY-MONITOR')
 
 /**
  * セキュリティ監視システム
@@ -43,7 +46,7 @@ export class SecurityMonitor {
     this.setupEventListeners()
     this.startMetricsCollection()
 
-    console.log('🔍 Security monitoring started')
+    logger.info('🔍 Security monitoring started')
   }
 
   /**
@@ -51,7 +54,7 @@ export class SecurityMonitor {
    */
   stopMonitoring(): void {
     this.isMonitoring = false
-    console.log('🔍 Security monitoring stopped')
+    logger.info('🔍 Security monitoring stopped')
   }
 
   /**
@@ -419,13 +422,13 @@ export class SecurityAlertManager {
       try {
         handler(alert)
       } catch (error) {
-        console.error('Alert handler error:', error)
+        logger.error('Alert handler error:', error)
       }
     }
 
     // コンソールログ出力
     const emoji = this.getSeverityEmoji(alert.severity)
-    console.warn(`${emoji} Security Alert: ${alert.ruleName}`, alert)
+    logger.warn(`${emoji} Security Alert: ${alert.ruleName}`, alert)
 
     // ローカルストレージに保存
     this.persistAlert(alert)
@@ -503,7 +506,7 @@ export class SecurityAlertManager {
       const limitedAlerts = existingAlerts.slice(-100)
       localStorage.setItem('security_alerts', JSON.stringify(limitedAlerts))
     } catch (error) {
-      console.error('Failed to persist security alert:', error)
+      logger.error('Failed to persist security alert:', error)
     }
   }
 }
@@ -578,11 +581,11 @@ export function initializeSecurityMonitoring(): void {
   // デフォルトアラートハンドラーの設定
   alertManager.addAlertHandler('console', (alert) => {
     const emoji = alert.severity === 'critical' ? '🚨' : '⚠️'
-    console.warn(`${emoji} Security Alert: ${alert.ruleName}`, alert.event)
+    logger.warn(`${emoji} Security Alert: ${alert.ruleName}`, alert.event)
   })
 
   // 監視開始
   monitor.startMonitoring()
 
-  console.log('🔒 Security monitoring system initialized')
+  logger.debug('🔒 Security monitoring system initialized')
 }

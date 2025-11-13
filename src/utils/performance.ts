@@ -33,7 +33,7 @@ class PerformanceMonitor {
 
     const metric = this.metrics.get(label)
     if (!metric) {
-      console.warn(`Performance metric '${label}' not found`)
+      logger.warn(`Performance metric '${label}' not found`)
       return null
     }
 
@@ -52,9 +52,9 @@ class PerformanceMonitor {
     // 開発環境でのログ出力
     if (duration > 100) {
       // 100ms以上の場合のみ警告
-      console.warn(`⚠️ Slow operation: ${label} took ${duration.toFixed(2)}ms`)
+      logger.warn(`⚠️ Slow operation: ${label} took ${duration.toFixed(2)}ms`)
     } else {
-      console.log(`✅ ${label}: ${duration.toFixed(2)}ms`)
+      logger.debug(`✅ ${label}: ${duration.toFixed(2)}ms`)
     }
 
     return finalMetric
@@ -214,7 +214,7 @@ export function batchProcess<T, R>(
 // リソース使用量監視
 export function monitorResourceUsage() {
   if (!('memory' in performance)) {
-    console.warn('Memory monitoring not supported in this browser')
+    logger.warn('Memory monitoring not supported in this browser')
     return null
   }
 
@@ -231,7 +231,7 @@ export function monitorResourceUsage() {
   }
 
   if (usage.usagePercentage > 80) {
-    console.warn('⚠️ High memory usage detected:', usage)
+    logger.warn('⚠️ High memory usage detected:', usage)
   }
 
   return usage

@@ -21,10 +21,10 @@ export default [
   {
     name: 'app/global-rules',
     rules: {
-      '@typescript-eslint/no-unused-expressions': ['error', { 
-        allowShortCircuit: true, 
-        allowTernary: true, 
-        allowTaggedTemplates: true 
+      '@typescript-eslint/no-unused-expressions': ['error', {
+        allowShortCircuit: true,
+        allowTernary: true,
+        allowTaggedTemplates: true
       }],
       '@typescript-eslint/no-unused-vars': ['error', {
         argsIgnorePattern: '^_',
@@ -32,7 +32,24 @@ export default [
       }]
     }
   },
-  
+
+  {
+    name: 'app/no-console-in-src',
+    files: ['src/**/*.{ts,mts,tsx,vue}'],
+    rules: {
+      // Warn about console usage in src/ - use logger instead
+      'no-console': 'warn'
+    }
+  },
+
+  {
+    name: 'app/logger-exception',
+    files: ['src/utils/logger.ts'],
+    rules: {
+      'no-console': 'off' // Logger implementation needs console
+    }
+  },
+
   {
     ...pluginVitest.configs.recommended,
     files: ['src/**/__tests__/*'],

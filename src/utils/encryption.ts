@@ -1,4 +1,7 @@
 import type { EncryptionConfig, EncryptedData, EncryptionKeyInfo } from '@/types/encryption'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('ENCRYPTION')
 
 /**
  * データ暗号化ユーティリティ
@@ -214,7 +217,7 @@ export class KeyManager {
       const encryptedKeyInfo = await this.encryptKeyInfo(keyInfo)
       sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(encryptedKeyInfo))
     } catch (error) {
-      console.error('Failed to store encryption key:', error)
+      logger.error('Failed to store encryption key:', error)
       throw new Error('Key storage failed')
     }
   }
@@ -230,7 +233,7 @@ export class KeyManager {
       const encryptedKeyInfo = JSON.parse(storedData)
       return await this.decryptKeyInfo(encryptedKeyInfo)
     } catch (error) {
-      console.error('Failed to retrieve encryption key:', error)
+      logger.error('Failed to retrieve encryption key:', error)
       return null
     }
   }
@@ -339,9 +342,9 @@ export async function initializeEncryption(): Promise<void> {
       24 * 60 * 60 * 1000,
     ) // 24時間ごとにチェック
 
-    console.log('🔐 Encryption system initialized')
+    logger.debug('🔐 Encryption system initialized')
   } catch (error) {
-    console.error('Failed to initialize encryption:', error)
+    logger.error('Failed to initialize encryption:', error)
     throw new Error('Encryption initialization failed')
   }
 }

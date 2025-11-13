@@ -194,6 +194,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { DiaryEntry } from '@/stores/data'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DIARYDETAILMODAL')
 
 interface Props {
   modelValue: boolean
@@ -286,7 +289,7 @@ const copyContent = async () => {
     await navigator.clipboard.writeText(props.diary.content)
     // TODO: スナックバー通知を追加
   } catch (error) {
-    console.error('コピーに失敗しました:', error)
+    logger.error('コピーに失敗しました:', error)
   }
 }
 

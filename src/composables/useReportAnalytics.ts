@@ -8,6 +8,9 @@ import { ref, reactive, computed, watch } from 'vue'
 import type { DateRange, AnalyticsPeriod, AnalyticsResult } from '@/types/report'
 import { generateAnalyticsReport } from '@/services/reportAnalytics'
 import { dateRangePresets, getPresetRange } from '@/utils/dateRange'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('USEREPORTANALYTICS')
 import type { ChartData } from 'chart.js'
 
 interface UseReportAnalyticsOptions {
@@ -76,7 +79,7 @@ export const useReportAnalytics = (options: UseReportAnalyticsOptions = {}) => {
 
       return result
     } catch (err) {
-      console.error('Analytics generation failed:', err)
+      logger.error('Analytics generation failed:', err)
       error.value = err instanceof Error ? err.message : '分析の生成に失敗しました'
       return null
     } finally {

@@ -125,6 +125,9 @@ import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DIARYREGISTERPAGE')
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -162,9 +165,9 @@ const {
 //   if (isValid.value && authStore.user?.id) {
 //     try {
 //       // オートセーブロジック（必要に応じて実装）
-//       console.log('Auto-saving draft...')
+//       logger.debug('Auto-saving draft...')
 //     } catch (error) {
-//       console.error('オートセーブエラー:', error)
+//       logger.error('オートセーブエラー:', error)
 //     }
 //   }
 // }, 2000)
@@ -215,7 +218,7 @@ const addDiary = async (): Promise<void> => {
         try {
           await emotionTagsStore.linkDiaryEmotionTags(newDiary.id, selectedEmotionTags.value)
         } catch (emotionTagError) {
-          console.error('感情タグの保存エラー:', emotionTagError)
+          logger.error('感情タグの保存エラー:', emotionTagError)
           // 感情タグ保存失敗でも日記作成は成功扱いとする
           notificationStore.showError(
             '感情タグの保存に失敗しました',
@@ -238,7 +241,7 @@ const addDiary = async (): Promise<void> => {
       router.push('/dashboard')
     })
   } catch (error: unknown) {
-    console.error('日記作成エラー:', error)
+    logger.error('日記作成エラー:', error)
     notificationStore.showError(
       '日記の作成に失敗しました',
       error instanceof Error ? error.message : 'Unknown error',

@@ -71,7 +71,7 @@ window.addEventListener('beforeunload', () => {
 
 // エラーハンドリング
 window.addEventListener('error', (event) => {
-  console.error('JavaScriptエラー:', {
+  logger.error('JavaScriptエラー:', {
     message: event.message,
     filename: event.filename,
     lineno: event.lineno,
@@ -97,16 +97,16 @@ const registerPWA = async () => {
         scope: '/',
       })
 
-      console.log('PWA Service Worker登録成功:', registration.scope)
+      logger.debug('PWA Service Worker登録成功:', registration.scope)
 
       // 更新チェック
       registration.addEventListener('updatefound', () => {
-        console.log('PWA Service Worker更新が見つかりました')
+        logger.debug('PWA Service Worker更新が見つかりました')
       })
 
       return registration
     } catch (error) {
-      console.error('PWA Service Worker登録失敗:', error)
+      logger.error('PWA Service Worker登録失敗:', error)
     }
   }
 }
@@ -134,9 +134,9 @@ authStore.initialize().finally(async () => {
     if (navigator.onLine) {
       try {
         await syncService.syncData(authStore.user.id)
-        console.log('初回データ同期完了')
+        logger.debug('初回データ同期完了')
       } catch (error) {
-        console.error('初回データ同期エラー:', error)
+        logger.error('初回データ同期エラー:', error)
       }
     }
   }

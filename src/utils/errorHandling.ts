@@ -1,5 +1,8 @@
 import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@/stores/loading'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('ERRORHANDLING')
 
 export interface ErrorInfo {
   code?: string
@@ -59,7 +62,7 @@ export class ErrorHandler {
         const result = await operation()
         return result
       } catch (error) {
-        console.error(`操作失敗 (試行回数: ${attempt}):`, error)
+        logger.error(`操作失敗 (試行回数: ${attempt}):`, error)
 
         if (
           attempt < (finalRetryOptions.maxAttempts || 3) &&
@@ -88,7 +91,7 @@ export class ErrorHandler {
 
       return result
     } catch (error) {
-      console.error('最終的な操作エラー:', error)
+      logger.error('最終的な操作エラー:', error)
 
       const errorInfo: ErrorInfo = {
         message: error instanceof Error ? error.message : 'Unknown error',

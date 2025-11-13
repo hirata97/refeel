@@ -10,6 +10,9 @@ import {
   performSecurityCheck,
 } from '@/utils/auth'
 import type { LockoutStatus, PasswordValidationResult } from '@/utils/auth'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SECURITY')
 
 /**
  * セキュリティ関連機能を管理するストア
@@ -39,7 +42,7 @@ export const useSecurityStore = defineStore('security', () => {
       lockoutStatus.value = status
       return status
     } catch (err) {
-      console.error('ロックアウトステータス確認エラー:', err)
+      logger.error('ロックアウトステータス確認エラー:', err)
       return null
     }
   }

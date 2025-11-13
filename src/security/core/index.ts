@@ -7,6 +7,9 @@ import type {
   CSRFToken,
   SecurityThreatLevel,
 } from '@/types/security'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SECURITY')
 
 /**
  * XSS Protection Utility
@@ -462,9 +465,9 @@ export class SecurityIncidentReporter {
   }
 
   private static sendImmediateAlert(incident: SecurityIncidentData): void {
-    // 開発環境では console.warn で表示
+    // 開発環境では logger.warn で表示
     if (securityConfig.isDevelopment()) {
-      console.warn('🚨 Security Alert:', incident)
+      logger.warn('🚨 Security Alert:', incident)
     }
 
     // プロダクション環境では外部サービスに送信
@@ -480,7 +483,7 @@ export class SecurityIncidentReporter {
       const limitedIncidents = existingIncidents.slice(-50)
       localStorage.setItem('security_incidents', JSON.stringify(limitedIncidents))
     } catch (error) {
-      console.error('Failed to persist security incident:', error)
+      logger.error('Failed to persist security incident:', error)
     }
   }
 }
@@ -510,7 +513,7 @@ export class SecurityReporting {
         }),
       })
     } catch (error) {
-      console.error('CSP違反レポートの送信に失敗しました:', error)
+      logger.error('CSP違反レポートの送信に失敗しました:', error)
     }
   }
 
@@ -538,7 +541,7 @@ export class SecurityReporting {
         }),
       })
     } catch (error) {
-      console.error('セキュリティインシデントレポートの送信に失敗しました:', error)
+      logger.error('セキュリティインシデントレポートの送信に失敗しました:', error)
     }
   }
 }
@@ -606,7 +609,7 @@ export function initializeSecurity(): void {
 
   // 開発環境でのデバッグ情報表示
   if (securityConfig.isDevelopment()) {
-    console.log('🔒 Security initialized:', {
+    logger.debug('🔒 Security initialized:', {
       environment: securityConfig.getCurrentEnvironment(),
       config: securityConfig.getConfig(),
       headers,

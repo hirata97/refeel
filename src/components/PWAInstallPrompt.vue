@@ -72,6 +72,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { usePWAInstall } from '@/composables/usePWAInstall'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('PWAINSTALLPROMPT')
 
 const {
   isInstallable,
@@ -121,7 +124,7 @@ const handleInstall = async () => {
       }
     }
   } catch (error) {
-    console.error('インストール処理エラー:', error)
+    logger.error('インストール処理エラー:', error)
   } finally {
     installing.value = false
   }

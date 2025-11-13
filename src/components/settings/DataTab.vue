@@ -170,7 +170,7 @@ const deleteAllData = async () => {
 
 const deleteAccount = async () => {
   // TODO: アカウント削除機能の実装が必要
-  console.warn('アカウント削除機能は未実装です')
+  logger.warn('アカウント削除機能は未実装です')
   showAccountDeleteDialog.value = false
 }
 </script>

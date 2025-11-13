@@ -178,7 +178,7 @@ export class AccountLockoutManager {
       },
     )
 
-    console.warn(`アカウント ${email} が${actualDuration}分間ロックアウトされました`)
+    logger.warn(`アカウント ${email} が${actualDuration}分間ロックアウトされました`)
 
     return lockoutInfo
   }
@@ -199,7 +199,7 @@ export class AccountLockoutManager {
       timestamp: new Date().toISOString(),
     })
 
-    console.info(`アカウント ${email} のロックが解除されました`)
+    logger.info(`アカウント ${email} のロックが解除されました`)
   }
 
   /**
@@ -297,7 +297,7 @@ export class AccountLockoutManager {
           }).length
       }
     } catch (error) {
-      console.warn('統計情報の取得に失敗:', error)
+      logger.warn('統計情報の取得に失敗:', error)
     }
 
     return {
@@ -329,7 +329,7 @@ export class AccountLockoutManager {
 
       localStorage.setItem(key, JSON.stringify(attempts))
     } catch (error) {
-      console.warn('ログイン試行の保存に失敗:', error)
+      logger.warn('ログイン試行の保存に失敗:', error)
     }
   }
 
@@ -353,7 +353,7 @@ export class AccountLockoutManager {
         timestamp: new Date(attempt.timestamp),
       }))
     } catch (error) {
-      console.warn('ログイン試行履歴の取得に失敗:', error)
+      logger.warn('ログイン試行履歴の取得に失敗:', error)
       return []
     }
   }
@@ -370,7 +370,7 @@ export class AccountLockoutManager {
         localStorage.setItem('login_attempts', JSON.stringify(attempts))
       }
     } catch (error) {
-      console.warn('失敗試行のクリアに失敗:', error)
+      logger.warn('失敗試行のクリアに失敗:', error)
     }
   }
 
@@ -383,7 +383,7 @@ export class AccountLockoutManager {
       lockouts[lockoutInfo.email] = lockoutInfo
       localStorage.setItem(key, JSON.stringify(lockouts))
     } catch (error) {
-      console.warn('ロックアウト情報の保存に失敗:', error)
+      logger.warn('ロックアウト情報の保存に失敗:', error)
     }
   }
 
@@ -403,7 +403,7 @@ export class AccountLockoutManager {
         lockoutEnd: new Date(lockoutData.lockoutEnd),
       }
     } catch (error) {
-      console.warn('ロックアウト情報の取得に失敗:', error)
+      logger.warn('ロックアウト情報の取得に失敗:', error)
       return null
     }
   }
@@ -422,7 +422,7 @@ export class AccountLockoutManager {
         lockoutEnd: new Date(lockout.lockoutEnd),
       }))
     } catch (error) {
-      console.warn('全ロックアウト情報の取得に失敗:', error)
+      logger.warn('全ロックアウト情報の取得に失敗:', error)
       return []
     }
   }
@@ -436,7 +436,7 @@ export class AccountLockoutManager {
       delete lockouts[email]
       localStorage.setItem('account_lockouts', JSON.stringify(lockouts))
     } catch (error) {
-      console.warn('ロックアウト情報のクリアに失敗:', error)
+      logger.warn('ロックアウト情報のクリアに失敗:', error)
     }
   }
 }

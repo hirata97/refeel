@@ -37,7 +37,7 @@ export function usePWAInstall() {
 
     // Service Worker がサポートされているかチェック
     if (!('serviceWorker' in navigator)) {
-      console.warn('PWA: Service Worker not supported')
+      logger.warn('PWA: Service Worker not supported')
       return
     }
   }
@@ -45,7 +45,7 @@ export function usePWAInstall() {
   // インストールプロンプトを表示
   const showInstallPrompt = async (): Promise<boolean> => {
     if (!installPromptEvent.value) {
-      console.warn('PWA: インストールプロンプトが利用できません')
+      logger.warn('PWA: インストールプロンプトが利用できません')
       return false
     }
 
@@ -57,17 +57,17 @@ export function usePWAInstall() {
       const choiceResult = await installPromptEvent.value.userChoice
 
       if (choiceResult.outcome === 'accepted') {
-        console.log('PWA: ユーザーがインストールを承認しました')
+        logger.debug('PWA: ユーザーがインストールを承認しました')
         isInstalled.value = true
         isInstallable.value = false
         installPromptEvent.value = null
         return true
       } else {
-        console.log('PWA: ユーザーがインストールを拒否しました')
+        logger.debug('PWA: ユーザーがインストールを拒否しました')
         return false
       }
     } catch (error) {
-      console.error('PWA: インストールプロンプトエラー:', error)
+      logger.error('PWA: インストールプロンプトエラー:', error)
       return false
     }
   }
@@ -89,12 +89,12 @@ export function usePWAInstall() {
     e.preventDefault()
     installPromptEvent.value = e as BeforeInstallPromptEvent
     isInstallable.value = true
-    console.log('PWA: インストール可能になりました')
+    logger.debug('PWA: インストール可能になりました')
   }
 
   // appinstalled イベントリスナー
   const handleAppInstalled = () => {
-    console.log('PWA: インストールが完了しました')
+    logger.debug('PWA: インストールが完了しました')
     isInstalled.value = true
     isInstallable.value = false
     installPromptEvent.value = null
@@ -106,7 +106,7 @@ export function usePWAInstall() {
   ) => {
     try {
       // 分析データを記録（実装に応じて調整）
-      console.log('PWA Install Event:', event)
+      logger.debug('PWA Install Event:', event)
 
       // ローカルストレージに記録
       const installStats = JSON.parse(localStorage.getItem('pwa_install_stats') || '{}')
@@ -114,7 +114,7 @@ export function usePWAInstall() {
       installStats.lastEvent = new Date().toISOString()
       localStorage.setItem('pwa_install_stats', JSON.stringify(installStats))
     } catch (error) {
-      console.error('インストール統計記録エラー:', error)
+      logger.error('インストール統計記録エラー:', error)
     }
   }
 
