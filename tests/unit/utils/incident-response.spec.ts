@@ -1,9 +1,30 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { IncidentResponseManager, AutomatedResponseSystem } from '@/utils/incident-response'
-import type { 
-  SecurityIncident, 
+import type {
+  SecurityIncident,
   SecurityEvent
 } from '@/types/security-monitoring'
+
+// loggerのモック（グローバルモックを明示的に宣言）
+// vi.hoisted()を使用してホイスティング問題を回避
+const mockLoggerInstance = vi.hoisted(() => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  log: vi.fn(),
+}))
+
+vi.mock('@/utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    log: vi.fn(),
+  },
+  createLogger: vi.fn(() => mockLoggerInstance),
+}))
 
 // モック
 const mockSecurityEvent: SecurityEvent = {
@@ -50,8 +71,7 @@ Object.defineProperty(global, 'crypto', {
 // Fetch APIのモック
 global.fetch = vi.fn()
 
-// Console.logのモック
-const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+// Console.errorのモック
 vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('IncidentResponseManager', () => {
@@ -61,7 +81,14 @@ describe('IncidentResponseManager', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2024-01-01T12:00:00.000Z'))
     vi.clearAllMocks()
-    
+
+    // mockLoggerInstanceのモックをクリア
+    mockLoggerInstance.debug.mockClear()
+    mockLoggerInstance.info.mockClear()
+    mockLoggerInstance.warn.mockClear()
+    mockLoggerInstance.error.mockClear()
+    mockLoggerInstance.log.mockClear()
+
     ;(IncidentResponseManager as unknown).instance = null
     incidentManager = IncidentResponseManager.getInstance()
   })
@@ -308,7 +335,7 @@ describe('IncidentResponseManager', () => {
         [{ ...mockSecurityEvent, severity: 'critical' }]
       )
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '🚨 Critical incident auto-escalated: test-uuid-123'
       )
     })
@@ -354,7 +381,7 @@ describe('IncidentResponseManager', () => {
         [mockSecurityEvent]
       )
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '🚨 Security incident created: test-uuid-123 - Notification Test'
       )
     })
@@ -369,7 +396,7 @@ describe('IncidentResponseManager', () => {
 
       incidentManager.updateIncidentStatus(incident.id, 'investigating')
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '📋 Incident test-uuid-123 status updated to investigating'
       )
     })
@@ -382,7 +409,14 @@ describe('AutomatedResponseSystem', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     vi.clearAllMocks()
-    
+
+    // mockLoggerInstanceのモックをクリア
+    mockLoggerInstance.debug.mockClear()
+    mockLoggerInstance.info.mockClear()
+    mockLoggerInstance.warn.mockClear()
+    mockLoggerInstance.error.mockClear()
+    mockLoggerInstance.log.mockClear()
+
     ;(AutomatedResponseSystem as unknown).instance = null
     responseSystem = AutomatedResponseSystem.getInstance()
   })
@@ -441,10 +475,10 @@ describe('AutomatedResponseSystem', () => {
     it('suspicious_activityイベントに対して自動応答する', async () => {
       await responseSystem.processEvent(mockSecurityEvent)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '🔄 Processing security event: suspicious_activity'
       )
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '✅ Auto-response triggered for suspicious_activity'
       )
     })
@@ -471,10 +505,10 @@ describe('AutomatedResponseSystem', () => {
 
       await responseSystem.processEvent(breachEvent)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '🔄 Processing security event: data_breach_attempt'
       )
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '✅ Auto-response triggered for data_breach_attempt'
       )
     })
@@ -491,10 +525,10 @@ describe('AutomatedResponseSystem', () => {
 
       await responseSystem.processEvent(lowSeverityEvent)
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '🔄 Processing security event: api_call'
       )
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith(
         '⏭️ No auto-response rule for api_call'
       )
     })
