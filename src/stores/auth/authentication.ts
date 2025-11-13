@@ -7,6 +7,9 @@ import { performSecurityCheck } from '../../utils/sanitization'
 import { passwordValidator, passwordHistoryManager } from '../../utils/password-policy'
 import type { PasswordValidationResult } from '../../utils/password-policy'
 import type { LockoutStatus } from '../../utils/account-lockout'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AUTH-AUTHENTICATION')
 
 export const createAuthenticationStore = (
   setSessionFn: (session: Session | null) => void,

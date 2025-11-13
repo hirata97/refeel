@@ -1,6 +1,9 @@
 import { ref, computed } from 'vue'
 import { accountLockoutManager } from '../../utils/account-lockout'
 import type { LockoutStatus } from '../../utils/account-lockout'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AUTH-LOCKOUT')
 
 export const createLockoutStore = () => {
   // ロックアウト関連の状態
