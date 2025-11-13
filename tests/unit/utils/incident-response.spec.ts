@@ -306,7 +306,7 @@ describe('IncidentResponseManager', () => {
         type: 'block_ip',
         description: 'IP address blocked: 192.168.1.100',
         executedAt: expect.any(String),
-        status: 'completed'
+        result: 'success'
       })
 
       const updated = incidentManager.getIncident(testIncident.id)
