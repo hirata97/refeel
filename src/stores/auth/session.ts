@@ -2,6 +2,9 @@ import { ref, computed } from 'vue'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { enhancedSessionManager } from '../../utils/enhanced-session-management'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AUTH-SESSION')
 
 export const createSessionStore = () => {
   // セッション関連の状態
