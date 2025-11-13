@@ -96,8 +96,12 @@ export default defineConfig({
   },
   server: {
     headers: {
-      // Content Security Policy
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none';",
+      // Content Security Policy - Hardened
+      // Removed: unsafe-eval (no eval usage confirmed)
+      // Removed: unsafe-inline from script-src (XSS protection)
+      // Kept: unsafe-inline for style-src (Vuetify dynamic theming compatibility)
+      // Restricted: img-src to specific trusted domains (removed wildcard https:)
+      'Content-Security-Policy': "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://*.supabase.co https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';",
       // XSS Protection
       'X-XSS-Protection': '1; mode=block',
       // Prevent MIME type sniffing
