@@ -147,6 +147,9 @@ import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { useDiaries } from '@/composables/useDataFetch'
 import EmotionTagChips from '@/components/EmotionTagChips.vue'
 import type { DiaryEntry, DiaryEntryWithEmotionTags } from '@/types/custom'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DIARYVIEWPAGE')
 
 const router = useRouter()
 const dataStore = useDataStore()
@@ -251,7 +254,7 @@ const loadEmotionTagsForDiaries = async () => {
     // diariesを更新（リアクティブに）
     diaries.value = diariesWithTags
   } catch (error) {
-    console.error('感情タグの取得に失敗しました:', error)
+    logger.error('感情タグの取得に失敗しました:', error)
   }
 }
 
@@ -305,7 +308,7 @@ const handleDeleteDiary = async (item: DiaryEntry) => {
     // データ再取得
     await refresh()
   } catch (error) {
-    console.error('日記削除エラー:', error)
+    logger.error('日記削除エラー:', error)
     alert('日記の削除に失敗しました')
   } finally {
     isDeleting.value = false

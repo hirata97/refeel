@@ -261,7 +261,7 @@ export class EnhancedSessionManager {
         }),
       )
     } catch (error) {
-      console.error('デバイス情報の取得に失敗:', error)
+      logger.error('デバイス情報の取得に失敗:', error)
       return []
     }
   }
@@ -523,7 +523,7 @@ export class EnhancedSessionManager {
 
       localStorage.setItem(userSessionsKey, JSON.stringify(userSessions))
     } catch (error) {
-      console.error('セッション情報の保存に失敗:', error)
+      logger.error('セッション情報の保存に失敗:', error)
     }
   }
 
@@ -540,7 +540,7 @@ export class EnhancedSessionManager {
         expiresAt: new Date(session.expiresAt),
       }
     } catch (error) {
-      console.error('セッション情報の取得に失敗:', error)
+      logger.error('セッション情報の取得に失敗:', error)
       return null
     }
   }
@@ -566,7 +566,7 @@ export class EnhancedSessionManager {
         }),
       )
     } catch (error) {
-      console.error('ユーザーセッション一覧の取得に失敗:', error)
+      logger.error('ユーザーセッション一覧の取得に失敗:', error)
       return []
     }
   }
@@ -577,7 +577,7 @@ export class EnhancedSessionManager {
       alerts.push(alert)
       localStorage.setItem(`security_alerts_${userId}`, JSON.stringify(alerts))
     } catch (error) {
-      console.error('セキュリティアラートの保存に失敗:', error)
+      logger.error('セキュリティアラートの保存に失敗:', error)
     }
   }
 
@@ -592,7 +592,7 @@ export class EnhancedSessionManager {
         timestamp: new Date(alert.timestamp),
       }))
     } catch (error) {
-      console.error('セキュリティアラートの取得に失敗:', error)
+      logger.error('セキュリティアラートの取得に失敗:', error)
       return []
     }
   }

@@ -3,6 +3,10 @@
  * Issue #70: 認証・認可システムの強化実装
  */
 
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('AUDIT-LOGGER')
+
 export enum AuditEventType {
   // 認証関連
   AUTH_LOGIN = 'auth_login',
@@ -106,14 +110,14 @@ export class AuditLogger {
     // ログエントリを保存
     this.saveLogEntry(entry)
 
-    // 重要度が高い場合はコンソールにも出力
+    // 重要度が高い場合はロガーにも出力
     if (
       entry.severity === AuditEventSeverity.HIGH ||
       entry.severity === AuditEventSeverity.CRITICAL
     ) {
-      console.warn(`[AUDIT] ${entry.severity.toUpperCase()}: ${message}`, metadata)
+      logger.warn(`${entry.severity.toUpperCase()}: ${message}`, metadata)
     } else {
-      console.log(`[AUDIT] ${eventType}: ${message}`)
+      logger.debug(`${eventType}: ${message}`)
     }
 
     // 実際の実装では、重要なイベントをサーバーに送信
@@ -323,7 +327,7 @@ export class AuditLogger {
 
       this.saveLogs(logs)
     } catch (error) {
-      console.error('監査ログの保存に失敗:', error)
+      logger.error('監査ログの保存に失敗:', error)
     }
   }
 
@@ -338,7 +342,7 @@ export class AuditLogger {
         timestamp: new Date(log.timestamp),
       }))
     } catch (error) {
-      console.error('監査ログの取得に失敗:', error)
+      logger.error('監査ログの取得に失敗:', error)
       return []
     }
   }
@@ -347,7 +351,7 @@ export class AuditLogger {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(logs))
     } catch (error) {
-      console.error('監査ログの保存に失敗:', error)
+      logger.error('監査ログの保存に失敗:', error)
     }
   }
 
@@ -360,9 +364,9 @@ export class AuditLogger {
       //   body: JSON.stringify(entry)
       // })
 
-      console.log('重要なログをサーバーに送信（実装待ち）:', entry)
+      logger.debug('重要なログをサーバーに送信（実装待ち）:', entry)
     } catch (error) {
-      console.error('サーバーへのログ送信に失敗:', error)
+      logger.error('サーバーへのログ送信に失敗:', error)
     }
   }
 }

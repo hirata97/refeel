@@ -1,4 +1,7 @@
 import { supabase } from '@/lib/supabase'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('PRIVACY')
 import type {
   PrivacySettings,
   PrivacyAuditLog,
@@ -62,7 +65,7 @@ export class PrivacyManager {
         version: data.version,
       }
     } catch (error) {
-      console.error('Failed to get privacy settings:', error)
+      logger.error('Failed to get privacy settings:', error)
       throw new Error('Privacy settings retrieval failed')
     }
   }
@@ -121,7 +124,7 @@ export class PrivacyManager {
         version: data.version,
       }
     } catch (error) {
-      console.error('Failed to update privacy settings:', error)
+      logger.error('Failed to update privacy settings:', error)
       throw new Error('Privacy settings update failed')
     }
   }
@@ -171,10 +174,10 @@ export class PrivacyManager {
       })
 
       if (error) {
-        console.error('Failed to log privacy action:', error)
+        logger.error('Failed to log privacy action:', error)
       }
     } catch (error) {
-      console.error('Privacy audit logging failed:', error)
+      logger.error('Privacy audit logging failed:', error)
     }
   }
 
@@ -229,7 +232,7 @@ export class ConsentManager {
         { consentType, version },
       )
     } catch (error) {
-      console.error('Failed to record consent:', error)
+      logger.error('Failed to record consent:', error)
       throw new Error('Consent recording failed')
     }
   }
@@ -259,7 +262,7 @@ export class ConsentManager {
         evidence: record.evidence,
       }))
     } catch (error) {
-      console.error('Failed to get consent status:', error)
+      logger.error('Failed to get consent status:', error)
       throw new Error('Consent status retrieval failed')
     }
   }
@@ -282,7 +285,7 @@ export class ConsentManager {
 
       return data?.granted || false
     } catch (error) {
-      console.error('Failed to check consent status:', error)
+      logger.error('Failed to check consent status:', error)
       return false
     }
   }
@@ -328,7 +331,7 @@ export class DataDeletionManager {
 
       return confirmationToken
     } catch (error) {
-      console.error('Failed to request data deletion:', error)
+      logger.error('Failed to request data deletion:', error)
       throw new Error('Data deletion request failed')
     }
   }
@@ -364,7 +367,7 @@ export class DataDeletionManager {
 
       return success
     } catch (error) {
-      console.error('Failed to confirm data deletion:', error)
+      logger.error('Failed to confirm data deletion:', error)
       return false
     }
   }
@@ -392,7 +395,7 @@ export class DataDeletionManager {
 
       return true
     } catch (error) {
-      console.error('Data deletion execution failed:', error)
+      logger.error('Data deletion execution failed:', error)
       return false
     }
   }
@@ -418,7 +421,7 @@ export class DataDeletionManager {
     // Supabase Authからも削除
     const { error } = await supabase.auth.admin.deleteUser(userId)
     if (error) {
-      console.error('Failed to delete auth user:', error)
+      logger.error('Failed to delete auth user:', error)
     }
   }
 
@@ -486,7 +489,7 @@ export class GDPRCompliance {
 
       return userData
     } catch (error) {
-      console.error('Failed to exercise right to access:', error)
+      logger.error('Failed to exercise right to access:', error)
       throw new Error('Data access request failed')
     }
   }
@@ -507,7 +510,7 @@ export class GDPRCompliance {
       const jsonData = JSON.stringify(userData, null, 2)
       return new Blob([jsonData], { type: 'application/json' })
     } catch (error) {
-      console.error('Failed to exercise right to data portability:', error)
+      logger.error('Failed to exercise right to data portability:', error)
       throw new Error('Data portability request failed')
     }
   }
@@ -526,9 +529,9 @@ export class GDPRCompliance {
 export async function initializePrivacySystem(): Promise<void> {
   try {
     // 必要な初期化処理
-    console.log('🛡️ Privacy system initialized')
+    logger.debug('🛡️ Privacy system initialized')
   } catch (error) {
-    console.error('Failed to initialize privacy system:', error)
+    logger.error('Failed to initialize privacy system:', error)
     throw new Error('Privacy system initialization failed')
   }
 }

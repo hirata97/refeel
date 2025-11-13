@@ -221,7 +221,7 @@ export const usePaginationStore = defineStore('pagination', () => {
     try {
       localStorage.setItem(`pagination_${pageKey}`, JSON.stringify(stateData))
     } catch (error) {
-      console.warn('ページネーション状態の永続化に失敗:', error)
+      logger.warn('ページネーション状態の永続化に失敗:', error)
     }
   }
 
@@ -241,7 +241,7 @@ export const usePaginationStore = defineStore('pagination', () => {
         }
       }
     } catch (error) {
-      console.warn('ページネーション状態の復元に失敗:', error)
+      logger.warn('ページネーション状態の復元に失敗:', error)
     }
   }
 

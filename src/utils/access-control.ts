@@ -1,4 +1,7 @@
 import { useAuthStore } from '@/stores/auth'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('ACCESS-CONTROL')
 import type { User } from '@supabase/supabase-js'
 
 // ロール定義
@@ -132,7 +135,7 @@ export class AccessController {
   // 認証チェック
   requireAuth(): boolean {
     if (!this.authStore.isAuthenticated) {
-      console.warn('認証が必要です')
+      logger.warn('認証が必要です')
       return false
     }
     return true
@@ -145,7 +148,7 @@ export class AccessController {
     }
 
     if (!hasPermission(this.authStore.user, permission)) {
-      console.warn(`権限が不足しています: ${permission}`)
+      logger.warn(`権限が不足しています: ${permission}`)
       return false
     }
 
@@ -159,7 +162,7 @@ export class AccessController {
     }
 
     if (!canAccessResource(this.authStore.user, permission, resourceOwnerId)) {
-      console.warn(`リソースへのアクセスが拒否されました: ${permission}`)
+      logger.warn(`リソースへのアクセスが拒否されました: ${permission}`)
       return false
     }
 
@@ -174,7 +177,7 @@ export class AccessController {
 
     const role = getUserRole(this.authStore.user)
     if (role !== UserRole.ADMIN) {
-      console.warn('管理者権限が必要です')
+      logger.warn('管理者権限が必要です')
       return false
     }
 
@@ -191,7 +194,7 @@ export class AccessController {
     const isSelf = this.authStore.user?.id === userId
 
     if (!isSelf && role !== UserRole.ADMIN) {
-      console.warn('自分自身または管理者権限が必要です')
+      logger.warn('自分自身または管理者権限が必要です')
       return false
     }
 

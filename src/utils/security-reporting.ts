@@ -1,4 +1,7 @@
 import { SecurityMonitor, SecurityAlertManager } from '@/utils/security-monitoring'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SECURITY-REPORTING')
 import type {
   SecurityReport,
   SecurityIncident,
@@ -162,14 +165,14 @@ export class SecurityReportGenerator {
         if (events.length > 0) {
           // テスト用: 実際にレポート生成を呼び出す
           await this.generateDailyReport(events)
-          // console.log(`📊 Automatic report: ${events.length} events processed`)
+          // logger.debug(`📊 Automatic report: ${events.length} events processed`)
         }
       } catch (error) {
-        console.error('Automatic reporting error:', error)
+        logger.error('Automatic reporting error:', error)
       }
     }, intervalMs)
 
-    // console.log('📊 Automatic reporting started')
+    // logger.debug('📊 Automatic reporting started')
     return this.automaticReportingActive
   }
 
@@ -183,7 +186,7 @@ export class SecurityReportGenerator {
     }
     this.eventProvider = undefined
     this.automaticReportingActive = false
-    // console.log('📊 Automatic reporting stopped')
+    // logger.debug('📊 Automatic reporting stopped')
     return this.automaticReportingActive
   }
 
@@ -844,9 +847,9 @@ export class SecurityReportDistributor {
 
       const recipients: string[] = [] // Simplified implementation
       await this.distributeReport(report, recipients)
-      // console.log(`${type} security report sent successfully`)
+      // logger.debug(`${type} security report sent successfully`)
     } catch (error) {
-      console.error(`Failed to send ${type} report:`, error)
+      logger.error(`Failed to send ${type} report:`, error)
     }
   }
 
@@ -861,9 +864,9 @@ export class SecurityReportDistributor {
       const report = await this.reportGenerator.generateIncidentReport(__incidentId)
       const recipients: string[] = [] // Simplified implementation
       await this.distributeReport(report, recipients, true)
-      // console.log('Urgent incident report sent successfully')
+      // logger.debug('Urgent incident report sent successfully')
     } catch (error) {
-      console.error('Failed to send urgent incident report:', error)
+      logger.error('Failed to send urgent incident report:', error)
     }
   }
 
@@ -876,7 +879,7 @@ export class SecurityReportDistributor {
     urgent = false,
   ): Promise<{ success: boolean; channels: string[]; errors?: string[] }> {
     // コンソール出力
-    // console.log(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
+    // logger.debug(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
 
     // ローカルストレージに保存
     this.storeReport(report)
@@ -927,7 +930,7 @@ export class SecurityReportDistributor {
     }
 
     if (urgent) {
-      // console.log('🚨 URGENT: Incident report requires immediate attention')
+      // logger.debug('🚨 URGENT: Incident report requires immediate attention')
     }
 
     return result
@@ -938,7 +941,7 @@ export class SecurityReportDistributor {
    */
   private scheduleReport(_type: 'daily' | 'weekly' | 'monthly', _cron: string): void {
     // 簡易実装：実際にはcronライブラリを使用
-    // console.log(`📅 Scheduled ${type} report: ${cron}`)
+    // logger.debug(`📅 Scheduled ${type} report: ${cron}`)
   }
 
   /**
@@ -967,7 +970,7 @@ export class SecurityReportDistributor {
         this.distributionHistory = this.distributionHistory.slice(-100)
       }
     } catch (error) {
-      console.error('Failed to store security report:', error)
+      logger.error('Failed to store security report:', error)
       // 失敗も履歴に記録
       this.distributionHistory.push({
         reportId: 'unknown',
@@ -985,7 +988,7 @@ export class SecurityReportDistributor {
   updateConfig(newConfig: Record<string, unknown>): void {
     if (typeof newConfig === 'object' && newConfig !== null) {
       this.config = { ...this.config, ...newConfig }
-      // console.log('📊 Distribution config updated:', this.config)
+      // logger.debug('📊 Distribution config updated:', this.config)
     } else {
       throw new Error('Invalid config object')
     }
@@ -1001,7 +1004,7 @@ export class SecurityReportDistributor {
 
     if (channel && typeof channel === 'object') {
       this.config.notificationChannels.push(channel)
-      // console.log('📊 Notification channel added:', channel)
+      // logger.debug('📊 Notification channel added:', channel)
     } else {
       throw new Error('Invalid notification channel')
     }
@@ -1018,7 +1021,7 @@ export class SecurityReportDistributor {
     const index = this.config.notificationChannels.findIndex((channel) => channel.id === channelId)
     if (index > -1) {
       this.config.notificationChannels.splice(index, 1)
-      // console.log('📊 Notification channel removed:', channelId)
+      // logger.debug('📊 Notification channel removed:', channelId)
     }
   }
 
@@ -1065,7 +1068,7 @@ export class SecurityReportDistributor {
     }, 86400000) // 24時間間隔
 
     this.startScheduledReports()
-    // console.log('📊 Scheduled distribution started')
+    // logger.debug('📊 Scheduled distribution started')
     return true
   }
 
@@ -1083,7 +1086,7 @@ export class SecurityReportDistributor {
       this.scheduledDistribution.interval = undefined
     }
 
-    // console.log('📊 Scheduled distribution stopped')
+    // logger.debug('📊 Scheduled distribution stopped')
     return false
   }
 
@@ -1102,5 +1105,5 @@ export function initializeSecurityReporting(): void {
   const distributor = SecurityReportDistributor.getInstance()
   distributor.startScheduledReports()
 
-  // console.log('📊 Security reporting system initialized')
+  // logger.debug('📊 Security reporting system initialized')
 }

@@ -19,6 +19,9 @@ import type {
   AnalyticsPeriod,
 } from '@/types/report'
 import { validateDateRange, getDaysBetween } from '@/utils/dateRange'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('REPORTANALYTICS')
 
 /**
  * 期間内の日記データを取得
@@ -415,7 +418,7 @@ export const generateAnalyticsReport = async (
       generatedAt: new Date().toISOString(),
     }
   } catch (error) {
-    console.error('Analytics generation error:', error)
+    logger.error('Analytics generation error:', error)
     throw error
   }
 }

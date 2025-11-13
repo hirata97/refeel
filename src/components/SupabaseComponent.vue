@@ -22,10 +22,10 @@ export default defineComponent({
 
       if (fetchError) {
         error.value = fetchError.message
-        console.error('Error fetching data:', fetchError.message)
+        logger.error('Error fetching data:', fetchError.message)
       } else {
         data.value = result || []
-        console.log('Fetched data:', result)
+        logger.debug('Fetched data:', result)
       }
     })
 

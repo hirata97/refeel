@@ -96,6 +96,9 @@
 import { ref, computed, watch } from 'vue'
 import { DataDeletionManager } from '@/utils/privacy'
 import { useAuthStore } from '@/stores/auth'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DATADELETIONDIALOG')
 import type { VForm } from 'vuetify/components'
 
 // Props & Emits
@@ -194,9 +197,9 @@ const submitRequest = async () => {
 
     // Success notification
     // TODO: Toast notification implementation
-    console.log('データ削除リクエストが送信されました。確認メールをご確認ください。')
+    logger.debug('データ削除リクエストが送信されました。確認メールをご確認ください。')
   } catch (error) {
-    console.error('データ削除リクエストに失敗しました:', error)
+    logger.error('データ削除リクエストに失敗しました:', error)
     // TODO: Error notification implementation
   } finally {
     loading.value = false

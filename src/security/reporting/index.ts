@@ -1,4 +1,7 @@
 import { SecurityMonitor, SecurityAlertManager } from '@/utils/security-monitoring'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('INDEX')
 import type {
   SecurityReport,
   SecurityIncident,
@@ -579,9 +582,9 @@ export class SecurityReportDistributor {
 
       const recipients: string[] = [] // Simplified implementation
       await this.distributeReport(report, recipients)
-      console.log(`${type} security report sent successfully`)
+      logger.debug(`${type} security report sent successfully`)
     } catch (error) {
-      console.error(`Failed to send ${type} report:`, error)
+      logger.error(`Failed to send ${type} report:`, error)
     }
   }
 
@@ -596,9 +599,9 @@ export class SecurityReportDistributor {
       const report = await this.reportGenerator.generateIncidentReport(__incidentId)
       const recipients: string[] = [] // Simplified implementation
       await this.distributeReport(report, recipients, true)
-      console.log('Urgent incident report sent successfully')
+      logger.debug('Urgent incident report sent successfully')
     } catch (error) {
-      console.error('Failed to send urgent incident report:', error)
+      logger.error('Failed to send urgent incident report:', error)
     }
   }
 
@@ -611,7 +614,7 @@ export class SecurityReportDistributor {
     urgent = false,
   ): Promise<void> {
     // コンソール出力
-    console.log(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
+    logger.debug(`📊 Security Report Generated: ${report.type.toUpperCase()}`, report)
 
     // ローカルストレージに保存
     this.storeReport(report)
@@ -622,7 +625,7 @@ export class SecurityReportDistributor {
     // - Webhook呼び出し
 
     if (urgent) {
-      console.log('🚨 URGENT: Incident report requires immediate attention')
+      logger.debug('🚨 URGENT: Incident report requires immediate attention')
     }
   }
 
@@ -631,7 +634,7 @@ export class SecurityReportDistributor {
    */
   private scheduleReport(type: 'daily' | 'weekly' | 'monthly', cron: string): void {
     // 簡易実装：実際にはcronライブラリを使用
-    console.log(`📅 Scheduled ${type} report: ${cron}`)
+    logger.debug(`📅 Scheduled ${type} report: ${cron}`)
   }
 
   /**
@@ -646,7 +649,7 @@ export class SecurityReportDistributor {
       const limitedReports = existingReports.slice(-50)
       localStorage.setItem('security_reports', JSON.stringify(limitedReports))
     } catch (error) {
-      console.error('Failed to store security report:', error)
+      logger.error('Failed to store security report:', error)
     }
   }
 }
@@ -658,5 +661,5 @@ export function initializeSecurityReporting(): void {
   const distributor = SecurityReportDistributor.getInstance()
   distributor.startScheduledReports()
 
-  console.log('📊 Security reporting system initialized')
+  logger.debug('📊 Security reporting system initialized')
 }

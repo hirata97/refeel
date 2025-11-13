@@ -1,6 +1,9 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { generateCSSCustomProperties } from '@/styles/design-tokens'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('THEME')
 
 export type ThemeName = 'light' | 'dark' | 'system'
 
@@ -37,7 +40,7 @@ export const useThemeStore = defineStore('theme', () => {
           return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
         }
       } catch (error) {
-        console.warn('システムテーマ検出に失敗しました:', error)
+        logger.warn('システムテーマ検出に失敗しました:', error)
       }
       return 'light' // fallback
     }
@@ -79,7 +82,7 @@ export const useThemeStore = defineStore('theme', () => {
         vuetifyTheme.global.name.value = theme
       }
     } catch (error) {
-      console.warn('テーマ設定の反映に失敗しました:', error)
+      logger.warn('テーマ設定の反映に失敗しました:', error)
     }
   }
 
@@ -124,7 +127,7 @@ export const useThemeStore = defineStore('theme', () => {
       }
       localStorage.setItem('theme-preferences', JSON.stringify(preferences))
     } catch (error) {
-      console.warn('テーマ設定の保存に失敗しました:', error)
+      logger.warn('テーマ設定の保存に失敗しました:', error)
     }
   }
 
@@ -144,7 +147,7 @@ export const useThemeStore = defineStore('theme', () => {
         updateCSSVariables()
       }
     } catch (error) {
-      console.warn('テーマ設定の読み込みに失敗しました:', error)
+      logger.warn('テーマ設定の読み込みに失敗しました:', error)
       // デフォルト値を設定
       setTheme('light')
     }
@@ -166,7 +169,7 @@ export const useThemeStore = defineStore('theme', () => {
             updateCSSVariables()
           }
         } catch (error) {
-          console.warn('システムテーマ変更の処理に失敗しました:', error)
+          logger.warn('システムテーマ変更の処理に失敗しました:', error)
         }
       }
 
@@ -187,11 +190,11 @@ export const useThemeStore = defineStore('theme', () => {
             mediaQuery.removeListener(handleSystemThemeChange)
           }
         } catch (error) {
-          console.warn('システムテーマリスナーの削除に失敗しました:', error)
+          logger.warn('システムテーマリスナーの削除に失敗しました:', error)
         }
       }
     } catch (error) {
-      console.warn('システムテーマリスナーの設定に失敗しました:', error)
+      logger.warn('システムテーマリスナーの設定に失敗しました:', error)
       return () => {} // エラー時は何もしないクリーンアップ関数を返す
     }
   }
@@ -246,7 +249,7 @@ export const useThemeStore = defineStore('theme', () => {
         root.style.setProperty('--app-surface-variant', '#F3E5F5')
       }
     } catch (error) {
-      console.warn('CSS変数の更新に失敗しました:', error)
+      logger.warn('CSS変数の更新に失敗しました:', error)
     }
   }
 

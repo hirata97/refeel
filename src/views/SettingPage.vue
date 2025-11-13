@@ -382,6 +382,9 @@ import { useDataManagementStore } from '@/stores/dataManagement'
 import { useTheme } from 'vuetify'
 import NotificationSettings from '@/components/NotificationSettings.vue'
 import EmotionTagManager from '@/components/EmotionTagManager.vue'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SETTINGPAGE')
 
 // タブの状態管理
 const activeTab = ref<string>('theme')
@@ -440,7 +443,7 @@ const updateProfile = async () => {
       preferred_language: profileStore.profile.preferred_language,
     })
   } catch (error) {
-    console.error('プロフィールの更新に失敗:', error)
+    logger.error('プロフィールの更新に失敗:', error)
   }
 }
 
@@ -452,7 +455,7 @@ const uploadAvatar = async (event: Event) => {
     try {
       await profileStore.uploadAvatar(file)
     } catch (error) {
-      console.error('アバターのアップロードに失敗:', error)
+      logger.error('アバターのアップロードに失敗:', error)
     }
   }
 }
@@ -462,7 +465,7 @@ const removeAvatar = async () => {
   try {
     await profileStore.removeAvatar()
   } catch (error) {
-    console.error('アバターの削除に失敗:', error)
+    logger.error('アバターの削除に失敗:', error)
   }
 }
 
@@ -486,7 +489,7 @@ const exportData = async () => {
       URL.revokeObjectURL(url)
     }
   } catch (error) {
-    console.error('データエクスポートに失敗:', error)
+    logger.error('データエクスポートに失敗:', error)
   }
 }
 
@@ -511,7 +514,7 @@ const importData = async () => {
       window.location.reload()
     }
   } catch (error) {
-    console.error('データインポートに失敗:', error)
+    logger.error('データインポートに失敗:', error)
   }
 }
 
@@ -526,7 +529,7 @@ const deleteAllData = async () => {
       router.push('/')
     }
   } catch (error) {
-    console.error('データ削除に失敗:', error)
+    logger.error('データ削除に失敗:', error)
   }
 }
 
@@ -547,7 +550,7 @@ const deleteAccount = async () => {
     authStore.signOut()
     router.push('/')
   } catch (error) {
-    console.error('アカウント削除に失敗:', error)
+    logger.error('アカウント削除に失敗:', error)
   }
 }
 

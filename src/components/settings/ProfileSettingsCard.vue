@@ -208,6 +208,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
 import type { UserProfile } from '@/types/settings'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('PROFILESETTINGSCARD')
 import type { VForm } from 'vuetify/components'
 
 // Props
@@ -292,7 +295,7 @@ const loadProfile = async () => {
       emit('update:modelValue', profile)
     }
   } catch (error) {
-    console.error('プロファイル読み込みエラー:', error)
+    logger.error('プロファイル読み込みエラー:', error)
   }
 }
 
@@ -308,7 +311,7 @@ const saveProfile = async () => {
     emit('update:modelValue', profileData.value)
     emit('profileUpdated', profileData.value)
   } catch (error) {
-    console.error('プロファイル保存エラー:', error)
+    logger.error('プロファイル保存エラー:', error)
   } finally {
     saveLoading.value = false
   }
@@ -335,7 +338,7 @@ const handleFileSelect = async (event: Event) => {
     profileData.value.avatar_url = url || ''
     emit('avatarUploaded', url || '')
   } catch (error) {
-    console.error('アバターアップロードエラー:', error)
+    logger.error('アバターアップロードエラー:', error)
   } finally {
     uploadLoading.value = false
     target.value = '' // Reset file input
@@ -350,7 +353,7 @@ const removeAvatar = async () => {
     await profileStore.removeAvatar()
     profileData.value.avatar_url = ''
   } catch (error) {
-    console.error('アバター削除エラー:', error)
+    logger.error('アバター削除エラー:', error)
   } finally {
     removeLoading.value = false
   }

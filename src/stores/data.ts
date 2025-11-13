@@ -9,6 +9,9 @@ export type { DiaryEntry, Account }
 
 // キャッシュ設定をカスタム型定義から再エクスポート
 import type { CacheEntry, CacheKey } from '@/types/custom'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DATA')
 
 export const useDataStore = defineStore('data', () => {
   // キャッシュストレージ
@@ -447,7 +450,7 @@ export const useDataStore = defineStore('data', () => {
     try {
       await Promise.all([fetchDiaries(userId), fetchAccounts(userId)])
     } catch (err) {
-      console.error('データ初期化エラー:', err)
+      logger.error('データ初期化エラー:', err)
     }
   }
 

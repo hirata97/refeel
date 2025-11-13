@@ -1,4 +1,7 @@
 import { useAuthStore } from '@/stores/auth'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('AUTH')
 import { SecurityReporting } from './security'
 import DOMPurify from 'isomorphic-dompurify'
 import bcrypt from 'bcryptjs'
@@ -64,7 +67,7 @@ export const requireAuth = (): boolean => {
   const authStore = useAuthStore()
 
   if (!authStore.isAuthenticated) {
-    console.warn('認証が必要です')
+    logger.warn('認証が必要です')
     return false
   }
 
@@ -79,7 +82,7 @@ export const requireGuest = (): boolean => {
   const authStore = useAuthStore()
 
   if (authStore.isAuthenticated) {
-    console.warn('すでにログインしています')
+    logger.warn('すでにログインしています')
     return false
   }
 

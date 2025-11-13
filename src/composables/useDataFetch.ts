@@ -3,6 +3,9 @@ import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
 import { performanceMonitor, debounce, throttle } from '@/utils/performance'
 import type { DiaryEntry } from '@/stores/data'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('USEDATAFETCH')
 
 // データ取得オプション
 interface FetchOptions {
@@ -30,7 +33,7 @@ export function useDataFetch<T>(
   const handleError = (err: unknown): void => {
     const message = err instanceof Error ? err.message : 'データ取得エラー'
     error.value = message
-    console.error(`Fetch error for ${key}:`, err)
+    logger.error(`Fetch error for ${key}:`, err)
   }
 
   // データ取得実行
@@ -237,7 +240,7 @@ export function useDiaries(options: FetchOptions = {}) {
 
       moodStats.value = stats
     } catch (error) {
-      console.error('カテゴリ統計の取得に失敗:', error)
+      logger.error('カテゴリ統計の取得に失敗:', error)
     }
   }
 
@@ -308,7 +311,7 @@ export function useRealtimeData() {
         try {
           await dataStore.fetchDiaries(authStore.user.id, true)
         } catch (error) {
-          console.error('ポーリング更新エラー:', error)
+          logger.error('ポーリング更新エラー:', error)
         }
       }
     }, intervalMs)
@@ -396,7 +399,7 @@ export function useBackgroundSync() {
       // 同期完了後キューをクリア
       syncQueue.value = []
     } catch (syncError) {
-      console.error('バックグラウンド同期エラー:', syncError)
+      logger.error('バックグラウンド同期エラー:', syncError)
     } finally {
       isSyncing.value = false
     }

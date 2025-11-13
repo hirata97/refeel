@@ -199,6 +199,9 @@ import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
 import type { DiaryEntry } from '@/stores/data'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('DIARYEDITPAGE')
 
 const router = useRouter()
 const route = useRoute()
@@ -288,14 +291,14 @@ const loadDiary = async () => {
       const emotionTags = await emotionTagsStore.getDiaryEmotionTags(diaryData.id)
       selectedEmotionTags.value = emotionTags.map((tag) => tag.id)
     } catch (emotionTagError) {
-      console.error('感情タグの取得エラー:', emotionTagError)
+      logger.error('感情タグの取得エラー:', emotionTagError)
       // 感情タグ取得失敗でも日記編集は可能とする
       selectedEmotionTags.value = []
     }
 
     performance.end('load_diary_for_edit')
   } catch (error) {
-    console.error('日記読み込みエラー:', error)
+    logger.error('日記読み込みエラー:', error)
     const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました'
     showNotification(`日記の読み込みに失敗しました: ${errorMessage}`, 'error', 'mdi-alert-circle')
   } finally {
@@ -337,7 +340,7 @@ const updateDiary = async (): Promise<void> => {
       try {
         await emotionTagsStore.linkDiaryEmotionTags(diary.value!.id, selectedEmotionTags.value)
       } catch (emotionTagError) {
-        console.error('感情タグの更新エラー:', emotionTagError)
+        logger.error('感情タグの更新エラー:', emotionTagError)
         // 感情タグ更新失敗でも日記更新は成功扱いとし、警告メッセージを表示
         showNotification(
           '日記は更新されましたが、感情タグの更新に失敗しました',
@@ -361,7 +364,7 @@ const updateDiary = async (): Promise<void> => {
         router.push('/diary-view')
       }, 1500)
     } catch (error: unknown) {
-      console.error('日記更新エラー:', error)
+      logger.error('日記更新エラー:', error)
       const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました'
 
       // ネットワークエラーの場合は自動リトライ
@@ -428,7 +431,7 @@ const confirmDelete = async () => {
         router.push('/diary-view')
       }, 1500)
     } catch (error: unknown) {
-      console.error('日記削除エラー:', error)
+      logger.error('日記削除エラー:', error)
       const errorMessage = error instanceof Error ? error.message : '不明なエラーが発生しました'
 
       // ネットワークエラーの場合は自動リトライ

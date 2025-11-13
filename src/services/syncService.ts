@@ -1,6 +1,9 @@
 import { offlineStorage, type OfflineDiary } from './offlineStorage'
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('SYNCSERVICE')
 
 type DiaryInsert = Database['public']['Tables']['diaries']['Insert']
 type DiaryUpdate = Database['public']['Tables']['diaries']['Update']
@@ -118,7 +121,7 @@ export class SyncService {
     // 競合検出（サーバーの更新時刻がローカルより新しい）
     if (serverDiary && new Date(serverDiary.updated_at) > new Date(diary.updated_at)) {
       // 競合解決: Last Write Wins（最後の書き込み優先）
-      console.warn('データ競合を検出、ローカル変更を適用します')
+      logger.warn('データ競合を検出、ローカル変更を適用します')
     }
 
     const updateData: DiaryUpdate = {
@@ -207,24 +210,24 @@ export class SyncService {
   async backgroundSync(userId: string): Promise<void> {
     try {
       const result = await this.syncData(userId)
-      console.log('バックグラウンド同期完了:', result)
+      logger.debug('バックグラウンド同期完了:', result)
 
       // 同期結果をキャッシュに保存
       await offlineStorage.setCacheEntry('last_sync_result', result, 60)
     } catch (error) {
-      console.error('バックグラウンド同期エラー:', error)
+      logger.error('バックグラウンド同期エラー:', error)
     }
   }
 
   // 接続状態監視
   setupOnlineListener(userId: string): void {
     window.addEventListener('online', async () => {
-      console.log('オンラインに復帰しました')
+      logger.debug('オンラインに復帰しました')
       await this.syncData(userId)
     })
 
     window.addEventListener('offline', () => {
-      console.log('オフラインになりました')
+      logger.debug('オフラインになりました')
     })
   }
 

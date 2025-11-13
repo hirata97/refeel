@@ -9,6 +9,9 @@ import {
   NotificationUtils,
 } from '@/utils/notifications'
 import { useNotificationStore } from '@/stores/notification'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('REMINDER')
 
 export const useReminderStore = defineStore('reminder', () => {
   // State
@@ -154,7 +157,7 @@ export const useReminderStore = defineStore('reminder', () => {
 
     // 静寂時間チェック
     if (NotificationUtils.isQuietTime(notificationSettings.value)) {
-      console.log('静寂時間中のためリマインダーをスキップしました')
+      logger.debug('静寂時間中のためリマインダーをスキップしました')
       // 次回のリマインダーをスケジュール
       scheduleReminder(reminder)
       return
@@ -206,7 +209,7 @@ export const useReminderStore = defineStore('reminder', () => {
       // 次回のリマインダーをスケジュール
       scheduleReminder(reminder)
     } catch (error) {
-      console.error('リマインダーの実行に失敗しました:', error)
+      logger.error('リマインダーの実行に失敗しました:', error)
       notificationStore.showError('リマインダーエラー', 'リマインダーの表示に失敗しました')
     }
   }
@@ -255,7 +258,7 @@ export const useReminderStore = defineStore('reminder', () => {
         return false
       }
     } catch (error) {
-      console.error('通知許可の要求に失敗しました:', error)
+      logger.error('通知許可の要求に失敗しました:', error)
       const notificationStore = useNotificationStore()
       notificationStore.showError('通知許可エラー', '通知許可の取得に失敗しました')
       return false
@@ -293,7 +296,7 @@ export const useReminderStore = defineStore('reminder', () => {
         NotificationUtils.vibrate()
       }
     } catch (error) {
-      console.error('テスト通知の送信に失敗しました:', error)
+      logger.error('テスト通知の送信に失敗しました:', error)
       notificationStore.showError('テスト通知エラー', 'テスト通知の送信に失敗しました')
     }
   }
@@ -313,17 +316,17 @@ export const useReminderStore = defineStore('reminder', () => {
   // Service Worker関連
   const registerServiceWorker = async (): Promise<boolean> => {
     if (!('serviceWorker' in navigator)) {
-      console.warn('Service Workerがサポートされていません')
+      logger.warn('Service Workerがサポートされていません')
       return false
     }
 
     try {
       const registration = await navigator.serviceWorker.register('/service-worker.js')
-      console.log('Service Worker登録成功:', registration)
+      logger.debug('Service Worker登録成功:', registration)
       isServiceWorkerRegistered.value = true
       return true
     } catch (error) {
-      console.error('Service Worker登録失敗:', error)
+      logger.error('Service Worker登録失敗:', error)
       return false
     }
   }

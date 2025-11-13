@@ -84,7 +84,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
       }
     } catch (err) {
-      console.error('拡張初期化エラー:', err)
+      logger.error('拡張初期化エラー:', err)
       setError(err instanceof Error ? err.message : '初期化に失敗しました')
     } finally {
       setLoading(false)

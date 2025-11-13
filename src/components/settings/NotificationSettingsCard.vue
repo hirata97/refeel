@@ -157,6 +157,9 @@
 import { ref, watch } from 'vue'
 import { useBrowserNotificationStore } from '@/stores/browserNotifications'
 import type { NotificationSettings } from '@/types/settings'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('NOTIFICATIONSETTINGSCARD')
 
 // Props
 interface Props {
@@ -213,7 +216,7 @@ const requestNotificationPermission = async () => {
   try {
     await notificationStore.requestPermission()
   } catch (error) {
-    console.error('通知許可の要求に失敗:', error)
+    logger.error('通知許可の要求に失敗:', error)
   } finally {
     permissionLoading.value = false
   }
@@ -225,7 +228,7 @@ const updateSettings = async () => {
     emit('update:modelValue', localSettings.value)
     emit('settingsUpdated', localSettings.value)
   } catch (error) {
-    console.error('通知設定の更新に失敗:', error)
+    logger.error('通知設定の更新に失敗:', error)
   }
 }
 
@@ -236,7 +239,7 @@ const sendTestNotification = async () => {
       'Goal Categorization Diaryからのテスト通知です。設定が正しく動作しています！',
     )
   } catch (error) {
-    console.error('テスト通知の送信に失敗:', error)
+    logger.error('テスト通知の送信に失敗:', error)
   } finally {
     testLoading.value = false
   }

@@ -73,6 +73,9 @@ import { supabase } from '@/lib/supabase'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleRegisterForm } from '@/composables/useSimpleForm'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('ACCOUNTREGISTERPAGE')
 
 const { authStore } = useAuthGuard({ requireAuth: false })
 const { navigateToDashboard, navigateToTop, navigateToLogin } = useAppRouter()
@@ -161,7 +164,7 @@ const handleRegister = async () => {
             navigateToDashboard()
           }
         } catch (err) {
-          console.error('Account creation error:', err)
+          logger.error('Account creation error:', err)
           showError('アカウント情報の保存に失敗しました')
           await logAuthAttempt(false, sanitizedEmail, 'account_save_failed')
         }

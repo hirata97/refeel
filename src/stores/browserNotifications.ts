@@ -5,6 +5,9 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { NotificationSettings, NotificationPermission } from '@/types/settings'
 import { DEFAULT_NOTIFICATION_SETTINGS } from '@/types/settings'
+import { createLogger } from '@/utils/logger'
+
+const logger = createLogger('BROWSERNOTIFICATIONS')
 
 export const useBrowserNotificationStore = defineStore('browserNotifications', () => {
   // 状態
@@ -28,7 +31,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
         permission.value = Notification.permission as NotificationPermission
       }
     } catch (error) {
-      console.warn('通知サポートの確認に失敗:', error)
+      logger.warn('通知サポートの確認に失敗:', error)
       isSupported.value = false
       lastError.value = '通知機能がサポートされていません'
     }
@@ -48,7 +51,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
       return permission.value
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '通知権限の取得に失敗しました'
-      console.error('通知権限エラー:', error)
+      logger.error('通知権限エラー:', error)
       lastError.value = errorMessage
       return 'denied'
     }
@@ -61,7 +64,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
   ): Promise<boolean> => {
     try {
       if (!canShowNotifications.value) {
-        console.warn('通知表示不可:', {
+        logger.warn('通知表示不可:', {
           isSupported: isSupported.value,
           permission: permission.value,
           enabled: settings.value.enabled,
@@ -95,7 +98,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
       return true
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '通知の表示に失敗しました'
-      console.error('通知表示エラー:', error)
+      logger.error('通知表示エラー:', error)
       lastError.value = errorMessage
       return false
     }
@@ -137,7 +140,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
       lastError.value = null
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '設定の更新に失敗しました'
-      console.error('設定更新エラー:', error)
+      logger.error('設定更新エラー:', error)
       lastError.value = errorMessage
       throw error
     }
@@ -153,7 +156,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
       }
       localStorage.setItem('notification-settings', JSON.stringify(data))
     } catch (error) {
-      console.error('通知設定の保存に失敗:', error)
+      logger.error('通知設定の保存に失敗:', error)
       throw error
     }
   }
@@ -172,7 +175,7 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
         }
       }
     } catch (error) {
-      console.error('通知設定の読み込みに失敗:', error)
+      logger.error('通知設定の読み込みに失敗:', error)
       settings.value = { ...DEFAULT_NOTIFICATION_SETTINGS }
     }
   }
@@ -205,9 +208,9 @@ export const useBrowserNotificationStore = defineStore('browserNotifications', (
         scheduleReminder()
       }, timeUntilReminder)
 
-      console.log(`リマインダーを設定しました: ${reminderTime.toLocaleString()}`)
+      logger.debug(`リマインダーを設定しました: ${reminderTime.toLocaleString()}`)
     } catch (error) {
-      console.error('リマインダーのスケジュールに失敗:', error)
+      logger.error('リマインダーのスケジュールに失敗:', error)
     }
   }
 

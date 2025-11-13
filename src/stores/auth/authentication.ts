@@ -58,7 +58,7 @@ export const createAuthenticationStore = (
         setSessionFn(null)
       }
     } catch (err) {
-      console.error('認証状態の初期化エラー:', err)
+      logger.error('認証状態の初期化エラー:', err)
       setErrorFn(err instanceof Error ? err.message : '認証状態の初期化に失敗しました')
     } finally {
       setLoadingFn(false)
@@ -167,7 +167,7 @@ export const createAuthenticationStore = (
           sessionId: data.session.access_token,
         })
 
-        console.log('ログイン成功、セッションを作成しました')
+        logger.debug('ログイン成功、セッションを作成しました')
         return { success: true, user: data.user }
       }
 
@@ -324,7 +324,7 @@ export const createAuthenticationStore = (
       localStorage.removeItem('user')
       localStorage.removeItem('lastActivity')
 
-      console.log('ログアウトしました')
+      logger.debug('ログアウトしました')
       return { success: true }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'ログアウトに失敗しました'
