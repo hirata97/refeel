@@ -3,6 +3,28 @@ import { SecurityMonitor, SecurityAlertManager, SecurityMetricsCollector } from 
 import { SecurityIncidentReporter } from '@/utils/security'
 import type { SecurityEvent, SecurityAlert, ThreatLevel } from '@/types/security-monitoring'
 
+// loggerのモック（グローバルモックを明示的に宣言）
+// createLoggerが返すモックloggerインスタンスを保持
+// vi.hoisted()を使用してホイスティング問題を回避
+const mockLoggerInstance = vi.hoisted(() => ({
+  debug: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  log: vi.fn(),
+}))
+
+vi.mock('@/utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    log: vi.fn(),
+  },
+  createLogger: vi.fn(() => mockLoggerInstance),
+}))
+
 // SecurityIncidentReporterのモック
 vi.mock('@/utils/security', () => ({
   SecurityIncidentReporter: {
@@ -46,18 +68,17 @@ global.PromiseRejectionEvent = class PromiseRejectionEvent extends Event {
 describe('SecurityMonitor', () => {
   let securityMonitor: SecurityMonitor
   let mockIncidentReporter: MockedFunction<typeof SecurityIncidentReporter.reportIncident>
-  let consoleLogSpy: vi.SpyInstance
-  let consoleWarnSpy: vi.SpyInstance
-  let consoleErrorSpy: vi.SpyInstance
 
   beforeEach(() => {
     vi.useFakeTimers()
     vi.clearAllMocks()
 
-    // コンソール出力をモック（テスト高速化）
-    consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+    // mockLoggerInstanceのモックをクリア
+    mockLoggerInstance.debug.mockClear()
+    mockLoggerInstance.info.mockClear()
+    mockLoggerInstance.warn.mockClear()
+    mockLoggerInstance.error.mockClear()
+    mockLoggerInstance.log.mockClear()
 
     // シングルトンのリセット
     ;(SecurityMonitor as unknown).instance = null
@@ -69,11 +90,6 @@ describe('SecurityMonitor', () => {
   afterEach(() => {
     vi.useRealTimers()
     securityMonitor.stopMonitoring()
-
-    // コンソールスパイをリストア
-    consoleLogSpy?.mockRestore()
-    consoleWarnSpy?.mockRestore()
-    consoleErrorSpy?.mockRestore()
   })
 
   describe('シングルトンパターン', () => {
@@ -89,21 +105,21 @@ describe('SecurityMonitor', () => {
     it('監視を開始できる', () => {
       securityMonitor.startMonitoring()
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('🔍 Security monitoring started')
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith('🔍 Security monitoring started')
     })
 
     it('監視を停止できる', () => {
       securityMonitor.startMonitoring()
       securityMonitor.stopMonitoring()
 
-      expect(consoleLogSpy).toHaveBeenCalledWith('🔍 Security monitoring stopped')
+      expect(mockLoggerInstance.debug).toHaveBeenCalledWith('🔍 Security monitoring stopped')
     })
 
     it('重複した監視開始をスキップする', () => {
       securityMonitor.startMonitoring()
       securityMonitor.startMonitoring()
 
-      expect(consoleLogSpy).toHaveBeenCalledTimes(1)
+      expect(mockLoggerInstance.debug).toHaveBeenCalledTimes(1)
     })
   })
 
@@ -440,13 +456,11 @@ describe('SecurityAlertManager', () => {
         acknowledged: false
       }
 
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-
       alertManager.triggerAlert(mockAlert)
 
       const alerts = alertManager.getAlerts(1)
       expect(alerts[0]).toEqual(mockAlert)
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.warn).toHaveBeenCalledWith(
         expect.stringContaining('Security Alert: テストルール'),
         mockAlert
       )
@@ -603,8 +617,6 @@ describe('SecurityAlertManager', () => {
       const errorHandler = vi.fn(() => {
         throw new Error('Handler error')
       })
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-
       alertManager.addAlertHandler('error', errorHandler)
 
       const mockAlert: SecurityAlert = {
@@ -627,7 +639,7 @@ describe('SecurityAlertManager', () => {
       alertManager.triggerAlert(mockAlert)
 
       expect(errorHandler).toHaveBeenCalled()
-      expect(consoleSpy).toHaveBeenCalledWith(
+      expect(mockLoggerInstance.error).toHaveBeenCalledWith(
         'Alert handler error:',
         expect.any(Error)
       )
