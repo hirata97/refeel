@@ -150,8 +150,38 @@ jobs:
     - name: Coverage Threshold Check
       if: matrix.node-version == 20
       run: |
-        echo "✅ カバレッジチェックは現在スキップ中"
-        # TODO: カバレッジ閾値チェックロジックを後で実装
+        echo "## 📊 Coverage Threshold Check" >> $GITHUB_STEP_SUMMARY
+
+        # coverage-summary.jsonからカバレッジデータを取得
+        if [ -f "coverage/coverage-summary.json" ]; then
+          # jqを使って各カバレッジメトリクスを抽出
+          lines=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+          statements=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
+          functions=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
+          branches=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
+
+          echo "**カバレッジ詳細:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Lines: $lines%" >> $GITHUB_STEP_SUMMARY
+          echo "- Statements: $statements%" >> $GITHUB_STEP_SUMMARY
+          echo "- Functions: $functions%" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches: $branches%" >> $GITHUB_STEP_SUMMARY
+
+          # 推奨閾値: 70% (警告のみ、失敗させない)
+          RECOMMENDED_THRESHOLD=70
+
+          # 警告判定（推奨レベル）
+          if (( $(echo "$lines < $RECOMMENDED_THRESHOLD" | bc -l) )); then
+            echo "⚠️ **警告**: Lines coverage ($lines%) が推奨値 ($RECOMMENDED_THRESHOLD%) を下回っています" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Lines coverage ($lines%) is below recommended threshold ($RECOMMENDED_THRESHOLD%)"
+          else
+            echo "✅ Lines coverage は推奨値を満たしています" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**注意**: カバレッジ閾値は推奨レベルです。失敗条件ではありません。" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ カバレッジレポートが見つかりません" >> $GITHUB_STEP_SUMMARY
+        fi
 
   # Stage 3: セキュリティチェック
   security:
@@ -215,7 +245,7 @@ jobs:
   quality-report:
     name: Quality Gate Summary
     runs-on: ubuntu-latest
-    needs: [code-quality]
+    needs: [code-quality, testing, security]
     if: always()
     
     steps:
@@ -224,26 +254,61 @@ jobs:
       with:
         script: |
           const codeQualityResult = '${{ needs.code-quality.result }}';
-          const allPassed = codeQualityResult === 'success';
+          const testingResult = '${{ needs.testing.result }}';
+          const securityResult = '${{ needs.security.result }}';
+
+          // 全てのチェックが成功したか判定
+          const allPassed = codeQualityResult === 'success' &&
+                           testingResult === 'success' &&
+                           securityResult === 'success';
+
           const status = allPassed ? '✅ 品質ゲート通過' : '❌ 品質ゲート失敗';
-          
+
+          // 結果アイコンを生成する関数
+          const getIcon = (result) => {
+            if (result === 'success') return '✅';
+            if (result === 'failure') return '❌';
+            if (result === 'skipped') return '⏭️';
+            return '⚠️';
+          };
+
           let report = `## ${status}\n\n`;
           report += '### 📊 チェック結果\n\n';
-          report += `✅ **Code Quality**: ${codeQualityResult}\n`;
-          
+          report += `${getIcon(codeQualityResult)} **Code Quality**: ${codeQualityResult}\n`;
+          report += `${getIcon(testingResult)} **Testing**: ${testingResult}\n`;
+          report += `${getIcon(securityResult)} **Security**: ${securityResult}\n`;
+
           report += '\n### 📋 品質基準\n';
-          report += '- ✅ ESLint: エラー0件必須\n';
-          report += '- ✅ TypeScript: 型エラー0件必須\n';
-          report += '- ✅ Prettier: フォーマット準拠\n';
-          report += '- ✅ ビルド: 成功必須\n\n';
-          
+          report += '#### 必須レベル（PRマージ条件）\n';
+          report += '- ✅ **ESLint**: エラー0件必須（警告は許容）\n';
+          report += '- ✅ **TypeScript**: 型エラー0件必須\n';
+          report += '- ✅ **Prettier**: フォーマット準拠必須\n';
+          report += '- ✅ **ビルド**: 本番ビルド成功必須\n';
+          report += '- ✅ **テスト**: 全ユニットテスト成功必須\n';
+          report += '- ✅ **セキュリティ**: High/Critical脆弱性0件必須\n\n';
+
+          report += '#### 推奨レベル（警告表示）\n';
+          report += '- 📊 **カバレッジ**: 70%以上推奨（現在監視中）\n';
+          report += '- 🔒 **セキュリティ**: Moderate以下の脆弱性対応推奨\n\n';
+
           if (!allPassed) {
-            report += '### ⚠️ マージ前に上記の問題を解決してください\n';
+            report += '### ⚠️ マージ前に上記の問題を解決してください\n\n';
+            report += '#### 失敗したチェック詳細\n';
+            if (codeQualityResult !== 'success') {
+              report += '- **Code Quality**: ESLint、TypeScript、またはビルドに問題があります\n';
+            }
+            if (testingResult !== 'success') {
+              report += '- **Testing**: ユニットテストが失敗しています\n';
+            }
+            if (securityResult !== 'success') {
+              report += '- **Security**: 高リスク以上の脆弱性が検出されています\n';
+            }
             core.setFailed('品質ゲートの基準を満たしていません');
           } else {
             report += '### 🎉 すべての品質チェックに合格しています！\n';
+            report += '\n安心してマージできます。お疲れ様でした！\n';
           }
-          
+
           await github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

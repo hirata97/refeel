@@ -47,7 +47,9 @@ describe('Logger', () => {
       const formattedMessage = consoleErrorSpy.mock.calls[0][0]
 
       // Check format: [ISO timestamp] [ERROR]
-      expect(formattedMessage).toMatch(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[ERROR\]$/)
+      expect(formattedMessage).toMatch(
+        /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[ERROR\]$/,
+      )
     })
 
     it('should preserve additional arguments', () => {
@@ -70,7 +72,9 @@ describe('Logger', () => {
       const formattedMessage = consoleErrorSpy.mock.calls[0][0]
 
       // Check format: [ISO timestamp] [AUTH] [ERROR]
-      expect(formattedMessage).toMatch(/^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[AUTH\] \[ERROR\]$/)
+      expect(formattedMessage).toMatch(
+        /^\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z\] \[AUTH\] \[ERROR\]$/,
+      )
     })
 
     it('should create multiple independent loggers', () => {
@@ -121,7 +125,7 @@ describe('Logger', () => {
       const complexObject = {
         nested: { deep: { value: 42 } },
         array: [1, 2, 3],
-        date: new Date()
+        date: new Date(),
       }
 
       logger.error('complex', complexObject)
