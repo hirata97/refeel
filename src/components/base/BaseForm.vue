@@ -51,8 +51,7 @@ const isValid = ref(false)
 // Issue #213対応: フォームのsubmitイベントハンドラーを分離
 // onFormSubmit: DOMイベントを受け取る（Vuetifyの@submitで使用）
 const onFormSubmit = (): void => {
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  handleSubmit()
+  void handleSubmit()
 }
 
 // handleSubmit: プログラマティックな呼び出し用（スロット経由で公開）
