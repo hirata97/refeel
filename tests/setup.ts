@@ -1,4 +1,35 @@
 import { config } from '@vue/test-utils'
+import { vi } from 'vitest'
+
+// ロガーのグローバルモック設定（Issue #218の影響対応）
+vi.mock('@/utils/logger', () => ({
+  logger: {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    log: vi.fn(), // console.log互換
+  },
+  createLogger: vi.fn(() => ({
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    log: vi.fn(),
+  })),
+}))
+
+// console.log/warn/errorのグローバルモック（既存テストとの互換性維持）
+// EPIPEエラー防止のため、テスト環境では出力を抑制
+const originalConsole = { ...console }
+global.console = {
+  ...originalConsole,
+  log: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  info: originalConsole.info, // infoは保持（必要な場合のみ）
+  debug: originalConsole.debug,
+}
 
 // Vuetifyコンポーネントのモック設定
 config.global.stubs = {
