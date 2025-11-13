@@ -39,7 +39,9 @@
     "generate-types:prod": "node scripts/generate-types.js --production",
     "dev:with-types": "npm run generate-types && npm run dev",
     "ci:all": "npm run generate-types && npm run ci:lint && npm run ci:type-check && npm run ci:test && npm run ci:build && npm run ci:security",
-    "ci:quality-gate": "npm run generate-types && npm run ci:lint && npm run ci:type-check && npm run ci:build"
+    "ci:quality-gate": "npm run generate-types && npm run ci:lint && npm run ci:type-check && npm run ci:build",
+    "ci:minimum-gate": "npm run generate-types && npm run ci:lint && npm run ci:build",
+    "ci:ideal-gate": "npm run ci:all"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",
