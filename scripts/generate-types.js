@@ -313,7 +313,7 @@ ${typesOutput}
 function validateTypeCompatibility() {
   try {
     log('型チェックを実行しています...')
-    execCommand('npm run type-check', '型チェック実行')
+    execCommand('npm run ci:type-check', '型チェック実行')
     log('型チェックが成功しました', 'success')
     return true
   } catch (error) {
