@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import SkipLink from '../../src/components/SkipLink.vue'
 
@@ -13,11 +13,23 @@ describe('SkipLink - 正常系', () => {
     // メインコンテンツ要素を作成
     const mainContent = document.createElement('div')
     mainContent.id = 'main-content'
+    mainContent.tabIndex = -1 // フォーカス可能にする
 
     // scrollIntoViewをモック（JSDOMでは未実装）
     mainContent.scrollIntoView = vi.fn()
 
+    // focus メソッドもモック（既存のfocusメソッドを上書き）
+    mainContent.focus = vi.fn()
+
     document.body.appendChild(mainContent)
+  })
+
+  afterEach(() => {
+    // クリーンアップ: メインコンテンツ要素を削除
+    const mainContent = document.getElementById('main-content')
+    if (mainContent) {
+      mainContent.remove()
+    }
   })
 
   it('スキップリンクが正常にレンダリングされる', () => {
@@ -37,16 +49,16 @@ describe('SkipLink - 正常系', () => {
     const wrapper = createWrapper()
     const mainContent = document.getElementById('main-content')
 
-    // スパイを設定
-    const focusSpy = vi.spyOn(mainContent, 'focus')
-    const scrollIntoViewSpy = vi.spyOn(mainContent, 'scrollIntoView')
+    // モック関数を取得（beforeEachで既に設定済み）
+    const focusMock = mainContent.focus
+    const scrollIntoViewMock = mainContent.scrollIntoView
 
     // クリックイベントを発火
     await wrapper.find('a.skip-link').trigger('click')
 
     // フォーカスとスクロールが呼ばれたことを確認
-    expect(focusSpy).toHaveBeenCalled()
-    expect(scrollIntoViewSpy).toHaveBeenCalledWith({
+    expect(focusMock).toHaveBeenCalled()
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({
       behavior: 'smooth',
       block: 'start',
     })
