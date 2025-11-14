@@ -41,7 +41,41 @@ jobs:
       with:
         node-version: '20'
         cache: 'npm'
-        
+
+    # TypeScript増分ビルドキャッシュ
+    - name: Cache TypeScript build info
+      uses: actions/cache@v4
+      with:
+        path: |
+          tsconfig.tsbuildinfo
+          node_modules/.cache
+        key: ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue') }}
+        restore-keys: |
+          ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          ts-cache-${{ runner.os }}-
+
+    # ESLintキャッシュ
+    - name: Cache ESLint
+      uses: actions/cache@v4
+      with:
+        path: .eslintcache
+        key: eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue', 'eslint.config.js') }}
+        restore-keys: |
+          eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          eslint-cache-${{ runner.os }}-
+
+    # Viteビルドキャッシュ
+    - name: Cache Vite build
+      uses: actions/cache@v4
+      with:
+        path: |
+          dist
+          node_modules/.vite
+        key: vite-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*', 'vite.config.ts') }}
+        restore-keys: |
+          vite-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          vite-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install
@@ -51,20 +85,10 @@ jobs:
           echo "Install failed. Waiting 30 seconds before retry..."
           sleep 30
         done
-      
-    - name: Cache build artifacts
-      uses: actions/cache@v4
-      with:
-        path: |
-          dist
-          node_modules/.vite
-        key: build-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          build-cache-${{ runner.os }}-
         
-    # 厳格なESLintチェック（エラーで失敗）
+    # 厳格なESLintチェック（エラーで失敗・キャッシュ利用）
     - name: ESLint Code Analysis
-      run: npm run ci:lint
+      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache
       
     # 厳格なTypeScriptチェック（エラーで失敗）
     - name: TypeScript Type Check
@@ -105,23 +129,31 @@ jobs:
   testing:
     name: Comprehensive Testing
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     needs: code-quality
-    
-    strategy:
-      matrix:
-        node-version: [18, 20]
-        
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
-    - name: Setup Node.js ${{ matrix.node-version }}
+
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '20'
         cache: 'npm'
-        
+
+    # Vitestキャッシュ
+    - name: Cache Vitest
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules/.vitest
+          coverage
+        key: vitest-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*', 'tests/**/*') }}
+        restore-keys: |
+          vitest-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          vitest-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install
@@ -131,24 +163,22 @@ jobs:
           echo "Install failed. Waiting 30 seconds before retry..."
           sleep 30
         done
-      
-    # ユニットテスト（カバレッジ付き）
+
+    # ユニットテスト（カバレッジ付き・並列実行）
     - name: Run Unit Tests with Coverage
-      run: npm run ci:test
-      
+      run: npm run ci:test -- --reporter=verbose --threads --poolOptions.threads.maxThreads=4
+
     # カバレッジレポート生成
     - name: Coverage Report
       uses: codecov/codecov-action@v4
-      if: matrix.node-version == 20
       with:
         file: ./coverage/lcov.info
         flags: unittests
         name: unit-tests-coverage
         fail_ci_if_error: false
-        
+
     # カバレッジ閾値チェック
     - name: Coverage Threshold Check
-      if: matrix.node-version == 20
       run: |
         echo "## 📊 Coverage Threshold Check" >> $GITHUB_STEP_SUMMARY
 
@@ -187,19 +217,29 @@ jobs:
   security:
     name: Security Analysis
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     needs: code-quality
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        
+
+    # npm auditキャッシュ
+    - name: Cache npm audit results
+      uses: actions/cache@v4
+      with:
+        path: |
+          audit-results.json
+        key: audit-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          audit-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install

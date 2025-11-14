@@ -17,18 +17,28 @@ jobs:
   # 基本的な品質チェック
   lint-and-format:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
+    timeout-minutes: 3
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        
+
+    # ESLintキャッシュ
+    - name: Cache ESLint
+      uses: actions/cache@v4
+      with:
+        path: .eslintcache
+        key: eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue', 'eslint.config.js') }}
+        restore-keys: |
+          eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          eslint-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install
@@ -38,11 +48,11 @@ jobs:
           echo "Install failed. Waiting 30 seconds before retry..."
           sleep 30
         done
-      
-    - name: Run ESLint
-      run: npm run ci:lint
+
+    - name: Run ESLint (with cache)
+      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache
       continue-on-error: true
-      
+
     - name: Check Prettier formatting
       run: npm run format -- --check
       continue-on-error: true
@@ -50,18 +60,30 @@ jobs:
   # TypeScript型チェック（エラーは警告として扱う）
   type-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    
+    timeout-minutes: 3
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        
+
+    # TypeScript増分ビルドキャッシュ
+    - name: Cache TypeScript build info
+      uses: actions/cache@v4
+      with:
+        path: |
+          tsconfig.tsbuildinfo
+          node_modules/.cache
+        key: ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue') }}
+        restore-keys: |
+          ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          ts-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install
@@ -71,7 +93,7 @@ jobs:
           echo "Install failed. Waiting 30 seconds before retry..."
           sleep 30
         done
-      
+
     - name: TypeScript check
       run: npm run ci:type-check || echo "TypeScript errors detected - requires future fix"
       continue-on-error: true
@@ -79,18 +101,30 @@ jobs:
   # ユニットテスト実行
   unit-tests:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
+    timeout-minutes: 8
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        
+
+    # Vitestキャッシュ
+    - name: Cache Vitest
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules/.vitest
+          coverage
+        key: vitest-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*', 'tests/**/*') }}
+        restore-keys: |
+          vitest-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          vitest-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install
@@ -100,9 +134,9 @@ jobs:
           echo "Install failed. Waiting 30 seconds before retry..."
           sleep 30
         done
-      
-    - name: Run unit tests
-      run: npm run ci:test
+
+    - name: Run unit tests (parallel)
+      run: npm run ci:test -- --reporter=verbose --threads --poolOptions.threads.maxThreads=4
       continue-on-error: true
       
     - name: Upload test results
@@ -116,20 +150,31 @@ jobs:
   # ビルドテスト
   build-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs: [lint-and-format, type-check]
+    timeout-minutes: 3
     if: always()
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
+
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
-        
+
+    # Viteビルドキャッシュ
+    - name: Cache Vite build
+      uses: actions/cache@v4
+      with:
+        path: |
+          dist
+          node_modules/.vite
+        key: vite-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*', 'vite.config.ts') }}
+        restore-keys: |
+          vite-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          vite-cache-${{ runner.os }}-
+
     - name: Install dependencies (with retry)
       run: |
         # retry機能付きのnpm install
@@ -139,10 +184,10 @@ jobs:
           echo "Install failed. Waiting 30 seconds before retry..."
           sleep 30
         done
-      
+
     - name: Build application
       run: npm run ci:build
-      
+
     - name: Check build artifacts
       run: |
         ls -la dist/
