@@ -2,9 +2,34 @@
 
 **Reflect（内省）+ Feel（感情）** - モチベーション変化を測定・分析するWebアプリケーション
 
+[![Node.js](https://img.shields.io/badge/Node.js-v20+-green.svg)](https://nodejs.org/)
+[![Vue.js](https://img.shields.io/badge/Vue.js-3.5-brightgreen.svg)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-2.49-orange.svg)](https://supabase.com/)
+
+## 📖 目次
+
+- [プロジェクト概要](#プロジェクト概要)
+- [🚀 クイックスタート](#セットアップ)
+- [技術スタック](#技術スタック)
+- [主な機能](#主な機能)
+- [プロジェクト構造](#プロジェクト構造)
+- [開発コマンド](#開発コマンド)
+- [Claude Codeでの開発](#claude-codeでの開発)
+- [📚 ドキュメント](#-ドキュメント)
+- [貢献](#貢献)
+
 ## プロジェクト概要
 
 Refeelは、日々の振り返りによってモチベーションの変化を測定し、感情や要因を分析するためのWebアプリケーションです。Vue 3、TypeScript、Supabaseを使用して構築されており、ユーザーが自己内省を深めながら継続的な自己改善をサポートします。
+
+### 🎯 新規開発者向けクイックガイド
+
+1. **📖 全体把握**: このREADME.mdでプロジェクト全体を理解
+2. **⚙️ 環境構築**: [セットアップ](#セットアップ) セクションで開発環境を構築
+3. **🛠️ 開発準備**: [CLAUDE.md](CLAUDE.md) で開発フロー・重要原則を確認
+4. **📚 詳細学習**: [docs/README.md](docs/README.md) で詳細ドキュメントを参照
+5. **🚀 開発開始**: [開発コマンド](#開発コマンド) で実装作業開始
 
 ## 主な機能
 
@@ -27,14 +52,16 @@ Refeelは、日々の振り返りによってモチベーションの変化を�
 
 ## 技術スタック
 
-- **フロントエンド**: Vue 3 + TypeScript + Vite
-- **UIフレームワーク**: Vuetify 3（Material Design）
-- **バックエンド**: Supabase（認証、データベース、リアルタイム更新）
-- **状態管理**: Pinia
-- **ルーティング**: Vue Router
-- **データ可視化**: Chart.js + vue-chartjs
-- **テスティング**: Vitest（ユニット）+ Playwright（E2E）
+- **フロントエンド**: Vue 3.5 + TypeScript 5.6 + Vite 5.4
+- **UIフレームワーク**: Vuetify 3.7（Material Design）
+- **バックエンド**: Supabase 2.49（認証、データベース、リアルタイム更新）
+- **状態管理**: Pinia 2.2
+- **ルーティング**: Vue Router 4.4
+- **データ可視化**: Chart.js 4.4 + vue-chartjs 5.3
+- **テスティング**: Vitest 2.1（ユニット）+ Playwright 1.48（E2E）
 - **デプロイ**: Vercel
+- **Node.js**: v20以降推奨
+- **パッケージマネージャ**: npm
 
 ## セットアップ
 
@@ -54,9 +81,9 @@ npm run docker:setup
 
 #### 前提条件
 
-- Node.js (v16以降)
+- Node.js (v20以降推奨)
 - npm
-- Supabaseアカウント
+- Supabaseアカウント（無料プラン可）
 
 #### インストール
 
@@ -174,41 +201,55 @@ npm run auto-cycle
 
 ## プロジェクト構造
 
+### 📁 ディレクトリ概要
+
 ```
-src/
-├── components/          # 再利用可能なコンポーネント
-│   └── base/           # ベースコンポーネント
-├── lib/                # ライブラリ設定
-│   └── supabase.ts     # Supabaseクライアント
-├── plugins/            # Vue プラグイン
-│   └── vuetify.ts      # Vuetify設定
-├── router/             # ルーティング設定
-├── stores/             # Pinia ストア
-├── utils/              # ユーティリティ関数
-├── views/              # ページコンポーネント
-│   ├── DashBoardPage.vue      # ダッシュボード
-│   ├── DiaryRegisterPage.vue  # 日記登録
-│   ├── DiaryViewPage.vue      # 日記一覧
-│   ├── DiaryReportPage.vue    # レポート
-│   ├── LoginPage.vue          # ログイン
-│   ├── AccountRegisterPage.vue # アカウント登録
-│   └── SettingPage.vue        # 設定
-└── App.vue             # ルートコンポーネント
+GoalCategorizationDiary/
+├── src/                        # ソースコード → 詳細: src/README.md
+├── tests/                      # テストファイル → 詳細: tests/README.md
+├── docs/                       # プロジェクトドキュメント → 詳細: docs/README.md
+├── scripts/                    # 自動化スクリプト → 詳細: scripts/README.md
+├── database/                   # データベース関連 → 詳細: database/README.md
+├── public/                     # 静的リソース
+├── .github/                    # GitHub Actions・CI/CD設定
+└── .vscode/                    # VS Code推奨設定
 ```
+
+各ディレクトリの詳細な構造・設計方針・使用方法は、それぞれのREADME.mdを参照してください。
+
+### 🗂️ 主要ディレクトリの役割
+
+- **[src/](src/README.md)** - Vue 3 + TypeScript アプリケーションコード
+  - コンポーネント設計パターン、Composition API使用方針、型定義ルール
+- **[tests/](tests/README.md)** - Vitest + Playwright テストコード
+  - テスト命名規則、モック戦略、カバレッジ目標
+- **[docs/](docs/README.md)** - 18ファイルの詳細ドキュメント
+  - 開発ワークフロー、アーキテクチャ、セキュリティ、CI/CD
+- **[scripts/](scripts/README.md)** - Issue → PR自動化スクリプト
+  - fetch-issue.sh, start-issue.sh, create-pr.sh
+- **[database/](database/README.md)** - Supabaseデータベーススキーマ
+  - テーブル構造、RLS設定、マスターデータ
 
 ## テスト戦略
 
-### テストファイル命名規則
-- **形式**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
-- **例**: `normal_LoginPage_01.spec.js`, `exception_LoginPage_01.spec.js`
+テストの詳細な戦略・命名規則・実行方法は **[tests/README.md](tests/README.md)** を参照してください。
 
-### ディレクトリ構造
+### クイックガイド
+
+**テストファイル命名規則**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
+
+**例**:
+- `normal_LoginPage_01.spec.js` - 正常系テスト
+- `exception_LoginPage_01.spec.js` - 異常系テスト
+
+**主要コマンド**:
+```bash
+npm run test:unit           # ユニットテスト実行
+npm run test:e2e            # E2Eテスト実行
+npm run ci:test            # カバレッジ付きテスト
 ```
-tests/
-└── [コンポーネント名]/
-    ├── normal_[コンポーネント名]_01.spec.js
-    └── exception_[コンポーネント名]_01.spec.js
-```
+
+**カバレッジ目標**: 全体80%以上、重要コンポーネント90%以上
 
 ## 🏷️ ラベル管理システム
 
@@ -242,15 +283,38 @@ tests/
 
 ## Claude Codeでの開発
 
-このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。詳細な開発ガイドは`CLAUDE.md`を参照してください。
+このプロジェクトはClaude Code（claude.ai/code）での開発に最適化されています。
+
+### 📖 開発ガイド
+
+**完全な開発ガイド**: **[CLAUDE.md](CLAUDE.md)** を必ず確認してください
+
+- 🚀 クイックスタート（必読）
+- ⚡ 6ステップ開発フロー
+- 🎯 重要原則（TypeScript厳格モード、段階的実装等）
+- 📁 アーキテクチャ概要
+- 🚨 よくある落とし穴と対策
 
 ### 主要な開発コマンド
-- `npm run dev` - 開発サーバー起動
-- `npm run build` - プロダクションビルド
-- `npm run test:unit` - ユニットテスト
-- `npm run test:e2e` - E2Eテスト
-- `npm run lint` - リンティング
-- `npm run type-check` - 型チェック
+
+```bash
+npm run dev                 # 開発サーバー起動
+npm run ci:all             # 全品質チェック（型生成+lint+型+テスト+ビルド）
+npm run auto-issue [番号]  # Issue自動実装（推奨）
+npm run generate-types     # Supabase型定義生成
+npm run test:unit          # ユニットテスト
+npm run build              # プロダクションビルド
+```
+
+### 自動化ワークフロー
+
+**Issue → PR作成までの完全自動化** - 詳細は [scripts/README.md](scripts/README.md)
+
+```bash
+npm run start-issue [番号]  # Issue作業開始（ブランチ作成・タスクファイル生成）
+npm run create-pr          # PR自動作成
+npm run auto-issue [番号]  # 完全自動実装（推奨）
+```
 
 ## デプロイメント
 
@@ -258,16 +322,68 @@ tests/
 
 ## 貢献
 
-1. Issueを確認し、作業したいものを選択
-2. `npm run start-issue [issue番号]` で作業開始
-3. 機能実装・テスト追加
-4. `npm run create-pr` でPR作成
-5. レビュー後、mainブランチにマージ
+**開発ワークフロー詳細**: [docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md)
+
+### 基本フロー
+
+1. **Issue確認**: オープンなIssueから作業対象を選択
+2. **作業開始**: `npm run start-issue [issue番号]` でブランチ作成・環境準備
+3. **実装**: 機能実装・ユニットテスト作成
+4. **品質チェック**: `npm run ci:all` で全品質チェック実行
+5. **PR作成**: `npm run create-pr` で自動PR作成
+6. **レビュー**: コードレビュー・CI/CD自動チェック通過
+7. **マージ**: mainブランチへマージ・自動デプロイ
+
+### 開発ルール
+
+- **ブランチ戦略**: `feature/issue-[番号]-[説明]` 形式でブランチ作成
+- **コミットメッセージ**: Claude Code署名付きメッセージ
+- **テスト必須**: 新規機能・修正には必ずユニットテスト追加
+- **型チェック**: TypeScript厳格モード遵守、`any`型禁止
+- **ドキュメント**: 必要に応じてREADME.md更新
+
+詳細は [CLAUDE.md](CLAUDE.md) を参照してください。
 
 ## ライセンス
 
 このプロジェクトはプライベートリポジトリです。
 
+## 📚 ドキュメント
+
+プロジェクトの詳細ドキュメントは **[docs/](docs/)** ディレクトリに整理されています。
+
+### 主要ドキュメント
+
+#### 🛠️ 開発関連
+- [DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) - ブランチ戦略・PR作成手順
+- [DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) - npm scripts・自動化コマンド
+- [ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md) - システムアーキテクチャ
+- [BEST_PRACTICES.md](docs/DEVELOPMENT/BEST_PRACTICES.md) - 開発ベストプラクティス
+- [PR_TESTING_GUIDE.md](docs/PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md) - PRテスト・検証ガイド
+
+#### ⚙️ 環境・設定
+- [ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md) - 環境設定ガイド
+- [DOCKER_SETUP.md](docs/DOCKER_SETUP.md) - Docker環境セットアップ
+- [SUPABASE_QUICK_SETUP.md](docs/SUPABASE_QUICK_SETUP.md) - Supabase 5分セットアップ
+
+#### 🚀 CI/CD・品質管理
+- [CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) - GitHub Actions・品質チェック
+- [TYPE_GENERATION.md](docs/CI/TYPE_GENERATION.md) - 型定義自動生成システム
+- [CI_CD_BEST_PRACTICES.md](docs/CI/CI_CD_BEST_PRACTICES.md) - CI/CDベストプラクティス
+
+#### 🛡️ セキュリティ
+- [SECURITY.md](docs/SECURITY.md) - セキュリティガイドライン
+- [SECURITY_DEVELOPMENT.md](docs/SECURITY_DEVELOPMENT.md) - セキュリティ開発ガイド
+
+全18ファイルの一覧は [docs/README.md](docs/README.md) を参照してください。
+
 ## サポート
 
 質問やバグ報告は [Issues](https://github.com/RsPYP/GoalCategorizationDiary/issues) で受け付けています。
+
+### トラブルシューティング
+
+- **環境問題**: [ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md) のトラブルシューティング
+- **Docker問題**: [DOCKER_SETUP.md](docs/DOCKER_SETUP.md) のよくある問題
+- **認証問題**: [SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md) の問題解決
+- **CI/CD問題**: [CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) のトラブルシューティング
