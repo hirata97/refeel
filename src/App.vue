@@ -1,5 +1,8 @@
 <template>
   <v-app>
+    <!-- スキップリンク（アクセシビリティ対応） -->
+    <SkipLink />
+
     <!-- サイドバー -->
     <v-navigation-drawer
       app
@@ -49,7 +52,7 @@
     </v-app-bar>
 
     <!-- メインコンテンツ (router-view) -->
-    <v-main>
+    <v-main id="main-content">
       <div class="pa-4">
         <router-view></router-view>
       </div>
@@ -76,6 +79,7 @@ import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@/stores/loading'
 import GlobalNotification from '@/components/GlobalNotification.vue'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
+import SkipLink from '@/components/SkipLink.vue'
 import { createLogger } from '@/utils/logger'
 
 const logger = createLogger('APP')
