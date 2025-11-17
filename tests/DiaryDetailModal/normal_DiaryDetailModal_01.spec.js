@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import DiaryDetailModal from '@/components/DiaryDetailModal.vue'
+import DiaryDetailModal from '@/components/diary/DiaryDetailModal.vue'
 
 const vuetify = createVuetify({
   components,

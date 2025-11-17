@@ -102,9 +102,9 @@ import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 import { useDiaryLoader } from '@/composables/useDiaryLoader'
 import { useDiaryEditor } from '@/composables/useDiaryEditor'
 import { useNotification } from '@/composables/useNotification'
-import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
-import DiaryDeleteDialog from '@/components/DiaryDeleteDialog.vue'
-import MoodSelector from '@/components/MoodSelector.vue'
+import EmotionTagSelector from '@/components/mood/EmotionTagSelector.vue'
+import DiaryDeleteDialog from '@/components/diary/DiaryDeleteDialog.vue'
+import MoodSelector from '@/components/mood/MoodSelector.vue'
 
 const router = useRouter()
 const route = useRoute()

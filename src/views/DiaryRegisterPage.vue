@@ -124,7 +124,7 @@ import { useLoadingStore } from '@/stores/loading'
 import { useEmotionTagsStore } from '@/stores/emotionTags'
 import { usePerformanceMonitor } from '@/utils/performance'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
-import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
+import EmotionTagSelector from '@/components/mood/EmotionTagSelector.vue'
 import { createLogger } from '@/utils/logger'
 
 const logger = createLogger('DIARYREGISTERPAGE')

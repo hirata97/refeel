@@ -77,9 +77,9 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@/stores/loading'
-import GlobalNotification from '@/components/GlobalNotification.vue'
+import GlobalNotification from '@/components/notifications/GlobalNotification.vue'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
-import SkipLink from '@/components/SkipLink.vue'
+import SkipLink from '@/components/a11y/SkipLink.vue'
 import { createLogger } from '@/utils/logger'
 
 const logger = createLogger('APP')

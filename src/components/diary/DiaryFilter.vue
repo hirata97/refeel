@@ -135,7 +135,7 @@
 import { ref, computed, watch } from 'vue'
 import { debounce } from '@/utils/performance'
 import { useEmotionTagsStore } from '@/stores/emotionTags'
-import EmotionTagSelector from '@/components/EmotionTagSelector.vue'
+import EmotionTagSelector from '@/components/mood/EmotionTagSelector.vue'
 
 interface FilterValues {
   date_from: string

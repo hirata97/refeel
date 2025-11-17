@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import DiaryFilter from '@/components/DiaryFilter.vue'
+import DiaryFilter from '@/components/diary/DiaryFilter.vue'
 
 // performance utilsのモック
 vi.mock('@/utils/performance', () => ({
