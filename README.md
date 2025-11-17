@@ -60,8 +60,8 @@ Refeelは、日々の振り返りによってモチベーションの変化を�
 - **データ可視化**: Chart.js 4.4 + vue-chartjs 5.3
 - **テスティング**: Vitest 2.1（ユニット）+ Playwright 1.48（E2E）
 - **デプロイ**: Vercel
-- **Node.js**: v20以降推奨
-- **パッケージマネージャ**: npm
+- **Node.js**: v20.19.0以降必須（Vite 7、Vitest 4、jsdom 27等の依存関係要件）
+- **パッケージマネージャ**: npm v10以降
 
 ## セットアップ
 
@@ -81,9 +81,12 @@ npm run docker:setup
 
 #### 前提条件
 
-- Node.js (v20以降推奨)
-- npm
-- Supabaseアカウント（無料プラン可）
+- **Node.js v20.19.0以降（必須）**
+  - Vite 7、Vitest 4、jsdom 27等の依存関係がNode.js 20+必須
+  - `.nvmrc`ファイルで推奨バージョン指定済み
+  - NVM使用の場合: `nvm use`で自動適用
+- **npm v10以降**
+- **Supabaseアカウント**（無料プラン可）
 
 #### インストール
 
