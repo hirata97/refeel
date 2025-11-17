@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { SecurityReportGenerator, SecurityReportDistributor } from '@/utils/security-reporting'
+import { SecurityReportGenerator, SecurityReportDistributor } from '@/utils/security/reporting'
 import type {
   SecurityReport,
   SecurityEvent,
