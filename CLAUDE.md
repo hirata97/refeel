@@ -7,6 +7,7 @@
 
 ### 技術スタック
 
+- **Node.js**: v20.19.0以降必須（Vite 7、Vitest 4、jsdom 27等がNode.js 20+要求）
 - **フロントエンド**: Vue 3.5 + TypeScript 5.6 + Vite 5.4
 - **バックエンド**: Supabase 2.49（JWT認証、PostgreSQL、RLS）
 - **UI**: Vuetify 3.7（Material Design）
