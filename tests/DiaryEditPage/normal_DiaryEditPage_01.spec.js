@@ -3,8 +3,8 @@ import { mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import DiaryEditPage from '@/views/DiaryEditPage.vue'
 import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import * from 'vuetify/components'
+import * from 'vuetify/directives'
 
 // Supabaseのモック
 vi.mock('@/lib/supabase', () => ({

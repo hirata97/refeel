@@ -641,7 +641,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
       const alertData = {
         type: 'suspicious_login',
         message: 'テストアラート',
-        severity: 'medium' as const,
+        severity: 'medium',
       }
 
       localStorage.getItem = vi.fn().mockReturnValue('[]')
@@ -660,7 +660,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
       const alertData = {
         type: 'critical_breach',
         message: '重要なセキュリティ違反',
-        severity: 'critical' as const,
+        severity: 'critical',
       }
 
       localStorage.getItem = vi.fn().mockReturnValue('[]')

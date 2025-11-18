@@ -136,7 +136,7 @@ describe('EnhancedSessionManager - 異常系・エラーハンドリングテス
       const alertData = {
         type: 'test_alert',
         message: 'テストアラート',
-        severity: 'high' as const,
+        severity: 'high',
       }
       
       mockAuditLogger.log = vi.fn().mockRejectedValue(new Error('Audit service unavailable'))
