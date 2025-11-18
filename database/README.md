@@ -113,15 +113,19 @@ database/
 
 ### 他の関連ファイル (プロジェクト全体)
 ```
-scripts/                           # 残存運用スクリプト
-├── minimal-migration.sql          # 最小マイグレーション
-├── supabase-migration-steps.sql   # マイグレーション手順
-└── verify-migration.sql           # マイグレーション検証
+scripts/                           # レガシースクリプト（非推奨）
+├── minimal-migration.sql          # （非推奨）
+├── supabase-migration-steps.sql   # ⚠️ 非推奨 - Issue #79の古いマイグレーション
+└── verify-migration.sql           # （非推奨）
+
+注意: scripts/内のSQLファイルは古いバージョンのもので、
+     現在のデータベース構造とは互換性がありません。
+     必ずdatabase/配下の最新ファイルを使用してください。
 
 # 整理済み・削除されたファイル
 # ❌ database-setup/ (削除) → database/に統合
 # ❌ database/migrations/ (削除) → master.sqlに全て統合済み
-# ❌ scripts/check-supabase-tables.sql (削除) → maintenance/に統合 
+# ❌ scripts/check-supabase-tables.sql (削除) → maintenance/に統合
 # ❌ scripts/debug-supabase-status.sql (削除) → 不要
 # ❌ test-data*.sql (削除) → database/data/に移動
 # ❌ fix-mood-constraint.sql (削除) → master.sqlに統合済み
