@@ -277,8 +277,8 @@ export function useDiaries(options: FetchOptions = {}) {
   }
 }
 
-// アカウントデータ専用フック
-export function useAccounts(options: FetchOptions = {}) {
+// プロフィールデータ専用フック
+export function useProfiles(options: FetchOptions = {}) {
   const dataStore = useDataStore()
   const authStore = useAuthStore()
 
@@ -287,9 +287,9 @@ export function useAccounts(options: FetchOptions = {}) {
       if (!authStore.user?.id) {
         throw new Error('ユーザーが認証されていません')
       }
-      return await dataStore.fetchAccounts(authStore.user.id, options.refresh)
+      return await dataStore.fetchProfiles(authStore.user.id, options.refresh)
     },
-    'accounts',
+    'profiles',
     options,
   )
 }

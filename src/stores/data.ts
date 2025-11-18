@@ -2,10 +2,10 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
-import type { DiaryEntry, Profile as Account } from '@/types/supabase'
+import type { DiaryEntry, Profile } from '@/types/supabase'
 
 // 既存コードとの互換性のため一時的にre-export
-export type { DiaryEntry, Account }
+export type { DiaryEntry, Profile }
 
 // キャッシュ設定をカスタム型定義から再エクスポート
 import type { CacheEntry, CacheKey } from '@/types/custom'
@@ -21,7 +21,7 @@ export const useDataStore = defineStore('data', () => {
 
   // 状態
   const diaries = ref<DiaryEntry[]>([])
-  const accounts = ref<Account[]>([])
+  const profiles = ref<Profile[]>([])
   const loading = ref<Record<string, boolean>>({})
   const error = ref<Record<string, string | null>>({})
 
@@ -191,24 +191,24 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
-  // アカウントデータの取得
-  const fetchAccounts = async (userId: string, forceRefresh = false): Promise<Account[]> => {
-    const cacheKey = getCacheKey('accounts', userId)
+  // プロフィールデータの取得
+  const fetchProfiles = async (userId: string, forceRefresh = false): Promise<Profile[]> => {
+    const cacheKey = getCacheKey('profiles', userId)
 
     if (!forceRefresh) {
-      const cachedData = getCache<Account[]>(cacheKey)
+      const cachedData = getCache<Profile[]>(cacheKey)
       if (cachedData) {
-        accounts.value = cachedData
+        profiles.value = cachedData
         return cachedData
       }
     }
 
     try {
-      setLoading('accounts', true)
-      setError('accounts', null)
+      setLoading('profiles', true)
+      setError('profiles', null)
 
       const { data, error: fetchError } = await supabase
-        .from('accounts')
+        .from('profiles')
         .select('*')
         .eq('user_id', userId)
 
@@ -216,18 +216,18 @@ export const useDataStore = defineStore('data', () => {
         throw fetchError
       }
 
-      const accountData = data || []
-      accounts.value = accountData
-      setCache(cacheKey, accountData)
+      const profileData = data || []
+      profiles.value = profileData
+      setCache(cacheKey, profileData)
 
-      return accountData
+      return profileData
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : 'アカウントデータの取得に失敗しました'
-      setError('accounts', errorMessage)
+        err instanceof Error ? err.message : 'プロフィールデータの取得に失敗しました'
+      setError('profiles', errorMessage)
       throw err
     } finally {
-      setLoading('accounts', false)
+      setLoading('profiles', false)
     }
   }
 
@@ -411,17 +411,17 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
-  // アカウントの作成
-  const createAccount = async (
-    accountData: Omit<Account, 'id' | 'created_at' | 'updated_at'>,
-  ): Promise<Account> => {
+  // プロフィールの作成
+  const createProfile = async (
+    profileData: Omit<Profile, 'id' | 'created_at' | 'updated_at'>,
+  ): Promise<Profile> => {
     try {
-      setLoading('createAccount', true)
-      setError('createAccount', null)
+      setLoading('createProfile', true)
+      setError('createProfile', null)
 
       const { data, error: insertError } = await supabase
-        .from('accounts')
-        .insert([accountData])
+        .from('profiles')
+        .insert([profileData])
         .select()
         .single()
 
@@ -429,26 +429,26 @@ export const useDataStore = defineStore('data', () => {
         throw insertError
       }
 
-      const newAccount = data as Account
-      accounts.value.push(newAccount)
+      const newProfile = data as Profile
+      profiles.value.push(newProfile)
 
       // 関連キャッシュを無効化
-      invalidateCache(`accounts_${accountData.user_id}`)
+      invalidateCache(`profiles_${profileData.user_id}`)
 
-      return newAccount
+      return newProfile
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'アカウントの作成に失敗しました'
-      setError('createAccount', errorMessage)
+      const errorMessage = err instanceof Error ? err.message : 'プロフィールの作成に失敗しました'
+      setError('createProfile', errorMessage)
       throw err
     } finally {
-      setLoading('createAccount', false)
+      setLoading('createProfile', false)
     }
   }
 
   // データの初期化
   const initializeData = async (userId: string): Promise<void> => {
     try {
-      await Promise.all([fetchDiaries(userId), fetchAccounts(userId)])
+      await Promise.all([fetchDiaries(userId), fetchProfiles(userId)])
     } catch (err) {
       logger.error('データ初期化エラー:', err)
     }
@@ -457,7 +457,7 @@ export const useDataStore = defineStore('data', () => {
   // 状態のリセット
   const resetState = (): void => {
     diaries.value = []
-    accounts.value = []
+    profiles.value = []
     loading.value = {}
     error.value = {}
     invalidateCache()
@@ -466,7 +466,7 @@ export const useDataStore = defineStore('data', () => {
   return {
     // 状態
     diaries,
-    accounts,
+    profiles,
     loading,
     error,
 
@@ -476,14 +476,14 @@ export const useDataStore = defineStore('data', () => {
 
     // データ取得
     fetchDiaries,
-    fetchAccounts,
+    fetchProfiles,
     getDiaryById,
 
     // データ操作
     createDiary,
     updateDiary,
     deleteDiary,
-    createAccount,
+    createProfile,
 
     // ユーティリティ
     initializeData,

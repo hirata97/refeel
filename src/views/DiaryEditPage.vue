@@ -189,11 +189,7 @@ const updateDiary = async (): Promise<void> => {
   }
 
   // 更新実行
-  const result = await updateDiaryComposable(
-    diary.value.id,
-    updateData,
-    selectedEmotionTags.value,
-  )
+  const result = await updateDiaryComposable(diary.value.id, updateData, selectedEmotionTags.value)
 
   if (result.success) {
     if (result.warning) {
@@ -234,7 +230,6 @@ const goBack = () => {
     diary.value,
   )
 }
-
 </script>
 
 <style scoped>
