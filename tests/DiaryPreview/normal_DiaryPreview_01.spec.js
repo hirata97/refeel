@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
-import * from 'vuetify/components'
-import * from 'vuetify/directives'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 import DiaryPreview from '@/components/diary/DiaryPreview.vue'
 
 const vuetify = createVuetify({

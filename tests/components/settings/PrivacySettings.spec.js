@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { createVuetify } from 'vuetify'
-import * from 'vuetify/components'
-import * from 'vuetify/directives'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 import PrivacySettings from '@/components/settings/PrivacySettings.vue'
 
 // Mock vue-router
