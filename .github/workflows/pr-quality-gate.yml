@@ -166,7 +166,7 @@ jobs:
 
     # ユニットテスト（カバレッジ付き・並列実行）
     - name: Run Unit Tests with Coverage
-      run: npm run ci:test -- --reporter=verbose --threads --poolOptions.threads.maxThreads=4
+      run: npm run ci:test -- --reporter=verbose --maxWorkers=4
 
     # カバレッジレポート生成
     - name: Coverage Report
@@ -259,10 +259,10 @@ jobs:
         npm audit --json > audit-results.json 2>/dev/null || true
 
         # jqを使ってhigh/critical脆弱性を抽出
-        high_critical_count=$(jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical") | .key' audit-results.json 2>/dev/null | wc -l || echo "0")
+        high_critical_count=$(jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical") | .key' audit-results.json 2>/dev/null | wc -l || echo 0)
 
         # 詳細情報をstep summaryに追加
-        total_vulnerabilities=$(jq -r '.metadata.vulnerabilities | .info + .low + .moderate + .high + .critical' audit-results.json 2>/dev/null || echo "0")
+        total_vulnerabilities=$(jq -r '.metadata.vulnerabilities | .info + .low + .moderate + .high + .critical' audit-results.json 2>/dev/null || echo 0)
         echo "**Total vulnerabilities found:** $total_vulnerabilities" >> $GITHUB_STEP_SUMMARY
         echo "**High/Critical vulnerabilities:** $high_critical_count" >> $GITHUB_STEP_SUMMARY
 
