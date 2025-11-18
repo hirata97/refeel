@@ -47,6 +47,9 @@
     "ci:minimum-gate": "npm run generate-types && npm run ci:lint && npm run ci:build",
     "ci:ideal-gate": "npm run ci:all"
   },
+  "overrides": {
+    "glob": "^11.0.4"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
     "@vee-validate/i18n": "^4.15.1",

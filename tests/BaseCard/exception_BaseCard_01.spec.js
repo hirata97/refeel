@@ -139,7 +139,7 @@ describe('BaseCard - 異常系・エッジケーステスト', () => {
   })
 
   // 無効なHTML構造のスロットテスト
-  it('無効なHTML構造のスロットでもエラーが発生しない', async () => {
+  it('無効なHTML構造のスロットでエラーがスローされる', async () => {
     expect(() => {
       mount(BaseCard, {
         global: {
@@ -152,7 +152,7 @@ describe('BaseCard - 異常系・エッジケーステスト', () => {
           actions: '<button>Action<button>' // 閉じタグ間違い
         }
       })
-    }).not.toThrow()
+    }).toThrow()
   })
 
   // 空のスロットコンテンツ
