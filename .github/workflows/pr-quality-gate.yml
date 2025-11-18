@@ -269,9 +269,9 @@ jobs:
         # 高・クリティカル脆弱性がある場合のみ失敗
         if [ "$high_critical_count" -gt 0 ]; then
           echo "❌ 高リスクまたはクリティカルな脆弱性が $high_critical_count 件発見されました" >> $GITHUB_STEP_SUMMARY
-          echo "```json" >> $GITHUB_STEP_SUMMARY
-          jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical")' audit-results.json >> $GITHUB_STEP_SUMMARY
-          echo "```" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical")' audit-results.json >> $GITHUB_STEP_SUMMARY || true
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
 
