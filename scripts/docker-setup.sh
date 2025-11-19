@@ -48,7 +48,8 @@ check_docker() {
         exit 1
     fi
     
-    if ! command -v docker-compose &> /dev/null; then
+    # Docker Compose V2（docker compose）またはV1（docker-compose）の確認
+    if ! docker compose version &> /dev/null && ! command -v docker-compose &> /dev/null; then
         log_error "Docker Composeがインストールされていません"
         echo "Docker Composeをインストールしてください"
         exit 1
@@ -94,10 +95,10 @@ build_images() {
     cd "${PROJECT_DIR}"
     
     # 既存のコンテナを停止・削除
-    docker-compose down --remove-orphans 2>/dev/null || true
-    
+    docker compose down --remove-orphans 2>/dev/null || true
+
     # イメージのビルド
-    docker-compose build --no-cache app
+    docker compose build --no-cache app
     
     log_success "Dockerイメージのビルド完了"
 }
@@ -109,14 +110,14 @@ start_development() {
     cd "${PROJECT_DIR}"
     
     # バックグラウンドでサービスを起動
-    docker-compose up -d
-    
+    docker compose up -d
+
     # アプリケーションの起動を待機
     log_info "アプリケーションの起動を待機中..."
     sleep 10
-    
+
     # ヘルスチェック
-    if docker-compose ps | grep -q "Up"; then
+    if docker compose ps | grep -q "Up"; then
         log_success "開発環境が正常に起動しました"
         echo ""
         echo "🌐 アクセス可能なサービス:"
@@ -125,13 +126,13 @@ start_development() {
         echo "  - PostgreSQL: localhost:54322"
         echo ""
         echo "🔧 有用なコマンド:"
-        echo "  docker-compose logs -f app    # アプリログの確認"
-        echo "  docker-compose exec app bash  # コンテナ内でシェル実行"
-        echo "  docker-compose down          # 環境の停止"
+        echo "  docker compose logs -f app    # アプリログの確認"
+        echo "  docker compose exec app bash  # コンテナ内でシェル実行"
+        echo "  docker compose down          # 環境の停止"
         echo ""
     else
         log_error "一部のサービスの起動に失敗しました"
-        echo "詳細なログを確認してください: docker-compose logs"
+        echo "詳細なログを確認してください: docker compose logs"
         exit 1
     fi
 }
@@ -143,7 +144,7 @@ cleanup() {
     cd "${PROJECT_DIR}"
     
     # コンテナとボリュームを停止・削除
-    docker-compose down --volumes --remove-orphans
+    docker compose down --volumes --remove-orphans
     
     # 未使用のイメージを削除
     docker image prune -f
@@ -158,14 +159,14 @@ reset_database() {
     cd "${PROJECT_DIR}"
     
     # DBコンテナを停止・削除
-    docker-compose stop supabase-db
-    docker-compose rm -f supabase-db
-    
+    docker compose stop supabase-db
+    docker compose rm -f supabase-db
+
     # DBボリュームを削除
     docker volume rm goalcategorizationdiary_supabase-db-data 2>/dev/null || true
-    
+
     # DBコンテナを再起動
-    docker-compose up -d supabase-db
+    docker compose up -d supabase-db
     
     log_success "データベースのリセット完了"
 }
@@ -202,17 +203,17 @@ main() {
         "start")
             check_docker
             cd "${PROJECT_DIR}"
-            docker-compose up -d
+            docker compose up -d
             log_success "開発環境を起動しました"
             ;;
         "stop")
             cd "${PROJECT_DIR}"
-            docker-compose down
+            docker compose down
             log_success "開発環境を停止しました"
             ;;
         "restart")
             cd "${PROJECT_DIR}"
-            docker-compose restart
+            docker compose restart
             log_success "開発環境を再起動しました"
             ;;
         "cleanup")
@@ -223,7 +224,7 @@ main() {
             ;;
         "logs")
             cd "${PROJECT_DIR}"
-            docker-compose logs -f
+            docker compose logs -f
             ;;
         "help")
             show_help

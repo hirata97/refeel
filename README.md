@@ -2,11 +2,6 @@
 
 **Reflect（内省）+ Feel（感情）** - モチベーション変化を測定・分析するWebアプリケーション
 
-[![Node.js](https://img.shields.io/badge/Node.js-v20+-green.svg)](https://nodejs.org/)
-[![Vue.js](https://img.shields.io/badge/Vue.js-3.5-brightgreen.svg)](https://vuejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-2.49-orange.svg)](https://supabase.com/)
-
 ## 📖 目次
 
 - [プロジェクト概要](#プロジェクト概要)
@@ -21,7 +16,8 @@
 
 ## プロジェクト概要
 
-Refeelは、日々の振り返りによってモチベーションの変化を測定し、感情や要因を分析するためのWebアプリケーションです。Vue 3、TypeScript、Supabaseを使用して構築されており、ユーザーが自己内省を深めながら継続的な自己改善をサポートします。
+Refeelは、日々の振り返りによってモチベーションの変化を測定し、感情や要因を分析するためのWebアプリケーションです。
+Vue 3、TypeScript、Supabaseを使用して構築されており、ユーザーが内省を深めながら継続的な自己改善をサポートします。
 
 ### 🎯 新規開発者向けクイックガイド
 
@@ -34,18 +30,21 @@ Refeelは、日々の振り返りによってモチベーションの変化を�
 ## 主な機能
 
 ### 🔍 振り返り・分析機能
+
 - **気分トラッキング**: 日々の気分スコアと理由を記録
 - **感情タグ**: 具体的な感情を複数選択して詳細分析
 - **振り返りテンプレート**: 構造化された内省促進
 - **週間振り返りビュー**: 1週間のモチベーション変化パターンを可視化
 
 ### 📊 データ可視化・比較
+
 - **前日比較表示**: 気分・進捗の変化を意識化
 - **気分推移グラフ**: Chart.jsによる時系列データ可視化
 - **感情タグ分析**: 使用頻度と傾向分析
 - **進捗パターン分析**: 目標カテゴリ別の傾向把握
 
 ### 🛡️ システム基盤
+
 - **ユーザー認証**: Supabaseによる安全な認証システム
 - **目標管理**: カテゴリ別の目標設定と管理
 - **レスポンシブデザイン**: モバイルデバイス対応
@@ -65,14 +64,32 @@ Refeelは、日々の振り返りによってモチベーションの変化を�
 
 ## セットアップ
 
-### 🐳 Docker環境（推奨）
+### 🐳 Supabaseローカル環境（推奨）
 
-最も簡単なセットアップ方法：
+Supabase CLIを使った公式ローカル開発環境：
 
 ```bash
 git clone https://github.com/RsPYP/GoalCategorizationDiary.git
 cd GoalCategorizationDiary
-npm run docker:setup
+npm install
+
+# Supabaseローカル環境の起動
+npx supabase start
+
+# 環境起動後、.envは自動的にローカル接続情報を使用します
+npm run dev
+```
+
+**利用可能なサービス：**
+- 🌐 API: http://127.0.0.1:54321
+- 🎨 Studio: http://127.0.0.1:54323
+- 🗄️ Database: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
+**主要コマンド：**
+```bash
+npx supabase status    # ステータス確認
+npx supabase stop      # 環境停止
+npx supabase start     # 環境起動
 ```
 
 詳細な手順は [Docker環境セットアップガイド](docs/DOCKER_SETUP.md) を参照してください。
@@ -91,19 +108,22 @@ npm run docker:setup
 #### インストール
 
 1. **リポジトリのクローン**
+
    ```bash
    git clone https://github.com/RsPYP/GoalCategorizationDiary.git
    cd GoalCategorizationDiary
    ```
 
 2. **依存関係のインストール**
+
    ```bash
    npm install
    ```
 
 3. **環境変数の設定**
-   
+
    `.env`ファイルを作成し、Supabaseの設定を追加：
+
    ```env
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_KEY=your-anon-key
@@ -117,6 +137,7 @@ npm run docker:setup
 ## 開発コマンド
 
 ### 基本コマンド
+
 ```bash
 # 開発環境起動
 npm run dev
@@ -165,6 +186,7 @@ npm run docker:cleanup
 #### GitHub Issue → PR 自動化コマンド
 
 ##### Issue管理
+
 ```bash
 # Issue一覧表示
 npm run fetch-issue
@@ -174,6 +196,7 @@ npm run fetch-issue [issue番号]
 ```
 
 ##### 開発ワークフロー
+
 ```bash
 # Issue作業開始
 npm run start-issue [issue番号]
@@ -190,6 +213,7 @@ npm run create-pr "タイトル" "説明"
 ```
 
 #### 完全自動化（推奨）
+
 ```bash
 # 単一Issue自動実装
 npm run auto-issue [issue番号]
@@ -242,10 +266,12 @@ GoalCategorizationDiary/
 **テストファイル命名規則**: `正常系または異常系_コンポーネント名_ナンバリング.spec.js`
 
 **例**:
+
 - `normal_LoginPage_01.spec.js` - 正常系テスト
 - `exception_LoginPage_01.spec.js` - 異常系テスト
 
 **主要コマンド**:
+
 ```bash
 npm run test:unit           # ユニットテスト実行
 npm run test:e2e            # E2Eテスト実行
@@ -257,11 +283,13 @@ npm run ci:test            # カバレッジ付きテスト
 ## 🏷️ ラベル管理システム
 
 ### 優先度ラベル
+
 - `priority:P0` 🔴 - 最高優先度（緊急・重要）
-- `priority:P1` 🟡 - 高優先度（重要）  
+- `priority:P1` 🟡 - 高優先度（重要）
 - `priority:P2` 🔵 - 中優先度（通常）
 
 ### 作業規模ラベル
+
 - `size:S` 🔴 - 小規模（1-2日）
 - `size:M` 🟡 - 中規模（3-5日）
 - `size:L` 🔵 - 大規模（1週間以上）
@@ -269,18 +297,21 @@ npm run ci:test            # カバレッジ付きテスト
 ### 実装内容ラベル
 
 **基本的な作業（type-basic:）**
+
 - `type-basic:bugfix` - バグ修正
 - `type-basic:enhancement` - 既存機能改善
 - `type-basic:feature` - 新機能追加
 - `type-basic:refactor` - リファクタリング
 
 **インフラ・技術（type-infra:）**
+
 - `type-infra:automation` - 自動化・スクリプト
 - `type-infra:ci-cd` - CI/CD・パイプライン
 - `type-infra:performance` - パフォーマンス改善
 - `type-infra:security` - セキュリティ
 
 **品質・ドキュメント（type-quality:）**
+
 - `type-quality:docs` - ドキュメント
 - `type-quality:test` - テスト関連
 
@@ -358,6 +389,7 @@ npm run auto-issue [番号]  # 完全自動実装（推奨）
 ### 主要ドキュメント
 
 #### 🛠️ 開発関連
+
 - [DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) - ブランチ戦略・PR作成手順
 - [DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) - npm scripts・自動化コマンド
 - [ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md) - システムアーキテクチャ
@@ -365,16 +397,19 @@ npm run auto-issue [番号]  # 完全自動実装（推奨）
 - [PR_TESTING_GUIDE.md](docs/PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md) - PRテスト・検証ガイド
 
 #### ⚙️ 環境・設定
+
 - [ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md) - 環境設定ガイド
 - [DOCKER_SETUP.md](docs/DOCKER_SETUP.md) - Docker環境セットアップ
 - [SUPABASE_QUICK_SETUP.md](docs/SUPABASE_QUICK_SETUP.md) - Supabase 5分セットアップ
 
 #### 🚀 CI/CD・品質管理
+
 - [CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) - GitHub Actions・品質チェック
 - [TYPE_GENERATION.md](docs/CI/TYPE_GENERATION.md) - 型定義自動生成システム
 - [CI_CD_BEST_PRACTICES.md](docs/CI/CI_CD_BEST_PRACTICES.md) - CI/CDベストプラクティス
 
 #### 🛡️ セキュリティ
+
 - [SECURITY.md](docs/SECURITY.md) - セキュリティガイドライン
 - [SECURITY_DEVELOPMENT.md](docs/SECURITY_DEVELOPMENT.md) - セキュリティ開発ガイド
 
