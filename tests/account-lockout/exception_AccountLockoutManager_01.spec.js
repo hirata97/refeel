@@ -26,8 +26,8 @@ const consoleSpy = {
 }
 
 describe('AccountLockoutManager - 異常系・エラーハンドリングテスト', () => {
-  let lockoutManager: AccountLockoutManager
-  let mockAuditLogger: Partial<AuditLogger>
+  let lockoutManager
+  let mockAuditLogger
 
   beforeEach(() => {
     vi.clearAllMocks()

@@ -207,7 +207,7 @@ describe('AuditLogger - 異常系', () => {
         await logger.log(
           AuditEventType.SYSTEM_INFO, 
           `大量テストログ ${i}`,
-          { index: i, data: 'x'.repeat(100) }
+          { indexdata: 'x'.repeat(100) }
         )
       }
 

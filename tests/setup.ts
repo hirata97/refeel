@@ -1,6 +1,10 @@
 import { config } from '@vue/test-utils'
 import { vi } from 'vitest'
 
+// Supabase環境変数のモック設定（テスト環境用）
+process.env.VITE_SUPABASE_URL = 'https://test.supabase.co'
+process.env.VITE_SUPABASE_KEY = 'test-anon-key'
+
 // ロガーのグローバルモック設定（Issue #218の影響対応）
 vi.mock('@/utils/logger', () => ({
   logger: {

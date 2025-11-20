@@ -426,7 +426,7 @@ describe('useDataFetch - 異常系・エラーハンドリング', () => {
       const invalidFetcher = 'not a function'
 
       const { error, execute } = useDataFetch(
-        invalidFetcher as unknown as () => Promise<unknown>,
+        invalidFetcher,
         'invalid-fetcher-test',
         { immediate: false }
       )
