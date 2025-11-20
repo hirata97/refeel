@@ -33,6 +33,33 @@ npm run dev:with-types      # 型生成後に開発サーバー起動
 npm ci --prefer-offline --no-audit --no-fund  # 高速・安定インストール
 ```
 
+### 環境変数設定（初回セットアップ必須）⚠️【重要】
+
+```bash
+# 1. 環境変数テンプレートをコピー
+cp .env.example .env
+
+# 2. Supabaseローカル環境を起動
+supabase start
+
+# 3. 開発サーバーを起動
+npm run dev
+```
+
+**環境変数ファイル:**
+- `.env.example` - テンプレート（Git管理対象）
+- `.env` - 実際の環境変数（Git管理対象外）
+- `.env.local` - ローカル専用設定（Git管理対象外）
+
+**ローカル開発環境（推奨）:**
+- Supabase CLI (`supabase start`) でローカル環境を起動
+- `VITE_SUPABASE_URL=http://127.0.0.1:54321` を使用
+- データベースはローカルPostgreSQLを使用
+
+**本番環境への接続:**
+- `.env`ファイルで本番環境のSupabase URLとKeyに変更
+- **注意**: `.env`はGit管理対象外なので、本番認証情報を含めても安全
+
 ## ⚡ 開発フロー（6ステップ）**【厳守】**
 
 1. **最新状態取得** → **必須**: `git pull origin main` で最新状態に更新

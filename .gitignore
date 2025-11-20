@@ -33,7 +33,10 @@ coverage
 test-results/
 playwright-report/
 
+# Environment files
 .env
+.env.local
+.env.*.local
 
 # MCP Serena files
 .serena/
