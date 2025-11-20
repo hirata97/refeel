@@ -35,6 +35,17 @@ npm ci --prefer-offline --no-audit --no-fund  # 高速・安定インストー�
 # Seedデータ関連（Issue #267対応）⚠️【New】
 ./database/scripts/seed.sh   # Seedデータ一括投入（テストユーザー5人、日記75件）
 ./database/scripts/reset.sh  # DB完全リセット + Seedデータ投入
+
+# Docker Compose環境管理（Issue #268対応）⚠️【New】
+npm run docker:up            # 開発環境起動（自動マイグレーション）
+npm run docker:down          # 開発環境停止
+npm run docker:logs:app      # アプリログ確認
+npm run docker:psql          # PostgreSQL接続
+npm run docker:reset         # DB完全リセット
+make up                      # Makefile経由で起動（推奨）
+make logs-app                # アプリログ確認（Makefile）
+make seed                    # Seedデータ投入（Makefile）
+make reset                   # DB完全リセット（Makefile）
 ```
 
 ### 環境変数設定（初回セットアップ必須）⚠️【重要】

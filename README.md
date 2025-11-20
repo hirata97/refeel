@@ -170,26 +170,47 @@ npx playwright install
 npm run test:e2e
 ```
 
-### 🐳 Docker環境管理
+### 🐳 Docker Compose環境管理
+
+Docker Composeを使用した完全な開発環境セットアップ（Issue #268対応）：
 
 ```bash
-# Docker環境の起動
-npm run docker:start
-
-# Docker環境の停止
-npm run docker:stop
-
-# Docker環境の再起動
-npm run docker:restart
+# Docker Compose起動（自動マイグレーション実行）
+npm run docker:up          # または make up
 
 # ログ確認
-npm run docker:logs
+npm run docker:logs:app    # または make logs-app
+npm run docker:logs        # 全サービスのログ（make logs）
 
-# データベースリセット
-npm run docker:reset-db
+# PostgreSQLに接続
+npm run docker:psql        # または make psql
 
-# 環境のクリーンアップ
-npm run docker:cleanup
+# Seedデータ投入（開発環境）
+./database/scripts/seed.sh # または make seed
+
+# 完全リセット（全データ削除）
+npm run docker:reset       # または make reset
+
+# 環境停止
+npm run docker:down        # または make down
+
+# 完全クリーンアップ
+make clean
+```
+
+**初回起動時の自動実行:**
+- ✅ スキーマ自動作成（`supabase/migrations/`から）
+- ✅ 感情タグマスターデータ投入
+- ✅ RLSポリシー設定
+
+**詳細**: [Makefile](Makefile) または [docker-compose.yml](docker-compose.yml) を参照
+
+**旧Docker環境管理（レガシー）:**
+```bash
+npm run docker:start       # スクリプトベース起動
+npm run docker:stop        # スクリプトベース停止
+npm run docker:logs        # スクリプトベースログ
+npm run docker:cleanup     # スクリプトベースクリーンアップ
 ```
 
 ### 🚀 自動化ワークフロー
