@@ -281,7 +281,7 @@ export class ReportTestHelper {
         localStorage.clear()
         sessionStorage.clear()
       })
-    } catch (error) {
+    } catch {
       // ページが読み込まれていない場合はスキップ
       // SecurityError: Failed to read the 'localStorage' property from 'Window'
       // が発生する可能性があるため、エラーを無視
