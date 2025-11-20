@@ -39,8 +39,8 @@ Object.defineProperty(window, 'localStorage', {
 vi.spyOn(console, 'error').mockImplementation(() => {})
 
 describe('EnhancedSessionManager - 正常系テスト', () => {
-  let sessionManager: EnhancedSessionManager
-  let mockAuditLogger: Partial<AuditLogger>
+  let sessionManager
+  let mockAuditLogger
 
   beforeEach(() => {
     vi.clearAllMocks()

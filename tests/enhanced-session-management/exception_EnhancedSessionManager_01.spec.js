@@ -41,8 +41,8 @@ const consoleSpy = {
 }
 
 describe('EnhancedSessionManager - 異常系・エラーハンドリングテスト', () => {
-  let sessionManager: EnhancedSessionManager
-  let mockAuditLogger: Partial<AuditLogger>
+  let sessionManager
+  let mockAuditLogger
 
   beforeEach(() => {
     vi.clearAllMocks()
