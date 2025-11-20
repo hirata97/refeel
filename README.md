@@ -64,7 +64,49 @@ Vue 3、TypeScript、Supabaseを使用して構築されており、ユーザー
 
 ## セットアップ
 
-### 🐳 Supabaseローカル環境（推奨）
+### 🚀 VS Code Dev Containers（最も簡単・推奨）⚠️【New - Issue #265対応】
+
+**ワンクリックで完全な開発環境が起動！**
+
+#### 前提条件
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [Dev Containers拡張機能](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+
+#### クイックスタート（30秒で開発開始）
+
+1. **リポジトリをクローン**
+   ```bash
+   git clone https://github.com/RsPYP/GoalCategorizationDiary.git
+   cd GoalCategorizationDiary
+   ```
+
+2. **Dev Containerで開く**
+   - VS Codeでフォルダを開く
+   - 通知が表示されたら「Reopen in Container」をクリック
+   - または、`F1` → `Dev Containers: Reopen in Container`
+
+3. **開発開始**
+   ```bash
+   npm run dev
+   ```
+
+**✨ 自動セットアップ内容:**
+- ✅ Node.js 20環境
+- ✅ 全ての推奨VS Code拡張機能
+- ✅ PostgreSQL（Supabase）自動起動・マイグレーション
+- ✅ 統一されたフォーマッター・リンター設定
+- ✅ `npm install`自動実行
+
+**🔧 利用可能なサービス:**
+- Vite Dev Server: http://localhost:5173
+- PostgreSQL: localhost:54322
+
+**詳細**: [Dev Container設定](.devcontainer/devcontainer.json)
+
+---
+
+### 🐳 Supabaseローカル環境（手動セットアップ）
 
 Supabase CLIを使った公式ローカル開発環境：
 
