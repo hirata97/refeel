@@ -31,6 +31,10 @@ npm run dev:with-types      # 型生成後に開発サーバー起動
 
 # CI/CD安定性向上（Issue #155対応）⚠️【New】
 npm ci --prefer-offline --no-audit --no-fund  # 高速・安定インストール
+
+# Seedデータ関連（Issue #267対応）⚠️【New】
+./database/scripts/seed.sh   # Seedデータ一括投入（テストユーザー5人、日記75件）
+./database/scripts/reset.sh  # DB完全リセット + Seedデータ投入
 ```
 
 ### 環境変数設定（初回セットアップ必須）⚠️【重要】
