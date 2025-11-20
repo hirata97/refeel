@@ -151,7 +151,7 @@ jobs:
     name: Performance Testing
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: code-quality
+    needs: e2e-tests
     
     steps:
     - name: Checkout code
