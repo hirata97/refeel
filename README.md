@@ -73,10 +73,13 @@ git clone https://github.com/RsPYP/GoalCategorizationDiary.git
 cd GoalCategorizationDiary
 npm install
 
+# 環境変数の設定（初回のみ）
+cp .env.example .env
+
 # Supabaseローカル環境の起動
 npx supabase start
 
-# 環境起動後、.envは自動的にローカル接続情報を使用します
+# 開発サーバーを起動
 npm run dev
 ```
 
@@ -122,12 +125,20 @@ npx supabase start     # 環境起動
 
 3. **環境変数の設定**
 
-   `.env`ファイルを作成し、Supabaseの設定を追加：
+   環境変数テンプレートをコピーして`.env`ファイルを作成：
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   本番環境のSupabaseを使用する場合は、`.env`ファイルを編集：
 
    ```env
    VITE_SUPABASE_URL=https://your-project.supabase.co
    VITE_SUPABASE_KEY=your-anon-key
    ```
+
+   ローカル開発環境では、`.env.example`のデフォルト値（ローカルSupabase）をそのまま使用できます。
 
 4. **開発サーバーの起動**
    ```bash
