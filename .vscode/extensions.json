@@ -1,10 +1,31 @@
 {
   "recommendations": [
+    // Vue 3 + TypeScript
     "Vue.volar",
+
+    // Code Quality
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "EditorConfig.EditorConfig",
+
+    // Testing
     "vitest.explorer",
     "ms-playwright.playwright",
-    "dbaeumer.vscode-eslint",
-    "EditorConfig.EditorConfig",
-    "esbenp.prettier-vscode"
+
+    // Database
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-pg",
+
+    // Git
+    "eamodio.gitlens",
+
+    // Utilities
+    "christian-kohler.path-intellisense",
+    "naumovs.color-highlight"
+  ],
+
+  "unwantedRecommendations": [
+    "octref.vetur",
+    "johnsoncodehk.vscode-typescript-vue-plugin"
   ]
 }

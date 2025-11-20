@@ -1,0 +1,128 @@
+{
+  "name": "GoalCategorizationDiary (Refeel) Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/app",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Vue 3 + TypeScript
+        "Vue.volar",
+
+        // Code Quality
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "EditorConfig.EditorConfig",
+
+        // Testing
+        "vitest.explorer",
+        "ms-playwright.playwright",
+
+        // Database
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+
+        // Git
+        "eamodio.gitlens",
+
+        // Utilities
+        "christian-kohler.path-intellisense",
+        "naumovs.color-highlight"
+      ],
+
+      "settings": {
+        // Editor設定
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+          "source.fixAll": "explicit",
+          "source.fixAll.eslint": "explicit"
+        },
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+
+        // TypeScript設定
+        "typescript.preferences.importModuleSpecifier": "relative",
+        "typescript.updateImportsOnFileMove.enabled": "always",
+
+        // Vue設定
+        "vue.codeActions.enabled": true,
+        "[vue]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+
+        // Prettier設定
+        "prettier.requireConfig": false,
+        "prettier.useEditorConfig": true,
+
+        // ESLint設定
+        "eslint.validate": [
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact",
+          "vue"
+        ],
+
+        // ファイル設定
+        "files.eol": "\n",
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+
+        // 除外設定
+        "files.exclude": {
+          "**/.git": true,
+          "**/node_modules": true,
+          "**/dist": true,
+          "**/.DS_Store": true
+        },
+
+        // ターミナル設定
+        "terminal.integrated.defaultProfile.linux": "bash",
+
+        // Git設定
+        "git.autofetch": true,
+        "git.confirmSync": false,
+
+        // その他
+        "extensions.ignoreRecommendations": false
+      }
+    }
+  },
+
+  // ポート転送
+  "forwardPorts": [5173, 3000, 54322],
+  "portsAttributes": {
+    "5173": {
+      "label": "Vite Dev Server",
+      "onAutoForward": "notify"
+    },
+    "3000": {
+      "label": "Preview Server",
+      "onAutoForward": "silent"
+    },
+    "54322": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // コンテナ起動後のコマンド
+  "postCreateCommand": "npm install",
+  "postStartCommand": "echo '🚀 Dev Container is ready! Run npm run dev to start development.'",
+
+  // コンテナ作成時の機能追加
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+
+  // remoteUser設定（Dockerfileのユーザーと一致）
+  "remoteUser": "nextjs",
+
+  // マウント設定（パフォーマンス向上）
+  "mounts": [
+    "source=${localWorkspaceFolder}/node_modules,target=/app/node_modules,type=volume"
+  ]
+}
