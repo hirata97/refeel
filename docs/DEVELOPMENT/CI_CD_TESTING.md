@@ -166,19 +166,113 @@ PR作成 → PR Quality Gate（必須） → E2E Tests（推奨）
 
 **ファイル**: `.github/workflows/e2e-tests.yml`
 **実行タイミング**: PR作成・更新時（src/、e2e/、設定変更時）
-**特徴**: 3ブラウザ（Chromium、Firefox、Webkit）並列実行
+**特徴**: **3階層テスト戦略**による実行時間最適化とリグレッション早期検出
 
-#### E2Eテスト実行
+#### E2Eテスト階層化戦略（Issue #282対応）
 
-**ジョブ名**: `e2e-tests`
-**タイムアウト**: 30分
-**戦略**: `fail-fast: false`（1ブラウザ失敗でも他継続）
+本プロジェクトでは、E2Eテストを3つの階層（Tier）に分類し、実行タイミングと範囲を最適化しています。
 
-| ブラウザ | 実行コマンド | アーティファクト保存 |
-|---------|------------|------------------|
-| Chromium | `npx playwright test --project=chromium` | 7日間保存 |
-| Firefox | `npx playwright test --project=firefox` | 7日間保存 |
-| Webkit | `npx playwright test --project=webkit` | 7日間保存 |
+| Tier | 名称 | 実行条件 | ブラウザ | 実行時間目標 | テスト範囲 |
+|------|------|---------|---------|------------|----------|
+| **Tier 1** | スモークテスト | 全PR | chromium | 5分以内 | クリティカルパス |
+| **Tier 2** | コア機能テスト | 手動実行 | chromium, firefox | 15分以内 | 主要機能 |
+| **Tier 3** | フルテスト | `ready-to-merge`ラベル | chromium, firefox, webkit | 30分以内 | 全テスト |
+
+#### Tier 1: スモークテスト（全PR必須）
+
+**ジョブ名**: `smoke-tests`
+**タイムアウト**: 10分
+**実行条件**: 全PR作成・更新時
+**ブラウザ**: chromiumのみ
+
+**テスト内容**（`e2e/smoke/`配下）:
+- ユーザー登録→ログイン→日記作成→表示→削除→ログアウト
+- ログイン→ログアウト基本フロー
+- トップページ→ログイン→ダッシュボード表示
+- 日記作成→編集フロー
+
+**目的**:
+- クリティカルパスの動作確認
+- リグレッションの早期検出
+- 最小限の実行時間でPR品質保証
+
+**実行コマンド**:
+```bash
+E2E_TIER=smoke npx playwright test --project=chromium e2e/smoke
+```
+
+#### Tier 2: コア機能テスト（手動実行推奨）
+
+**ジョブ名**: `core-tests`
+**タイムアウト**: 20分
+**実行条件**: 手動実行（workflow_dispatch）または`tier: core`指定時
+**ブラウザ**: chromium, firefox
+
+**テスト内容**（`e2e/core/`配下）:
+- 認証システム全般（異常系・バリデーション含む）
+- 日記操作全般（編集・削除・検索・フィルタリング）
+- レポート機能全般
+
+**目的**:
+- 主要機能の詳細確認
+- クロスブラウザ互換性検証（主要2ブラウザ）
+- レビュー完了後の最終確認
+
+**実行コマンド**:
+```bash
+E2E_TIER=core npx playwright test --project=chromium,firefox e2e/core
+```
+
+#### Tier 3: フルテスト（マージ前必須）
+
+**ジョブ名**: `full-tests`
+**タイムアウト**: 35分
+**実行条件**: `ready-to-merge`ラベル付与時
+**ブラウザ**: chromium, firefox, webkit
+
+**テスト内容**:
+- 全E2Eテスト（smoke + core + その他）
+- レスポンシブ対応テスト
+- アクセシビリティテスト
+- パフォーマンステスト
+
+**目的**:
+- 全ブラウザでの完全動作保証
+- マージ前の最終品質確認
+- プロダクション環境への安全なデプロイ準備
+
+**実行コマンド**:
+```bash
+E2E_TIER=full npx playwright test --project=chromium,firefox,webkit
+```
+
+#### 手動実行方法
+
+GitHubのActionsタブから手動実行可能:
+1. `.github/workflows/e2e-tests.yml`を選択
+2. "Run workflow"をクリック
+3. Tierを選択（smoke/core/full）
+4. 実行
+
+#### E2Eテスト実行フロー
+
+```
+PR作成
+  ↓
+Tier 1: スモークテスト（自動実行、5分）
+  ├─ 成功 → レビュー依頼可能
+  └─ 失敗 → 修正必須（クリティカルパスに問題）
+  ↓
+レビュー中
+  ├─ 必要に応じてTier 2手動実行（15分）
+  └─ レビュー承認
+  ↓
+ready-to-mergeラベル付与
+  ↓
+Tier 3: フルテスト（自動実行、30分）
+  ├─ 成功 → マージ可能
+  └─ 失敗 → ラベル削除、修正後再実行
+```
 
 **アーティファクト**:
 - テストレポート: `playwright-report/`（全ブラウザ）
