@@ -292,6 +292,7 @@ git stash pop
 
 ## 📚 関連ドキュメント
 
+- [CI/CDテストガイド](CI_CD_TESTING.md) - ワークフロー一覧・品質基準・トラブルシューティング
 - [CI/CDパイプライン運用ガイド](CI_CD_GUIDE.md) - 自動品質チェック詳細
 - [開発コマンド一覧](DEVELOPMENT_COMMANDS.md)
 - [コーディング規則](CODING_STANDARDS.md)

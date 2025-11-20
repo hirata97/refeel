@@ -478,6 +478,7 @@ npm run auto-issue [番号]  # 完全自動実装（推奨）
 
 #### 🚀 CI/CD・品質管理
 
+- [CI_CD_TESTING.md](docs/DEVELOPMENT/CI_CD_TESTING.md) - CI/CDテストガイド（ワークフロー一覧・品質基準）
 - [CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) - GitHub Actions・品質チェック
 - [TYPE_GENERATION.md](docs/CI/TYPE_GENERATION.md) - 型定義自動生成システム
 - [CI_CD_BEST_PRACTICES.md](docs/CI/CI_CD_BEST_PRACTICES.md) - CI/CDベストプラクティス
@@ -498,4 +499,4 @@ npm run auto-issue [番号]  # 完全自動実装（推奨）
 - **環境問題**: [ENVIRONMENT_SETUP.md](docs/ENVIRONMENT_SETUP.md) のトラブルシューティング
 - **Docker問題**: [DOCKER_SETUP.md](docs/DOCKER_SETUP.md) のよくある問題
 - **認証問題**: [SUPABASE_AUTH.md](docs/SUPABASE_AUTH.md) の問題解決
-- **CI/CD問題**: [CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) のトラブルシューティング
+- **CI/CD問題**: [CI_CD_TESTING.md](docs/DEVELOPMENT/CI_CD_TESTING.md) のトラブルシューティング
