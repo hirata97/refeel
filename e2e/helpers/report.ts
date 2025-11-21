@@ -275,11 +275,17 @@ export class ReportTestHelper {
    * テストデータのクリーンアップ
    */
   async cleanup(): Promise<void> {
-    // ローカルストレージとセッションストレージをクリア
-    await this.page.evaluate(() => {
-      localStorage.clear()
-      sessionStorage.clear()
-    })
+    try {
+      // ローカルストレージとセッションストレージをクリア
+      await this.page.evaluate(() => {
+        localStorage.clear()
+        sessionStorage.clear()
+      })
+    } catch {
+      // ページが読み込まれていない場合はスキップ
+      // SecurityError: Failed to read the 'localStorage' property from 'Window'
+      // が発生する可能性があるため、エラーを無視
+    }
   }
 }
 

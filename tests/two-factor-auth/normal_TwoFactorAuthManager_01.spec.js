@@ -23,7 +23,7 @@ class TOTPGenerator {}
 const twoFactorAuthManager = new TwoFactorAuthManager()
 
 // Crypto API のモック（Node.js環境用）
-global.crypto = {
+const mockCrypto = {
   getRandomValues: (array) => {
     for (let i = 0; i < array.length; i++) {
       array[i] = Math.floor(Math.random() * 256)
@@ -34,6 +34,7 @@ global.crypto = {
     digest: vi.fn().mockResolvedValue(new ArrayBuffer(32))
   }
 }
+vi.stubGlobal('crypto', mockCrypto)
 
 // TODO: Issue #226 - 2FA機能実装後に describe.skip を describe に変更
 describe.skip('TwoFactorAuthManager - 正常系', () => {

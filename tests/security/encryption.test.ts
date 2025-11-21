@@ -22,8 +22,8 @@ const mockSessionStorage = {
   removeItem: vi.fn()
 }
 
-global.crypto = mockCrypto as unknown as Crypto
-global.sessionStorage = mockSessionStorage as unknown as Storage
+vi.stubGlobal('crypto', mockCrypto)
+vi.stubGlobal('sessionStorage', mockSessionStorage)
 
 describe('DataEncryption', () => {
   beforeEach(() => {

@@ -255,19 +255,15 @@ describe('useDataFetch - 正常系', () => {
 
   describe('型安全性', () => {
     it('ジェネリック型が正しく推論される', async () => {
-      interface TestData {
-        id: number
-        name: string
-      }
-
-      const testData: TestData = {
+      // TypeScript interface removed for .spec.js compatibility
+      const testData= {
         id: 1,
         name: 'Test Item',
       }
 
       mockFetcher.mockResolvedValue(testData)
 
-      const { data, execute } = useDataFetch<TestData>(
+      const { data, execute } = useDataFetch(
         mockFetcher,
         'type-test',
         { immediate: false }

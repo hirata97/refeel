@@ -26,8 +26,8 @@ const consoleSpy = {
 }
 
 describe('AccountLockoutManager - 正常系テスト', () => {
-  let lockoutManager: AccountLockoutManager
-  let mockAuditLogger: Partial<AuditLogger>
+  let lockoutManager
+  let mockAuditLogger
 
   beforeEach(() => {
     // localStorage をクリア
