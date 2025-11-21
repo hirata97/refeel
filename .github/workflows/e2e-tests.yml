@@ -73,9 +73,22 @@ jobs:
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps chromium
 
-    # アプリケーションビルド
+    # Supabase CLIのセットアップ
+    - name: Setup Supabase CLI
+      uses: supabase/setup-cli@v1
+      with:
+        version: latest
+
+    # Supabase Localの起動
+    - name: Start Supabase Local
+      run: supabase start
+
+    # アプリケーションビルド（Supabase環境変数を使用）
     - name: Build application
       run: npm run build
+      env:
+        VITE_SUPABASE_URL: http://127.0.0.1:54321
+        VITE_SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 
     # スモークテスト実行（chromiumのみ、smoke/配下のみ）
     - name: Run Smoke Tests
@@ -83,6 +96,8 @@ jobs:
       env:
         CI: true
         E2E_TIER: smoke
+        VITE_SUPABASE_URL: http://127.0.0.1:54321
+        VITE_SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 
     # テスト結果のアーティファクト保存
     - name: Upload smoke test results
