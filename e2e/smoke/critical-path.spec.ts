@@ -31,9 +31,13 @@ test.describe('スモークテスト: クリティカルパス', () => {
   })
 
   test.afterEach(async () => {
-    // テスト後のクリーンアップ
-    await diaryHelper.cleanup()
-    await authHelper.cleanup()
+    // テスト後のクリーンアップ（ヘルパーが初期化されている場合のみ）
+    if (diaryHelper) {
+      await diaryHelper.cleanup()
+    }
+    if (authHelper) {
+      await authHelper.cleanup()
+    }
   })
 
   test('[スモーク] ユーザー登録→ログイン→日記作成→表示→削除→ログアウト', async () => {
