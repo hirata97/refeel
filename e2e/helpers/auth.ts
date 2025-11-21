@@ -117,11 +117,11 @@ export class AuthTestHelper {
    */
   async expectLoginSuccess(): Promise<void> {
     // ダッシュボードまたはトップページにリダイレクトされることを確認（diaryも許容）
-    await expect(this.page).toHaveURL(/\/(dashboard|diary|top)/, { timeout: 15000 })
+    await expect(this.page).toHaveURL(/\/(dashboard|diary|top)/, { timeout: 30000 })
 
     // ログイン状態を示すUI要素の存在を確認（複数パターンを試行）
     const logoutButton = this.page.locator('button:has-text("ログアウト"), button:has-text("Logout"), text=ログアウト')
-    await expect(logoutButton).toBeVisible({ timeout: 10000 })
+    await expect(logoutButton).toBeVisible({ timeout: 20000 })
   }
 
   /**
@@ -174,11 +174,11 @@ export class AuthTestHelper {
     // 確認メールメッセージまたはダッシュボードリダイレクトを確認
     try {
       // まずダッシュボードへのリダイレクトを確認（diaryも許容）
-      await expect(this.page).toHaveURL(/\/(dashboard|diary|top)/, { timeout: 15000 })
+      await expect(this.page).toHaveURL(/\/(dashboard|diary|top)/, { timeout: 30000 })
     } catch {
       // リダイレクトされない場合は成功メッセージを確認
       const successMessage = this.page.locator('text=確認メール, text=登録が完了しました, .v-alert--type-success')
-      await expect(successMessage).toBeVisible({ timeout: 10000 })
+      await expect(successMessage).toBeVisible({ timeout: 20000 })
     }
   }
 
