@@ -83,6 +83,53 @@ jobs:
     - name: Start Supabase Local
       run: supabase start
 
+    # Supabase起動完了待機（ヘルスチェック）
+    - name: Wait for Supabase services
+      run: |
+        echo "Waiting for Supabase services to be ready..."
+        MAX_ATTEMPTS=30
+        ATTEMPT=0
+
+        # Step 1: Wait for supabase status to succeed
+        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+          if supabase status > /dev/null 2>&1; then
+            echo "✅ Supabase CLI reports services are running"
+            supabase status
+            break
+          fi
+
+          ATTEMPT=$((ATTEMPT + 1))
+          echo "⏳ Attempt $ATTEMPT/$MAX_ATTEMPTS: Supabase not ready yet, waiting..."
+          sleep 2
+        done
+
+        if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+          echo "❌ ERROR: Supabase failed to start within timeout"
+          exit 1
+        fi
+
+        # Step 2: Wait for Supabase API to be responsive
+        echo "Checking Supabase API health at http://127.0.0.1:54321..."
+        ATTEMPT=0
+
+        while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+          if curl -f http://127.0.0.1:54321/rest/v1/ > /dev/null 2>&1; then
+            echo "✅ Supabase API is responsive and ready!"
+            break
+          fi
+
+          ATTEMPT=$((ATTEMPT + 1))
+          echo "⏳ Attempt $ATTEMPT/$MAX_ATTEMPTS: API not ready yet, waiting..."
+          sleep 2
+        done
+
+        if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+          echo "❌ ERROR: Supabase API failed to become responsive"
+          exit 1
+        fi
+
+        echo "🎉 All Supabase services are ready!"
+
     # アプリケーションビルド（Supabase環境変数を使用）
     - name: Build application
       run: npm run build
