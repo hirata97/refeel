@@ -40,9 +40,9 @@ vi.mock('@/utils/auth', () => ({
   },
   performSecurityCheck: vi.fn(),
   AuditEventType: {
-    AUTH_LOGIN: 'AUTH_LOGIN',
-    AUTH_LOGOUT: 'AUTH_LOGOUT',
-    PASSWORD_CHANGED: 'PASSWORD_CHANGED',
+    AUTH_LOGIN: 'auth_login',
+    AUTH_LOGOUT: 'auth_logout',
+    PASSWORD_CHANGED: 'password_changed',
   }
 }))
 

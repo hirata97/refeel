@@ -2,10 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import DiaryFilter from '@/components/diary/DiaryFilter.vue'
 
-// performance utilsのモック
-vi.mock('@/utils/performance', () => ({
-  debounce: (fn) => fn,
-}))
+// パフォーマンスモニターのモック - グローバルモック（tests/setup.ts）を使用
 
 describe('DiaryFilter - 正常系', () => {
   let wrapper

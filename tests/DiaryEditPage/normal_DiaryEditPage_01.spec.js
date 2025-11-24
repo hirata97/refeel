@@ -48,13 +48,7 @@ vi.mock('vue-router', () => ({
   })
 }))
 
-// パフォーマンスモニターのモック
-vi.mock('@/utils/performance', () => ({
-  usePerformanceMonitor: () => ({
-    start: vi.fn(),
-    end: vi.fn()
-  })
-}))
+// パフォーマンスモニターのモック - グローバルモック（tests/setup.ts）を使用
 
 describe('DiaryEditPage - 正常系', () => {
   let wrapper

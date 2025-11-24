@@ -1,5 +1,9 @@
 // パフォーマンス計測ユーティリティ
 
+import { createLogger } from './logger'
+
+const logger = createLogger('PerformanceMonitor')
+
 export interface PerformanceMetrics {
   label: string
   startTime: number

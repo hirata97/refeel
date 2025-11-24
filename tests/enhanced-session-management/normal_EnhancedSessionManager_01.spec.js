@@ -111,7 +111,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
 
       // 監査ログ記録確認
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_SESSION_CREATED',
+        'auth_session_created',
         expect.stringContaining('新しいセッション作成'),
         expect.objectContaining({
           userId,
@@ -156,7 +156,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
 
       // 最古のセッションが終了されることを確認
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_SESSION_TERMINATED',
+        'auth_session_terminated',
         expect.stringContaining('セッション終了'),
         expect.objectContaining({
           reason: 'session_limit_exceeded',
@@ -240,7 +240,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
 
       expect(result).toBe(false)
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_SESSION_TERMINATED',
+        'auth_session_terminated',
         expect.stringContaining('セッション終了'),
         expect.objectContaining({
           reason: 'absolute_timeout',
@@ -310,7 +310,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
       
       expect(result).toBe(false)
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_SESSION_TERMINATED',
+        'auth_session_terminated',
         expect.stringContaining('セッション終了'),
         expect.objectContaining({
           reason: 'timeout',
@@ -347,7 +347,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
       )
 
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_SESSION_TERMINATED',
+        'auth_session_terminated',
         expect.stringContaining('セッション終了'),
         expect.objectContaining({
           userId,
@@ -406,7 +406,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
 
       expect(terminatedCount).toBe(1) // session2のみ終了
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_MASS_LOGOUT',
+        'auth_mass_logout',
         expect.stringContaining('全セッション終了'),
         expect.objectContaining({
           userId,
@@ -425,7 +425,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
 
       expect(terminatedCount).toBe(0)
       expect(mockAuditLogger.log).not.toHaveBeenCalledWith(
-        'AUTH_MASS_LOGOUT',
+        'auth_mass_logout',
         expect.any(String),
         expect.any(Object)
       )
@@ -518,7 +518,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
       )
 
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_DEVICE_TRUST_CHANGED',
+        'security_device_trust_changed',
         expect.stringContaining('デバイス信頼度変更'),
         expect.objectContaining({
           userId,
@@ -669,7 +669,7 @@ describe('EnhancedSessionManager - 正常系テスト', () => {
       await sessionManager.createSecurityAlert(userId, alertData)
 
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_ALERT',
+        'security_alert',
         expect.stringContaining(alertData.message),
         expect.objectContaining({
           userId,

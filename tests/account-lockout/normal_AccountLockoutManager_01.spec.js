@@ -83,7 +83,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
 
       // 監査ログへの記録を確認
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_LOGIN',
+        'auth_login',
         expect.stringContaining('ログイン成功'),
         expect.objectContaining({
           email,
@@ -110,7 +110,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
 
       // 監査ログへの記録を確認
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'AUTH_FAILED_LOGIN',
+        'auth_failed_login',
         expect.stringContaining('ログイン失敗'),
         expect.objectContaining({
           email,
@@ -257,7 +257,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
 
       // 監査ログ記録確認
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_LOCKOUT',
+        'security_lockout',
         expect.stringContaining('アカウントロックアウト'),
         expect.objectContaining({
           email: email.toLowerCase(),
@@ -294,7 +294,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
 
       expect(lockoutInfo.lockoutLevel).toBe(2) // 段階的に増加
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_LOCKOUT',
+        'security_lockout',
         expect.stringContaining('アカウントロックアウト'),
         expect.objectContaining({
           lockoutLevel: 2,
@@ -315,7 +315,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
 
       // 監査ログ記録確認
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_UNLOCK',
+        'security_unlock',
         expect.stringContaining('アカウントロック解除'),
         expect.objectContaining({
           email: email.toLowerCase(),
@@ -338,7 +338,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
       await lockoutManager.unlockAccount(email)
 
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_UNLOCK',
+        'security_unlock',
         expect.stringContaining('アカウントロック解除'),
         expect.objectContaining({
           email: email.toLowerCase(),
@@ -395,7 +395,7 @@ describe('AccountLockoutManager - 正常系テスト', () => {
       expect(result.isSuspicious).toBe(true)
       expect(result.reasons).toContain('短時間での大量ログイン試行')
       expect(mockAuditLogger.log).toHaveBeenCalledWith(
-        'SECURITY_VIOLATION',
+        'security_violation',
         expect.stringContaining('不正アクセス検知'),
         expect.objectContaining({
           email: email.toLowerCase(),
