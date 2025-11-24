@@ -4,6 +4,9 @@
  */
 
 import { AuditLogger, AuditEventType } from './audit-logger'
+import { createLogger } from './logger'
+
+const logger = createLogger('EnhancedSessionManager')
 
 export interface DeviceInfo {
   id: string
@@ -47,7 +50,7 @@ export interface SecurityAlert {
 }
 
 // デフォルト設定
-const DEFAULT_SESSION_SETTINGS: SessionSecuritySettings = {
+export const DEFAULT_SESSION_SETTINGS: SessionSecuritySettings = {
   maxConcurrentSessions: 3,
   sessionTimeout: 30, // 30分
   absoluteTimeout: 24 * 60, // 24時間

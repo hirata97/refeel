@@ -58,10 +58,10 @@ vi.mock('@/utils/audit-logger', () => ({
     log: vi.fn()
   },
   AuditEventType: {
-    AUTH_LOGIN: 'AUTH_LOGIN',
-    AUTH_LOGOUT: 'AUTH_LOGOUT',
-    AUTH_FAILED_LOGIN: 'AUTH_FAILED_LOGIN',
-    PASSWORD_CHANGED: 'PASSWORD_CHANGED'
+    AUTH_LOGIN: 'auth_login',
+    AUTH_LOGOUT: 'auth_logout',
+    AUTH_FAILED_LOGIN: 'auth_failed_login',
+    PASSWORD_CHANGED: 'password_changed'
   }
 }))
 
