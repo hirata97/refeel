@@ -52,6 +52,7 @@ git grep -l "tests/BaseButton" -- "*.ts" "*.js" "*.vue" | xargs sed -i 's|tests/
 ```
 
 複数ディレクトリの置換は同様に map を作って処理できます。安全な流れ:
+
 1. `git grep -l "tests/OldName"` で参照ファイルを確認
 2. sed コマンドで置換（必要なら `-n` オプションで dry-run）
 3. `git add -p` で差分を確認してコミット
@@ -63,4 +64,5 @@ git grep -l "tests/BaseButton" -- "*.ts" "*.js" "*.vue" | xargs sed -i 's|tests/
 - Playwright の E2E は `tests/e2e/` を維持しているため、E2E 側のパス変更は最小限にしました。
 
 ---
+
 （必要ならこのマップを拡張して 1 ファイルずつの移動推奨リストを作成します）
