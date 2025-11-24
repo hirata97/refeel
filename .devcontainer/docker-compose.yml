@@ -6,7 +6,7 @@ services:
   app:
     build:
       context: ..
-      dockerfile: Dockerfile
+      dockerfile: .devcontainer/Dockerfile
       args:
         VARIANT: "20-alpine"
     container_name: goal-diary-dev-container
@@ -39,8 +39,11 @@ services:
     # 127.0.0.1がホストを指すようになり、supabaseコンテナにアクセス可能
     network_mode: host
 
+    # entrypointを明示的に設定（Alpine Nodeイメージにdocker-entrypoint.shがないため）
+    entrypoint: /bin/sh -c
+
     # Dev Container用のコマンド
-    command: sleep infinity
+    command: ["sleep infinity"]
 
     stdin_open: true
     tty: true
