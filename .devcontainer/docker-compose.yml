@@ -1,6 +1,6 @@
 # Dev Container用Docker Compose設定
 # VS Code Dev Containersから使用される設定ファイル
-# ベースの docker-compose.yml を拡張して Dev Container 専用の設定を追加
+# コンテナ内で `supabase start` を実行してSupabaseを起動
 
 services:
   app:
@@ -8,11 +8,9 @@ services:
       context: ..
       dockerfile: Dockerfile
       args:
-        # Dev Container用のビルド引数
         VARIANT: "20-alpine"
     container_name: goal-diary-dev-container
 
-    # Dev Container専用の設定
     volumes:
       - ..:/app:cached
       - node_modules:/app/node_modules
@@ -21,6 +19,8 @@ services:
       - ~/.gitconfig:/home/nextjs/.gitconfig:ro
       # SSH設定の共有（Git操作用）
       - ~/.ssh:/home/nextjs/.ssh:ro
+      # Docker-outside-of-Docker: ホストのDockerソケットをマウント
+      - /var/run/docker.sock:/var/run/docker.sock
 
     environment:
       - NODE_ENV=development
@@ -30,59 +30,15 @@ services:
     env_file:
       - ../.env
 
-    ports:
-      - "5173:5173"  # Vite Dev Server
-      - "3000:3000"  # Preview Server
+    # ホストネットワークモード（supabase startとの連携に必要）
+    # 127.0.0.1がホストを指すようになり、supabaseコンテナにアクセス可能
+    network_mode: host
 
-    depends_on:
-      supabase-db:
-        condition: service_healthy
-
-    networks:
-      - goal-diary-network
-
-    # Dev Container用のコマンド（起動後は手動で npm run dev を実行）
+    # Dev Container用のコマンド
     command: sleep infinity
 
     stdin_open: true
     tty: true
 
-  # Supabase Local Development - PostgreSQL Database
-  supabase-db:
-    image: supabase/postgres:15.1.1.54
-    container_name: goal-diary-db-dev
-
-    environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: your-super-secret-and-long-postgres-password
-      POSTGRES_HOST: supabase-db
-
-    env_file:
-      - ../.env
-
-    ports:
-      - "54322:5432"
-
-    volumes:
-      - supabase-db-data:/var/lib/postgresql/data
-      # マイグレーション自動実行（初回起動時）
-      - ../supabase/migrations:/docker-entrypoint-initdb.d:ro
-
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-
-    networks:
-      - goal-diary-network
-
 volumes:
   node_modules:
-  supabase-db-data:
-
-networks:
-  goal-diary-network:
-    driver: bridge
