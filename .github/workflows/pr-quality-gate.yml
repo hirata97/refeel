@@ -1,7 +1,15 @@
-name: PR Quality Gate
+name: Quality Gate
 
-# PR作成・更新時の厳格な品質チェック
+# 統合品質チェックワークフロー
+# - PR作成・更新時: 厳格な品質ゲート（マージ条件）
+# - mainブランチpush時: 軽量チェック（デプロイ前確認）
 on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
   pull_request:
     branches: [ main, develop ]
     types: [opened, synchronize, reopened]
@@ -9,7 +17,7 @@ on:
       - 'docs/**'
       - '*.md'
       - '.gitignore'
-      - 'e2e/**'  # E2Eテストは別ワークフローで実行
+      - 'tests/e2e/**'  # E2Eテストは別ワークフローで実行
 
 # 権限設定
 permissions:
@@ -18,17 +26,91 @@ permissions:
   checks: write
   statuses: write
 
-# 同じPRからの複数実行をキャンセル
+# 同じPRからの複数実行をキャンセル（push時はブランチ名でグルーピング）
 concurrency:
-  group: pr-quality-${{ github.event.pull_request.number }}
+  group: quality-gate-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # ========================================
+  # Push時の軽量チェック（main/developブランチ）
+  # ========================================
+  quick-check:
+    name: Quick Check (Push)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    # ESLintキャッシュ
+    - name: Cache ESLint
+      uses: actions/cache@v4
+      with:
+        path: .eslintcache
+        key: eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue', 'eslint.config.js') }}
+        restore-keys: |
+          eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          eslint-cache-${{ runner.os }}-
+
+    # TypeScript増分ビルドキャッシュ
+    - name: Cache TypeScript build info
+      uses: actions/cache@v4
+      with:
+        path: |
+          tsconfig.tsbuildinfo
+          node_modules/.cache
+        key: ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue') }}
+        restore-keys: |
+          ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          ts-cache-${{ runner.os }}-
+
+    - name: Install dependencies (with retry)
+      run: |
+        for i in {1..3}; do
+          echo "Attempt $i: Installing dependencies..."
+          npm ci --prefer-offline --silent --no-audit --no-fund && break
+          echo "Install failed. Waiting 30 seconds before retry..."
+          sleep 30
+        done
+
+    # ESLint（厳格）
+    - name: ESLint Check
+      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache
+
+    # TypeScript型チェック（厳格）
+    - name: TypeScript Check
+      run: npm run ci:type-check
+
+    # ビルドテスト
+    - name: Build Check
+      run: npm run ci:build
+
+    - name: Push Check Summary
+      run: |
+        echo "## 🚀 Push Quick Check Results" >> $GITHUB_STEP_SUMMARY
+        echo "✅ ESLint: Passed" >> $GITHUB_STEP_SUMMARY
+        echo "✅ TypeScript: Passed" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Build: Passed" >> $GITHUB_STEP_SUMMARY
+
+  # ========================================
+  # PR時の厳格な品質ゲート
+  # ========================================
+
   # Stage 1: 基本品質チェック（高速・厳格）
   code-quality:
     name: Code Quality Checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: github.event_name == 'pull_request'
     
     steps:
     - name: Checkout code
@@ -131,6 +213,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: code-quality
+    if: github.event_name == 'pull_request'
 
     steps:
     - name: Checkout code
@@ -219,6 +302,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: code-quality
+    if: github.event_name == 'pull_request'
 
     steps:
     - name: Checkout code

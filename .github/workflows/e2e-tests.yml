@@ -9,7 +9,7 @@ on:
     branches: [ main, develop ]
     paths:
       - 'src/**'
-      - 'e2e/**'
+      - 'tests/e2e/**'
       - 'package*.json'
       - 'vite.config.ts'
       - 'playwright.config.ts'
@@ -140,7 +140,7 @@ jobs:
 
     # スモークテスト実行（chromiumのみ、smoke/配下のみ）
     - name: Run Smoke Tests
-      run: npx playwright test --project=chromium e2e/smoke
+      run: npx playwright test --project=chromium tests/e2e/smoke
       env:
         CI: true
         E2E_TIER: smoke
@@ -204,7 +204,7 @@ jobs:
 
     # コア機能テスト実行（core/配下のみ）
     - name: Run Core Feature Tests
-      run: npx playwright test --project=${{ matrix.browser }} e2e/core
+      run: npx playwright test --project=${{ matrix.browser }} tests/e2e/core
       env:
         CI: true
         E2E_TIER: core
