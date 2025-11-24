@@ -10,9 +10,10 @@
 supabase/
 ├── .gitignore               # Supabase CLI自動生成（下記参照）
 ├── config.toml              # Supabase CLI設定
+├── seed.sql                 # Seedデータエントリポイント（supabase db reset で実行）
 ├── migrations/              # マイグレーションファイル
 │   └── 00000000000000_initial_schema.sql  # 初期スキーマ（全テーブル+RLS+マスターデータ）
-├── seed/                    # Seedデータ（開発環境用テストデータ）
+├── seed/                    # Seedデータ（参照用・手動実行用）
 │   ├── 01_seed_profiles.sql
 │   ├── 02_seed_settings.sql
 │   ├── 03_seed_diaries_full.sql
@@ -22,6 +23,15 @@ supabase/
 │   └── reset.sh            # DB完全リセット
 └── README.md               # このファイル
 ```
+
+### seed.sql について
+
+`supabase db reset` 実行時に自動的に投入されるSeedデータのエントリポイントです。
+
+**技術的背景:**
+- Supabase CLIはSQLをバッチ処理するため、複数ファイル間での一時テーブル共有ができません
+- `seed.sql`はPL/pgSQLの`DO $$`ブロックで全てを1セッションで実行します
+- `seed/`ディレクトリの個別ファイルは参照用・手動実行用として保持しています
 
 ### .gitignore について
 
