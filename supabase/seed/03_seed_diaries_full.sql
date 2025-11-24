@@ -1,6 +1,6 @@
 -- Seedデータ: 日記エントリ（充実版）
--- Issue #267: テスト・開発用の日記データ（各ユーザー15件、合計75件）
--- 実行前提: seed_profiles.sqlが実行済みであること（temp_test_usersテーブルが存在）
+-- Issue #267, #290: テスト・開発用の日記データ（各ユーザー15件、合計75件）
+-- 実行前提: 01_seed_profiles.sql が実行済みであること（temp_test_usersテーブルが存在）
 --
 -- 注意: このファイルはローカル開発環境専用です
 --       過去30日分のデータを様々なmood、goal_category、progress_levelでバリエーション

@@ -5,9 +5,8 @@
 -- 互換性がありません。
 --
 -- 最新のデータベーススキーマについては以下を参照してください：
---   - database/schema/master.sql         (全テーブル定義)
---   - database/README.md                 (データベース仕様書)
---   - database/maintenance/rls_policies.sql (RLSポリシー)
+--   - supabase/migrations/00000000000000_initial_schema.sql (全テーブル定義+RLS+マスターデータ)
+--   - supabase/README.md                 (データベース仕様書)
 --
 -- 履歴情報のみとして保持されています。
 -- =============================================================================

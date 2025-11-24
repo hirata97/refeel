@@ -77,8 +77,8 @@ psql:
 # Seedデータ投入
 seed:
 	@echo "🌱 Seedデータを投入しています..."
-	@echo "注意: database/scripts/seed.sh を実行します"
-	./database/scripts/seed.sh
+	@echo "注意: supabase/scripts/seed.sh を実行します"
+	./supabase/scripts/seed.sh
 	@echo "✅ Seedデータ投入完了"
 
 # データベースリセット

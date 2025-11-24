@@ -7,15 +7,15 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'database/schema/**'
-      - 'database/data/**'
+      - 'supabase/migrations/**'
+      - 'supabase/seed/**'
       - '.github/workflows/type-generation.yml'
       - 'scripts/generate-types.js'
   pull_request:
     branches: [ main ]
     paths:
-      - 'database/schema/**'
-      - 'database/data/**'
+      - 'supabase/migrations/**'
+      - 'supabase/seed/**'
       - '.github/workflows/type-generation.yml'
       - 'scripts/generate-types.js'
   workflow_dispatch: # 手動実行を許可

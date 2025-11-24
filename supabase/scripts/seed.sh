@@ -1,21 +1,20 @@
 #!/bin/bash
 # Seedデータ一括実行スクリプト
-# Issue #267: ローカル開発環境用のテストデータ投入
+# Issue #267, #290: ローカル開発環境用のテストデータ投入
 #
 # 使用方法:
-#   ./database/scripts/seed.sh
+#   ./supabase/scripts/seed.sh
 #
 # 前提条件:
 #   - Supabase CLIがインストール済み
 #   - `supabase start` でローカル環境が起動済み
-#   - database/schema/master.sql でテーブルが作成済み
+#   - マイグレーションが適用済み
 
 set -e  # エラーが発生したら即座に終了
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-DATABASE_DIR="$PROJECT_ROOT/database"
+SUPABASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # カラー出力用
 GREEN='\033[0;32m'
@@ -51,20 +50,11 @@ run_sql() {
   fi
 }
 
-# 1. 感情タグマスターデータ
-run_sql "$DATABASE_DIR/data/emotion_tags_master.sql" "感情タグマスターデータ投入"
-
-# 2. ユーザープロフィール
-run_sql "$DATABASE_DIR/data/seed_profiles.sql" "テストユーザー作成"
-
-# 3. ユーザー設定
-run_sql "$DATABASE_DIR/data/seed_settings.sql" "ユーザー設定データ投入"
-
-# 4. 日記データ
-run_sql "$DATABASE_DIR/data/seed_diaries_full.sql" "日記データ投入（各ユーザー15件）"
-
-# 5. 日記と感情タグの関連
-run_sql "$DATABASE_DIR/data/seed_diary_emotion_tags.sql" "日記-感情タグ関連データ投入"
+# Seedファイルを番号順に実行
+run_sql "$SUPABASE_DIR/seed/01_seed_profiles.sql" "テストユーザー作成"
+run_sql "$SUPABASE_DIR/seed/02_seed_settings.sql" "ユーザー設定データ投入"
+run_sql "$SUPABASE_DIR/seed/03_seed_diaries_full.sql" "日記データ投入（各ユーザー15件）"
+run_sql "$SUPABASE_DIR/seed/04_seed_diary_emotion_tags.sql" "日記-感情タグ関連データ投入"
 
 echo ""
 echo -e "${GREEN}========================================${NC}"
@@ -74,7 +64,7 @@ echo ""
 echo -e "${BLUE}投入されたデータ:${NC}"
 echo -e "  - テストユーザー: 5人"
 echo -e "  - 日記エントリ: 75件（各ユーザー15件）"
-echo -e "  - 感情タグマスタ: 20件"
+echo -e "  - 感情タグマスタ: 20件（マイグレーションで投入済み）"
 echo -e "  - 日記-感情タグ関連: 約75-225件"
 echo ""
 echo -e "${BLUE}確認方法:${NC}"
