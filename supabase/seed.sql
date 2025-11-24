@@ -5,6 +5,7 @@
 
 DO $$
 DECLARE
+  v_dev_id UUID := gen_random_uuid();
   v_alice_id UUID := gen_random_uuid();
   v_bob_id UUID := gen_random_uuid();
   v_charlie_id UUID := gen_random_uuid();
@@ -23,7 +24,36 @@ DECLARE
   v_tag_id UUID;
 BEGIN
   -- ==========================================
-  -- 01: ユーザー作成
+  -- 00: 開発用アカウント（ログイン可能）
+  -- ==========================================
+  -- メール: dev@example.com / パスワード: password123
+  INSERT INTO auth.users (
+    id, instance_id, aud, role, email, encrypted_password,
+    email_confirmed_at, created_at, updated_at,
+    raw_app_meta_data, raw_user_meta_data, is_super_admin,
+    confirmation_token, email_change, email_change_token_new, recovery_token
+  )
+  SELECT
+    v_dev_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated', 'authenticated',
+    'dev@example.com',
+    crypt('password123', gen_salt('bf')),
+    now(), now(), now(),
+    '{}', jsonb_build_object('username', 'dev'),
+    false, '', '', '', ''
+  WHERE NOT EXISTS (SELECT 1 FROM auth.users WHERE email = 'dev@example.com');
+
+  INSERT INTO public.profiles (user_id, username, email)
+  SELECT v_dev_id, 'dev', 'dev@example.com'
+  WHERE NOT EXISTS (SELECT 1 FROM public.profiles WHERE email = 'dev@example.com');
+
+  INSERT INTO public.settings (user_id, theme, language, notifications)
+  SELECT v_dev_id, 'light', 'ja', true
+  WHERE NOT EXISTS (SELECT 1 FROM public.settings WHERE user_id = v_dev_id);
+
+  -- ==========================================
+  -- 01: テストユーザー作成（ダミーデータ用）
   -- ==========================================
   FOR i IN 1..5 LOOP
     v_user_id := v_user_ids[i];
