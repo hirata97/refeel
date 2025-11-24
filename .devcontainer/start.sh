@@ -14,5 +14,21 @@ else
 fi
 
 echo ""
+echo "🔄 Setting up Serena MCP server for Claude Code..."
+
+# Serena MCPサーバーが未登録の場合のみ追加
+if ! claude mcp list 2>/dev/null | grep -q "serena"; then
+  echo "📦 Adding Serena MCP server..."
+  claude mcp add serena -- uvx --from git+https://github.com/oraios/serena serena start-mcp-server --context ide-assistant --project "$(pwd)" || true
+  echo "✅ Serena MCP server added"
+else
+  echo "✅ Serena MCP server already configured"
+fi
+
+echo ""
 echo "🎉 Dev Container is ready!"
-echo "   Run 'npm run dev' to start development server"
+echo ""
+echo "Available commands:"
+echo "   npm run dev     - Start development server"
+echo "   claude          - Start Claude Code CLI"
+echo "   supabase status - Check Supabase status"

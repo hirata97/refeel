@@ -61,6 +61,11 @@
     }
   },
 
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/root/.claude",
+    "PATH": "/root/.local/bin:${containerEnv:PATH}"
+  },
+
   "forwardPorts": [5173, 3000],
   "portsAttributes": {
     "5173": {

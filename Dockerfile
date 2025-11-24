@@ -9,7 +9,9 @@ RUN apk add --no-cache \
     bash \
     postgresql-client \
     docker-cli \
-    docker-cli-compose
+    docker-cli-compose \
+    python3 \
+    py3-pip
 
 # Install GitHub CLI (not available in Alpine repos, install from release)
 RUN curl -sL https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linux_amd64.tar.gz | tar xz -C /tmp \
@@ -20,6 +22,13 @@ RUN curl -sL https://github.com/cli/cli/releases/download/v2.62.0/gh_2.62.0_linu
 RUN curl -sL https://github.com/supabase/cli/releases/download/v2.58.5/supabase_linux_amd64.tar.gz | tar xz -C /tmp \
     && mv /tmp/supabase /usr/local/bin/ \
     && rm -rf /tmp/supabase*
+
+# Install Claude Code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Install uv (Python package manager for Serena)
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 
 # Set working directory
 WORKDIR /app
@@ -40,13 +49,10 @@ RUN npm ci --silent && \
 COPY . .
 
 # Create necessary directories
-RUN mkdir -p logs coverage dist
+RUN mkdir -p logs coverage dist /root/.claude /root/.serena
 
 # Set ownership
 RUN chown -R nextjs:nodejs /app
-
-# Switch to non-root user
-USER nextjs
 
 # Expose ports
 EXPOSE 5173 3000 8080
