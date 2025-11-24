@@ -185,7 +185,7 @@ PR作成 → PR Quality Gate（必須） → E2E Tests（推奨）
 **実行条件**: 全PR作成・更新時
 **ブラウザ**: chromiumのみ
 
-**テスト内容**（`e2e/smoke/`配下）:
+**テスト内容**（`tests/e2e/smoke/`配下）:
 - ユーザー登録→ログイン→日記作成→表示→削除→ログアウト
 - ログイン→ログアウト基本フロー
 - トップページ→ログイン→ダッシュボード表示
@@ -198,7 +198,7 @@ PR作成 → PR Quality Gate（必須） → E2E Tests（推奨）
 
 **実行コマンド**:
 ```bash
-E2E_TIER=smoke npx playwright test --project=chromium e2e/smoke
+E2E_TIER=smoke npx playwright test --project=chromium tests/e2e/smoke
 ```
 
 #### Tier 2: コア機能テスト（手動実行推奨）
@@ -208,7 +208,7 @@ E2E_TIER=smoke npx playwright test --project=chromium e2e/smoke
 **実行条件**: 手動実行（workflow_dispatch）または`tier: core`指定時
 **ブラウザ**: chromium, firefox
 
-**テスト内容**（`e2e/core/`配下）:
+**テスト内容**（`tests/e2e/core/`配下）:
 - 認証システム全般（異常系・バリデーション含む）
 - 日記操作全般（編集・削除・検索・フィルタリング）
 - レポート機能全般
@@ -220,7 +220,7 @@ E2E_TIER=smoke npx playwright test --project=chromium e2e/smoke
 
 **実行コマンド**:
 ```bash
-E2E_TIER=core npx playwright test --project=chromium,firefox e2e/core
+E2E_TIER=core npx playwright test --project=chromium,firefox tests/e2e/core
 ```
 
 #### Tier 3: フルテスト（マージ前必須）
