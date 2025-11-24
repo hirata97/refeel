@@ -59,6 +59,44 @@ npm run test:unit  # ユニットテスト
 npm run ci:all     # 全品質チェック
 ```
 
+## 🗄️ ローカルSupabase
+
+### 前提条件
+- Docker がインストール・起動済み
+- Supabase CLI がインストール済み
+
+### Supabase CLIのインストール
+
+```bash
+# Linux/WSL
+mkdir -p ~/.local/bin
+curl -sSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz -C ~/.local/bin
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+
+# Mac (Homebrew)
+brew install supabase/tap/supabase
+```
+
+### 起動・停止
+
+```bash
+supabase start     # 起動
+supabase stop      # 停止
+supabase db reset  # DBリセット（マイグレーション + シード再実行）
+supabase status    # 状態確認
+```
+
+### 起動後のURL
+
+| サービス | URL |
+|----------|-----|
+| Studio（管理画面） | http://localhost:54323 |
+| API | http://localhost:54321 |
+| DB | postgresql://postgres:postgres@localhost:54322/postgres |
+
+詳細: [supabase/README.md](supabase/README.md)
+
 ## 📁 プロジェクト構造
 
 ```
