@@ -557,6 +557,40 @@ npm run generate-types && npm run test:unit
 ---
 
 **📋 関連ドキュメント**
+
+## 🔁 リファクタリング（ディレクトリ再編）に関するメモ
+
+このリポジトリでは `tests/` のトップレベルを以下の 6 つに整理しました:
+
+- `tests/unit/` — ロジック・ユーティリティ・ストア等のユニットテスト
+- `tests/components/` — UI コンポーネント・ページのテスト
+- `tests/integration/` — 外部依存や統合テスト
+- `tests/e2e/` — Playwright ベースの E2E テスト
+- `tests/fixtures/` — 共有フィクスチャ・スタブ
+- `tests/security/` — セキュリティ関連テスト
+
+補助的なディレクトリ:
+
+- `tests/helpers/` — 共通セットアップ (`setup.ts` など) やヘルパー
+
+### 開発者向け移行メモ（短く）
+
+1. テストファイルを移動したため、移動前パスを参照する import が残っている場合があります。
+  - まずは `scripts/find-test-imports.js`（リポジトリ直下の `scripts/`）で参照箇所を検出してください（追加済み）。
+2. `vitest.config.ts` の `setupFiles` を `./tests/helpers/setup.ts` に更新済みです。
+3. 型解決のため `tsconfig.vitest.json` に `"tests/**/*"` を含めました。
+4. CI 実行（`npm run ci:test`）は依存インストールが必要です。時間がかかるためローカル実行は任意です。
+
+### 変更の確認手順（推奨）
+
+1. まず `scripts/find-test-imports.js` を実行して、古いパスを参照しているファイルを洗い出す。
+2. 検出結果を元に import を更新（手動または一括 sed を使う）。
+3. `npm run test:unit`（ウォッチ）で問題のあるファイルのみ確認。
+4. 最後に CI で `npm run ci:test` を実行して全体を検証。
+
+---
+
+（この節は移行作業に合わせて随時更新してください）
 - [CLAUDE.md](../CLAUDE.md) - プロジェクト開発指針
 - [docs/DEVELOPMENT/BEST_PRACTICES.md](../docs/DEVELOPMENT/BEST_PRACTICES.md) - 開発ベストプラクティス
 - [Vitest公式ドキュメント](https://vitest.dev/)
