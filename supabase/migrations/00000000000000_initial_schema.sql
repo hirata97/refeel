@@ -224,4 +224,4 @@ CREATE POLICY "settings_user_access" ON public.settings
 -- マイグレーション完了
 -- ==========================================
 -- 初期スキーマのセットアップが完了しました
--- 次のステップ: 開発環境でSeedデータを投入（./database/scripts/seed.sh）
+-- 次のステップ: 開発環境でSeedデータを投入（supabase db reset または ./supabase/scripts/seed.sh）

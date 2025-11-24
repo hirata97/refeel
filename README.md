@@ -66,7 +66,7 @@ npm run ci:all     # 全品質チェック
 ├── tests/     # テストファイル
 ├── docs/      # 詳細ドキュメント
 ├── scripts/   # 自動化スクリプト
-└── database/  # DBスキーマ・Seed
+└── supabase/  # DBマイグレーション・Seed・設定
 ```
 
 各ディレクトリの詳細は配下のREADME.mdを参照してください。

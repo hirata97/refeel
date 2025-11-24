@@ -299,7 +299,7 @@ Tier 3: フルテスト（自動実行、30分）
 ### 4. Type Generation（型定義自動生成）⭐⭐
 
 **ファイル**: `.github/workflows/type-generation.yml`
-**実行タイミング**: データベーススキーマ変更時（`database/schema/**`、`database/data/**`）
+**実行タイミング**: データベーススキーマ変更時（`supabase/migrations/**`、`supabase/seed/**`）
 **目的**: SupabaseスキーマからTypeScript型定義を自動生成（Issue #144対応）
 
 #### 型生成ジョブ
@@ -540,7 +540,7 @@ npm run ci:type-check
 ```
 
 **スキーマ変更時**:
-- `database/schema/**` 変更後は `type-generation.yml` が自動実行されます
+- `supabase/migrations/**` 変更後は `type-generation.yml` が自動実行されます
 - mainブランチマージ後、自動コミットされた型定義をpullしてください
 
 ---
