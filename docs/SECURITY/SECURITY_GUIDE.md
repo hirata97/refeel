@@ -313,14 +313,9 @@ src/main.ts              # バリデーションプラグイン登録
 
 ## 📚 関連ドキュメント
 
-### 開発者向け
 - **[🔧 セキュリティ開発ガイド](SECURITY_DEVELOPMENT.md)** - 実装手順とベストプラクティス
 - **[📖 セキュリティ実装詳細](SECURITY_IMPLEMENTATION.md)** - 技術的な実装内容
 - **[🔍 トラブルシューティング](SECURITY_TROUBLESHOOTING.md)** - 問題解決ガイド
-
-### 運用者向け
-- **[📊 セキュリティ監視](../monitoring/SECURITY_MONITORING.md)** - 監視とアラート設定
-- **[🚨 インシデント対応](../incident/INCIDENT_RESPONSE.md)** - 緊急時対応手順
 
 ## 🔄 今後の拡張予定
 

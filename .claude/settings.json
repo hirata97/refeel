@@ -2,7 +2,7 @@
   "permissions": {
     "allow": [
       "Bash",
-      "Read", 
+      "Read",
       "Write",
       "Edit",
       "MultiEdit",
@@ -12,6 +12,7 @@
       "Task",
       "TodoWrite",
       "NotebookEdit"
-    ]
+    ],
+    "defaultMode": "bypassPermissions"
   }
 }

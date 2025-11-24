@@ -117,6 +117,6 @@ git rebase --continue
 ---
 
 **関連ドキュメント:**
-- [開発ワークフロー](DEVELOPMENT_WORKFLOW.md)
+- [開発ワークフロー](../DEVELOPMENT/DEVELOPMENT_WORKFLOW.md)
 - [PRテスト・検証ガイド](PR_TESTING_GUIDE.md)
-- [CI/CDガイド](CI_CD_GUIDE.md)
+- [CI/CDガイド](../CI/CI_CD_GUIDE.md)

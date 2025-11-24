@@ -270,9 +270,9 @@ paths-ignore: ['docs/**']
 
 ## 📚 関連ドキュメント
 
-- [開発ワークフロー](DEVELOPMENT_WORKFLOW.md) - CI統合後の開発手順
-- [開発コマンド一覧](DEVELOPMENT_COMMANDS.md) - npm scriptコマンド詳細
-- [コーディング規則](CODING_STANDARDS.md) - コード品質基準
+- [開発ワークフロー](../DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) - CI統合後の開発手順
+- [開発コマンド一覧](../DEVELOPMENT/DEVELOPMENT_COMMANDS.md) - npm scriptコマンド詳細
+- [コーディング規則](../DEVELOPMENT/CODING_STANDARDS.md) - コード品質基準
 
 ## 🔄 継続的改善
 
