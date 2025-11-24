@@ -293,11 +293,11 @@ git stash pop
 ## 📚 関連ドキュメント
 
 - [CI/CDテストガイド](CI_CD_TESTING.md) - ワークフロー一覧・品質基準・トラブルシューティング
-- [CI/CDパイプライン運用ガイド](CI_CD_GUIDE.md) - 自動品質チェック詳細
+- [CI/CDパイプライン運用ガイド](../CI/CI_CD_GUIDE.md) - 自動品質チェック詳細
 - [開発コマンド一覧](DEVELOPMENT_COMMANDS.md)
 - [コーディング規則](CODING_STANDARDS.md)
-- [Issue ラベル体系](ISSUE_LABELS.md)
-- [環境設定](ENVIRONMENT_SETUP.md)
+- [Issue ラベル体系](../PROJECT_MANAGEMENT/ISSUE_LABELS.md)
+- [環境設定](../ENVIRONMENT/ENVIRONMENT_SETUP.md)
 
 ---
 

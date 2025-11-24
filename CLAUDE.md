@@ -1,9 +1,11 @@
 # CLAUDE.md - Refeel開発ガイド
 
-**Vue 3 + TypeScript + Supabase**による振り返り・感情分析Webアプリケーション
-**Reflect（内省）+ Feel（感情）** = モチベーション変化測定・分析プラットフォーム
+> **対象**: 開発者・Claude Code
+> **初見者**: まず [README.md](README.md) でプロジェクト概要とセットアップを確認
 
-## 🚀 クイックスタート（必読）
+**Vue 3 + TypeScript + Supabase** による振り返り・感情分析Webアプリケーション
+
+## 🚀 クイックスタート
 
 ### 技術スタック
 
@@ -19,61 +21,24 @@
 
 ```bash
 npm run dev          # 開発サーバー起動
-npm run ci:all       # 全品質チェック（型生成+lint+型+テスト+ビルド）
+npm run ci:all       # 全品質チェック（lint+型+テスト+ビルド）
 npm run auto-issue   # Issue自動実装（推奨）
 npm run test:unit    # ユニットテスト
 npm run build        # 本番ビルド
-
-# 型定義関連（Issue #144対応）⚠️【重要】
-npm run generate-types      # ローカル型定義生成（推奨）
-npm run generate-types:prod # 本番型定義生成（Supabase接続）
-npm run dev:with-types      # 型生成後に開発サーバー起動
-
-# CI/CD安定性向上（Issue #155対応）⚠️【New】
-npm ci --prefer-offline --no-audit --no-fund  # 高速・安定インストール
-
-# Seedデータ関連（Issue #267対応）⚠️【New】
-./database/scripts/seed.sh   # Seedデータ一括投入（テストユーザー5人、日記75件）
-./database/scripts/reset.sh  # DB完全リセット + Seedデータ投入
-
-# Docker Compose環境管理（Issue #268対応）⚠️【New】
-npm run docker:up            # 開発環境起動（自動マイグレーション）
-npm run docker:down          # 開発環境停止
-npm run docker:logs:app      # アプリログ確認
-npm run docker:psql          # PostgreSQL接続
-npm run docker:reset         # DB完全リセット
-make up                      # Makefile経由で起動（推奨）
-make logs-app                # アプリログ確認（Makefile）
-make seed                    # Seedデータ投入（Makefile）
-make reset                   # DB完全リセット（Makefile）
+npm run generate-types  # Supabase型定義生成
 ```
 
-### 環境変数設定（初回セットアップ必須）⚠️【重要】
+詳細コマンド: [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md)
+
+### 環境変数設定
 
 ```bash
-# 1. 環境変数テンプレートをコピー
-cp .env.example .env
-
-# 2. Supabaseローカル環境を起動
-supabase start
-
-# 3. 開発サーバーを起動
-npm run dev
+cp .env.example .env    # 環境変数テンプレートをコピー
+supabase start          # Supabaseローカル環境を起動
+npm run dev             # 開発サーバーを起動
 ```
 
-**環境変数ファイル:**
-- `.env.example` - テンプレート（Git管理対象）
-- `.env` - 実際の環境変数（Git管理対象外）
-- `.env.local` - ローカル専用設定（Git管理対象外）
-
-**ローカル開発環境（推奨）:**
-- Supabase CLI (`supabase start`) でローカル環境を起動
-- `VITE_SUPABASE_URL=http://127.0.0.1:54321` を使用
-- データベースはローカルPostgreSQLを使用
-
-**本番環境への接続:**
-- `.env`ファイルで本番環境のSupabase URLとKeyに変更
-- **注意**: `.env`はGit管理対象外なので、本番認証情報を含めても安全
+詳細セットアップ: [docs/ENVIRONMENT/ENVIRONMENT_SETUP.md](docs/ENVIRONMENT/ENVIRONMENT_SETUP.md)
 
 ## ⚡ 開発フロー（6ステップ）**【厳守】**
 
@@ -225,45 +190,34 @@ tests/               # テストファイル
 
 ```markdown
 ## Summary
-
 [実装内容の概要を簡潔に記述]
 
-## Root Cause Analysis (根本原因分析)
-
-**なぜこの問題が発生したか:**
-
-- [ ] 設計段階での考慮不足
-- [ ] 実装時のロジックミス
-- [ ] テストケースの不備
-- [ ] 外部依存関係の変更
-- [ ] 要件の理解不足
-- [ ] 技術選定の問題
-- [ ] その他: [具体的な原因を記述]
-
-**具体的な原因:**
-[問題が発生した技術的・プロセス的な詳細を記述]
-
-**今後の予防策:**
-[同様の問題を防ぐための具体的な改善案]
-
 ## Test plan
-
 [テスト方法や確認項目のチェックリスト]
 
 Closes #[Issue番号]
 ```
 
-## 📚 詳細情報
+詳細テンプレート: [docs/PROJECT_MANAGEMENT/PR_CREATION_GUIDE.md](docs/PROJECT_MANAGEMENT/PR_CREATION_GUIDE.md)
 
-複雑な設定やアーキテクチャ詳細は **[docs/REFERENCE.md](docs/REFERENCE.md)** を参照
+## 📚 詳細ドキュメント
+
+| カテゴリ | ドキュメント |
+|----------|--------------|
+| **開発ワークフロー** | [docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) |
+| **コマンド一覧** | [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) |
+| **アーキテクチャ** | [docs/DEVELOPMENT/ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md) |
+| **CI/CD** | [docs/CI/CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) |
+| **セキュリティ** | [docs/SECURITY/SECURITY_GUIDE.md](docs/SECURITY/SECURITY_GUIDE.md) |
+| **Issue・PR管理** | [docs/PROJECT_MANAGEMENT/](docs/PROJECT_MANAGEMENT/) |
+
+全ドキュメント一覧: [docs/README.md](docs/README.md)
 
 ---
 
-## 🎯 重要指示
+## 🎯 Claude Code向け指示
 
-Do what has been asked; nothing more, nothing less.
-NEVER create files unless they're absolutely necessary for achieving your goal.
-ALWAYS prefer editing an existing file to creating a new one.
-NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
-
-**重要**: このファイルは80%の作業で必要な情報に特化。詳細情報は必要に応じてREFERENCE.mdを確認すること。
+- Do what has been asked; nothing more, nothing less
+- NEVER create files unless absolutely necessary
+- ALWAYS prefer editing existing files
+- NEVER proactively create documentation files (*.md)

@@ -345,10 +345,10 @@ CI/CDテスト: 100%成功必須
 
 ## 📚 関連ドキュメント
 
-- [CI/CDパイプライン運用ガイド](CI_CD_GUIDE.md) - 自動テスト詳細
-- [開発ワークフロー](DEVELOPMENT_WORKFLOW.md) - 全体的な開発手順
-- [コーディング規則](CODING_STANDARDS.md) - コード品質基準
-- [セキュリティガイドライン](SECURITY.md) - セキュリティテスト観点
+- [CI/CDパイプライン運用ガイド](../CI/CI_CD_GUIDE.md) - 自動テスト詳細
+- [開発ワークフロー](../DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) - 全体的な開発手順
+- [コーディング規則](../DEVELOPMENT/CODING_STANDARDS.md) - コード品質基準
+- [セキュリティガイドライン](../SECURITY/SECURITY_GUIDE.md) - セキュリティテスト観点
 
 ---
 
