@@ -87,7 +87,7 @@ npx playwright test --project=webkit
 
 ```bash
 # 特定テストファイルのみ実行
-npx playwright test e2e/auth.spec.ts
+npx playwright test tests/e2e/auth.spec.ts
 
 # 特定テストケースのみ実行
 npx playwright test -g "ログインフロー"
@@ -518,7 +518,7 @@ if (isFirefox) {
 npx playwright test --debug
 
 # 特定テストのみデバッグ
-npx playwright test e2e/auth.spec.ts --debug
+npx playwright test tests/e2e/auth.spec.ts --debug
 ```
 
 **機能:**

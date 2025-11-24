@@ -57,7 +57,7 @@ export default [
   
   {
     ...pluginPlaywright.configs['flat/recommended'],
-    files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    files: ['e2e/**/*.{test,spec}.{js,ts,jsx,tsx}', 'tests/e2e/**/*.{test,spec}.{js,ts,jsx,tsx}'],
     rules: {
       'playwright/no-conditional-in-test': 'off',
       'playwright/no-wait-for-timeout': 'off',

@@ -9,7 +9,7 @@ on:
       - '*.md'
       - '.gitignore'
       - 'tests/**'
-      - 'e2e/**'
+      - 'tests/e2e/**'
 
 # 権限設定
 permissions:
