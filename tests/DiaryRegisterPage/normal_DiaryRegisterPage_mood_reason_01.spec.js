@@ -49,12 +49,7 @@ vi.mock('@/stores/emotionTags', () => ({
   })
 }))
 
-vi.mock('@/utils/performance', () => ({
-  usePerformanceMonitor: () => ({
-    start: vi.fn(),
-    end: vi.fn()
-  })
-}))
+// パフォーマンスモニターのモック - グローバルモック（tests/setup.ts）を使用
 
 vi.mock('@/composables/useSimpleForm', () => ({
   useSimpleDiaryForm: () => ({

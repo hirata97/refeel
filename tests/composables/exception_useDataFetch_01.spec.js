@@ -1,13 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useDataFetch } from '@/composables/useDataFetch'
 
-// パフォーマンスモニターのモック
-vi.mock('@/utils/performance', () => ({
-  default: {
-    start: vi.fn(),
-    end: vi.fn()
-  }
-}))
+// パフォーマンスモニターのモック - グローバルモック（tests/setup.ts）を使用
 
 // debounce と throttle のモック
 vi.mock('lodash-es', () => ({

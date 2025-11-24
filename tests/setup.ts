@@ -5,6 +5,30 @@ import { vi } from 'vitest'
 process.env.VITE_SUPABASE_URL = 'https://test.supabase.co'
 process.env.VITE_SUPABASE_KEY = 'test-anon-key'
 
+// パフォーマンスモニターのグローバルモック設定
+vi.mock('@/utils/performance', () => ({
+  performanceMonitor: {
+    start: vi.fn(),
+    end: vi.fn(),
+    clear: vi.fn(),
+    getAllMetrics: vi.fn(() => []),
+    generateReport: vi.fn(() => ''),
+  },
+  measurePerformance: vi.fn((fn: unknown) => fn),
+  usePerformanceMonitor: vi.fn(() => ({
+    start: vi.fn(),
+    end: vi.fn(),
+    measure: vi.fn((fn: unknown) => fn),
+    getReport: vi.fn(() => ''),
+    clear: vi.fn(),
+  })),
+  debounce: vi.fn((fn: unknown) => fn),
+  throttle: vi.fn((fn: unknown) => fn),
+  memoize: vi.fn((fn: unknown) => fn),
+  batchProcess: vi.fn(),
+  monitorResourceUsage: vi.fn(() => null),
+}))
+
 // ロガーのグローバルモック設定（Issue #218の影響対応）
 vi.mock('@/utils/logger', () => ({
   logger: {
@@ -436,3 +460,20 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() {}
   disconnect() {}
 }
+
+// visualViewport のモック（Vuetifyコンポーネント用）
+Object.defineProperty(global, 'visualViewport', {
+  writable: true,
+  value: {
+    width: 1024,
+    height: 768,
+    offsetLeft: 0,
+    offsetTop: 0,
+    pageLeft: 0,
+    pageTop: 0,
+    scale: 1,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  },
+})
