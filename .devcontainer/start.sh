@@ -3,6 +3,9 @@
 
 set -e
 
+echo "🔧 Fixing permissions..."
+sudo chown -R node:node /home/node/.claude /home/node/.serena 2>/dev/null || true
+
 echo "🔄 Checking Supabase status..."
 
 if supabase status > /dev/null 2>&1; then
