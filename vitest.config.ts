@@ -10,7 +10,7 @@ export default mergeConfig(
       exclude: [...configDefaults.exclude, 'e2e/**', 'tests/e2e/**'],
       root: fileURLToPath(new URL('./', import.meta.url)),
       globals: true,
-      setupFiles: ['./tests/setup.ts'],
+      setupFiles: ['./tests/helpers/setup.ts'],
       css: {
         modules: {
           classNameStrategy: 'non-scoped',
