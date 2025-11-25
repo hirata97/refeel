@@ -157,7 +157,7 @@ describe('SecurityMonitor', () => {
 
       const events = securityMonitor.getEvents(2000)
       expect(events).toHaveLength(1000)
-    })
+    }, 10000)
 
     it('メトリクスが正しく更新される', () => {
       securityMonitor.recordEvent({

@@ -3,70 +3,30 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useDataStore } from '@/stores/data'
 
 // モックの設定
+const createMockChain = () => {
+  const chain = {
+    select: vi.fn().mockReturnThis(),
+    insert: vi.fn().mockReturnThis(),
+    update: vi.fn().mockReturnThis(),
+    delete: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    order: vi.fn().mockReturnThis(),
+    range: vi.fn().mockReturnThis(),
+    gte: vi.fn().mockReturnThis(),
+    lte: vi.fn().mockReturnThis(),
+    or: vi.fn().mockReturnThis(),
+    single: vi.fn().mockResolvedValue({ data: null, error: null }),
+    then: vi.fn()
+  }
+  return chain
+}
+
 vi.mock('@/lib/supabase', () => ({
   default: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            range: vi.fn(() => ({
-              then: vi.fn()
-            }))
-          })),
-          single: vi.fn(),
-          gte: vi.fn(),
-          lte: vi.fn(),
-          or: vi.fn()
-        })),
-        insert: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: vi.fn()
-          }))
-        })),
-        update: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            select: vi.fn(() => ({
-              single: vi.fn()
-            }))
-          }))
-        })),
-        delete: vi.fn(() => ({
-          eq: vi.fn()
-        }))
-      }))
-    }))
+    from: vi.fn(() => createMockChain())
   },
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => ({
-            range: vi.fn(() => ({
-              then: vi.fn()
-            }))
-          })),
-          single: vi.fn(),
-          gte: vi.fn(),
-          lte: vi.fn(),
-          or: vi.fn()
-        })),
-        insert: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: vi.fn()
-          }))
-        })),
-        update: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            select: vi.fn(() => ({
-              single: vi.fn()
-            }))
-          }))
-        })),
-        delete: vi.fn(() => ({
-          eq: vi.fn()
-        }))
-      }))
-    }))
+    from: vi.fn(() => createMockChain())
   }
 }))
 
@@ -87,7 +47,7 @@ describe('DataStore - 正常系', () => {
   describe('初期状態', () => {
     it('初期状態が正しく設定されている', () => {
       expect(dataStore.diaries).toEqual([])
-      expect(dataStore.accounts).toEqual([])
+      expect(dataStore.profiles).toEqual([])
       expect(dataStore.loading).toEqual({})
       expect(dataStore.error).toEqual({})
     })
@@ -102,12 +62,13 @@ describe('DataStore - 正常系', () => {
   describe('キャッシュ機能', () => {
     it('キャッシュの設定と取得が正しく動作する', () => {
       const testData = { id: 1, name: 'テスト' }
-      
+
       // プライベートメソッドの代わりに公開されているインターフェースを使用
       // setCache は直接テストできないため、データを保存して取得をテストする
       dataStore.diaries = [testData]
-      
-      expect(dataStore.diaries).toContain(testData)
+
+      expect(dataStore.diaries).toHaveLength(1)
+      expect(dataStore.diaries[0]).toEqual(testData)
     })
 
     it('キャッシュ無効化が正しく動作する', () => {
@@ -165,28 +126,28 @@ describe('DataStore - 正常系', () => {
       expect(sorted[2].title).toBe('Old') // 最古が最後
     })
 
-    it('diariesByCategory がカテゴリ別に正しくグループ化される', () => {
+    it('diariesByMood がムード別に正しくグループ化される', () => {
       const diaries = [
-        { id: '1', title: 'Work 1', goal_category: 'work' },
-        { id: '2', title: 'Health 1', goal_category: 'health' },
-        { id: '3', title: 'Work 2', goal_category: 'work' },
-        { id: '4', title: 'Study 1', goal_category: 'study' }
+        { id: '1', title: 'Happy 1', mood: 5 },
+        { id: '2', title: 'Sad 1', mood: 2 },
+        { id: '3', title: 'Happy 2', mood: 5 },
+        { id: '4', title: 'Neutral 1', mood: 3 }
       ]
-      
+
       dataStore.diaries = diaries
-      
-      const grouped = dataStore.diariesByCategory
-      expect(grouped.work).toHaveLength(2)
-      expect(grouped.health).toHaveLength(1)
-      expect(grouped.study).toHaveLength(1)
-      expect(grouped.work[0].title).toBe('Work 1')
-      expect(grouped.work[1].title).toBe('Work 2')
+
+      const grouped = dataStore.diariesByMood
+      expect(grouped.mood_5).toHaveLength(2)
+      expect(grouped.mood_2).toHaveLength(1)
+      expect(grouped.mood_3).toHaveLength(1)
+      expect(grouped.mood_5[0].title).toBe('Happy 1')
+      expect(grouped.mood_5[1].title).toBe('Happy 2')
     })
 
-    it('diariesByCategory が空配列で空オブジェクトを返す', () => {
+    it('diariesByMood が空配列で空オブジェクトを返す', () => {
       dataStore.diaries = []
-      
-      const grouped = dataStore.diariesByCategory
+
+      const grouped = dataStore.diariesByMood
       expect(grouped).toEqual({})
     })
   })
@@ -411,38 +372,38 @@ describe('DataStore - 正常系', () => {
     })
   })
 
-  describe('アカウントデータ操作', () => {
-    it('fetchAccounts が正しくアカウントデータを取得する', async () => {
-      const mockAccounts = [
-        { id: 'acc-1', name: 'Test Account', user_id: 'user1' }
+  describe('プロフィールデータ操作', () => {
+    it('fetchProfiles が正しくプロフィールデータを取得する', async () => {
+      const mockProfiles = [
+        { id: 'prof-1', user_id: 'user1', display_name: 'Test User' }
       ]
 
       const { default: supabase } = await import('@/lib/supabase')
       const mockSelect = {
         select: vi.fn(() => ({
           eq: vi.fn().mockResolvedValue({
-            data: mockAccounts,
+            data: mockProfiles,
             error: null
           })
         }))
       }
       supabase.from.mockReturnValue(mockSelect)
 
-      const result = await dataStore.fetchAccounts('user1')
-      
-      expect(result).toEqual(mockAccounts)
-      expect(dataStore.accounts).toEqual(mockAccounts)
+      const result = await dataStore.fetchProfiles('user1')
+
+      expect(result).toEqual(mockProfiles)
+      expect(dataStore.profiles).toEqual(mockProfiles)
     })
 
-    it('createAccount が正しく新しいアカウントを作成する', async () => {
-      const newAccount = {
-        name: 'New Account',
-        user_id: 'user1'
+    it('createProfile が正しく新しいプロフィールを作成する', async () => {
+      const newProfile = {
+        user_id: 'user1',
+        display_name: 'New User'
       }
-      
-      const createdAccount = {
-        ...newAccount,
-        id: 'acc-1',
+
+      const createdProfile = {
+        ...newProfile,
+        id: 'prof-1',
         created_at: '2023-01-01T00:00:00Z',
         updated_at: '2023-01-01T00:00:00Z'
       }
@@ -452,7 +413,7 @@ describe('DataStore - 正常系', () => {
         insert: vi.fn(() => ({
           select: vi.fn(() => ({
             single: vi.fn().mockResolvedValue({
-              data: createdAccount,
+              data: createdProfile,
               error: null
             })
           }))
@@ -460,16 +421,16 @@ describe('DataStore - 正常系', () => {
       }
       supabase.from.mockReturnValue(mockInsert)
 
-      const result = await dataStore.createAccount(newAccount)
-      
-      expect(result).toEqual(createdAccount)
-      expect(dataStore.accounts).toContain(createdAccount)
+      const result = await dataStore.createProfile(newProfile)
+
+      expect(result).toEqual(createdProfile)
+      expect(dataStore.profiles).toContain(createdProfile)
     })
   })
 
   describe('初期化とリセット', () => {
     it('initializeData が正しく初期化を行う', async () => {
-      // fetchDiaries と fetchAccounts のモックを設定
+      // fetchDiaries と fetchProfiles のモックを設定
       const { default: supabase } = await import('@/lib/supabase')
       const mockSelect = {
         select: vi.fn(() => ({
@@ -485,23 +446,23 @@ describe('DataStore - 正常系', () => {
       supabase.from.mockReturnValue(mockSelect)
 
       await dataStore.initializeData('user1')
-      
+
       // 初期化処理が完了することを確認
       expect(supabase.from).toHaveBeenCalledWith('diaries')
-      expect(supabase.from).toHaveBeenCalledWith('accounts')
+      expect(supabase.from).toHaveBeenCalledWith('profiles')
     })
 
     it('resetState が正しく状態をリセットする', () => {
       // 初期状態を設定
       dataStore.diaries = [{ id: '1', title: 'Test' }]
-      dataStore.accounts = [{ id: '1', name: 'Test' }]
+      dataStore.profiles = [{ id: '1', display_name: 'Test' }]
       dataStore.loading = { test: true }
       dataStore.error = { test: 'エラー' }
 
       dataStore.resetState()
-      
+
       expect(dataStore.diaries).toEqual([])
-      expect(dataStore.accounts).toEqual([])
+      expect(dataStore.profiles).toEqual([])
       expect(dataStore.loading).toEqual({})
       expect(dataStore.error).toEqual({})
     })
