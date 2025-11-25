@@ -385,13 +385,17 @@ export const useDataStore = defineStore('data', () => {
     }
   }
 
-  // 日記の削除
+  // 日記の削除（論理削除）
   const deleteDiary = async (id: string, userId: string): Promise<void> => {
     try {
       setLoading('deleteDiary', true)
       setError('deleteDiary', null)
 
-      const { error: deleteError } = await supabase.from('diaries').delete().eq('id', id)
+      // 論理削除: deleted_atに現在時刻を設定
+      const { error: deleteError } = await supabase
+        .from('diaries')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', id)
 
       if (deleteError) {
         throw deleteError

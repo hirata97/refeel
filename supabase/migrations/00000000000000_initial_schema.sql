@@ -30,11 +30,12 @@ CREATE TABLE IF NOT EXISTS public.diaries (
   content TEXT NOT NULL,
   mood SMALLINT NOT NULL CHECK (mood >= 1 AND mood <= 10),
   mood_reason TEXT,
-  goal_category TEXT NOT NULL,
+  goal_category TEXT NOT NULL CHECK (goal_category IN ('work', 'health', 'study', 'personal', 'hobby', 'general')),
   progress_level SMALLINT NOT NULL CHECK (progress_level >= 0 AND progress_level <= 10),
   template_type TEXT CHECK (template_type IN ('free', 'reflection', 'mood')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  deleted_at TIMESTAMP WITH TIME ZONE,
   encrypted_data TEXT
 );
 
@@ -107,11 +108,23 @@ CREATE TABLE IF NOT EXISTS public.diary_emotion_tags (
 );
 
 -- 8. インデックス作成
+-- 単一カラムインデックス
 CREATE INDEX IF NOT EXISTS idx_diaries_user_id ON public.diaries(user_id);
 CREATE INDEX IF NOT EXISTS idx_diaries_date ON public.diaries(date);
 CREATE INDEX IF NOT EXISTS idx_diaries_goal_category ON public.diaries(goal_category);
 CREATE INDEX IF NOT EXISTS idx_diaries_mood ON public.diaries(mood);
 CREATE INDEX IF NOT EXISTS idx_diaries_created_at ON public.diaries(created_at);
+CREATE INDEX IF NOT EXISTS idx_diaries_deleted_at ON public.diaries(deleted_at) WHERE deleted_at IS NOT NULL;
+
+-- 複合インデックス（パフォーマンス最適化）
+-- ユーザーIDと日付の組み合わせ検索（最も頻繁なクエリパターン）
+CREATE INDEX IF NOT EXISTS idx_diaries_user_date ON public.diaries(user_id, date DESC) WHERE deleted_at IS NULL;
+
+-- ユーザーIDと気分の組み合わせ検索（ムード分析用）
+CREATE INDEX IF NOT EXISTS idx_diaries_user_mood ON public.diaries(user_id, mood DESC) WHERE deleted_at IS NULL;
+
+-- カテゴリと日付の組み合わせ検索（カテゴリ別レポート用）
+CREATE INDEX IF NOT EXISTS idx_diaries_category_date ON public.diaries(goal_category, date DESC) WHERE deleted_at IS NULL;
 
 CREATE INDEX IF NOT EXISTS idx_profiles_user_id ON public.profiles(user_id);
 CREATE INDEX IF NOT EXISTS idx_settings_user_id ON public.settings(user_id);
@@ -163,23 +176,26 @@ WHERE NOT EXISTS (
 -- PART 3: RLSポリシー設定
 -- ==========================================
 
--- diariesテーブル: ユーザー自身のデータのみアクセス可能
+-- diariesテーブル: ユーザー自身のデータのみアクセス可能（削除済みデータを除外）
 ALTER TABLE public.diaries ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "diaries_user_access" ON public.diaries;
-CREATE POLICY "diaries_user_access" ON public.diaries
-  FOR ALL USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "diaries_all_own" ON public.diaries;
+CREATE POLICY "diaries_all_own" ON public.diaries
+  FOR ALL USING (auth.uid() = user_id AND deleted_at IS NULL);
 
 -- emotion_tagsテーブル: 全ユーザー読み取り可能（システムマスターデータ）
 ALTER TABLE public.emotion_tags ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "emotion_tags_public_read" ON public.emotion_tags;
-CREATE POLICY "emotion_tags_public_read" ON public.emotion_tags
+DROP POLICY IF EXISTS "emotion_tags_select_all" ON public.emotion_tags;
+CREATE POLICY "emotion_tags_select_all" ON public.emotion_tags
   FOR SELECT USING (true);
 
 -- diary_emotion_tagsテーブル: ユーザー自身の日記関連のみアクセス可能
 ALTER TABLE public.diary_emotion_tags ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "diary_emotion_tags_select" ON public.diary_emotion_tags;
-CREATE POLICY "diary_emotion_tags_select" ON public.diary_emotion_tags
+DROP POLICY IF EXISTS "diary_emotion_tags_select_own" ON public.diary_emotion_tags;
+CREATE POLICY "diary_emotion_tags_select_own" ON public.diary_emotion_tags
   FOR SELECT USING (
     EXISTS (
       SELECT 1 FROM public.diaries
@@ -189,7 +205,8 @@ CREATE POLICY "diary_emotion_tags_select" ON public.diary_emotion_tags
   );
 
 DROP POLICY IF EXISTS "diary_emotion_tags_insert" ON public.diary_emotion_tags;
-CREATE POLICY "diary_emotion_tags_insert" ON public.diary_emotion_tags
+DROP POLICY IF EXISTS "diary_emotion_tags_insert_own" ON public.diary_emotion_tags;
+CREATE POLICY "diary_emotion_tags_insert_own" ON public.diary_emotion_tags
   FOR INSERT WITH CHECK (
     EXISTS (
       SELECT 1 FROM public.diaries
@@ -199,7 +216,8 @@ CREATE POLICY "diary_emotion_tags_insert" ON public.diary_emotion_tags
   );
 
 DROP POLICY IF EXISTS "diary_emotion_tags_delete" ON public.diary_emotion_tags;
-CREATE POLICY "diary_emotion_tags_delete" ON public.diary_emotion_tags
+DROP POLICY IF EXISTS "diary_emotion_tags_delete_own" ON public.diary_emotion_tags;
+CREATE POLICY "diary_emotion_tags_delete_own" ON public.diary_emotion_tags
   FOR DELETE USING (
     EXISTS (
       SELECT 1 FROM public.diaries
@@ -211,13 +229,15 @@ CREATE POLICY "diary_emotion_tags_delete" ON public.diary_emotion_tags
 -- profilesテーブル: ユーザー自身のプロフィールのみアクセス可能
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "profiles_user_access" ON public.profiles;
-CREATE POLICY "profiles_user_access" ON public.profiles
+DROP POLICY IF EXISTS "profiles_all_own" ON public.profiles;
+CREATE POLICY "profiles_all_own" ON public.profiles
   FOR ALL USING (auth.uid() = user_id);
 
 -- settingsテーブル: ユーザー自身の設定のみアクセス可能
 ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "settings_user_access" ON public.settings;
-CREATE POLICY "settings_user_access" ON public.settings
+DROP POLICY IF EXISTS "settings_all_own" ON public.settings;
+CREATE POLICY "settings_all_own" ON public.settings
   FOR ALL USING (auth.uid() = user_id);
 
 -- ==========================================
