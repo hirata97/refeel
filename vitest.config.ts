@@ -49,6 +49,49 @@ export default mergeConfig(
           inline: ['vuetify'],
         },
       },
+      // Coverage configuration (Issue #281 - Phase 1)
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'json', 'html', 'lcov', 'json-summary'],
+        exclude: [
+          // Default exclusions
+          '**/node_modules/**',
+          '**/dist/**',
+          '**/.{git,cache,output,temp}/**',
+          // Configuration files
+          '**/*.config.{js,ts,mjs,cjs}',
+          '**/vite.config.ts',
+          '**/vitest.config.ts',
+          '**/eslint.config.js',
+          // Type definitions
+          '**/*.d.ts',
+          '**/types/**',
+          '**/src/types/**',
+          // Test files
+          '**/__tests__/**',
+          '**/*.{spec,test}.{js,ts,jsx,tsx}',
+          '**/tests/**',
+          '**/test/**',
+          // Mock and fixture files
+          '**/mocks/**',
+          '**/__mocks__/**',
+          '**/fixtures/**',
+          // Entry points (usually just imports)
+          '**/main.ts',
+          '**/src/main.ts',
+          // Build output
+          '**/coverage/**',
+        ],
+        // Phase 1: Baseline monitoring (no enforcement)
+        // Current status: Lines 37.83%, Statements 37.4%, Branches 24.81%, Functions 49.38%
+        // These thresholds are informational only and will not fail the build
+        thresholds: {
+          lines: 0, // Baseline: 37.83% → Target Q1 2026: 60%
+          statements: 0, // Baseline: 37.4% → Target Q1 2026: 60%
+          branches: 0, // Baseline: 24.81% → Target Q1 2026: 50%
+          functions: 0, // Baseline: 49.38% → Target Q1 2026: 60%
+        },
+      },
     },
   }),
 )
