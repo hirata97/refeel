@@ -5,6 +5,7 @@ CI/CDパイプラインの効率的な運用とトラブル回避のためのベ
 ## 🎯 基本原則
 
 ### 1. 段階的実装（Incremental Implementation）
+
 ```bash
 # ✅ 推奨: 小さな変更を頻繁にコミット
 git add specific-file.js
@@ -16,6 +17,7 @@ git commit -m "implement entire authentication system"
 ```
 
 ### 2. CI/CD First アプローチ
+
 ```bash
 # 実装前の必須チェック
 npm run ci:lint      # コード品質
@@ -29,6 +31,7 @@ npm run test:unit -- --watch  # テスト監視
 ```
 
 ### 3. エラーの事前予防
+
 ```bash
 # PRを作成する前に必ず実行
 npm run ci:all       # 全品質チェック
@@ -41,6 +44,7 @@ npm run dev:with-types  # 型生成後の開発開始
 ## 🔧 開発フロー最適化
 
 ### 推奨開発フロー
+
 ```bash
 # 1. 最新状態で作業開始
 git pull origin main
@@ -66,22 +70,24 @@ gh pr create --title "..." --body "..."
 ```
 
 ### CI/CDパイプライン最適化
+
 ```yaml
 # 並行実行を活用した高速化
 strategy:
   matrix:
     include:
-      - name: "Lint & Format"
-        script: "npm run ci:lint"
-      - name: "Type Check" 
-        script: "npm run ci:type-check"
-      - name: "Unit Tests"
-        script: "npm run ci:test"
+      - name: 'Lint & Format'
+        script: 'npm run ci:lint'
+      - name: 'Type Check'
+        script: 'npm run ci:type-check'
+      - name: 'Unit Tests'
+        script: 'npm run ci:test'
 ```
 
 ## 🚨 エラー予防策
 
 ### 1. Type Generation エラー予防
+
 ```bash
 # 環境変数の事前確認
 echo $VITE_SUPABASE_URL  # URL形式確認
@@ -94,7 +100,12 @@ npm run type-check
 npm run ci:build
 ```
 
+### Type Generation の詳細
+
+Type Generation に関する詳細な運用方法・トラブルシューティングは `TYPE_GENERATION.md` を参照してください。環境変数の取り扱いや CI ワークフロー、フォールバック戦略をまとめています。
+
 ### 2. npm install エラー予防
+
 ```bash
 # 定期的なキャッシュクリーンアップ
 npm cache clean --force
@@ -107,6 +118,7 @@ npm ci --frozen-lockfile
 ```
 
 ### 3. テスト失敗予防
+
 ```bash
 # テスト実行前の環境確認
 npm run generate-types  # 型定義最新化
@@ -119,6 +131,7 @@ npm run test:unit -- --run --reporter=verbose
 ## 📊 品質指標とKPI
 
 ### CI/CDパイプライン品質指標
+
 ```yaml
 目標値:
   - ビルド成功率: 95%以上
@@ -133,6 +146,7 @@ npm run test:unit -- --run --reporter=verbose
 ```
 
 ### 品質ゲート基準
+
 ```bash
 # 必須通過条件
 ✅ ESLint: エラー0件、警告0件
@@ -145,6 +159,7 @@ npm run test:unit -- --run --reporter=verbose
 ## 🔒 セキュリティベストプラクティス
 
 ### 環境変数管理
+
 ```bash
 # ✅ 推奨: 環境変数の安全な管理
 # Repository Settings > Secrets and variables > Actions
@@ -156,6 +171,7 @@ const url = "https://hardcoded.supabase.co"  # 絶対禁止
 ```
 
 ### 依存関係セキュリティ
+
 ```bash
 # 定期的な脆弱性スキャン
 npm audit --audit-level=moderate
@@ -171,12 +187,13 @@ npm outdated  # アップデート対象確認
 ## 🚀 パフォーマンス最適化
 
 ### CI/CD実行時間短縮
+
 ```yaml
 # 1. 効率的なキャッシュ活用
 - uses: actions/setup-node@v4
   with:
     cache: 'npm'
-    
+
 # 2. 条件付き実行
 if: github.event.pull_request.draft != true
 
@@ -185,6 +202,7 @@ needs: []  # 不要な依存関係削除
 ```
 
 ### 開発体験改善
+
 ```bash
 # 開発時の高速フィードバック
 npm run dev          # Hot reload対応
@@ -198,6 +216,7 @@ npm run ci:build     # 最適化済みビルド
 ## 🔧 トラブル対応プロセス
 
 ### エラー発生時の対応フロー
+
 ```bash
 # 1. エラー内容の確認
 gh run view [run-id] --log-failed
@@ -221,12 +240,13 @@ git push origin feature-branch
 ```
 
 ### よくある問題の予防
+
 ```bash
 # Type Generation関連
 export VITE_SUPABASE_URL="https://your-project.supabase.co"
 npm run generate-types  # 事前実行
 
-# Rate Limiting関連  
+# Rate Limiting関連
 npm ci --prefer-offline --no-audit  # 高速化オプション
 
 # Test関連
@@ -236,6 +256,7 @@ npm run test:unit -- --run  # 並列実行回避
 ## 📈 継続的改善
 
 ### 定期レビュー項目
+
 ```bash
 # 月次確認事項
 - [ ] CI/CD実行時間トレンド分析
@@ -251,6 +272,7 @@ npm run test:unit -- --run  # 並列実行回避
 ```
 
 ### 改善提案プロセス
+
 ```bash
 # 1. 問題特定・分析
 gh run list --limit 20 | grep "failure"
@@ -268,12 +290,14 @@ gh run list --limit 20 | grep "failure"
 ## 📚 学習リソース
 
 ### 推奨学習項目
+
 - GitHub Actions Advanced Workflows
 - TypeScript型システム深掘り
 - npm/Node.js最適化技術
 - セキュリティベストプラクティス
 
 ### 実践的な学習方法
+
 ```bash
 # 1. 実際のCI/CD実行ログ分析
 gh run list
@@ -290,4 +314,5 @@ node scripts/generate-types.js --help
 ---
 
 **📝 更新履歴**
+
 - 2025-08-25: CI/CDベストプラクティス初版作成（Issue #155対応）

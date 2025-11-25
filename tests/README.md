@@ -100,16 +100,19 @@ tests/
 ### 設定ファイル（vitest.config.ts）
 
 ```typescript
-export default mergeConfig(viteConfig, defineConfig({
-  test: {
-    environment: 'jsdom',              // DOM環境シミュレーション
-    exclude: [...configDefaults.exclude, 'e2e/**'],
-    root: fileURLToPath(new URL('./', import.meta.url)),
-    globals: true,                     // describe, it, expect をグローバルに
-    setupFiles: ['./tests/setup.ts'],  // テストセットアップファイル
-    css: false,                        // CSS処理を無効化（高速化）
-  },
-}))
+export default mergeConfig(
+  viteConfig,
+  defineConfig({
+    test: {
+      environment: 'jsdom', // DOM環境シミュレーション
+      exclude: [...configDefaults.exclude, 'e2e/**'],
+      root: fileURLToPath(new URL('./', import.meta.url)),
+      globals: true, // describe, it, expect をグローバルに
+      setupFiles: ['./tests/setup.ts'], // テストセットアップファイル
+      css: false, // CSS処理を無効化（高速化）
+    },
+  }),
+)
 ```
 
 ### テスト実行方法
@@ -149,7 +152,7 @@ const mockAuth = {
   signInWithPassword: vi.fn(),
   signOut: vi.fn(),
   getUser: vi.fn(),
-  onAuthStateChange: vi.fn()
+  onAuthStateChange: vi.fn(),
 }
 
 // データベースモック例
@@ -159,7 +162,7 @@ const mockFrom = vi.fn(() => ({
   update: vi.fn().mockReturnThis(),
   delete: vi.fn().mockReturnThis(),
   eq: vi.fn().mockReturnThis(),
-  single: vi.fn()
+  single: vi.fn(),
 }))
 ```
 
@@ -171,14 +174,14 @@ const mockRouter = {
   replace: vi.fn(),
   go: vi.fn(),
   back: vi.fn(),
-  forward: vi.fn()
+  forward: vi.fn(),
 }
 
 const mockRoute = {
   params: {},
   query: {},
   path: '/test',
-  name: 'test'
+  name: 'test',
 }
 ```
 
@@ -191,7 +194,7 @@ const mockAuthStore = {
   user: ref(null),
   login: vi.fn(),
   logout: vi.fn(),
-  checkAuthStatus: vi.fn()
+  checkAuthStatus: vi.fn(),
 }
 
 // createTestingPinia使用例
@@ -199,8 +202,8 @@ import { createTestingPinia } from '@pinia/testing'
 
 const wrapper = mount(Component, {
   global: {
-    plugins: [createTestingPinia({ createSpy: vi.fn })]
-  }
+    plugins: [createTestingPinia({ createSpy: vi.fn })],
+  },
 })
 ```
 
@@ -231,6 +234,7 @@ const wrapper = mount(Component, {
 ### 測定範囲
 
 #### 含む範囲
+
 - `src/components/`: Vue コンポーネント
 - `src/stores/`: Pinia ストア
 - `src/composables/`: Composable 関数
@@ -238,6 +242,7 @@ const wrapper = mount(Component, {
 - `src/lib/`: ライブラリ・設定ファイル
 
 #### 除外項目
+
 - `src/types/`: 型定義ファイル
 - `src/assets/`: 静的アセット
 - `src/styles/`: スタイル関連
@@ -288,11 +293,13 @@ describe('Component - テスト概要', () => {
 #### 2. 正常系・異常系テストの分類基準
 
 **正常系 (`normal_`) テスト**
+
 - ハッピーパス・基本機能の動作確認
 - 期待される入力値での動作
 - UI表示・イベント発火の確認
 
 **異常系 (`exception_`) テスト**
+
 - エラーハンドリング・バリデーション
 - 境界値・不正入力での動作
 - ネットワークエラー・認証失敗の処理
@@ -304,12 +311,12 @@ describe('Component - テスト概要', () => {
 it('大量データでもパフォーマンス問題が発生しない', () => {
   const largeDataset = Array.from({ length: 1000 }, (_, i) => ({
     id: i,
-    name: `Item ${i}`
+    name: `Item ${i}`,
   }))
 
   const start = performance.now()
   const wrapper = mount(DataTable, {
-    props: { items: largeDataset }
+    props: { items: largeDataset },
   })
   const end = performance.now()
 
@@ -325,7 +332,7 @@ it('大量データでもパフォーマンス問題が発生しない', () => {
 it('HTMLタグを含む入力が正しくエスケープされる', () => {
   const maliciousInput = '<script>alert("XSS")</script>'
   const wrapper = mount(InputComponent, {
-    props: { value: maliciousInput }
+    props: { value: maliciousInput },
   })
 
   // HTMLがエスケープされて表示される
@@ -338,16 +345,16 @@ it('CSRFトークンが正しく送信される', async () => {
   const mockPost = vi.fn()
   const wrapper = mount(FormComponent, {
     global: {
-      mocks: { $http: { post: mockPost } }
-    }
+      mocks: { $http: { post: mockPost } },
+    },
   })
 
   await wrapper.find('form').trigger('submit')
   expect(mockPost).toHaveBeenCalledWith(
     expect.any(String),
     expect.objectContaining({
-      _token: expect.any(String)
-    })
+      _token: expect.any(String),
+    }),
   )
 })
 ```
@@ -359,12 +366,14 @@ it('CSRFトークンが正しく送信される', async () => {
 #### 1. BaseFormコンポーネント
 
 **正常系** (`tests/BaseForm/normal_BaseForm_01.spec.js`)
+
 - 基本レンダリング確認
 - プロパティ（title, containerClass, formClass）の動作
 - スロット（content, actions）の表示確認
 - イベント発火（submit）の検証
 
 **異常系** (`tests/BaseForm/exception_BaseForm_01.spec.js`)
+
 - null/undefined値の安全な処理
 - 不正な型のプロパティ処理
 - 極端な入力値でのエラー回避
@@ -373,11 +382,13 @@ it('CSRFトークンが正しく送信される', async () => {
 #### 2. 認証関連テスト
 
 **正常系** (`tests/auth/normal_AuthStore_01.spec.js`)
+
 - ログイン・ログアウト処理
 - 認証状態の管理
 - ユーザー情報の取得・更新
 
 **異常系** (`tests/auth/exception_AuthStore_01.spec.js`)
+
 - 認証失敗時の処理
 - ネットワークエラー対応
 - セッション期限切れ処理
@@ -391,9 +402,10 @@ it('CSRFトークンが正しく送信される', async () => {
 const mockSupabase = {
   auth: {
     signInWithPassword: vi.fn().mockResolvedValue({
-      data: { user: mockUser }, error: null
-    })
-  }
+      data: { user: mockUser },
+      error: null,
+    }),
+  },
 }
 
 // ❌ 悪い例：過度なモック
@@ -406,7 +418,7 @@ vi.mock('entire-library') // ライブラリ全体をモック
 // ✅ 良い例：テストデータの分離
 const testData = {
   validUser: { email: 'test@example.com', password: 'password123' },
-  invalidUser: { email: 'invalid', password: '' }
+  invalidUser: { email: 'invalid', password: '' },
 }
 
 // ❌ 悪い例：ハードコーディング
@@ -557,6 +569,43 @@ npm run generate-types && npm run test:unit
 ---
 
 **📋 関連ドキュメント**
+
+## 🔁 リファクタリング（ディレクトリ再編）に関するメモ
+
+このリポジトリでは `tests/` のトップレベルを以下の 6 つに整理しました:
+
+- `tests/unit/` — ロジック・ユーティリティ・ストア等のユニットテスト
+- `tests/components/` — UI コンポーネント・ページのテスト
+- `tests/integration/` — 外部依存や統合テスト
+- `tests/e2e/` — Playwright ベースの E2E テスト
+- `tests/fixtures/` — 共有フィクスチャ・スタブ
+- `tests/security/` — セキュリティ関連テスト
+
+補助的なディレクトリ:
+
+- `tests/helpers/` — 共通セットアップ (`setup.ts` など) やヘルパー
+
+### 開発者向け移行メモ（短く）
+
+1. テストファイルを移動したため、移動前パスを参照する import が残っている場合があります。
+
+- まずは `scripts/find-test-imports.js`（リポジトリ直下の `scripts/`）で参照箇所を検出してください（追加済み）。
+
+2. `vitest.config.ts` の `setupFiles` を `./tests/helpers/setup.ts` に更新済みです。
+3. 型解決のため `tsconfig.vitest.json` に `"tests/**/*"` を含めました。
+4. CI 実行（`npm run ci:test`）は依存インストールが必要です。時間がかかるためローカル実行は任意です。
+
+### 変更の確認手順（推奨）
+
+1. まず `scripts/find-test-imports.js` を実行して、古いパスを参照しているファイルを洗い出す。
+2. 検出結果を元に import を更新（手動または一括 sed を使う）。
+3. `npm run test:unit`（ウォッチ）で問題のあるファイルのみ確認。
+4. 最後に CI で `npm run ci:test` を実行して全体を検証。
+
+---
+
+（この節は移行作業に合わせて随時更新してください）
+
 - [CLAUDE.md](../CLAUDE.md) - プロジェクト開発指針
 - [docs/DEVELOPMENT/BEST_PRACTICES.md](../docs/DEVELOPMENT/BEST_PRACTICES.md) - 開発ベストプラクティス
 - [Vitest公式ドキュメント](https://vitest.dev/)
