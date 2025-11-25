@@ -1,6 +1,13 @@
 # CI/CDパイプライン運用ガイド
 
-このドキュメントでは、GoalCategorizationDiaryプロジェクトのCI/CD（継続的インテグレーション/継続的デリバリー）システムの運用について説明します。
+> **ドキュメント体系**:
+> - 📘 **このドキュメント**: CI/CD日常運用ガイド（開発者向け）
+> - 🏗️ **アーキテクチャ詳細**: [CI/CD Overview](../INFRASTRUCTURE/CI_CD_OVERVIEW.md)
+> - 🔧 **設定変更手順**: [CI/CD Configuration](../INFRASTRUCTURE/CI_CD_CONFIGURATION.md)
+> - 🚨 **詳細トラブルシューティング**: [CI/CD Troubleshooting](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md)
+> - ⚡ **クイックリファレンス**: [CI/CD Quick Reference](./CI_CD_QUICK_REFERENCE.md)
+
+このドキュメントでは、GoalCategorizationDiaryプロジェクトのCI/CD（継続的インテグレーション/継続的デリバリー）システムの **日常的な運用** について説明します。
 
 ## 📋 概要
 
@@ -212,78 +219,28 @@ strategy:
 
 ## 🔍 トラブルシューティング
 
-### よくある失敗パターン
+### 基本的なエラー対応
 
-#### 1. Type Generation 関連
+CI/CDで問題が発生した場合は、以下の手順で対応してください：
 
-Type Generation（型定義自動生成）に関する詳細な運用手順やトラブルシューティングは `TYPE_GENERATION.md` を参照してください。
-ローカルでのフォールバック手順、環境変数の確認方法、CI ワークフローの仕組みを詳述しています。
+1. **エラー内容の確認**: GitHub ActionsのログでエラーメッセージConfirm
+2. **ローカル再現**: 該当するコマンドをローカルで実行
+3. **修正実装**: エラー内容に基づいて修正
+4. **再検証**: `npm run ci:all` で全チェック再実行
 
-#### 2. npm install失敗（Rate Limiting） ⚠️【New】
+### よくある失敗パターンのクイックガイド
 
-```bash
-# 症状: npm error code E429, 429 Too Many Requests
-# 原因: npm registry の rate limiting
-# 対処: 自動retry機能実装済み（最大3回、30秒間隔）
-# 手動対処:
-npm ci --prefer-offline --no-audit --no-fund  # 高速化オプション付き
-npm cache clean --force  # キャッシュクリア
-```
+| エラー種別 | 初期対応 | 詳細ガイド |
+|-----------|---------|-----------|
+| **Type Generation関連** | 環境変数確認 → ローカル型生成 | [TYPE_GENERATION.md](./TYPE_GENERATION.md) |
+| **npm install失敗** | `npm ci --prefer-offline` 実行 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#依存関係エラー) |
+| **TypeScriptエラー** | `npm run type-check` で詳細確認 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#typescript型エラー) |
+| **ESLint失敗** | `npm run lint` で自動修正 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#eslintエラー修正) |
+| **テスト失敗** | 個別テスト実行で原因特定 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#ユニットテスト失敗) |
+| **ビルド失敗** | `npm run ci:build` でローカル再現 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#build失敗) |
+| **セキュリティ監査失敗** | `npm audit fix` で自動修正 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#脆弱性検出) |
 
-#### 3. TypeScriptエラー
-
-```bash
-# 症状: TS4058エラー（Vuetify関連）
-# 対処: 既知問題として自動フィルタリング実装済み
-# 確認: npm run ci:type-check で事前チェック
-```
-
-#### 4. lint失敗
-
-```bash
-# 症状: ESLintルール違反
-# 対処: npm run lint で自動修正
-# 予防: エディタにESLint拡張機能導入
-```
-
-#### 5. テスト失敗
-
-```bash
-# 症状: ユニットテスト失敗
-# 対処: 個別テスト実行で原因特定
-# コマンド: npm test -- tests/specific-test.spec.js
-```
-
-#### 6. ビルド失敗
-
-```bash
-# 症状: 本番ビルド失敗
-# 対処: npm run ci:build でローカル再現
-# 確認: dist/フォルダ生成確認
-```
-
-#### 7. セキュリティ監査失敗
-
-```bash
-# 症状: 重要な脆弱性検出
-# 対処: npm audit fix で自動修正
-# 手動: npm update で依存関係更新
-```
-
-### CI実行時間が長い場合
-
-```yaml
-# 対策1: 並行実行の活用
-needs: [] # 依存関係を最小化
-
-# 対策2: キャッシュ活用
-uses: actions/setup-node@v4
-with:
-  cache: 'npm'
-
-# 対策3: 実行条件の最適化
-paths-ignore: ['docs/**']
-```
+**詳細なトラブルシューティング**: より詳細なエラー分析と対応手順は [CI/CD Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) を参照してください。
 
 ## 📚 関連ドキュメント
 
