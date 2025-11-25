@@ -37,8 +37,8 @@ npm run dev:with-types        # 型生成後に開発サーバー起動
 # セキュリティチェック（推奨）
 npm run lint && npm run type-check
 
-# 特定ファイルのバリデーション・サニタイゼーション確認
-npx eslint src/utils/validation.ts src/utils/sanitization.ts
+# 特定ファイルのセキュリティ機能確認
+npx eslint src/utils/security.ts src/utils/sanitization.ts
 
 # 依存関係の脆弱性チェック
 npm audit

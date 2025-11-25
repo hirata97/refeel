@@ -255,24 +255,35 @@ npm outdated
 ## 📋 関連ファイル一覧
 
 ### コアファイル
-- `src/utils/security.ts` - メインセキュリティユーティリティ
+- `src/security/` - 統合セキュリティモジュール
+  - `core/index.ts` - 基本セキュリティ機能
+  - `monitoring/index.ts` - セキュリティ監視・アラートシステム
+  - `reporting/index.ts` - インシデント報告・統計機能
+  - `index.ts` - 統一エクスポート
+- `src/utils/security.ts` - セキュリティユーティリティ（CSRFProtection, XSSProtection, InputValidation）
+- `src/utils/sanitization.ts` - サニタイゼーション機能
 - `src/utils/auth.ts` - 認証セキュリティ強化
 - `src/lib/supabase.ts` - CSRF統合
 
-### 設定ファイル  
+### 設定ファイル
 - `vite.config.ts` - セキュリティヘッダー設定
 - `index.html` - HTMLレベルセキュリティ
+- `src/main.ts` - セキュリティ初期化
 
 ### コンポーネント
 - `src/views/LoginPage.vue` - ログインセキュリティ
 - `src/views/AccountRegisterPage.vue` - 登録セキュリティ
+- `src/views/DiaryRegisterPage.vue` - 日記入力セキュリティ
 
 ### ドキュメント
-- `docs/SECURITY.md` - セキュリティガイドライン
-- `docs/SECURITY_DEVELOPMENT.md` - 開発ガイド
+- `docs/SECURITY/SECURITY_GUIDE.md` - セキュリティガイドライン
+- `docs/SECURITY/SECURITY_DEVELOPMENT.md` - 開発ガイド
+- `docs/SECURITY/SECURITY_TROUBLESHOOTING.md` - トラブルシューティング
+- `docs/SECURITY/SECURITY_UPDATES.md` - セキュリティ更新履歴
 
 ---
 
-**実装完了**: 2025-08-17  
-**対応Issue**: #71  
-**次回レビュー**: 2025-09-17
+**最終更新**: 2025-11-25
+**対応Issue**: #71, #302
+**実装バージョン**: 統合セキュリティアーキテクチャ対応済み
+**次回レビュー**: 2025-12-25
