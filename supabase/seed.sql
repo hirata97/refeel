@@ -135,10 +135,10 @@ BEGIN
           ELSE '目標を達成できた'
         END,
         CASE (n % 4)
-          WHEN 0 THEN 'キャリア'
-          WHEN 1 THEN '健康'
-          WHEN 2 THEN '学習'
-          ELSE '趣味'
+          WHEN 0 THEN 'work'
+          WHEN 1 THEN 'health'
+          WHEN 2 THEN 'study'
+          ELSE 'hobby'
         END,
         CASE (n % 5)
           WHEN 0 THEN 8 WHEN 1 THEN 6 WHEN 2 THEN 9 WHEN 3 THEN 4 ELSE 7

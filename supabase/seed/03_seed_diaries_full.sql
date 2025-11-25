@@ -85,7 +85,7 @@ SELECT
     WHEN 1 THEN 'work'
     WHEN 2 THEN 'study'
     WHEN 3 THEN 'hobby'
-    WHEN 4 THEN 'relationship'
+    WHEN 4 THEN 'personal'
     ELSE 'general'
   END as goal_category,
   -- progress_levelのバリエーション（0-10）
