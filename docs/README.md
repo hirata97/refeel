@@ -33,10 +33,10 @@
 | ------------------------------------------ | -------------------------------------------------- |
 | [ENVIRONMENT/](ENVIRONMENT/)               | 環境構築・Docker・Supabase設定                     |
 | [DEVELOPMENT/](DEVELOPMENT/)               | 開発ワークフロー・アーキテクチャ・コーディング規則 |
-| [CI/](CI/)                                 | CI/CD・型生成・ベストプラクティス                  |
+| [CI/](CI/)                                 | CI/CD日常運用・型生成・ベストプラクティス          |
 | [SECURITY/](SECURITY/)                     | セキュリティガイドライン・実装・更新履歴           |
 | [PROJECT_MANAGEMENT/](PROJECT_MANAGEMENT/) | Issue・PR・ラベル管理                              |
-| [INFRASTRUCTURE/](INFRASTRUCTURE/)         | CI/CDインフラ運用                                  |
+| [INFRASTRUCTURE/](INFRASTRUCTURE/)         | CI/CDアーキテクチャ・詳細設定・高度な運用          |
 
 > **テスト関連**: [../tests/README.md](../tests/README.md) を参照してください
 
@@ -87,15 +87,18 @@
 | [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 開発ベストプラクティス・コーディング規則（統合版）   |
 | [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 BEST_PRACTICES.md へリダイレクト                  |
 | [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント管理ガイド                               |
-| [CI_CD_TESTING.md](DEVELOPMENT/CI_CD_TESTING.md)               | CI/CDテストガイド                                    |
+### CI/ - CI/CD日常運用
 
-### CI/ - CI/CD・品質管理
+開発者が日常的に使用するCI/CD運用ドキュメント
 
-| ファイル                                              | 説明                         |
-| ----------------------------------------------------- | ---------------------------- |
-| [CI_CD_GUIDE.md](CI/CI_CD_GUIDE.md)                   | GitHub Actions・品質チェック |
-| [TYPE_GENERATION.md](CI/TYPE_GENERATION.md)           | 型定義自動生成システム       |
-| [CI_CD_BEST_PRACTICES.md](CI/CI_CD_BEST_PRACTICES.md) | CI/CDベストプラクティス      |
+| ファイル                                              | 説明                                       |
+| ----------------------------------------------------- | ------------------------------------------ |
+| [README.md](CI/README.md)                             | CI/ドキュメント使い分けガイド               |
+| [CI_CD_GUIDE.md](CI/CI_CD_GUIDE.md)                   | CI/CD日常運用ガイド・ジョブ概要            |
+| [CI_CD_TESTING.md](CI/CI_CD_TESTING.md)               | ワークフロー詳細・テスト種類・品質基準      |
+| [CI_CD_QUICK_REFERENCE.md](CI/CI_CD_QUICK_REFERENCE.md) | コマンド集・チェックリスト              |
+| [TYPE_GENERATION.md](CI/TYPE_GENERATION.md)           | 型定義自動生成システム                     |
+| [CI_CD_BEST_PRACTICES.md](CI/CI_CD_BEST_PRACTICES.md) | 開発フローベストプラクティス・エラー予防    |
 
 ### SECURITY/ - セキュリティ
 
@@ -116,12 +119,13 @@
 | [PR_CREATION_GUIDE.md](PROJECT_MANAGEMENT/PR_CREATION_GUIDE.md)       | PR作成ガイド               |
 | [PR_TESTING_GUIDE.md](PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md)         | PRテスト・検証ガイド       |
 
-### INFRASTRUCTURE/ - インフラ運用
+### INFRASTRUCTURE/ - CI/CDアーキテクチャ・詳細設定
 
-| ファイル                                                            | 説明                        |
-| ------------------------------------------------------------------- | --------------------------- |
-| [CI_CD_OVERVIEW.md](INFRASTRUCTURE/CI_CD_OVERVIEW.md)               | CI/CD概要                   |
-| [CI_CD_CONFIGURATION.md](INFRASTRUCTURE/CI_CD_CONFIGURATION.md)     | CI/CD設定詳細               |
-| [CI_CD_OPERATIONS.md](INFRASTRUCTURE/CI_CD_OPERATIONS.md)           | CI/CD運用ガイド             |
-| [CI_CD_TROUBLESHOOTING.md](INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) | CI/CDトラブルシューティング |
-| [CI_CD_QUICK_REFERENCE.md](INFRASTRUCTURE/CI_CD_QUICK_REFERENCE.md) | CI/CDクイックリファレンス   |
+DevOps、インフラエンジニア、プロジェクトメンテナー向けの高度なCI/CD運用ドキュメント
+
+| ファイル                                                            | 説明                                       |
+| ------------------------------------------------------------------- | ------------------------------------------ |
+| [CI_CD_OVERVIEW.md](INFRASTRUCTURE/CI_CD_OVERVIEW.md)               | アーキテクチャ全体像・技術スタック・パフォーマンス指標 |
+| [CI_CD_CONFIGURATION.md](INFRASTRUCTURE/CI_CD_CONFIGURATION.md)     | ワークフロー設定変更手順・環境変数管理      |
+| [CI_CD_OPERATIONS.md](INFRASTRUCTURE/CI_CD_OPERATIONS.md)           | 定期メンテナンス・監視・コスト管理          |
+| [CI_CD_TROUBLESHOOTING.md](INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) | 詳細トラブルシューティング・緊急時対応      |

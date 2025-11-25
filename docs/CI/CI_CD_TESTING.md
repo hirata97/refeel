@@ -882,8 +882,8 @@ graph TD
 
 ### 関連内部ドキュメント
 
-- [開発ワークフロー](DEVELOPMENT_WORKFLOW.md) - ブランチ戦略・PR作成手順
-- [開発コマンド一覧](DEVELOPMENT_COMMANDS.md) - npm scripts・自動化コマンド
+- [開発ワークフロー](../DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) - ブランチ戦略・PR作成手順
+- [開発コマンド一覧](../DEVELOPMENT/DEVELOPMENT_COMMANDS.md) - npm scripts・自動化コマンド
 - [PR作成ガイド](../PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md) - PR作成・テスト手順
 - [CLAUDE.md](../../CLAUDE.md) - 開発フロー・重要原則・アーキテクチャ
 
