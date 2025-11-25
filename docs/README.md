@@ -21,7 +21,7 @@
 1. **全体把握**: [../README.md](../README.md) でプロジェクト概要を確認
 2. **環境構築**: [ENVIRONMENT/ENVIRONMENT_SETUP.md](ENVIRONMENT/ENVIRONMENT_SETUP.md) で初回セットアップ
 3. **開発準備**: [../CLAUDE.md](../CLAUDE.md) で開発フロー・重要原則を確認
-4. **ベストプラクティス**: [DEVELOPMENT/BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md) を確認
+4. **コーディング規則**: [DEVELOPMENT/BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md) でコーディング規則とベストプラクティスを確認
 
 ### 日常開発
 
@@ -53,15 +53,15 @@
 
 ### DEVELOPMENT/ - 開発関連
 
-| ファイル                                                       | 説明                        |
-| -------------------------------------------------------------- | --------------------------- |
-| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) | ブランチ戦略・PR作成手順    |
-| [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md) | npm scripts・自動化コマンド |
-| [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ      |
-| [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | コーディング規則            |
-| [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 開発ベストプラクティス      |
-| [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント管理ガイド      |
-| [CI_CD_TESTING.md](DEVELOPMENT/CI_CD_TESTING.md)               | CI/CDテストガイド           |
+| ファイル                                                       | 説明                                                 |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) | ブランチ戦略・PR作成手順                             |
+| [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md) | npm scripts・自動化コマンド                          |
+| [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ                               |
+| [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 開発ベストプラクティス・コーディング規則（統合版）   |
+| [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 BEST_PRACTICES.md へリダイレクト                  |
+| [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント管理ガイド                               |
+| [CI_CD_TESTING.md](DEVELOPMENT/CI_CD_TESTING.md)               | CI/CDテストガイド                                    |
 
 ### CI/ - CI/CD・品質管理
 

@@ -1,4 +1,38 @@
-# 🚀 実装前必須チェックリスト
+# 🚀 実装ベストプラクティス・コーディング規則
+
+> **統合ドキュメント**: CODING_STANDARDS.mdの内容を統合し、実践的なガイドラインを提供
+
+## 📋 クイックリファレンス（必読）
+
+### 基本規則
+- **命名規則**: Vue標準規則に従う（PascalCaseコンポーネント、camelCase変数）
+- **パッケージマネージャ**: npm使用
+- **型チェック**: TypeScript必須、`any`禁止
+- **リンティング**: ESLint + Prettier
+
+### Gitワークフロー
+- **メインブランチ**: main
+- **フィーチャーブランチ**: `feature/機能名` or `issue/番号-説明`
+- **コミットメッセージ**: Conventional Commits形式
+- **PR**: mainブランチに向けて作成
+
+### テスト命名規則
+- **正常系**: `normal_[ComponentName]_[番号].spec.js`
+- **異常系**: `exception_[ComponentName]_[番号].spec.js`
+- **テストディレクトリ**: `tests/[ComponentName]/`
+- **ユニットテスト**: Vitest
+- **E2Eテスト**: Playwright
+
+### コミット前チェック
+- [ ] TypeScript型エラーなし: `npm run type-check`
+- [ ] ESLintエラーなし: `npm run lint`
+- [ ] テストが通る: `npm run test:unit`
+- [ ] 適切なコメント・ドキュメント
+- [ ] セキュリティ考慮（入力値検証・サニタイゼーション）
+
+---
+
+## 🚀 実装前必須チェックリスト
 
 ## 事前調査（必須）
 
