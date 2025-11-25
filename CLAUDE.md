@@ -213,6 +213,16 @@ Closes #[Issue番号]
 
 全ドキュメント一覧: [docs/README.md](docs/README.md)
 
+## 🔗 外部リソース
+
+公式ドキュメントへのリンク：
+
+- [Vue 3](https://vuejs.org/) - プログレッシブJavaScriptフレームワーク
+- [TypeScript](https://www.typescriptlang.org/) - 型安全なJavaScript
+- [Supabase](https://supabase.com/docs) - オープンソースFirebase代替
+- [Vuetify](https://vuetifyjs.com/) - Vue 3 Material Designコンポーネントライブラリ
+- [Pinia](https://pinia.vuejs.org/) - Vue公式状態管理ライブラリ
+
 ---
 
 ## 🎯 Claude Code向け指示

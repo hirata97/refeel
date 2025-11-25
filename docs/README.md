@@ -99,9 +99,3 @@
 | [CI_CD_OPERATIONS.md](INFRASTRUCTURE/CI_CD_OPERATIONS.md)           | CI/CD運用ガイド             |
 | [CI_CD_TROUBLESHOOTING.md](INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) | CI/CDトラブルシューティング |
 | [CI_CD_QUICK_REFERENCE.md](INFRASTRUCTURE/CI_CD_QUICK_REFERENCE.md) | CI/CDクイックリファレンス   |
-
-### その他
-
-| ファイル                     | 説明             |
-| ---------------------------- | ---------------- |
-| [REFERENCE.md](REFERENCE.md) | 詳細リファレンス |
