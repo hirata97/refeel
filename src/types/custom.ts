@@ -2,6 +2,9 @@
 // 生成日時: 2025-08-25T07:50:00.000Z
 // 注意: このファイルは手動で管理され、自動生成されません
 
+// goal_category の許可値
+export type GoalCategory = 'work' | 'health' | 'study' | 'personal' | 'hobby' | 'general'
+
 // 現在使用中のDiaryEntry型定義
 export interface DiaryEntry {
   id: string
@@ -11,10 +14,11 @@ export interface DiaryEntry {
   content: string
   mood: number
   mood_reason?: string
-  goal_category: string
+  goal_category: GoalCategory
   progress_level: number
   created_at: string
   updated_at: string
+  deleted_at?: string | null
 }
 
 // 感情タグを含むDiaryEntry拡張型（UI表示用）
@@ -31,10 +35,11 @@ export interface LegacyDiaryEntry {
   content: string
   mood: number
   mood_reason?: string
-  goal_category: string
+  goal_category: GoalCategory
   progress_level: number
   created_at: string
   updated_at: string
+  deleted_at?: string | null
 }
 
 // アカウント型定義
@@ -62,7 +67,7 @@ export interface DiaryFormData {
   content: string
   mood: number
   mood_reason?: string
-  goal_category: string
+  goal_category: GoalCategory
   progress_level: number
   date?: string
 }
