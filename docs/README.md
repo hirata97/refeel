@@ -86,6 +86,7 @@
 | [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ                               |
 | [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 開発ベストプラクティス・コーディング規則（統合版）   |
 | [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 BEST_PRACTICES.md へリダイレクト                  |
+| [COVERAGE_ENHANCEMENT_PLAN.md](DEVELOPMENT/COVERAGE_ENHANCEMENT_PLAN.md) | カバレッジ閾値強化計画（Phase 1完了）                |
 | [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント管理ガイド                               |
 ### CI/ - CI/CD日常運用
 
