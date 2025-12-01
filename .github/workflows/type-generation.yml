@@ -1,18 +1,17 @@
 # TypeScript型定義自動生成ワークフロー
-# Issue #144対応: データベーススキーマからTypeScript型定義の自動生成機能
 
 name: Type Generation
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'supabase/migrations/**'
       - 'supabase/seed/**'
       - '.github/workflows/type-generation.yml'
       - 'scripts/generate-types.js'
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'supabase/migrations/**'
       - 'supabase/seed/**'
@@ -82,7 +81,7 @@ jobs:
           git commit -m "chore: update TypeScript type definitions from database schema
 
           🤖 Generated with [Claude Code](https://claude.ai/code)
-          
+
           Co-Authored-By: Claude <noreply@anthropic.com>" || exit 0
 
       - name: Push changes (main branch only)
@@ -132,22 +131,22 @@ jobs:
       - name: Type definition validation
         run: |
           echo "Validating generated type definitions..."
-          
+
           # 必須ファイルの存在確認
           if [ ! -f "src/types/database.ts" ]; then
             echo "❌ database.ts not found"
             exit 1
           fi
-          
+
           if [ ! -f "src/types/supabase.ts" ]; then
-            echo "❌ supabase.ts not found"  
+            echo "❌ supabase.ts not found"
             exit 1
           fi
-          
+
           echo "✅ All type definition files exist"
-          
+
           # 型定義ファイルの基本検証
           grep -q "export interface Database" src/types/database.ts || (echo "❌ Database interface not found" && exit 1)
           grep -q "export type DiaryEntry" src/types/supabase.ts || (echo "❌ DiaryEntry type not found" && exit 1)
-          
+
           echo "✅ Type definitions validated successfully"

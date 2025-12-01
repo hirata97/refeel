@@ -1,0 +1,111 @@
+name: PR Unit Tests (Vitest)
+
+# PR作成・更新時のユニットテスト実行とカバレッジ分析
+# 目的: Vitestによるユニットテストの成功確認とコードカバレッジ測定
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'tests/e2e/**'  # E2Eテストは別ワークフローで実行
+
+# 権限設定
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+# 同じPRからの複数実行をキャンセル
+concurrency:
+  group: pr-unit-vitest-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Unit Tests (Vitest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    # Vitestキャッシュ
+    - name: Cache Vitest
+      uses: actions/cache@v4
+      with:
+        path: |
+          node_modules/.vitest
+          coverage
+        key: vitest-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*', 'tests/**/*') }}
+        restore-keys: |
+          vitest-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          vitest-cache-${{ runner.os }}-
+
+    - name: Install dependencies (with retry)
+      run: |
+        # retry機能付きのnpm install
+        for i in {1..3}; do
+          echo "Attempt $i: Installing dependencies..."
+          npm ci --prefer-offline --silent --no-audit --no-fund && break
+          echo "Install failed. Waiting 30 seconds before retry..."
+          sleep 30
+        done
+
+    # ユニットテスト（カバレッジ付き・並列実行）
+    - name: Run Unit Tests with Coverage
+      run: npm run ci:test -- --reporter=verbose
+
+    # カバレッジレポート生成
+    - name: Coverage Report
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage/lcov.info
+        flags: unittests
+        name: unit-tests-coverage
+        fail_ci_if_error: false
+
+    # カバレッジ閾値チェック
+    - name: Coverage Threshold Check
+      run: |
+        echo "## 📊 Coverage Threshold Check" >> $GITHUB_STEP_SUMMARY
+
+        # coverage-summary.jsonからカバレッジデータを取得
+        if [ -f "coverage/coverage-summary.json" ]; then
+          # jqを使って各カバレッジメトリクスを抽出
+          lines=$(jq -r '.total.lines.pct' coverage/coverage-summary.json)
+          statements=$(jq -r '.total.statements.pct' coverage/coverage-summary.json)
+          functions=$(jq -r '.total.functions.pct' coverage/coverage-summary.json)
+          branches=$(jq -r '.total.branches.pct' coverage/coverage-summary.json)
+
+          echo "**カバレッジ詳細:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Lines: $lines%" >> $GITHUB_STEP_SUMMARY
+          echo "- Statements: $statements%" >> $GITHUB_STEP_SUMMARY
+          echo "- Functions: $functions%" >> $GITHUB_STEP_SUMMARY
+          echo "- Branches: $branches%" >> $GITHUB_STEP_SUMMARY
+
+          # 推奨閾値: 70% (警告のみ、失敗させない)
+          RECOMMENDED_THRESHOLD=70
+
+          # 警告判定（推奨レベル）
+          if (( $(echo "$lines < $RECOMMENDED_THRESHOLD" | bc -l) )); then
+            echo "⚠️ **警告**: Lines coverage ($lines%) が推奨値 ($RECOMMENDED_THRESHOLD%) を下回っています" >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Lines coverage ($lines%) is below recommended threshold ($RECOMMENDED_THRESHOLD%)"
+          else
+            echo "✅ Lines coverage は推奨値を満たしています" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**注意**: カバレッジ閾値は推奨レベルです。失敗条件ではありません。" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ カバレッジレポートが見つかりません" >> $GITHUB_STEP_SUMMARY
+        fi

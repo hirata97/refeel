@@ -6,11 +6,11 @@
 
 | ドキュメント | 内容 | 対象者 |
 |-------------|------|--------|
-| **[CI_CD_GUIDE.md](./CI_CD_GUIDE.md)** | CI/CD日常運用ガイド（ジョブ一覧、トリガー、基本的なトラブルシューティング） | 全開発者 |
-| **[CI_CD_BEST_PRACTICES.md](./CI_CD_BEST_PRACTICES.md)** | 開発フローのベストプラクティス、エラー予防策 | 全開発者 |
-| **[CI_CD_TESTING.md](./CI_CD_TESTING.md)** | ワークフロー詳細、テスト種類、品質基準 | 全開発者 |
+| **[CI_CD_DEVELOPER_GUIDE.md](./CI_CD_DEVELOPER_GUIDE.md)** | CI/CD開発者向け総合ガイド（日常運用＋ベストプラクティス統合版） | 全開発者 |
 | **[CI_CD_QUICK_REFERENCE.md](./CI_CD_QUICK_REFERENCE.md)** | よく使うコマンド集、チェックリスト | 全開発者 |
 | **[TYPE_GENERATION.md](./TYPE_GENERATION.md)** | 型定義自動生成システムの詳細 | 全開発者 |
+
+> **Note**: ワークフロー詳細・テスト戦略・品質基準については、[../.github/workflows/TESTING.md](../../.github/workflows/TESTING.md) を参照してください。
 
 ## 🗂️ ディレクトリ構成と役割
 
@@ -31,9 +31,10 @@
 
 ### 開発者の日常作業
 → **CI/** ディレクトリのドキュメントを参照
+- 日常運用・ベストプラクティス: [CI_CD_DEVELOPER_GUIDE.md](./CI_CD_DEVELOPER_GUIDE.md)
 - PR作成時の確認事項: [CI_CD_QUICK_REFERENCE.md](./CI_CD_QUICK_REFERENCE.md)
-- CI/CDエラー対応: [CI_CD_GUIDE.md](./CI_CD_GUIDE.md) → トラブルシューティング
-- 開発フロー改善: [CI_CD_BEST_PRACTICES.md](./CI_CD_BEST_PRACTICES.md)
+- 型定義生成: [TYPE_GENERATION.md](./TYPE_GENERATION.md)
+- **ワークフロー詳細・テスト戦略**: [../.github/workflows/TESTING.md](../../.github/workflows/TESTING.md)
 
 ### CI/CD設定変更・高度な運用
 → **INFRASTRUCTURE/** ディレクトリのドキュメントを参照

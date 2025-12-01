@@ -1,0 +1,175 @@
+name: PR Quality Summary
+
+# PR品質チェックの統合サマリー生成
+# 目的: Code Quality、Testing、Securityの結果を集約してPRコメント投稿
+on:
+  workflow_run:
+    workflows:
+      - "PR Code Quality"
+      - "PR Unit Tests (Vitest)"
+      - "PR Security"
+    types:
+      - completed
+
+# 権限設定
+permissions:
+  contents: read
+  pull-requests: write
+  checks: read
+  actions: read
+
+jobs:
+  quality-report:
+    name: Quality Gate Summary
+    runs-on: ubuntu-latest
+    # PRに関連する実行のみ処理
+    if: github.event.workflow_run.event == 'pull_request'
+
+    steps:
+    - name: Get PR number
+      id: pr
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pulls = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            head: `${context.repo.owner}:${context.payload.workflow_run.head_branch}`
+          });
+
+          if (pulls.data.length === 0) {
+            console.log('No open PR found for this branch');
+            return null;
+          }
+
+          const prNumber = pulls.data[0].number;
+          core.setOutput('number', prNumber);
+          return prNumber;
+
+    - name: Get check runs status
+      if: steps.pr.outputs.number
+      id: checks
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const prNumber = ${{ steps.pr.outputs.number }};
+          const headSha = context.payload.workflow_run.head_sha;
+
+          // 各ワークフローのチェック実行結果を取得
+          const checkRuns = await github.rest.checks.listForRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: headSha,
+            per_page: 100
+          });
+
+          // 各ワークフローの結果を抽出
+          const workflows = {
+            'Code Quality Checks': null,
+            'Unit Tests (Vitest)': null,
+            'Security Analysis': null
+          };
+
+          for (const run of checkRuns.data.check_runs) {
+            if (run.name in workflows) {
+              workflows[run.name] = run.conclusion;
+            }
+          }
+
+          core.setOutput('code_quality', workflows['Code Quality Checks'] || 'pending');
+          core.setOutput('testing', workflows['Unit Tests (Vitest)'] || 'pending');
+          core.setOutput('security', workflows['Security Analysis'] || 'pending');
+
+          return workflows;
+
+    - name: Generate Quality Report
+      if: steps.pr.outputs.number
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const prNumber = ${{ steps.pr.outputs.number }};
+          const codeQualityResult = '${{ steps.checks.outputs.code_quality }}';
+          const testingResult = '${{ steps.checks.outputs.testing }}';
+          const securityResult = '${{ steps.checks.outputs.security }}';
+
+          // 全てのチェックが成功したか判定
+          const allPassed = codeQualityResult === 'success' &&
+                           testingResult === 'success' &&
+                           securityResult === 'success';
+
+          const status = allPassed ? '✅ 品質ゲート通過' : '❌ 品質ゲート失敗';
+
+          // 結果アイコンを生成する関数
+          const getIcon = (result) => {
+            if (result === 'success') return '✅';
+            if (result === 'failure') return '❌';
+            if (result === 'skipped') return '⏭️';
+            if (result === 'pending') return '⏳';
+            return '⚠️';
+          };
+
+          let report = `## ${status}\n\n`;
+          report += '### 📊 チェック結果\n\n';
+          report += `${getIcon(codeQualityResult)} **Code Quality**: ${codeQualityResult}\n`;
+          report += `${getIcon(testingResult)} **Testing**: ${testingResult}\n`;
+          report += `${getIcon(securityResult)} **Security**: ${securityResult}\n`;
+
+          report += '\n### 📋 品質基準\n';
+          report += '#### 必須レベル（PRマージ条件）\n';
+          report += '- ✅ **ESLint**: エラー0件必須（警告は許容）\n';
+          report += '- ✅ **TypeScript**: 型エラー0件必須\n';
+          report += '- ✅ **Prettier**: フォーマット準拠必須\n';
+          report += '- ✅ **ビルド**: 本番ビルド成功必須\n';
+          report += '- ✅ **テスト**: 全ユニットテスト成功必須\n';
+          report += '- ✅ **セキュリティ**: High/Critical脆弱性0件必須\n\n';
+
+          report += '#### 推奨レベル（警告表示）\n';
+          report += '- 📊 **カバレッジ**: 70%以上推奨（現在監視中）\n';
+          report += '- 🔒 **セキュリティ**: Moderate以下の脆弱性対応推奨\n\n';
+
+          if (!allPassed) {
+            report += '### ⚠️ マージ前に上記の問題を解決してください\n\n';
+            report += '#### 失敗したチェック詳細\n';
+            if (codeQualityResult !== 'success') {
+              report += '- **Code Quality**: ESLint、TypeScript、またはビルドに問題があります\n';
+            }
+            if (testingResult !== 'success') {
+              report += '- **Testing**: ユニットテストが失敗しています\n';
+            }
+            if (securityResult !== 'success') {
+              report += '- **Security**: 高リスク以上の脆弱性が検出されています\n';
+            }
+          } else {
+            report += '### 🎉 すべての品質チェックに合格しています！\n';
+            report += '\n安心してマージできます。お疲れ様でした！\n';
+          }
+
+          // 既存のコメントを検索
+          const comments = await github.rest.issues.listComments({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber
+          });
+
+          const botComment = comments.data.find(comment =>
+            comment.user.type === 'Bot' &&
+            comment.body.includes('品質ゲート')
+          );
+
+          // コメントを更新または作成
+          if (botComment) {
+            await github.rest.issues.updateComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: botComment.id,
+              body: report
+            });
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: report
+            });
+          }
