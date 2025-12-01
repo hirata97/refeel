@@ -82,13 +82,13 @@
 | ファイル                                                       | 説明                                                 |
 | -------------------------------------------------------------- | ---------------------------------------------------- |
 | [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) | ブランチ戦略・PR作成手順・段階的実装プロセス         |
-| [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md) | npm scripts・自動化コマンド                          |
-| [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ                               |
+| [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md) | npm scripts・自動化コマンド（完全版）                |
+| [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ・技術スタック                 |
 | [CODE_PATTERNS.md](DEVELOPMENT/CODE_PATTERNS.md)               | Vue 3/TypeScriptコードパターン集・実装例             |
+| [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント作成・管理指針（実践版）                 |
 | [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 📌 再構成済み（CLAUDE.md、DEVELOPMENT_WORKFLOW.md、CODE_PATTERNS.mdへ移行） |
 | [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 BEST_PRACTICES.md へリダイレクト                  |
-| [COVERAGE_ENHANCEMENT_PLAN.md](DEVELOPMENT/COVERAGE_ENHANCEMENT_PLAN.md) | カバレッジ閾値強化計画（Phase 1完了）                |
-| [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント管理ガイド                               |
+| [COVERAGE_ENHANCEMENT_PLAN.md](DEVELOPMENT/COVERAGE_ENHANCEMENT_PLAN.md) | 📌 アーカイブ済み（[archive/](../archive/)へ移動）    |
 ### CI/ - CI/CD日常運用
 
 開発者が日常的に使用するCI/CD運用ドキュメント
