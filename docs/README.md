@@ -47,7 +47,7 @@
 1. **全体把握**: [../README.md](../README.md) でプロジェクト概要を確認
 2. **環境構築**: [ENVIRONMENT/ENVIRONMENT_SETUP.md](ENVIRONMENT/ENVIRONMENT_SETUP.md) で初回セットアップ
 3. **開発準備**: [../CLAUDE.md](../CLAUDE.md) で開発フロー・重要原則を確認
-4. **コーディング規則**: [DEVELOPMENT/BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md) でコーディング規則とベストプラクティスを確認
+4. **コードパターン**: [DEVELOPMENT/CODE_PATTERNS.md](DEVELOPMENT/CODE_PATTERNS.md) で具体的なコード例とパターンを確認
 
 ### 日常開発
 
@@ -81,10 +81,11 @@
 
 | ファイル                                                       | 説明                                                 |
 | -------------------------------------------------------------- | ---------------------------------------------------- |
-| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) | ブランチ戦略・PR作成手順                             |
+| [DEVELOPMENT_WORKFLOW.md](DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) | ブランチ戦略・PR作成手順・段階的実装プロセス         |
 | [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md) | npm scripts・自動化コマンド                          |
 | [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ                               |
-| [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 開発ベストプラクティス・コーディング規則（統合版）   |
+| [CODE_PATTERNS.md](DEVELOPMENT/CODE_PATTERNS.md)               | Vue 3/TypeScriptコードパターン集・実装例             |
+| [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 📌 再構成済み（CLAUDE.md、DEVELOPMENT_WORKFLOW.md、CODE_PATTERNS.mdへ移行） |
 | [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 BEST_PRACTICES.md へリダイレクト                  |
 | [COVERAGE_ENHANCEMENT_PLAN.md](DEVELOPMENT/COVERAGE_ENHANCEMENT_PLAN.md) | カバレッジ閾値強化計画（Phase 1完了）                |
 | [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント管理ガイド                               |
@@ -95,11 +96,11 @@
 | ファイル                                              | 説明                                       |
 | ----------------------------------------------------- | ------------------------------------------ |
 | [README.md](CI/README.md)                             | CI/ドキュメント使い分けガイド               |
-| [CI_CD_GUIDE.md](CI/CI_CD_GUIDE.md)                   | CI/CD日常運用ガイド・ジョブ概要            |
-| [CI_CD_TESTING.md](CI/CI_CD_TESTING.md)               | ワークフロー詳細・テスト種類・品質基準      |
+| [CI_CD_DEVELOPER_GUIDE.md](CI/CI_CD_DEVELOPER_GUIDE.md) | CI/CD開発者向け総合ガイド（日常運用＋ベストプラクティス） |
 | [CI_CD_QUICK_REFERENCE.md](CI/CI_CD_QUICK_REFERENCE.md) | コマンド集・チェックリスト              |
 | [TYPE_GENERATION.md](CI/TYPE_GENERATION.md)           | 型定義自動生成システム                     |
-| [CI_CD_BEST_PRACTICES.md](CI/CI_CD_BEST_PRACTICES.md) | 開発フローベストプラクティス・エラー予防    |
+
+> **Note**: ワークフロー詳細・テスト戦略については、[../.github/workflows/TESTING.md](../.github/workflows/TESTING.md) を参照してください。
 
 ### SECURITY/ - セキュリティ
 
