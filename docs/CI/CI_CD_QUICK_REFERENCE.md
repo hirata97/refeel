@@ -551,10 +551,10 @@ git commit -m "changes"
 
 詳細情報は以下のドキュメントを参照してください：
 
-- [CI/CDアーキテクチャ](../INFRASTRUCTURE/CI_CD_OVERVIEW.md) - 全体像・技術スタック
-- [設定変更手順](../INFRASTRUCTURE/CI_CD_CONFIGURATION.md) - ワークフロー・設定変更方法
-- [トラブルシューティング](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) - 詳細エラー対応
-- [運用・保守ガイド](../INFRASTRUCTURE/CI_CD_OPERATIONS.md) - 定期メンテナンス・監視
+- [CI/CDアーキテクチャ](CI_CD_OVERVIEW.md) - 全体像・技術スタック
+- [設定変更手順](CI_CD_CONFIGURATION.md) - ワークフロー・設定変更方法
+- [トラブルシューティング](CI_CD_TROUBLESHOOTING.md) - 詳細エラー対応
+- [運用・保守ガイド](CI_CD_OPERATIONS.md) - 定期メンテナンス・監視
 
 ## バージョン履歴
 

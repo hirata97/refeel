@@ -2,9 +2,9 @@
 
 > **ドキュメント体系**:
 > - 📘 **このドキュメント**: CI/CD開発者向け総合ガイド（日常運用＋ベストプラクティス）
-> - 🏗️ **アーキテクチャ詳細**: [CI/CD Overview](../INFRASTRUCTURE/CI_CD_OVERVIEW.md)
-> - 🔧 **設定変更手順**: [CI/CD Configuration](../INFRASTRUCTURE/CI_CD_CONFIGURATION.md)
-> - 🚨 **詳細トラブルシューティング**: [CI/CD Troubleshooting](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md)
+> - 🏗️ **アーキテクチャ詳細**: [CI/CD Overview](CI_CD_OVERVIEW.md)
+> - 🔧 **設定変更手順**: [CI/CD Configuration](CI_CD_CONFIGURATION.md)
+> - 🚨 **詳細トラブルシューティング**: [CI/CD Troubleshooting](CI_CD_TROUBLESHOOTING.md)
 > - ⚡ **クイックリファレンス**: [CI/CD Quick Reference](./CI_CD_QUICK_REFERENCE.md)
 > - 🔧 **型定義生成**: [Type Generation](./TYPE_GENERATION.md)
 
@@ -373,14 +373,14 @@ git push origin feature-branch
 | エラー種別 | 初期対応 | 詳細ガイド |
 |-----------|---------|-----------|
 | **Type Generation関連** | 環境変数確認 → ローカル型生成 | [TYPE_GENERATION.md](./TYPE_GENERATION.md) |
-| **npm install失敗** | `npm ci --prefer-offline` 実行 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#依存関係エラー) |
-| **TypeScriptエラー** | `npm run type-check` で詳細確認 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#typescript型エラー) |
-| **ESLint失敗** | `npm run lint` で自動修正 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#eslintエラー修正) |
-| **テスト失敗** | 個別テスト実行で原因特定 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#ユニットテスト失敗) |
-| **ビルド失敗** | `npm run ci:build` でローカル再現 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#build失敗) |
-| **セキュリティ監査失敗** | `npm audit fix` で自動修正 | [Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md#脆弱性検出) |
+| **npm install失敗** | `npm ci --prefer-offline` 実行 | [Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md#依存関係エラー) |
+| **TypeScriptエラー** | `npm run type-check` で詳細確認 | [Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md#typescript型エラー) |
+| **ESLint失敗** | `npm run lint` で自動修正 | [Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md#eslintエラー修正) |
+| **テスト失敗** | 個別テスト実行で原因特定 | [Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md#ユニットテスト失敗) |
+| **ビルド失敗** | `npm run ci:build` でローカル再現 | [Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md#build失敗) |
+| **セキュリティ監査失敗** | `npm audit fix` で自動修正 | [Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md#脆弱性検出) |
 
-**詳細なトラブルシューティング**: より詳細なエラー分析と対応手順は [CI/CD Troubleshooting Guide](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) を参照してください。
+**詳細なトラブルシューティング**: より詳細なエラー分析と対応手順は [CI/CD Troubleshooting Guide](CI_CD_TROUBLESHOOTING.md) を参照してください。
 
 ### よくある問題の予防
 
@@ -615,9 +615,9 @@ node scripts/generate-types.js --help
 ## 関連ドキュメント
 
 ### CI/CD関連
-- **アーキテクチャ**: [CI/CD Overview](../INFRASTRUCTURE/CI_CD_OVERVIEW.md) - システム全体像・技術スタック
-- **設定変更**: [CI/CD Configuration](../INFRASTRUCTURE/CI_CD_CONFIGURATION.md) - ワークフロー設定変更手順
-- **詳細トラブルシューティング**: [CI/CD Troubleshooting](../INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) - エラー対応詳細
+- **アーキテクチャ**: [CI/CD Overview](CI_CD_OVERVIEW.md) - システム全体像・技術スタック
+- **設定変更**: [CI/CD Configuration](CI_CD_CONFIGURATION.md) - ワークフロー設定変更手順
+- **詳細トラブルシューティング**: [CI/CD Troubleshooting](CI_CD_TROUBLESHOOTING.md) - エラー対応詳細
 - **クイックリファレンス**: [CI/CD Quick Reference](./CI_CD_QUICK_REFERENCE.md) - コマンド集・チェックリスト
 - **型定義生成**: [Type Generation](./TYPE_GENERATION.md) - 型定義自動生成システム詳細
 

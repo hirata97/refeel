@@ -33,10 +33,9 @@
 | ------------------------------------------ | -------------------------------------------------- |
 | [ENVIRONMENT/](ENVIRONMENT/)               | 環境構築・Docker・Supabase設定                     |
 | [DEVELOPMENT/](DEVELOPMENT/)               | 開発ワークフロー・アーキテクチャ・コーディング規則 |
-| [CI/](CI/)                                 | CI/CD日常運用・型生成・ベストプラクティス          |
+| [CI/](CI/)                                 | CI/CD総合ガイド（運用・設定・トラブルシューティング） |
 | [SECURITY/](SECURITY/)                     | セキュリティガイドライン・実装・更新履歴           |
 | [PROJECT_MANAGEMENT/](PROJECT_MANAGEMENT/) | Issue・PR・ラベル管理                              |
-| [INFRASTRUCTURE/](INFRASTRUCTURE/)         | CI/CDアーキテクチャ・詳細設定・高度な運用          |
 
 > **テスト関連**: [../tests/README.md](../tests/README.md) を参照してください
 
