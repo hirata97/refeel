@@ -48,7 +48,17 @@ VITE_SUPABASE_KEY=your-anon-key
 - **推奨**: Node.js 18.x 以上
 - **パッケージマネージャ**: npm (yarn は使用しない)
 
-## 初回セットアップ
+## Docker開発環境（オプション）
+
+Docker Desktopをお使いの場合、以下の開発環境を利用できます：
+
+- **VSCode Dev Container**: 完全な開発環境をコンテナで実行
+- **Docker Compose**: Supabaseローカル環境との統合
+- **自動セットアップ**: 環境変数・依存関係が自動構成
+
+詳細は **[../.devcontainer/README.md](../../.devcontainer/README.md)** を参照してください。
+
+## 初回セットアップ（ローカル環境）
 
 ```bash
 # 1. リポジトリクローン

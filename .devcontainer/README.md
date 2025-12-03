@@ -1,8 +1,11 @@
 # Docker開発環境セットアップガイド
 
+> **配置**: `.devcontainer/` - Docker & VSCode Dev Container設定
+> **関連**: [docs/ENVIRONMENT/ENVIRONMENT_SETUP.md](../docs/ENVIRONMENT/ENVIRONMENT_SETUP.md) - 一般的な環境構築
+
 ## 概要
 
-このガイドでは、GoalCategorizationDiaryプロジェクトのDocker開発環境のセットアップと使用方法について説明します。
+このガイドでは、GoalCategorizationDiaryプロジェクトのDocker開発環境とVSCode Dev Containerのセットアップと使用方法について説明します。
 
 ## 必要な条件
 
@@ -122,17 +125,24 @@ ms-vscode-remote.remote-containers
 - デバッグ設定
 - タスク定義
 
-## 📁 ディレクトリ構造
+## 📁 このディレクトリの構造
+
+```
+.devcontainer/
+├── README.md               # このファイル（Docker環境ガイド）
+├── devcontainer.json       # VSCode Dev Container設定ファイル
+├── Dockerfile              # 開発コンテナイメージ定義
+├── docker-compose.yml      # 開発サービス構成定義
+└── start.sh                # コンテナ初期化スクリプト
+```
+
+## 📁 プロジェクト全体のDocker関連ファイル
 
 ```
 GoalCategorizationDiary/
-├── .devcontainer/           # VSCode Dev Container設定
-│   ├── devcontainer.json    # Dev Container設定ファイル
-│   └── setup.sh            # コンテナ初期化スクリプト
+├── .devcontainer/          # この場所（Dev Container設定）
 ├── scripts/
 │   └── docker-setup.sh     # Docker環境管理スクリプト
-├── Dockerfile              # アプリケーションコンテナ定義
-├── docker-compose.yml      # サービス構成定義
 ├── .dockerignore           # Docker無視ファイル
 └── .env                    # 環境変数（自動生成）
 ```

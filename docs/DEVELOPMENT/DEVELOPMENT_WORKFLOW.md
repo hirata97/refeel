@@ -106,7 +106,7 @@ git commit -m "feat: Issue #76 データキャッシング機能実装
 - 5分TTLのクライアントサイドキャッシュ
 - パフォーマンス監視ツール追加
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
@@ -227,7 +227,7 @@ npm run create-pr "タイトル" "説明"
 ## Closes
 Closes #XX
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
 ### 4. レビューと承認
@@ -321,7 +321,10 @@ git stash pop
 
 ---
 
+**最終更新**: 2025-12-03
+
 **📝 更新履歴**
 - 2025-08-17: 初版作成
 - 2025-08-17: PR作成ルールとコミットメッセージ規則追加
 - 2025-08-19: CI/CD統合後のワークフロー更新（Issue #55対応）
+- 2025-12-03: Claude CodeのURL修正、最新の開発フローに更新（Issue #300対応）

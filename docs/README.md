@@ -27,6 +27,67 @@
 
 この方針により、ドキュメント構造をシンプルに保ち、メンテナンス負荷を最小化します。
 
+## 📝 ドキュメント管理ガイドライン
+
+### ドキュメントの役割分担
+
+| ドキュメント | 対象者 | 内容 | 文量目安 |
+|------------|--------|------|----------|
+| **/README.md** | 全員 | プロジェクト概要、セットアップ | 100-200行 |
+| **/CLAUDE.md** | 開発者 | 開発フロー、重要原則、頻用コマンド | 150-250行 |
+| **docs/README.md** | 開発者 | ドキュメント索引（本ファイル） | 100-200行 |
+| **docs/カテゴリ/** | 開発者 | カテゴリ別の詳細ドキュメント | 目的に応じて |
+
+### 重複を避ける原則
+
+**❌ 避けるべきパターン:**
+```markdown
+<!-- CLAUDE.md と DEVELOPMENT_COMMANDS.md の両方に同じ内容 -->
+## コマンド一覧
+npm run dev
+npm run build
+... 50行以上のコマンド説明 ...
+```
+
+**✅ 推奨パターン:**
+```markdown
+<!-- CLAUDE.md: クイックリファレンス -->
+## 頻用コマンド
+npm run dev          # 開発サーバー起動
+npm run ci:all       # 全品質チェック
+
+詳細: [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](リンク)
+```
+
+### リダイレクトファイルのパターン
+
+統合・移動したドキュメントには明確なリダイレクトを残す：
+
+```markdown
+# [ドキュメント名]
+
+> **📌 このドキュメントは[移動/統合/再構成]されました**
+
+## 📚 移行先ドキュメント
+
+👉 **[新ドキュメント名](リンク)**
+- 移行内容の説明
+
+## 🔍 内容の検索ガイド
+
+| 探している内容 | 参照ドキュメント |
+|--------------|----------------|
+| **項目1** | [ドキュメント1](リンク) |
+```
+
+**例**: [DEVELOPMENT/BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md), [DEVELOPMENT/CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)
+
+### ドキュメント更新時の注意点
+
+1. **技術変更時**: 同じPR/コミットで関連ドキュメントを更新
+2. **重要な変更**: 各ドキュメント末尾の「最終更新」「変更履歴」を更新
+3. **新規ドキュメント作成時**: このファイル（docs/README.md）の該当セクションに追加
+
 ## 📁 ディレクトリ構成
 
 | ディレクトリ                               | 説明                                               |
@@ -57,7 +118,7 @@
 ### トラブル対応
 
 - **環境問題**: [ENVIRONMENT/ENVIRONMENT_SETUP.md](ENVIRONMENT/ENVIRONMENT_SETUP.md)
-- **Docker問題**: [ENVIRONMENT/DOCKER_SETUP.md](ENVIRONMENT/DOCKER_SETUP.md)
+- **Docker問題**: [../.devcontainer/README.md](../.devcontainer/README.md)
 - **認証問題**: [ENVIRONMENT/SUPABASE_AUTH.md](ENVIRONMENT/SUPABASE_AUTH.md)
 - **セキュリティ問題**: [SECURITY/SECURITY_TROUBLESHOOTING.md](SECURITY/SECURITY_TROUBLESHOOTING.md)
 - **CI/CD問題**: [INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md](INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md)
@@ -71,10 +132,11 @@
 | ファイル                                                       | 説明                           |
 | -------------------------------------------------------------- | ------------------------------ |
 | [ENVIRONMENT_SETUP.md](ENVIRONMENT/ENVIRONMENT_SETUP.md)       | 初回セットアップ・推奨開発環境 |
-| [DOCKER_SETUP.md](ENVIRONMENT/DOCKER_SETUP.md)                 | Docker開発環境構築             |
 | [SUPABASE_QUICK_SETUP.md](ENVIRONMENT/SUPABASE_QUICK_SETUP.md) | Supabase 5分セットアップ       |
 | [SUPABASE_AUTH.md](ENVIRONMENT/SUPABASE_AUTH.md)               | Supabase認証システム詳細       |
 | [SETUP_EMOTION_TAGS.md](ENVIRONMENT/SETUP_EMOTION_TAGS.md)     | 感情タグ機能セットアップ       |
+
+> **Docker開発環境**: [../.devcontainer/README.md](../.devcontainer/README.md) - Docker & VSCode Dev Container設定
 
 ### DEVELOPMENT/ - 開発関連
 
@@ -84,10 +146,8 @@
 | [DEVELOPMENT_COMMANDS.md](DEVELOPMENT/DEVELOPMENT_COMMANDS.md) | npm scripts・自動化コマンド（完全版）                |
 | [ARCHITECTURE.md](DEVELOPMENT/ARCHITECTURE.md)                 | システムアーキテクチャ・技術スタック                 |
 | [CODE_PATTERNS.md](DEVELOPMENT/CODE_PATTERNS.md)               | Vue 3/TypeScriptコードパターン集・実装例             |
-| [DOCUMENTATION_GUIDE.md](DEVELOPMENT/DOCUMENTATION_GUIDE.md)   | ドキュメント作成・管理指針（実践版）                 |
 | [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 📌 再構成済み（CLAUDE.md、DEVELOPMENT_WORKFLOW.md、CODE_PATTERNS.mdへ移行） |
-| [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 BEST_PRACTICES.md へリダイレクト                  |
-| [COVERAGE_ENHANCEMENT_PLAN.md](DEVELOPMENT/COVERAGE_ENHANCEMENT_PLAN.md) | 📌 アーカイブ済み（[archive/](../archive/)へ移動）    |
+| [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 再構成済み（CLAUDE.md、DEVELOPMENT_WORKFLOW.md、CODE_PATTERNS.mdへ移行） |
 ### CI/ - CI/CD日常運用
 
 開発者が日常的に使用するCI/CD運用ドキュメント
@@ -130,3 +190,10 @@ DevOps、インフラエンジニア、プロジェクトメンテナー向け�
 | [CI_CD_CONFIGURATION.md](INFRASTRUCTURE/CI_CD_CONFIGURATION.md)     | ワークフロー設定変更手順・環境変数管理      |
 | [CI_CD_OPERATIONS.md](INFRASTRUCTURE/CI_CD_OPERATIONS.md)           | 定期メンテナンス・監視・コスト管理          |
 | [CI_CD_TROUBLESHOOTING.md](INFRASTRUCTURE/CI_CD_TROUBLESHOOTING.md) | 詳細トラブルシューティング・緊急時対応      |
+
+---
+
+**最終更新**: 2025-12-03
+**変更履歴**:
+- DOCUMENTATION_GUIDE.mdを統合、ドキュメント管理ガイドラインを追加
+- DOCKER_SETUP.mdを.devcontainer/README.mdに移動（技術ディレクトリに近接配置）
