@@ -154,6 +154,7 @@ npm run ci:all       # 全品質チェック
 
 | ファイル                                                       | 説明                                                 |
 | -------------------------------------------------------------- | ---------------------------------------------------- |
+| [PRODUCTION_SUPABASE_SETUP.md](DEPLOYMENT/PRODUCTION_SUPABASE_SETUP.md) | 本番Supabaseセットアップ・データベース移行・RLS設定・接続テスト |
 | [VERCEL_DEPLOYMENT.md](DEPLOYMENT/VERCEL_DEPLOYMENT.md)       | Vercelデプロイ手順・環境変数設定・トラブルシューティング |
 
 ### CI/ - CI/CD日常運用
@@ -201,7 +202,8 @@ DevOps、インフラエンジニア、プロジェクトメンテナー向け�
 
 ---
 
-**最終更新**: 2025-12-03
+**最終更新**: 2025-12-27
 **変更履歴**:
-- DOCUMENTATION_GUIDE.mdを統合、ドキュメント管理ガイドラインを追加
-- DOCKER_SETUP.mdを.devcontainer/README.mdに移動（技術ディレクトリに近接配置）
+- 2025-12-27: PRODUCTION_SUPABASE_SETUP.mdを追加（本番Supabase環境セットアップガイド）
+- 2025-12-03: DOCUMENTATION_GUIDE.mdを統合、ドキュメント管理ガイドラインを追加
+- 2025-12-03: DOCKER_SETUP.mdを.devcontainer/README.mdに移動（技術ディレクトリに近接配置）
