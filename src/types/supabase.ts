@@ -1,5 +1,5 @@
 // 自動生成されたSupabaseクライアント型定義
-// 生成日時: 2025-11-18T04:38:11.538Z
+// 生成日時: 2025-12-27T07:45:34.955Z
 
 import type { Database } from './database'
 

@@ -24,6 +24,16 @@ Refeelは、日々の振り返りによってモチベーションの変化を�
 | テスト | Vitest 2.1 + Playwright 1.48 |
 | デプロイ | Vercel |
 
+## 🌐 本番環境
+
+**本番URL**: デプロイ後にここに記載
+
+詳細なデプロイ手順・運用情報は以下を参照してください：
+- [Vercelデプロイ手順書](docs/DEPLOYMENT/VERCEL_DEPLOYMENT.md)
+- [本番環境デプロイ実施レポート](docs/DEPLOYMENT/PRODUCTION_DEPLOYMENT_REPORT.md)
+- [運用ガイド](docs/DEPLOYMENT/OPERATIONS_GUIDE.md)
+- [ロールバック手順](docs/DEPLOYMENT/ROLLBACK_GUIDE.md)
+
 ## 動作要件
 
 - **Node.js**: v20.19.0以降
