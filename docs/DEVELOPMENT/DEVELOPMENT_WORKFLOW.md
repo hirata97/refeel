@@ -316,7 +316,7 @@ git stash pop
 - [CI/CD開発者ガイド](../CI/CI_CD_DEVELOPER_GUIDE.md) - 自動品質チェック詳細・ベストプラクティス
 - [開発コマンド一覧](DEVELOPMENT_COMMANDS.md)
 - [コーディング規則](CODING_STANDARDS.md)
-- [Issue ラベル体系](../PROJECT_MANAGEMENT/ISSUE_LABELS.md)
+- [Issue作成・ラベル体系](../../.claude/commands/create-issue.md) - Issue品質保証エージェント
 - [環境設定](../ENVIRONMENT/ENVIRONMENT_SETUP.md)
 
 ---

@@ -291,7 +291,7 @@ groups:
 - `type-infra:ci-cd`: CI/CD関連
 - `type-quality:docs`: ドキュメント
 
-**詳細**: `docs/PROJECT_MANAGEMENT/ISSUE_CREATION_GUIDE.md` 参照
+**詳細**: `/.claude/commands/create-issue.md` 参照（Issue品質保証エージェント）
 
 **ラベル付与**: Issue/PR作成時に適切なラベルを手動で選択してください
 

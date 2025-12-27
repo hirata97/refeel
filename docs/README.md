@@ -134,9 +134,9 @@ npm run ci:all       # 全品質チェック
 | [ENVIRONMENT_SETUP.md](ENVIRONMENT/ENVIRONMENT_SETUP.md)       | 初回セットアップ・推奨開発環境 |
 | [SUPABASE_QUICK_SETUP.md](ENVIRONMENT/SUPABASE_QUICK_SETUP.md) | Supabase 5分セットアップ       |
 | [SUPABASE_AUTH.md](ENVIRONMENT/SUPABASE_AUTH.md)               | Supabase認証システム詳細       |
-| [SETUP_EMOTION_TAGS.md](ENVIRONMENT/SETUP_EMOTION_TAGS.md)     | 感情タグ機能セットアップ       |
 
 > **Docker開発環境**: [../.devcontainer/README.md](../.devcontainer/README.md) - Docker & VSCode Dev Container設定
+> **Supabaseデータベース**: [../supabase/README.md](../supabase/README.md) - DB構造・マイグレーション・Seedデータ・感情タグ
 
 ### DEVELOPMENT/ - 開発関連
 
@@ -175,10 +175,10 @@ npm run ci:all       # 全品質チェック
 
 | ファイル                                                              | 説明                       |
 | --------------------------------------------------------------------- | -------------------------- |
-| [ISSUE_CREATION_GUIDE.md](PROJECT_MANAGEMENT/ISSUE_CREATION_GUIDE.md) | Issue作成ガイド            |
-| [ISSUE_LABELS.md](PROJECT_MANAGEMENT/ISSUE_LABELS.md)                 | ラベル体系・自動ラベリング |
 | [PR_CREATION_GUIDE.md](PROJECT_MANAGEMENT/PR_CREATION_GUIDE.md)       | PR作成ガイド               |
 | [PR_TESTING_GUIDE.md](PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md)         | PRテスト・検証ガイド       |
+
+> **Issue作成・ラベル体系**: `/.claude/commands/create-issue.md` - Issue品質保証エージェント（完全ガイド統合版）
 
 ### INFRASTRUCTURE/ - CI/CDアーキテクチャ・詳細設定
 

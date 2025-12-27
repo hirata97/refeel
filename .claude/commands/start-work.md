@@ -107,7 +107,7 @@ description: オープンなIssueから子チケット優先で自動選択し�
 - [開発ワークフロー](../docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) - ブランチ戦略・PR作成手順
 - [CLAUDE.md](../CLAUDE.md) - 開発フロー・重要原則・アーキテクチャ
 - [PR作成ガイド](../docs/PROJECT_MANAGEMENT/PR_TESTING_GUIDE.md) - PR作成・テスト手順
-- [Issue作成ガイド](../docs/PROJECT_MANAGEMENT/ISSUE_CREATION_GUIDE.md) - 親子チケット管理
+- [Issue品質保証エージェント](create-issue.md) - Issue作成・ラベル体系・親子チケット管理
 - [開発コマンド](../docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) - npm scripts・自動化コマンド
 
 ### 関連コマンド
