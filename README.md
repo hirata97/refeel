@@ -24,11 +24,17 @@ Refeelは、日々の振り返りによってモチベーションの変化を�
 | テスト | Vitest 2.1 + Playwright 1.48 |
 | デプロイ | Vercel |
 
-**動作要件**: Node.js v20.19.0以降、npm v10以降
+## 動作要件
+
+- **Node.js**: v20.19.0以降
+- **npm**: v10以降
+- **Docker**: ローカルSupabase使用時に必要
 
 ## 🚀 クイックスタート
 
 ### 推奨: VS Code Dev Containers
+
+**前提条件**: Docker Desktop がインストール・起動済み
 
 ```bash
 git clone https://github.com/RsPYP/GoalCategorizationDiary.git
@@ -44,11 +50,12 @@ git clone https://github.com/RsPYP/GoalCategorizationDiary.git
 cd GoalCategorizationDiary
 npm install
 cp .env.example .env
+# .envファイルを編集（詳細: docs/ENVIRONMENT/ENVIRONMENT_SETUP.md）
 npx supabase start
 npm run dev
 ```
 
-詳細なセットアップ手順は [docs/ENVIRONMENT/](docs/ENVIRONMENT/) を参照してください。
+詳細なセットアップ手順は [docs/ENVIRONMENT/ENVIRONMENT_SETUP.md](docs/ENVIRONMENT/ENVIRONMENT_SETUP.md) を参照してください。
 
 ## 基本コマンド
 
@@ -59,43 +66,21 @@ npm run test:unit  # ユニットテスト
 npm run ci:all     # 全品質チェック
 ```
 
+全コマンド一覧: [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md)
+
 ## 🗄️ ローカルSupabase
 
-### 前提条件
-- Docker がインストール・起動済み
-- Supabase CLI がインストール済み
-
-### Supabase CLIのインストール
-
-```bash
-# Linux/WSL
-mkdir -p ~/.local/bin
-curl -sSL https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz | tar -xz -C ~/.local/bin
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-
-# Mac (Homebrew)
-brew install supabase/tap/supabase
-```
-
-### 起動・停止
+### 基本操作
 
 ```bash
 supabase start     # 起動
 supabase stop      # 停止
-supabase db reset  # DBリセット（マイグレーション + シード再実行）
 supabase status    # 状態確認
 ```
 
-### 起動後のURL
+起動後の管理画面: http://localhost:54323
 
-| サービス | URL |
-|----------|-----|
-| Studio（管理画面） | http://localhost:54323 |
-| API | http://localhost:54321 |
-| DB | postgresql://postgres:postgres@localhost:54322/postgres |
-
-詳細: [supabase/README.md](supabase/README.md)
+詳細なSupabase操作（CLIインストール、DBリセット、URL一覧等）は [supabase/README.md](supabase/README.md) を参照してください。
 
 ## 📁 プロジェクト構造
 
@@ -126,13 +111,14 @@ supabase status    # 状態確認
 
 ## 貢献
 
+詳細な開発フローは [CLAUDE.md](CLAUDE.md) および [docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) を参照してください。
+
+基本的な流れ:
 1. Issueから作業対象を選択
-2. `npm run start-issue [番号]` でブランチ作成
+2. フィーチャーブランチを作成（`git checkout -b feature/issue-XXX-description`）
 3. 実装・テスト作成
 4. `npm run ci:all` で品質チェック
-5. `npm run create-pr` でPR作成
-
-詳細: [docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md)
+5. PRを作成
 
 ## ライセンス
 
