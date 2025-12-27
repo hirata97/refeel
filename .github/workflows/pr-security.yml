@@ -1,0 +1,91 @@
+name: PR Security
+
+# PR作成・更新時のセキュリティ分析
+# 目的: npm audit脆弱性スキャンとセキュリティ機能テスト
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'tests/e2e/**'  # E2Eテストは別ワークフローで実行
+
+# 権限設定
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+# 同じPRからの複数実行をキャンセル
+concurrency:
+  group: pr-security-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  security:
+    name: Security Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    # npm auditキャッシュ
+    - name: Cache npm audit results
+      uses: actions/cache@v4
+      with:
+        path: |
+          audit-results.json
+        key: audit-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          audit-cache-${{ runner.os }}-
+
+    - name: Install dependencies (with retry)
+      run: |
+        # retry機能付きのnpm install
+        for i in {1..3}; do
+          echo "Attempt $i: Installing dependencies..."
+          npm ci --prefer-offline --silent --no-audit --no-fund && break
+          echo "Install failed. Waiting 30 seconds before retry..."
+          sleep 30
+        done
+
+    # npm auditによる脆弱性チェック
+    - name: Security Vulnerability Scan
+      run: |
+        echo "## 🔒 Security Scan Results" >> $GITHUB_STEP_SUMMARY
+
+        # npm auditをJSONで実行し、高・クリティカル脆弱性のみをチェック
+        npm audit --json > audit-results.json 2>/dev/null || true
+
+        # jqを使ってhigh/critical脆弱性を抽出
+        high_critical_count=$(jq '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical") | .key' audit-results.json 2>/dev/null | wc -l || echo "0")
+
+        # 詳細情報をstep summaryに追加
+        total_vulnerabilities=$(jq '.metadata.vulnerabilities | .info + .low + .moderate + .high + .critical' audit-results.json 2>/dev/null || echo "0")
+        echo "**Total vulnerabilities found:** $total_vulnerabilities" >> $GITHUB_STEP_SUMMARY
+        echo "**High/Critical vulnerabilities:** $high_critical_count" >> $GITHUB_STEP_SUMMARY
+
+        # 高・クリティカル脆弱性がある場合のみ失敗
+        if [ "$high_critical_count" -gt 0 ]; then
+          echo "❌ 高リスクまたはクリティカルな脆弱性が $high_critical_count 件発見されました" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`json" >> $GITHUB_STEP_SUMMARY
+          jq -r '.vulnerabilities | to_entries[] | select(.value.severity=="high" or .value.severity=="critical")' audit-results.json >> $GITHUB_STEP_SUMMARY || true
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+        echo "✅ セキュリティスキャン完了（高・クリティカル脆弱性なし）" >> $GITHUB_STEP_SUMMARY
+
+    # セキュリティ機能のテスト
+    - name: Security Features Test
+      run: npm run ci:security

@@ -23,26 +23,24 @@
 - **Issue管理**: テンプレートによる構造化されたIssue作成
 - **PR品質ゲート**: 自動品質チェック・レビュー支援
 - **依存関係更新**: Dependabotによる自動アップデート
-- **ラベル自動化**: Issue/PR自動ラベリング
 
 ## ディレクトリ構成
 
 ```
 .github/
 ├── README.md                          # このファイル
-├── COMMIT_GUIDELINES.md               # コミットメッセージガイドライン
-├── ISSUE_VERIFICATION_CHECKLIST.md    # Issue検証チェックリスト
 ├── dependabot.yml                     # Dependabot自動更新設定
 │
 ├── workflows/                         # GitHub Actions ワークフロー
-│   ├── ci.yml                         # 統合CI（lint, type-check, test, build）
-│   ├── pr-quality-gate.yml            # PR品質ゲート
-│   ├── e2e-tests.yml                  # E2Eテスト
+│   ├── TESTING.md                     # ワークフロー詳細・テスト戦略ガイド
+│   ├── push-quick-check.yml           # Push時の軽量品質チェック
+│   ├── pr-code-quality.yml            # PR時のコード品質チェック
+│   ├── pr-unit-vitest.yml             # PR時のユニットテスト（Vitest）
+│   ├── pr-e2e-playwright.yml          # PR時のE2Eテスト（Playwright）
+│   ├── pr-security.yml                # PR時のセキュリティチェック
+│   ├── pr-quality-summary.yml         # PR品質ゲート統合サマリー
 │   ├── deploy.yml                     # Vercelデプロイ
-│   ├── type-generation.yml            # Supabase型定義自動生成
-│   ├── AutoLabel.yml                  # 自動ラベリング
-│   ├── issue-audit.yml                # Issue監査
-│   └── auto-close-issues.yml          # 古いIssue自動クローズ
+│   └── type-generation.yml            # Supabase型定義自動生成
 │
 └── ISSUE_TEMPLATE/                    # Issueテンプレート
     ├── bug_report.yml                 # バグ報告
@@ -53,64 +51,83 @@
 
 ## GitHub Actions ワークフロー
 
+> **詳細ドキュメント**: ワークフロー詳細・テスト戦略・品質基準については、[workflows/TESTING.md](workflows/TESTING.md) を参照してください。
+
 ### CI/CD ワークフロー一覧
 
 | ワークフロー | トリガー | 目的 | 実行時間 |
 |------------|---------|------|---------|
-| **ci.yml** | PR, push to main | 品質チェック統合 | 2-3分 |
-| **pr-quality-gate.yml** | PR作成・更新 | PR品質ゲート | 3-4分 |
-| **e2e-tests.yml** | PR, 手動実行 | E2Eテスト | 5-10分 |
-| **deploy.yml** | push to main | Vercel本番デプロイ | 1-2分 |
-| **type-generation.yml** | 手動実行 | Supabase型定義生成 | 30秒 |
-| **AutoLabel.yml** | Issue/PR作成 | 自動ラベル付与 | 10秒 |
-| **issue-audit.yml** | 毎週月曜 | Issue状態監査 | 30秒 |
-| **auto-close-issues.yml** | 毎日 | 古いIssue自動クローズ | 30秒 |
+| **pr-code-quality.yml** | PR作成・更新 | コード品質チェック（ESLint、TypeScript、Prettier、ビルド） | 10分 |
+| **pr-unit-vitest.yml** | PR作成・更新 | ユニットテスト（Vitest）とカバレッジ分析 | 10分 |
+| **pr-security.yml** | PR作成・更新 | セキュリティスキャン（npm audit、セキュリティテスト） | 5分 |
+| **pr-quality-summary.yml** | 上記3つ完了時 | 統合品質レポート生成・PRコメント投稿 | 10秒 |
+| **pr-e2e-playwright.yml** | PR作成・更新, 手動実行 | E2Eテスト（Playwright・3階層戦略） | Tier 1: 10分, Tier 2: 20分, Tier 3: 35分 |
+| **push-quick-check.yml** | push to main/develop | Push時の軽量チェック（ESLint、TypeScript、ビルド） | 5分 |
+| **deploy.yml** | push to main | Vercel本番デプロイ | 15分 |
+| **type-generation.yml** | スキーマ変更時 | Supabase型定義自動生成 | 30秒 |
 
-### ci.yml - 統合CI
+### push-quick-check.yml - Push時の軽量チェック
 
-**目的**: PR・mainブランチのコード品質を保証
+**トリガー**: `main`/`develop`ブランチへのpush（docs/**, *.md除く）
+
+**目的**: mainブランチ保護のための最小限品質確認（5分以内完了）
 
 **実行内容**:
-```yaml
-jobs:
-  lint-and-format:    # ESLint + Prettier
-  type-check:         # TypeScript型チェック
-  unit-tests:         # Vitestユニットテスト
-  security-audit:     # npm audit（脆弱性チェック）
-  build-check:        # Viteビルド確認
-```
+- ESLint（エラー0件、警告0件必須・キャッシュ利用）
+- TypeScript型チェック（増分ビルドキャッシュ利用）
+- 本番ビルドテスト
 
-**品質ゲート条件**:
-- ✅ ESLint警告0件
-- ✅ TypeScript型エラー0件
-- ✅ ユニットテスト全成功
-- ✅ カバレッジ閾値達成
-- ✅ ビルド成功
+**タイムアウト**: 5分
 
-### pr-quality-gate.yml - PR品質ゲート
+**特徴**: テストとセキュリティチェックを省略し、高速実行
 
-**目的**: PRマージ前の包括的品質検証
+### PR品質ゲートワークフロー群
 
-**追加チェック**:
-- コミットメッセージ規約準拠
-- PR説明文必須項目確認
-- ラベル設定確認
-- レビュアー指定確認
+PR作成・更新時は以下のワークフローが並列実行され、完了後にサマリーが生成されます。
 
-### e2e-tests.yml - E2Eテスト
+#### pr-code-quality.yml - コード品質チェック
 
-**目的**: 実際のブラウザ環境での動作確認
+**実行内容**:
+- ESLint（厳格チェック・キャッシュ利用）
+- TypeScript型チェック
+- Prettierフォーマットチェック
+- 本番ビルドテスト
+- ビルド成果物検証
+- バンドルサイズ分析
+
+#### pr-unit-vitest.yml - ユニットテスト
+
+**実行内容**:
+- ユニットテスト（Vitest・カバレッジ付き）
+- Codecovへレポートアップロード
+- カバレッジ閾値チェック（70%推奨、警告のみ）
+
+#### pr-security.yml - セキュリティチェック
+
+**実行内容**:
+- npm audit脆弱性スキャン（High/Critical 0件必須）
+- セキュリティ機能テスト（`npm run ci:security`）
+
+#### pr-quality-summary.yml - 統合サマリー
+
+**動作**:
+- 上記3つのワークフロー完了をトリガーに実行
+- 全チェック結果を集約してPRコメント投稿
+- 品質ゲート通過/失敗の判定表示
+
+### pr-e2e-playwright.yml - E2Eテスト
+
+**目的**: Playwrightによる実際のブラウザ環境での動作確認
+
+**3階層テスト戦略**:
+- **Tier 1 (Smoke)**: 全PR、chromiumのみ、5分以内
+- **Tier 2 (Core)**: 手動実行、chromium+firefox、15分以内
+- **Tier 3 (Full)**: ready-to-mergeラベル、全ブラウザ、30分以内
 
 **対応ブラウザ**:
 - Chromium（必須）
 - Firefox
 - WebKit（Safari相当）
-
-**実行戦略**:
-```yaml
-matrix:
-  browser: [chromium, firefox, webkit]
-```
 
 **成果物保存**:
 - テストレポート（7日間保持）
@@ -119,57 +136,41 @@ matrix:
 
 ### deploy.yml - Vercelデプロイ
 
-**トリガー**: `main`ブランチへのpush
+**トリガー**: `main`ブランチへのpush（src/**変更時）
 
 **デプロイフロー**:
-1. ビルド実行（`npm run build`）
-2. Vercel自動デプロイ（Vercel統合経由）
-3. デプロイ結果通知
+1. **事前品質チェック**: ESLint、TypeScript、ビルド、セキュリティチェック
+2. **Vercel本番デプロイ**: `amondnet/vercel-action@v25`使用
+3. **スモークテスト**: デプロイURL疎通確認（5回リトライ）
+4. **デプロイ通知**: 成功/失敗ステータスをコメント投稿
+
+**タイムアウト**: 15分（事前チェック: 10分、デプロイ: 15分）
+
+**環境変数（Secrets）**:
+- `VERCEL_TOKEN`
+- `VERCEL_ORG_ID`
+- `VERCEL_PROJECT_ID`
 
 ### type-generation.yml - 型定義自動生成
 
-**目的**: Supabaseスキーマ変更時の型定義更新
+**目的**: Supabaseスキーマ変更時の型定義自動更新（Issue #144対応）
 
-**実行方法**:
+**トリガー**:
+- `supabase/migrations/**`変更時（自動実行）
+- `supabase/seed/**`変更時（自動実行）
+- 手動実行（workflow_dispatch）
+
+**処理内容**:
+1. **型生成**: 本番Supabase（mainブランチ）またはローカルSupabase（PRブランチ）から型定義生成
+2. **型検証**: TypeScript型チェック、ビルドテスト、ユニットテスト実行
+3. **自動コミット**: mainブランチのみ、型定義更新を自動コミット
+
+**手動実行方法**:
 ```bash
 gh workflow run type-generation.yml
 ```
 
-**処理内容**:
-1. Supabase接続（本番DB）
-2. スキーマ取得
-3. TypeScript型定義生成（`src/types/database.ts`, `src/types/supabase.ts`）
-4. 自動コミット・PR作成
-
-**注意**: 本番DB接続のため、実行には適切な権限が必要
-
-### AutoLabel.yml - 自動ラベリング
-
-**目的**: Issue/PR作成時の自動ラベル付与
-
-**ラベリングルール**:
-- ファイルパス基準: `src/stores/**` → `type-basic:feature`
-- キーワード基準: "bug", "fix" → `type-basic:bug`
-- PR基準: draft → `status:draft`
-
-### issue-audit.yml - Issue監査
-
-**実行**: 毎週月曜9:00（JST）
-
-**監査項目**:
-- 長期未対応Issue（30日以上）
-- ラベル未設定Issue
-- アサイン未設定Issue（P0/P1）
-
-**アクション**: Slackコメント投稿（将来実装）
-
-### auto-close-issues.yml - 古いIssue自動クローズ
-
-**実行**: 毎日0:00（JST）
-
-**クローズ条件**:
-- 90日間活動なし
-- `status:stale` ラベル付与後7日経過
+**注意**: mainブランチでの本番DB接続には`VITE_SUPABASE_URL`、`SUPABASE_ACCESS_TOKEN` Secretsが必要
 
 ## Issue・PRテンプレート
 
@@ -290,15 +291,9 @@ groups:
 - `type-infra:ci-cd`: CI/CD関連
 - `type-quality:docs`: ドキュメント
 
-**詳細**: `docs/PROJECT_MANAGEMENT/ISSUE_CREATION_GUIDE.md` 参照
+**詳細**: `/.claude/commands/create-issue.md` 参照（Issue品質保証エージェント）
 
-### ラベル自動付与
-
-`AutoLabel.yml` ワークフローが自動的にラベル付与:
-
-- ファイルパスベース
-- コミットメッセージキーワード
-- PR説明文キーワード
+**ラベル付与**: Issue/PR作成時に適切なラベルを手動で選択してください
 
 ## ワークフロー保守
 
@@ -453,5 +448,5 @@ gh run rerun [run-id] --failed
 
 ---
 
-**最終更新**: 2025-11-14
+**最終更新**: 2025-11-29
 **メンテナー**: GoalCategorizationDiary開発チーム

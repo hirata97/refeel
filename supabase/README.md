@@ -60,6 +60,31 @@ supabase/
 
 詳細なスキーマ定義は `migrations/00000000000000_initial_schema.sql` を参照してください。
 
+### emotion_tags（感情マスタテーブル）
+
+| カラム | 型 | 説明 |
+|--------|-----|-----|
+| id | UUID | 主キー |
+| name | TEXT | 感情名（例: "達成感"） |
+| category | TEXT | positive/negative/neutral |
+| color | TEXT | UI表示色 |
+| description | TEXT | 説明文 |
+| display_order | INTEGER | 表示順序 |
+
+**マスタデータ（20件）:**
+- **ポジティブ感情（8種類）**: 達成感、集中、やりがい、安心、充実、興奮、喜び、感謝
+- **ネガティブ感情（8種類）**: 疲労、不安、焦り、失望、孤独、退屈、怒り、悲しみ
+- **中性感情（4種類）**: 平常、淡々、思考中、準備中
+
+### diary_emotion_tags（日記-感情タグ関連テーブル）
+
+| カラム | 型 | 説明 |
+|--------|-----|-----|
+| id | UUID | 主キー |
+| diary_id | UUID | 日記テーブル外部キー |
+| emotion_tag_id | UUID | 感情タグ外部キー |
+| created_at | TIMESTAMPTZ | 作成日時 |
+
 ## 🔒 セキュリティ（RLS）
 
 全テーブルでRow Level Securityが有効化されています：

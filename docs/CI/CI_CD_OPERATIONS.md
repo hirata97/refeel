@@ -146,7 +146,7 @@ ls -la .github/workflows/
 
 ```bash
 # CI/CDドキュメント更新確認
-ls docs/INFRASTRUCTURE/
+ls docs/CI/
 
 # 更新項目
 # - 設定変更の反映

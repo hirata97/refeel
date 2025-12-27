@@ -280,7 +280,7 @@ time npm run type-check
 
 ## 📚 関連ドキュメント
 
-- [CI/CD Guide](CI_CD_GUIDE.md) - Type Generation Workflow詳細
+- [CI/CD開発者ガイド](CI_CD_DEVELOPER_GUIDE.md) - Type Generation Workflow詳細・ベストプラクティス
 - [Development Commands](../DEVELOPMENT/DEVELOPMENT_COMMANDS.md) - npm script使用方法
 - [Architecture](../DEVELOPMENT/ARCHITECTURE.md) - システム全体での型システム位置づけ
 - [CLAUDE.md](../../CLAUDE.md) - 開発フロー統合情報

@@ -84,6 +84,13 @@ git push origin main                                   # mainブランチ直接�
 - Pinia状態管理パターン遵守
 - リアクティビティの適切な活用
 
+### モジュール設計
+
+- **1ファイル200行以下を目標**: 大きなファイルは機能別に分割
+- **単一責任原則**: 1ファイル1機能の明確な責務分担
+- **依存関係注入**: 疎結合な設計で保守性向上
+- 詳細パターン: [docs/DEVELOPMENT/CODE_PATTERNS.md](docs/DEVELOPMENT/CODE_PATTERNS.md)
+
 ### 段階的実装
 
 - 最小単位での確認（実装→テスト→品質チェック）
@@ -207,7 +214,7 @@ Closes #[Issue番号]
 | **開発ワークフロー** | [docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) |
 | **コマンド一覧** | [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) |
 | **アーキテクチャ** | [docs/DEVELOPMENT/ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md) |
-| **CI/CD** | [docs/CI/CI_CD_GUIDE.md](docs/CI/CI_CD_GUIDE.md) |
+| **CI/CD** | [docs/CI/CI_CD_DEVELOPER_GUIDE.md](docs/CI/CI_CD_DEVELOPER_GUIDE.md) |
 | **セキュリティ** | [docs/SECURITY/SECURITY_GUIDE.md](docs/SECURITY/SECURITY_GUIDE.md) |
 | **Issue・PR管理** | [docs/PROJECT_MANAGEMENT/](docs/PROJECT_MANAGEMENT/) |
 

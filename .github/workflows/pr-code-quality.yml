@@ -1,0 +1,125 @@
+name: PR Code Quality
+
+# PR作成・更新時のコード品質チェック
+# 目的: ESLint、TypeScript、Prettier、ビルドの厳格な検証
+on:
+  pull_request:
+    branches: [ main, develop ]
+    types: [opened, synchronize, reopened]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+      - 'tests/e2e/**'  # E2Eテストは別ワークフローで実行
+
+# 権限設定
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+# 同じPRからの複数実行をキャンセル
+concurrency:
+  group: pr-code-quality-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # コミット履歴全体を取得
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    # TypeScript増分ビルドキャッシュ
+    - name: Cache TypeScript build info
+      uses: actions/cache@v4
+      with:
+        path: |
+          tsconfig.tsbuildinfo
+          node_modules/.cache
+        key: ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue') }}
+        restore-keys: |
+          ts-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          ts-cache-${{ runner.os }}-
+
+    # ESLintキャッシュ
+    - name: Cache ESLint
+      uses: actions/cache@v4
+      with:
+        path: .eslintcache
+        key: eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*.ts', 'src/**/*.vue', 'eslint.config.js') }}
+        restore-keys: |
+          eslint-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          eslint-cache-${{ runner.os }}-
+
+    # Viteビルドキャッシュ
+    - name: Cache Vite build
+      uses: actions/cache@v4
+      with:
+        path: |
+          dist
+          node_modules/.vite
+        key: vite-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ hashFiles('src/**/*', 'vite.config.ts') }}
+        restore-keys: |
+          vite-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+          vite-cache-${{ runner.os }}-
+
+    - name: Install dependencies (with retry)
+      run: |
+        # retry機能付きのnpm install
+        for i in {1..3}; do
+          echo "Attempt $i: Installing dependencies..."
+          npm ci --prefer-offline --silent --no-audit --no-fund && break
+          echo "Install failed. Waiting 30 seconds before retry..."
+          sleep 30
+        done
+
+    # 厳格なESLintチェック（エラーで失敗・キャッシュ利用）
+    - name: ESLint Code Analysis
+      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache
+
+    # 厳格なTypeScriptチェック（エラーで失敗）
+    - name: TypeScript Type Check
+      run: npm run ci:type-check
+
+    # コードフォーマットチェック
+    - name: Prettier Format Check
+      run: npx prettier --check src/
+
+    # ビルドテスト
+    - name: Production Build Test
+      run: npm run ci:build
+
+    - name: Check Build Artifacts
+      run: |
+        if [ ! -d "dist" ]; then
+          echo "❌ ビルド成果物が生成されていません"
+          exit 1
+        fi
+
+        # 必須ファイルの存在確認
+        if [ ! -f "dist/index.html" ]; then
+          echo "❌ index.htmlが生成されていません"
+          exit 1
+        fi
+
+        echo "✅ ビルド成果物の検証完了"
+
+    # バンドルサイズ分析
+    - name: Bundle Size Analysis
+      run: |
+        echo "## 📦 Bundle Size Report" >> $GITHUB_STEP_SUMMARY
+        echo "```" >> $GITHUB_STEP_SUMMARY
+        ls -lah dist/*.js | head -10 >> $GITHUB_STEP_SUMMARY
+        echo "```" >> $GITHUB_STEP_SUMMARY

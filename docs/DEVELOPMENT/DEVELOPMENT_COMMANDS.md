@@ -1,4 +1,9 @@
-# 開発コマンド
+# 開発コマンド（完全版）
+
+> **対象**: 開発者
+> **クイックリファレンス**: [CLAUDE.md](../../CLAUDE.md) の頻用コマンドを参照
+>
+> このドキュメントは全コマンドの完全な一覧です。日常開発では CLAUDE.md の頻用コマンドが便利です。
 
 ## 基本開発コマンド
 
@@ -18,14 +23,20 @@ npm run format
 # ユニットテスト
 npm run test:unit
 
-# E2Eテスト（初回のみブラウザインストール）
-npx playwright install
-npm run test:e2e
+# E2Eテスト
+# 初回セットアップ（ブラウザバイナリのインストール）
+npx playwright install        # Chromium, Firefox, WebKitをインストール
+npx playwright install --with-deps  # 依存ライブラリも含めてインストール
+
+# E2Eテスト実行
+npm run test:e2e              # 全E2Eテスト実行
+npm run test:e2e -- --ui      # UIモードで実行（デバッグに便利）
+npm run test:e2e -- --headed  # ブラウザを表示して実行
 
 # 型チェック
 npm run type-check
 
-# 型定義生成（データベーススキーマから）⚠️【New】
+# 型定義生成（データベーススキーマから）
 npm run generate-types        # ローカル型定義生成
 npm run generate-types:prod   # 本番型定義生成（要環境変数）
 npm run dev:with-types        # 型生成後に開発サーバー起動
@@ -123,3 +134,8 @@ npm run create-pr "タイトル" "説明"
 ### 生成ファイル
 
 - `tasks/issue-[番号]-tasks.md` - Issue用タスク管理ファイル
+
+---
+
+**最終更新**: 2025-12-03
+**変更履歴**: 型定義コマンドの【New】マーク削除、E2Eテストコマンド説明拡充

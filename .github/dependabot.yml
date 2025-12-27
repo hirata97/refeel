@@ -3,99 +3,99 @@ version: 2
 
 updates:
   # npm依存関係の自動更新
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Asia/Tokyo"
-    
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+      timezone: 'Asia/Tokyo'
+
     # PR設定
     open-pull-requests-limit: 5
-    target-branch: "main"
-    
+    target-branch: 'main'
+
     # ラベル設定
     labels:
-      - "type-infra:dependencies"
-      - "priority:P2"
-      - "auto-dependency-update"
-    
+      - 'type-infra:dependencies'
+      - 'priority:P2'
+      - 'auto-dependency-update'
+
     # レビュアー設定
     reviewers:
-      - "RsPYP"
-    
+      - 'hirata97'
+
     # アップデート戦略
-    versioning-strategy: "increase"
-    
+    versioning-strategy: 'increase'
+
     # セキュリティアップデートは別途高優先度で
     allow:
-      - dependency-type: "direct"
-        update-type: "security"
-      - dependency-type: "indirect"
-        update-type: "security"
-      - dependency-type: "direct"
-        update-type: "version-update:semver-patch"
-      - dependency-type: "direct"
-        update-type: "version-update:semver-minor"
-    
+      - dependency-type: 'direct'
+        update-type: 'security'
+      - dependency-type: 'indirect'
+        update-type: 'security'
+      - dependency-type: 'direct'
+        update-type: 'version-update:semver-patch'
+      - dependency-type: 'direct'
+        update-type: 'version-update:semver-minor'
+
     # グループ化設定
     groups:
       # Vue.js関連の依存関係をグループ化
       vue-ecosystem:
         patterns:
-          - "vue*"
-          - "@vue/*"
-          - "vite*"
-          - "@vitejs/*"
-          - "vuetify"
-      
+          - 'vue*'
+          - '@vue/*'
+          - 'vite*'
+          - '@vitejs/*'
+          - 'vuetify'
+
       # テスト関連の依存関係をグループ化
       testing:
         patterns:
-          - "vitest*"
-          - "@vitest/*"
-          - "playwright*"
-          - "@playwright/*"
-          - "*testing*"
-      
+          - 'vitest*'
+          - '@vitest/*'
+          - 'playwright*'
+          - '@playwright/*'
+          - '*testing*'
+
       # ESLint・Prettier関連
       linting:
         patterns:
-          - "eslint*"
-          - "@eslint/*"
-          - "prettier*"
-          - "@typescript-eslint/*"
-      
+          - 'eslint*'
+          - '@eslint/*'
+          - 'prettier*'
+          - '@typescript-eslint/*'
+
       # TypeScript関連
       typescript:
         patterns:
-          - "typescript*"
-          - "@types/*"
-    
+          - 'typescript*'
+          - '@types/*'
+
     # セキュリティ専用のコミットメッセージ
     commit-message:
-      prefix: "chore"
-      prefix-development: "chore"
-      include: "scope"
+      prefix: 'chore'
+      prefix-development: 'chore'
+      include: 'scope'
 
   # GitHub Actions の自動更新
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "10:00"
-      timezone: "Asia/Tokyo"
-    
+      interval: 'weekly'
+      day: 'monday'
+      time: '10:00'
+      timezone: 'Asia/Tokyo'
+
     labels:
-      - "type-infra:ci-cd"
-      - "priority:P2"
-      - "auto-dependency-update"
-    
+      - 'type-infra:ci-cd'
+      - 'priority:P2'
+      - 'auto-dependency-update'
+
     reviewers:
-      - "RsPYP"
-    
+      - 'hirata97'
+
     commit-message:
-      prefix: "ci"
-      include: "scope"
+      prefix: 'ci'
+      include: 'scope'

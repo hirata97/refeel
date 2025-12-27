@@ -1,19 +1,6 @@
 # プロジェクトアーキテクチャ
 
-## 🏗️ システムアーキテクチャ
-
-- **フロントエンド**: Vue 3.5 + TypeScript 5.6 + Vite 5.4
-- **UI フレームワーク**: Vuetify 3.7（Material Design）
-- **状態管理**: Pinia 2.2（統合ページネーションストア含む）
-- **データ可視化**: Chart.js 4.4 + vue-chartjs 5.3
-- **認証・DB**: Supabase 2.49（JWT認証、RLS、リアルタイム更新）
-- **フォーム検証**: VeeValidate 4.15 + カスタムルール
-- **セキュリティ**: DOMPurify 3.2（XSS対策）+ CSP準備中
-- **テスト**: Vitest 2.1 + Playwright 1.48 + @vitest/coverage-v8
-- **リンティング**: ESLint 9.14 + Prettier 3.3
-- **デプロイ**: Vercel自動デプロイ + CI/CD統合
-
-## 技術スタック
+## 🏗️ 技術スタック
 
 ### コア技術
 
@@ -170,7 +157,12 @@ src/
 │   ├── audit-logger.ts      # 監査ログ
 │   └── performance.ts       # パフォーマンス監視
 ├── types/              # TypeScript型定義
+│   ├── database.ts     # データベーススキーマ型（自動生成）
+│   ├── supabase.ts     # Supabaseクライアント型（自動生成）
+│   ├── custom.ts       # カスタム型定義（手動管理）
 │   └── security.d.ts   # セキュリティ型定義
+├── services/           # ビジネスロジック・サービス層
+├── config/             # アプリケーション設定
 ├── router/             # Vue Routerルート定義
 ├── lib/                # ライブラリ設定
 │   └── supabase.ts     # Supabaseクライアント
@@ -257,3 +249,8 @@ tests/                  # テストファイル
 - **セキュリティメトリクス**: utils/performance.tsによる監視
 - **異常検出**: パフォーマンス異常とセキュリティリスク連携
 - **リアルタイム監視**: Supabaseリアルタイム機能活用
+
+---
+
+**最終更新**: 2025-12-03
+**変更履歴**: 技術スタック重複解消、ディレクトリ構成の実際のsrc/構造への同期（config/, services/, types/詳細追加）

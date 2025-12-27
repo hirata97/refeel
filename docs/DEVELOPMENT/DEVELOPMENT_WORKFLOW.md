@@ -48,6 +48,26 @@ git checkout -b fix/issue-92-login-error-handling
 ## 🛠️ 開発作業フロー
 
 ### 1. コード実装
+
+#### 段階的実装プロセス（推奨）
+
+**フェーズ1: 基盤準備**
+- 型定義・インターフェース作成
+- 基本構造の実装
+
+**フェーズ2: 機能実装**
+- コア機能実装
+- ユニットテスト同時作成（必須）
+
+**フェーズ3: 統合・最適化**
+- 他コンポーネントとの統合
+- E2Eテストの追加
+- パフォーマンス・アクセシビリティ確認
+
+**フェーズ4: 最終検証**
+- リファクタリング・コード品質向上
+- ドキュメント更新
+
 ```bash
 # 開発環境起動
 npm run dev
@@ -86,7 +106,7 @@ git commit -m "feat: Issue #76 データキャッシング機能実装
 - 5分TTLのクライアントサイドキャッシュ
 - パフォーマンス監視ツール追加
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
@@ -207,7 +227,7 @@ npm run create-pr "タイトル" "説明"
 ## Closes
 Closes #XX
 
-🤖 Generated with [Claude Code](https://claude.ai/code)
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
 ### 4. レビューと承認
@@ -292,16 +312,19 @@ git stash pop
 
 ## 📚 関連ドキュメント
 
-- [CI/CDテストガイド](CI_CD_TESTING.md) - ワークフロー一覧・品質基準・トラブルシューティング
-- [CI/CDパイプライン運用ガイド](../CI/CI_CD_GUIDE.md) - 自動品質チェック詳細
+- [CI/CDテストガイド](../../.github/workflows/TESTING.md) - ワークフロー一覧・品質基準・トラブルシューティング
+- [CI/CD開発者ガイド](../CI/CI_CD_DEVELOPER_GUIDE.md) - 自動品質チェック詳細・ベストプラクティス
 - [開発コマンド一覧](DEVELOPMENT_COMMANDS.md)
 - [コーディング規則](CODING_STANDARDS.md)
-- [Issue ラベル体系](../PROJECT_MANAGEMENT/ISSUE_LABELS.md)
+- [Issue作成・ラベル体系](../../.claude/commands/create-issue.md) - Issue品質保証エージェント
 - [環境設定](../ENVIRONMENT/ENVIRONMENT_SETUP.md)
 
 ---
+
+**最終更新**: 2025-12-03
 
 **📝 更新履歴**
 - 2025-08-17: 初版作成
 - 2025-08-17: PR作成ルールとコミットメッセージ規則追加
 - 2025-08-19: CI/CD統合後のワークフロー更新（Issue #55対応）
+- 2025-12-03: Claude CodeのURL修正、最新の開発フローに更新（Issue #300対応）
