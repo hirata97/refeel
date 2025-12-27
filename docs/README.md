@@ -94,6 +94,7 @@ npm run ci:all       # 全品質チェック
 | ------------------------------------------ | -------------------------------------------------- |
 | [ENVIRONMENT/](ENVIRONMENT/)               | 環境構築・Docker・Supabase設定                     |
 | [DEVELOPMENT/](DEVELOPMENT/)               | 開発ワークフロー・アーキテクチャ・コーディング規則 |
+| [DEPLOYMENT/](DEPLOYMENT/)                 | デプロイ手順・Vercel設定                           |
 | [CI/](CI/)                                 | CI/CD総合ガイド（運用・設定・トラブルシューティング） |
 | [SECURITY/](SECURITY/)                     | セキュリティガイドライン・実装・更新履歴           |
 | [PROJECT_MANAGEMENT/](PROJECT_MANAGEMENT/) | Issue・PR・ラベル管理                              |
@@ -148,6 +149,13 @@ npm run ci:all       # 全品質チェック
 | [CODE_PATTERNS.md](DEVELOPMENT/CODE_PATTERNS.md)               | Vue 3/TypeScriptコードパターン集・実装例             |
 | [BEST_PRACTICES.md](DEVELOPMENT/BEST_PRACTICES.md)             | 📌 再構成済み（CLAUDE.md、DEVELOPMENT_WORKFLOW.md、CODE_PATTERNS.mdへ移行） |
 | [CODING_STANDARDS.md](DEVELOPMENT/CODING_STANDARDS.md)         | 📌 再構成済み（CLAUDE.md、DEVELOPMENT_WORKFLOW.md、CODE_PATTERNS.mdへ移行） |
+
+### DEPLOYMENT/ - デプロイ
+
+| ファイル                                                       | 説明                                                 |
+| -------------------------------------------------------------- | ---------------------------------------------------- |
+| [VERCEL_DEPLOYMENT.md](DEPLOYMENT/VERCEL_DEPLOYMENT.md)       | Vercelデプロイ手順・環境変数設定・トラブルシューティング |
+
 ### CI/ - CI/CD日常運用
 
 開発者が日常的に使用するCI/CD運用ドキュメント
