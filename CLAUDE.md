@@ -1,5 +1,7 @@
 # CLAUDE.md - Refeel開発ガイド
 
+## 必ず日本語でやり取りすること。
+
 > **対象**: 開発者・Claude Code
 > **初見者**: まず [README.md](README.md) でプロジェクト概要とセットアップを確認
 
@@ -197,9 +199,11 @@ tests/               # テストファイル
 
 ```markdown
 ## Summary
+
 [実装内容の概要を簡潔に記述]
 
 ## Test plan
+
 [テスト方法や確認項目のチェックリスト]
 
 Closes #[Issue番号]
@@ -209,14 +213,14 @@ Closes #[Issue番号]
 
 ## 📚 詳細ドキュメント
 
-| カテゴリ | ドキュメント |
-|----------|--------------|
+| カテゴリ             | ドキュメント                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------ |
 | **開発ワークフロー** | [docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md](docs/DEVELOPMENT/DEVELOPMENT_WORKFLOW.md) |
-| **コマンド一覧** | [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) |
-| **アーキテクチャ** | [docs/DEVELOPMENT/ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md) |
-| **CI/CD** | [docs/CI/CI_CD_DEVELOPER_GUIDE.md](docs/CI/CI_CD_DEVELOPER_GUIDE.md) |
-| **セキュリティ** | [docs/SECURITY/SECURITY_GUIDE.md](docs/SECURITY/SECURITY_GUIDE.md) |
-| **Issue・PR管理** | [docs/PROJECT_MANAGEMENT/](docs/PROJECT_MANAGEMENT/) |
+| **コマンド一覧**     | [docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md](docs/DEVELOPMENT/DEVELOPMENT_COMMANDS.md) |
+| **アーキテクチャ**   | [docs/DEVELOPMENT/ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md)                 |
+| **CI/CD**            | [docs/CI/CI_CD_DEVELOPER_GUIDE.md](docs/CI/CI_CD_DEVELOPER_GUIDE.md)                 |
+| **セキュリティ**     | [docs/SECURITY/SECURITY_GUIDE.md](docs/SECURITY/SECURITY_GUIDE.md)                   |
+| **Issue・PR管理**    | [docs/PROJECT_MANAGEMENT/](docs/PROJECT_MANAGEMENT/)                                 |
 
 全ドキュメント一覧: [docs/README.md](docs/README.md)
 
@@ -237,4 +241,4 @@ Closes #[Issue番号]
 - Do what has been asked; nothing more, nothing less
 - NEVER create files unless absolutely necessary
 - ALWAYS prefer editing existing files
-- NEVER proactively create documentation files (*.md)
+- NEVER proactively create documentation files (\*.md)
