@@ -2,13 +2,13 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { supabase } from '@core/lib/supabase'
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
-import type { DiaryEntry, Profile } from '@/types/supabase'
+import type { DiaryEntry, Profile } from '@shared/types'
 
 // 既存コードとの互換性のため一時的にre-export
 export type { DiaryEntry, Profile }
 
 // キャッシュ設定をカスタム型定義から再エクスポート
-import type { CacheEntry, CacheKey } from '@/types/custom'
+import type { CacheEntry, CacheKey } from '@shared/types'
 import { createLogger } from '@/utils/logger'
 
 const logger = createLogger('DATA')
