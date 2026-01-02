@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { BaseCard } from '@/components/base'
+import { BaseCard } from '@shared/components/base'
 
 interface Props {
   /** タイトル */
