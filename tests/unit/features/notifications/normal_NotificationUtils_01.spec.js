@@ -1,19 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { NotificationUtils } from '@/utils/notifications'
 
-// ブラウザAPIのモック
-const mockNotification = vi.fn()
-Object.defineProperty(global, 'Notification', {
-  value: mockNotification,
-  writable: true
-})
-
-Object.defineProperty(global, 'navigator', {
-  value: {
-    vibrate: vi.fn()
-  },
-  writable: true
-})
+// loggerのモック
+vi.mock('@shared/utils/logger', () => ({
+  createLogger: vi.fn(() => ({
+    warn: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    debug: vi.fn()
+  }))
+}))
 
 // LocalStorageのモック
 const localStorageMock = {
@@ -22,42 +18,67 @@ const localStorageMock = {
   removeItem: vi.fn(),
   clear: vi.fn()
 }
-Object.defineProperty(global, 'localStorage', {
-  value: localStorageMock,
-  writable: true
-})
-
-// Audioのモック
-Object.defineProperty(global, 'Audio', {
-  value: vi.fn(() => ({
-    play: vi.fn(() => Promise.resolve())
-  })),
-  writable: true
-})
 
 describe('NotificationUtils - 正常系テスト', () => {
+  let mockNotification
+  let mockAudio
+  let mockAudioInstance
+
   beforeEach(() => {
     vi.clearAllMocks()
-    // デフォルトの通知許可状態
-    Object.defineProperty(Notification, 'permission', {
-      value: 'granted',
-      writable: true
+
+    // LocalStorageのセットアップ
+    Object.defineProperty(global, 'localStorage', {
+      value: localStorageMock,
+      writable: true,
+      configurable: true
+    })
+
+    // Notificationのモック
+    mockNotification = vi.fn()
+    mockNotification.permission = 'granted'
+    mockNotification.requestPermission = vi.fn(() => Promise.resolve('granted'))
+    Object.defineProperty(global, 'Notification', {
+      value: mockNotification,
+      writable: true,
+      configurable: true
+    })
+
+    // Audioのモック
+    mockAudioInstance = {
+      play: vi.fn(() => Promise.resolve())
+    }
+    mockAudio = vi.fn(() => mockAudioInstance)
+    Object.defineProperty(global, 'Audio', {
+      value: mockAudio,
+      writable: true,
+      configurable: true
+    })
+
+    // Navigatorのモック
+    Object.defineProperty(global, 'navigator', {
+      value: {
+        vibrate: vi.fn()
+      },
+      writable: true,
+      configurable: true
     })
   })
 
   afterEach(() => {
     vi.clearAllMocks()
+    delete global.Notification
+    delete global.Audio
+    delete global.navigator
+    delete global.localStorage
   })
 
   describe('通知許可関連', () => {
     it('通知許可を正常に要求できる', async () => {
-      // requestPermissionをモック
-      Notification.requestPermission = vi.fn(() => Promise.resolve('granted'))
-
       const permission = await NotificationUtils.requestNotificationPermission()
 
       expect(permission).toBe('granted')
-      expect(Notification.requestPermission).toHaveBeenCalledOnce()
+      expect(mockNotification.requestPermission).toHaveBeenCalledOnce()
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         'notification_permission_requested',
         'true'
@@ -75,12 +96,6 @@ describe('NotificationUtils - 正常系テスト', () => {
 
       const permission = NotificationUtils.getNotificationPermission()
       expect(permission).toBe('denied')
-
-      // 元に戻す
-      Object.defineProperty(global, 'Notification', {
-        value: mockNotification,
-        writable: true
-      })
     })
   })
 
@@ -90,14 +105,25 @@ describe('NotificationUtils - 正常系テスト', () => {
         onclick: null,
         close: vi.fn()
       }
-      mockNotification.mockImplementation(() => mockNotificationInstance)
+      // 新しいNotificationコンストラクタを再定義
+      const NotificationConstructor = vi.fn(function() {
+        return mockNotificationInstance
+      })
+      NotificationConstructor.permission = 'granted'
+      NotificationConstructor.requestPermission = vi.fn(() => Promise.resolve('granted'))
+
+      Object.defineProperty(global, 'Notification', {
+        value: NotificationConstructor,
+        writable: true,
+        configurable: true
+      })
 
       const notification = await NotificationUtils.showBrowserNotification(
         'テストタイトル',
         { body: 'テストメッセージ' }
       )
 
-      expect(mockNotification).toHaveBeenCalledWith('テストタイトル', {
+      expect(NotificationConstructor).toHaveBeenCalledWith('テストタイトル', {
         icon: '/favicon.ico',
         badge: '/favicon.ico',
         body: 'テストメッセージ'
@@ -106,9 +132,14 @@ describe('NotificationUtils - 正常系テスト', () => {
     })
 
     it('通知許可がない場合nullを返す', async () => {
-      Object.defineProperty(Notification, 'permission', {
-        value: 'denied',
-        writable: true
+      // permissionをdeniedに変更したNotificationコンストラクタを再定義
+      const NotificationConstructor = vi.fn()
+      NotificationConstructor.permission = 'denied'
+
+      Object.defineProperty(global, 'Notification', {
+        value: NotificationConstructor,
+        writable: true,
+        configurable: true
       })
 
       const notification = await NotificationUtils.showBrowserNotification(
@@ -116,7 +147,7 @@ describe('NotificationUtils - 正常系テスト', () => {
       )
 
       expect(notification).toBeNull()
-      expect(mockNotification).not.toHaveBeenCalled()
+      expect(NotificationConstructor).not.toHaveBeenCalled()
     })
   })
 
@@ -332,14 +363,40 @@ describe('NotificationUtils - 正常系テスト', () => {
     })
 
     it('通知音を正常に再生できる', () => {
+      // 新しいAudioコンストラクタを再定義
+      const mockAudioInstance = {
+        play: vi.fn(() => Promise.resolve())
+      }
+      const AudioConstructor = vi.fn(function() {
+        return mockAudioInstance
+      })
+      Object.defineProperty(global, 'Audio', {
+        value: AudioConstructor,
+        writable: true,
+        configurable: true
+      })
+
       NotificationUtils.playNotificationSound()
-      expect(global.Audio).toHaveBeenCalledWith('/sounds/notification.mp3')
+      expect(AudioConstructor).toHaveBeenCalledWith('/sounds/notification.mp3')
     })
 
     it('カスタム通知音を正常に再生できる', () => {
+      // 新しいAudioコンストラクタを再定義
+      const mockAudioInstance = {
+        play: vi.fn(() => Promise.resolve())
+      }
+      const AudioConstructor = vi.fn(function() {
+        return mockAudioInstance
+      })
+      Object.defineProperty(global, 'Audio', {
+        value: AudioConstructor,
+        writable: true,
+        configurable: true
+      })
+
       const customSoundUrl = '/sounds/custom.mp3'
       NotificationUtils.playNotificationSound(customSoundUrl)
-      expect(global.Audio).toHaveBeenCalledWith(customSoundUrl)
+      expect(AudioConstructor).toHaveBeenCalledWith(customSoundUrl)
     })
 
     it('バイブレーションを正常に実行できる', () => {

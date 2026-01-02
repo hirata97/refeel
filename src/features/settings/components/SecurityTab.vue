@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { useThemeStore, type ThemeName } from '../../stores/theme'
+import { useThemeStore, type ThemeName } from '../stores/theme'
 import { useTheme } from 'vuetify'
 
 const themeStore = useThemeStore()

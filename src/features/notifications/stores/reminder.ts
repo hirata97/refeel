@@ -8,7 +8,7 @@ import {
   type ScheduledNotification,
   NotificationUtils,
 } from '@/utils/notifications'
-import { useNotificationStore } from '@/stores/notification'
+import { useNotificationStore } from '@features/notifications'
 import { createLogger } from '@shared/utils'
 
 const logger = createLogger('REMINDER')

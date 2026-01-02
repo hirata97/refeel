@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useReminderStore } from '@/stores/reminder'
-import { useNotificationStore } from '@/stores/notification'
+import { useReminderStore } from '@features/notifications'
+import { useNotificationStore } from '@features/notifications'
 
 // モック設定
 vi.mock('@/utils/notifications', () => ({

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useThemeStore } from '@/stores/theme'
+import { useThemeStore } from '@features/settings'
 
 // DOM環境のモック
 const mockMatchMedia = vi.fn()
