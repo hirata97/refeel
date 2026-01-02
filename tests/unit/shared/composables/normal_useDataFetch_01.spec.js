@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useDataFetch } from '@/composables/useDataFetch'
+import { useDataFetch } from '@shared/composables'
 
 // パフォーマンスモニターのモック - グローバルモック（tests/setup.ts）を使用
 

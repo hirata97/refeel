@@ -102,8 +102,8 @@ import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'
 import { useAuthGuard } from '@/composables/useAuthGuard'
-import { useAppRouter } from '@/composables/useAppRouter'
-import { useErrorHandler } from '@/composables/useErrorHandler'
+import { useAppRouter } from '@shared/composables'
+import { useErrorHandler } from '@shared/composables'
 
 const { authStore } = useAuthGuard({ requireAuth: false })
 const { navigateToDashboard, navigateToTop } = useAppRouter()
