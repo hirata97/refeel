@@ -4,7 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import ThemeSettingsCard from '@/components/settings/ThemeSettingsCard.vue'
+import { ThemeSettingsCard } from '@features/settings'
 
 // テーマストアをモック
 vi.mock('@/stores/theme', () => ({
