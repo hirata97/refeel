@@ -130,7 +130,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDataManagementStore } from '../../stores/dataManagement'
+import { useDataManagementStore } from '../stores/dataManagement'
 
 const dataManagementStore = useDataManagementStore()
 

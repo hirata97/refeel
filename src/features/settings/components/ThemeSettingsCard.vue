@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useThemeStore, type ThemeName } from '@/stores/theme'
+import { useThemeStore, type ThemeName } from '@features/settings'
 import { useTheme } from 'vuetify'
 
 // Props

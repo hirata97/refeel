@@ -206,7 +206,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import { useProfileStore } from '@/stores/profile'
+import { useProfileStore } from '@features/settings'
 import type { UserProfile } from '@/types/settings'
 import { createLogger } from '@shared/utils'
 
