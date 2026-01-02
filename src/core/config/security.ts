@@ -1,5 +1,5 @@
 import type { SecurityConfig, SecurityHeaders, CSRFToken } from '@/types/security'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('SECURITY')
 

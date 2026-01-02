@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { logger, createLogger } from '../logger'
+import { logger, createLogger } from '@shared/utils'
 
 describe('Logger', () => {
   let consoleLogSpy: ReturnType<typeof vi.spyOn>

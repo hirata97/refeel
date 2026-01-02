@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { generateCSSCustomProperties } from '@/styles/design-tokens'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('THEME')
 

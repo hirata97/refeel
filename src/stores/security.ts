@@ -10,7 +10,7 @@ import {
   performSecurityCheck,
 } from '@/utils/auth'
 import type { LockoutStatus, PasswordValidationResult } from '@/utils/auth'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('SECURITY')
 

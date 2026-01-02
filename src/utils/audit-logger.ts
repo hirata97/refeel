@@ -3,7 +3,7 @@
  * Issue #70: 認証・認可システムの強化実装
  */
 
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('AUDIT-LOGGER')
 

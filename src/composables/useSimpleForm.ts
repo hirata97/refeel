@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { sanitizeFormData } from '@/utils/sanitization'
+import { sanitizeFormData } from '@shared/utils'
 
 // シンプルなフォーム管理（VeeValidateを使わない）
 export const useSimpleRegisterForm = () => {

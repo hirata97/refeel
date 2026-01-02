@@ -194,7 +194,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { DiaryEntry } from '@/stores/data'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('DIARYDETAILMODAL')
 

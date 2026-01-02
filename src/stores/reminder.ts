@@ -9,7 +9,7 @@ import {
   NotificationUtils,
 } from '@/utils/notifications'
 import { useNotificationStore } from '@/stores/notification'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('REMINDER')
 

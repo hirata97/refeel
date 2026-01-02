@@ -1,9 +1,9 @@
 import { ref, computed, watch, onUnmounted } from 'vue'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
-import { performanceMonitor, debounce, throttle } from '@/utils/performance'
+import { performanceMonitor, debounce, throttle } from '@shared/utils'
 import type { DiaryEntry } from '@/stores/data'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('USEDATAFETCH')
 

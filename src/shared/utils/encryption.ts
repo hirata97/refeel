@@ -1,5 +1,5 @@
 import type { EncryptionConfig, EncryptedData, EncryptionKeyInfo } from '@/types/encryption'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('ENCRYPTION')
 

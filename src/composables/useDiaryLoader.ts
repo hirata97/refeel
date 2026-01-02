@@ -1,8 +1,8 @@
 import { ref } from 'vue'
 import { useDataStore } from '@/stores/data'
 import { useEmotionTagsStore } from '@/stores/emotionTags'
-import { usePerformanceMonitor } from '@/utils/performance'
-import { createLogger } from '@/utils/logger'
+import { usePerformanceMonitor } from '@shared/utils'
+import { createLogger } from '@shared/utils'
 import type { DiaryEntry } from '@/stores/data'
 
 const logger = createLogger('DIARYLOADER')

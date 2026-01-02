@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('ACCESS-CONTROL')
 import type { User } from '@supabase/supabase-js'
