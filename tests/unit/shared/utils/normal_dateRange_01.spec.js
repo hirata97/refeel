@@ -18,7 +18,7 @@ import {
   validateDateRange,
   getDaysBetween,
   formatDateRange
-} from '@/utils/dateRange'
+} from '@shared/utils'
 
 describe('日付範囲ユーティリティ - 正常系', () => {
   beforeEach(() => {

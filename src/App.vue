@@ -80,7 +80,7 @@ import { useLoadingStore } from '@core/stores/loading'
 import GlobalNotification from '@/components/notifications/GlobalNotification.vue'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
 import SkipLink from '@/components/a11y/SkipLink.vue'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('APP')
 

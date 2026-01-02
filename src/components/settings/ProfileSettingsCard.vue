@@ -208,7 +208,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
 import type { UserProfile } from '@/types/settings'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('PROFILESETTINGSCARD')
 import type { VForm } from 'vuetify/components'

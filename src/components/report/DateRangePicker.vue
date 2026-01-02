@@ -102,7 +102,7 @@ import {
   validateDateRange,
   getDaysBetween,
   formatDateRange,
-} from '@/utils/dateRange'
+} from '@shared/utils'
 
 interface Props {
   modelValue?: DateRange

@@ -148,7 +148,7 @@ import { useDiaries } from '@/composables/useDataFetch'
 import DiaryFilter from '@/components/diary/DiaryFilter.vue'
 import EmotionTagChips from '@/components/mood/EmotionTagChips.vue'
 import type { DiaryEntry, DiaryEntryWithEmotionTags } from '@/types/custom'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('DIARYVIEWPAGE')
 

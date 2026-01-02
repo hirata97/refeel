@@ -18,8 +18,8 @@ import type {
   KeywordStats,
   AnalyticsPeriod,
 } from '@/types/report'
-import { validateDateRange, getDaysBetween } from '@/utils/dateRange'
-import { createLogger } from '@/utils/logger'
+import { validateDateRange, getDaysBetween } from '@shared/utils'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('REPORTANALYTICS')
 

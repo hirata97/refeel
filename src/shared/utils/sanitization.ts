@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify'
-import { XSSProtection, InputValidation } from './security'
+import { XSSProtection, InputValidation } from '@/utils/security'
 
 // DOMPurifyの設定
 const purifyConfig = {

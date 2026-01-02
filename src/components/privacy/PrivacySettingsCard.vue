@@ -229,7 +229,7 @@ import { PrivacyManager, GDPRCompliance } from '@/utils/privacy'
 import { useAuthStore } from '@/stores/auth'
 import DataDeletionDialog from './DataDeletionDialog.vue'
 import type { PrivacySettings } from '@/types/encryption'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('PRIVACYSETTINGSCARD')
 import type { VForm } from 'vuetify/components'

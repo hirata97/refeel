@@ -7,7 +7,7 @@ import type {
   SecurityAlert,
   ThreatLevel,
 } from '@/types/security-monitoring'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('SECURITY-MONITOR')
 
