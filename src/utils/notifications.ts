@@ -1,4 +1,7 @@
 // 通知・リマインダー関連のユーティリティ
+import { createLogger } from '@shared/utils/logger'
+
+const logger = createLogger('NOTIFICATIONS')
 
 export interface ReminderSettings {
   id: string
