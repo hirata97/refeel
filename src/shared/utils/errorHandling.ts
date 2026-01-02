@@ -1,4 +1,4 @@
-import { useNotificationStore } from '@/stores/notification'
+import { useNotificationStore } from '@features/notifications'
 import { useLoadingStore } from '@core/stores/loading'
 import { createLogger } from '@shared/utils'
 

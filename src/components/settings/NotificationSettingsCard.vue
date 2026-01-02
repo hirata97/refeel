@@ -155,7 +155,7 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useBrowserNotificationStore } from '@/stores/browserNotifications'
+import { useBrowserNotificationStore } from '@features/notifications'
 import type { NotificationSettings } from '@/types/settings'
 import { createLogger } from '@shared/utils'
 
