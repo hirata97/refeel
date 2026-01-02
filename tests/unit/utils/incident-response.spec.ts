@@ -15,14 +15,11 @@ const mockLoggerInstance = vi.hoisted(() => ({
   log: vi.fn(),
 }))
 
-vi.mock('@/utils/logger', () => ({
-  logger: {
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-    log: vi.fn(),
-  },
+vi.mock('@shared/utils/logger', () => ({
+  createLogger: vi.fn(() => mockLoggerInstance),
+}))
+
+vi.mock('@shared/utils', () => ({
   createLogger: vi.fn(() => mockLoggerInstance),
 }))
 

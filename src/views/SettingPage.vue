@@ -70,9 +70,8 @@ import {
   DataTab,
   PrivacySettings,
 } from '@features/settings'
-import { useBrowserNotificationStore } from '@/stores/browserNotifications'
+import { useBrowserNotificationStore, NotificationSettings } from '@features/notifications'
 import { useTheme } from 'vuetify'
-import NotificationSettings from '@/components/notifications/NotificationSettings.vue'
 import EmotionTagManager from '@/components/mood/EmotionTagManager.vue'
 
 // タブの状態管理

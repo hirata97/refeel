@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useNotificationStore } from '@/stores/notification'
+import { useNotificationStore } from '@features/notifications'
 
 describe('NotificationStore - 正常系テスト', () => {
   let notificationStore
