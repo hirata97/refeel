@@ -14,7 +14,8 @@ export default defineConfig({
       manifest: {
         name: 'Refeel - Reflect + Feel',
         short_name: 'Refeel',
-        description: 'モチベーション変化を測定・分析するWebアプリケーション。日々の振り返りで内省を深め、感情と要因を可視化します。',
+        description:
+          'モチベーション変化を測定・分析するWebアプリケーション。日々の振り返りで内省を深め、感情と要因を可視化します。',
         theme_color: '#1976d2',
         background_color: '#ffffff',
         display: 'standalone',
@@ -25,20 +26,20 @@ export default defineConfig({
           {
             src: 'pwa-192x192.svg',
             sizes: '192x192',
-            type: 'image/svg+xml'
-          },
-          {
-            src: 'pwa-512x512.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml'
+            type: 'image/svg+xml',
           },
           {
             src: 'pwa-512x512.svg',
             sizes: '512x512',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ]
+          },
+          {
+            src: 'pwa-512x512.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable',
+          },
+        ],
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
@@ -50,7 +51,7 @@ export default defineConfig({
               cacheName: 'supabase-cache',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 24 * 60 * 60 // 24 hours
+                maxAgeSeconds: 24 * 60 * 60, // 24 hours
               },
               plugins: [
                 {
@@ -59,10 +60,10 @@ export default defineConfig({
                     // Remove auth tokens from cache key for security
                     url.searchParams.delete('apikey')
                     return url.href
-                  }
-                }
-              ]
-            }
+                  },
+                },
+              ],
+            },
           },
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
@@ -71,27 +72,30 @@ export default defineConfig({
               cacheName: 'images-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 30 * 24 * 60 * 60 // 30 days
-              }
-            }
+                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+              },
+            },
           },
           {
             urlPattern: /\.(?:js|css)$/,
             handler: 'StaleWhileRevalidate',
             options: {
-              cacheName: 'static-resources'
-            }
-          }
-        ]
+              cacheName: 'static-resources',
+            },
+          },
+        ],
       },
       devOptions: {
-        enabled: true
-      }
-    })
+        enabled: true,
+      },
+    }),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@features': fileURLToPath(new URL('./src/features', import.meta.url)),
+      '@shared': fileURLToPath(new URL('./src/shared', import.meta.url)),
+      '@core': fileURLToPath(new URL('./src/core', import.meta.url)),
     },
   },
   server: {
@@ -101,7 +105,8 @@ export default defineConfig({
       // Removed: unsafe-inline from script-src (XSS protection)
       // Kept: unsafe-inline for style-src (Vuetify dynamic theming compatibility)
       // Restricted: img-src to specific trusted domains (removed wildcard https:)
-      'Content-Security-Policy': "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://*.supabase.co https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';",
+      'Content-Security-Policy':
+        "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://*.supabase.co https://cdn.jsdelivr.net; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none';",
       // XSS Protection
       'X-XSS-Protection': '1; mode=block',
       // Prevent MIME type sniffing
@@ -112,7 +117,7 @@ export default defineConfig({
       'Referrer-Policy': 'strict-origin-when-cross-origin',
       // Permissions Policy
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
-    }
+    },
   },
   build: {
     // チャンクサイズの警告閾値を調整
@@ -134,9 +139,9 @@ export default defineConfig({
           // Supabaseクライアントを独立したチャンクに分離
           'supabase-vendor': ['@supabase/supabase-js'],
           // セキュリティ関連ユーティリティを独立したチャンクに分離
-          'security-utils': ['dompurify']
-        }
-      }
+          'security-utils': ['dompurify'],
+        },
+      },
     },
     // ソースマップ設定（本番環境では無効）
     sourcemap: false,
@@ -145,8 +150,8 @@ export default defineConfig({
     terserOptions: {
       compress: {
         drop_console: true, // 本番環境でconsole.logを削除
-        drop_debugger: true // 本番環境でdebuggerを削除
-      }
-    }
-  }
+        drop_debugger: true, // 本番環境でdebuggerを削除
+      },
+    },
+  },
 })
