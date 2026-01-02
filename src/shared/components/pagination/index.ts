@@ -1,0 +1,5 @@
+export { default as PaginationCore } from './PaginationCore.vue'
+export { default as PaginationControls } from './PaginationControls.vue'
+export { default as PaginationAnimation } from './PaginationAnimation.vue'
+export { default as PaginationJump } from './PaginationJump.vue'
+export { default as PaginationComponent } from './PaginationComponent.vue'

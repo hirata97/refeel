@@ -43,7 +43,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
-import { BaseCard } from '@/components/base'
+import { BaseCard } from '@shared/components/base'
 import type { MoodDataPoint } from '@/types/dashboard'
 
 // Chart.jsコンポーネントの登録
