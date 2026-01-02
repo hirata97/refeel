@@ -3,7 +3,7 @@
 
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import type {
   EmotionTag,
   EmotionTagGroup,

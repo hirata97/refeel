@@ -5,7 +5,7 @@
  * diariesテーブルからデータを取得し、各種統計分析を実行
  */
 
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import type { DiaryEntry } from '@/stores/data'
 import type {
   DateRange,

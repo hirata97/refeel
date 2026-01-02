@@ -1,5 +1,5 @@
 import DOMPurify from 'dompurify'
-import { securityConfig } from '@/config/security'
+import { securityConfig } from '@core/config/security'
 import type {
   SecurityIncidentData,
   SecurityValidationResult,
@@ -618,4 +618,4 @@ export function initializeSecurity(): void {
 }
 
 // デフォルトエクスポート
-export { securityConfig, SecurityConfigManager } from '@/config/security'
+export { securityConfig, SecurityConfigManager } from '@core/config/security'

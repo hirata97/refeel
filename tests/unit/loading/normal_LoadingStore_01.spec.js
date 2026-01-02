@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useLoadingStore } from '@/stores/loading'
+import { useLoadingStore } from '@core/stores/loading'
 
 describe('LoadingStore - 正常系テスト', () => {
   let loadingStore

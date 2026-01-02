@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import { createLogger } from '@/utils/logger'
 
 const logger = createLogger('PRIVACY')
