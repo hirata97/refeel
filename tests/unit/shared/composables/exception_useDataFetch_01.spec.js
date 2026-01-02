@@ -307,7 +307,7 @@ describe('useDataFetch - 異常系・エラーハンドリング', () => {
       const { performanceMonitor } = await import('@shared/utils/performance')
 
       // パフォーマンス監視でエラーを発生させる
-      const startSpy = vi.spyOn(performanceMonitor, 'start').mockImplementation(() => {
+      vi.spyOn(performanceMonitor, 'start').mockImplementation(() => {
         throw new Error('Performance monitor error')
       })
 
