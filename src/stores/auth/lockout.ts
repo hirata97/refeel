@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { accountLockoutManager } from '../../utils/account-lockout'
 import type { LockoutStatus } from '../../utils/account-lockout'
-import { createLogger } from '../../utils/logger'
+import { createLogger } from '@shared/utils/logger'
 
 const logger = createLogger('AUTH-LOCKOUT')
 

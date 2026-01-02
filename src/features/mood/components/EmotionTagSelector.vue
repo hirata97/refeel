@@ -127,8 +127,8 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import { useEmotionTagsStore } from '@/stores/emotionTags'
-import type { EmotionTag, EmotionTagGroup, EmotionCategory } from '@/types/emotion-tags'
+import { useEmotionTagsStore } from '@features/mood'
+import type { EmotionTag, EmotionTagGroup, EmotionCategory } from '@features/mood'
 
 // Props
 interface Props {

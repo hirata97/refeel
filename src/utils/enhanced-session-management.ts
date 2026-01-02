@@ -4,7 +4,7 @@
  */
 
 import { AuditLogger, AuditEventType } from './audit-logger'
-import { createLogger } from './logger'
+import { createLogger } from '@shared/utils/logger'
 
 const logger = createLogger('EnhancedSessionManager')
 

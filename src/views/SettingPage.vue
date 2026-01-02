@@ -71,7 +71,7 @@ import ProfileSettingsCard from '@/components/settings/ProfileSettingsCard.vue'
 import DataTab from '@/components/settings/DataTab.vue'
 import PrivacySettings from '@/components/settings/PrivacySettings.vue'
 import NotificationSettings from '@/components/notifications/NotificationSettings.vue'
-import EmotionTagManager from '@/components/mood/EmotionTagManager.vue'
+import { EmotionTagManager } from '@features/mood'
 
 // タブの状態管理
 const activeTab = ref<string>('theme')

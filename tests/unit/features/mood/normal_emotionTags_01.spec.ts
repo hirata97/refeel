@@ -3,8 +3,8 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useEmotionTagsStore } from '@/stores/emotionTags'
-import type { EmotionTag } from '@/types/emotion-tags'
+import { useEmotionTagsStore } from '@features/mood'
+import type { EmotionTag } from '@features/mood'
 
 // Supabaseクライアントのモック
 const mockSupabase = {

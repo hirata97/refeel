@@ -9,7 +9,7 @@ import vuetify from '@core/plugins/vuetify'
 import router from '@core/router'
 import { supabase } from '@core/lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
-import { useThemeStore } from './stores/theme'
+import { useThemeStore } from '@/stores/theme'
 import { initializeSecurity } from './utils/security'
 import { AuditLogger, AuditEventType } from './utils/audit-logger'
 import { syncService } from './services/syncService'

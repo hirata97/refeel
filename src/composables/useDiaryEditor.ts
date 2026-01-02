@@ -1,7 +1,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
-import { useEmotionTagsStore } from '@/stores/emotionTags'
+import { useEmotionTagsStore } from '@features/mood'
 import { usePerformanceMonitor } from '@shared/utils'
 import { createLogger } from '@shared/utils'
 import type { DiaryEntry } from '@/stores/data'

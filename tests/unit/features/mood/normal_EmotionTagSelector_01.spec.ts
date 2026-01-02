@@ -7,9 +7,9 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import EmotionTagSelector from '@/components/mood/EmotionTagSelector.vue'
-import { useEmotionTagsStore } from '@/stores/emotionTags'
-import type { EmotionTag } from '@/types/emotion-tags'
+import { EmotionTagSelector } from '@features/mood'
+import { useEmotionTagsStore } from '@features/mood'
+import type { EmotionTag } from '@features/mood'
 
 // Vuetifyのセットアップ
 const vuetify = createVuetify({
