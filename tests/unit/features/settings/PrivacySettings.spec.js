@@ -14,7 +14,7 @@ vi.mock('vue-router', () => ({
 }))
 
 // Mock logger
-vi.mock('@/utils/logger', () => ({
+vi.mock('@shared/utils/logger', () => ({
   createLogger: () => ({
     error: vi.fn(),
     warn: vi.fn(),
@@ -33,12 +33,16 @@ vi.mock('@/stores/auth', () => ({
 }))
 
 // Mock data management store
-vi.mock('@/stores/dataManagement', () => ({
-  useDataManagementStore: () => ({
-    exportData: vi.fn().mockResolvedValue(new Blob(['test'], { type: 'application/json' })),
-    deleteAllData: vi.fn().mockResolvedValue(true),
-  }),
-}))
+vi.mock('@features/settings', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useDataManagementStore: () => ({
+      exportData: vi.fn().mockResolvedValue(new Blob(['test'], { type: 'application/json' })),
+      deleteAllData: vi.fn().mockResolvedValue(true),
+    }),
+  }
+})
 
 describe('PrivacySettings', () => {
   let wrapper

@@ -7,31 +7,38 @@ import * as directives from 'vuetify/directives'
 import { ThemeSettingsCard } from '@features/settings'
 
 // テーマストアをモック
-vi.mock('@/stores/theme', () => ({
-  useThemeStore: () => ({
-    currentTheme: 'light',
-    setTheme: vi.fn(),
-  })
-}))
+vi.mock('@features/settings', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useThemeStore: () => ({
+      currentTheme: 'light',
+      setTheme: vi.fn(),
+    })
+  }
+})
 
 // Vuetifyテーマコンポーザブルをモック
-vi.mock('vuetify', () => ({
-  ...vi.importActual('vuetify'),
-  useTheme: () => ({
-    current: {
-      value: {
-        colors: {
-          primary: '#1976d2',
-          secondary: '#424242',
-          success: '#4caf50',
-          info: '#2196f3',
-          warning: '#ff9800',
-          error: '#f44336'
+vi.mock('vuetify', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...actual,
+    useTheme: () => ({
+      current: {
+        value: {
+          colors: {
+            primary: '#1976d2',
+            secondary: '#424242',
+            success: '#4caf50',
+            info: '#2196f3',
+            warning: '#ff9800',
+            error: '#f44336'
+          }
         }
       }
-    }
-  })
-}))
+    })
+  }
+})
 
 describe('ThemeSettingsCard', () => {
   let wrapper
@@ -142,17 +149,17 @@ describe('ThemeSettingsCard', () => {
 
     it('should emit themeChanged when handleThemeChange is called', async () => {
       const mockSetTheme = vi.fn()
-      const { useThemeStore } = await import('@/stores/theme')
+      const { useThemeStore } = await import('@features/settings')
       useThemeStore.mockReturnValue({
         currentTheme: 'light',
         setTheme: mockSetTheme,
       })
-      
+
       wrapper = createWrapper()
-      
+
       wrapper.vm.handleThemeChange('dark')
       await wrapper.vm.$nextTick()
-      
+
       expect(mockSetTheme).toHaveBeenCalledWith('dark')
       expect(wrapper.emitted('themeChanged')).toBeTruthy()
       expect(wrapper.emitted('themeChanged')[0]).toEqual(['dark'])
@@ -162,7 +169,7 @@ describe('ThemeSettingsCard', () => {
   describe('theme switching', () => {
     it('should toggle between light and dark themes', async () => {
       const mockSetTheme = vi.fn()
-      const { useThemeStore } = await import('@/stores/theme')
+      const { useThemeStore } = await import('@features/settings')
       
       // Light theme initially
       useThemeStore.mockReturnValue({
@@ -213,7 +220,7 @@ describe('ThemeSettingsCard', () => {
     })
 
     it('should react to theme store changes', async () => {
-      const { useThemeStore } = await import('@/stores/theme')
+      const { useThemeStore } = await import('@features/settings')
       
       // Initial theme
       useThemeStore.mockReturnValue({
