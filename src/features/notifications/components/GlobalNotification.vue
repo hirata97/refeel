@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { useNotificationStore } from '@/stores/notification'
+import { useNotificationStore } from '@features/notifications'
 
 const notificationStore = useNotificationStore()
 const { notifications, removeNotification } = notificationStore

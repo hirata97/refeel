@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useNotificationStore } from '@/stores/notification'
+import { useNotificationStore } from '@features/notifications'
 
 // Notification API のモック
 const mockNotification = vi.fn()

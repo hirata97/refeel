@@ -3,11 +3,11 @@ import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@core/lib/supabase'
 import { enhancedSessionManager } from '../../utils/enhanced-session-management'
 import { auditLogger, AuditEventType } from '../../utils/audit-logger'
-import { performSecurityCheck } from '../../utils/sanitization'
+import { performSecurityCheck } from '@shared/utils/sanitization'
 import { passwordValidator, passwordHistoryManager } from '../../utils/password-policy'
 import type { PasswordValidationResult } from '../../utils/password-policy'
 import type { LockoutStatus } from '../../utils/account-lockout'
-import { createLogger } from '../../utils/logger'
+import { createLogger } from '@shared/utils/logger'
 
 const logger = createLogger('AUTH-AUTHENTICATION')
 

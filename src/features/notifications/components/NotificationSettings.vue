@@ -275,7 +275,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useReminderStore } from '@/stores/reminder'
+import { useReminderStore } from '@features/notifications'
 import type { ReminderSettings, WeekDay } from '@/utils/notifications'
 import ReminderDialog from './ReminderDialog.vue'
 

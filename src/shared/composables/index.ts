@@ -1,3 +1,3 @@
 export { useAppRouter } from './useAppRouter'
 export { useErrorHandler } from './useErrorHandler'
-export { useDataFetch } from './useDataFetch'
+export { useDataFetch, useDiaries } from './useDataFetch'
