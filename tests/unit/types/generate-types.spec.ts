@@ -8,8 +8,8 @@ import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
 
 // テスト対象型定義のインポート
-import type { Database } from '@/types/database'
-import type { DiaryEntry, Profile, Settings } from '@/types/supabase'
+import type { Database } from '@shared/types'
+import type { DiaryEntry, Profile, Settings } from '@shared/types'
 
 describe('型定義自動生成機能', () => {
   describe('Database型定義', () => {

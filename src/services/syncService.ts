@@ -1,6 +1,6 @@
 import { offlineStorage, type OfflineDiary } from './offlineStorage'
 import { supabase } from '@core/lib/supabase'
-import type { Database } from '@/types/database'
+import type { Database } from '@shared/types'
 import { createLogger } from '@shared/utils'
 
 const logger = createLogger('SYNCSERVICE')
