@@ -96,7 +96,7 @@
 import { ref, computed, watch } from 'vue'
 import { DataDeletionManager } from '@/utils/privacy'
 import { useAuthStore } from '@/stores/auth'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('DATADELETIONDIALOG')
 import type { VForm } from 'vuetify/components'

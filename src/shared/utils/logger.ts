@@ -39,21 +39,25 @@ class Logger {
 
   debug(...args: unknown[]): void {
     if (!this.config.enabled || !this.shouldLog('debug')) return
+    // eslint-disable-next-line no-console
     console.log(this.formatMessage('DEBUG'), ...args)
   }
 
   info(...args: unknown[]): void {
     if (!this.config.enabled || !this.shouldLog('info')) return
+    // eslint-disable-next-line no-console
     console.info(this.formatMessage('INFO'), ...args)
   }
 
   warn(...args: unknown[]): void {
     if (!this.config.enabled || !this.shouldLog('warn')) return
+    // eslint-disable-next-line no-console
     console.warn(this.formatMessage('WARN'), ...args)
   }
 
   error(...args: unknown[]): void {
     if (!this.shouldLog('error')) return
+    // eslint-disable-next-line no-console
     console.error(this.formatMessage('ERROR'), ...args)
   }
 

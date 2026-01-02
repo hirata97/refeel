@@ -7,8 +7,8 @@
 import { ref, reactive, computed, watch } from 'vue'
 import type { DateRange, AnalyticsPeriod, AnalyticsResult } from '@/types/report'
 import { generateAnalyticsReport } from '@/services/reportAnalytics'
-import { dateRangePresets, getPresetRange } from '@/utils/dateRange'
-import { createLogger } from '@/utils/logger'
+import { dateRangePresets, getPresetRange } from '@shared/utils'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('USEREPORTANALYTICS')
 import type { ChartData } from 'chart.js'

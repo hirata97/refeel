@@ -1,5 +1,5 @@
 import { useAuthStore } from '@/stores/auth'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 import DOMPurify from 'isomorphic-dompurify'
 
 const logger = createLogger('AUTH')

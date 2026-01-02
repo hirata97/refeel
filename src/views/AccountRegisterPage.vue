@@ -73,7 +73,7 @@ import { supabase } from '@core/lib/supabase'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleRegisterForm } from '@/composables/useSimpleForm'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('ACCOUNTREGISTERPAGE')
 

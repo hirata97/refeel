@@ -133,7 +133,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { debounce } from '@/utils/performance'
+import { debounce } from '@shared/utils'
 import { useEmotionTagsStore } from '@/stores/emotionTags'
 import EmotionTagSelector from '@/components/mood/EmotionTagSelector.vue'
 

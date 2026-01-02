@@ -1,5 +1,5 @@
 import { supabase } from '@core/lib/supabase'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('PRIVACY')
 import type {

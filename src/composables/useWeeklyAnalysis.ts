@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { useDataStore } from '@/stores/data'
 import { useAuthStore } from '@/stores/auth'
-import type { DiaryEntry } from '@/types/custom'
+import type { DiaryEntry } from '@shared/types'
 
 // 週間データの型定義
 export interface WeeklyMoodData {

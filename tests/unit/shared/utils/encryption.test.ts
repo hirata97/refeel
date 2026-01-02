@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { DataEncryption, KeyManager, EncryptionConfigManager } from '@/utils/encryption'
+import { DataEncryption, KeyManager, EncryptionConfigManager } from '@shared/utils'
 import type { EncryptedData, EncryptionKeyInfo } from '@/types/encryption'
 
 // Mock crypto API

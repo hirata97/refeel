@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { usePWAInstall } from '@/composables/usePWAInstall'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('PWAINSTALLPROMPT')
 

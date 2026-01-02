@@ -1,6 +1,6 @@
 import { useNotificationStore } from '@/stores/notification'
 import { useLoadingStore } from '@core/stores/loading'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('ERRORHANDLING')
 

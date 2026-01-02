@@ -1,5 +1,5 @@
 import { SecurityMonitor, SecurityAlertManager } from '@/utils/security-monitoring'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('SECURITY-REPORTING')
 import type {
