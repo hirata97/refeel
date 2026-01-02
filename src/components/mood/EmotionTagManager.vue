@@ -104,7 +104,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useEmotionTagsStore } from '@/stores/emotionTags'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('EMOTIONTAGMANAGER')
 

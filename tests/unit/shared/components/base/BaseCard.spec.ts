@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import BaseCard from '@/components/base/BaseCard.vue'
+import BaseCard from '@shared/components/base/BaseCard.vue'
 
 describe('BaseCard', () => {
   const createWrapper = (props = {}, slots = {}) => {

@@ -56,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { BaseCard } from '@/components/base'
+import { BaseCard } from '@shared/components/base'
 import type { RecentDiary } from '@/types/dashboard'
 
 interface Props {

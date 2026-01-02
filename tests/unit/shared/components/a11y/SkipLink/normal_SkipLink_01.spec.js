@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
-import SkipLink from '../../src/components/a11y/SkipLink.vue'
+import SkipLink from '@shared/components/a11y/SkipLink.vue'
 
 const createWrapper = () => {
   return mount(SkipLink, {

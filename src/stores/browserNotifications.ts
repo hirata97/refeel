@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { NotificationSettings, NotificationPermission } from '@/types/settings'
 import { DEFAULT_NOTIFICATION_SETTINGS } from '@/types/settings'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('BROWSERNOTIFICATIONS')
 

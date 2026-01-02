@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import BaseForm from '@/components/base/BaseForm.vue'
+import BaseForm from '@shared/components/base/BaseForm.vue'
 
 describe('BaseForm', () => {
   const createWrapper = (props = {}, slots = {}) => {

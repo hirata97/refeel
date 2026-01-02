@@ -1,5 +1,5 @@
 import { SecurityReportGenerator } from './generator'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 import type { SecurityReport, NotificationChannel } from '@/types/security-monitoring'
 
 const logger = createLogger('SECURITY-REPORTING')

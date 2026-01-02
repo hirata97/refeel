@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onUnmounted, watch, nextTick } from 'vue'
-import { BaseButton, BaseAlert } from '@/components/base'
+import { BaseButton, BaseAlert } from '@shared/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'

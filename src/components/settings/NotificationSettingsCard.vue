@@ -157,7 +157,7 @@
 import { ref, watch } from 'vue'
 import { useBrowserNotificationStore } from '@/stores/browserNotifications'
 import type { NotificationSettings } from '@/types/settings'
-import { createLogger } from '@/utils/logger'
+import { createLogger } from '@shared/utils'
 
 const logger = createLogger('NOTIFICATIONSETTINGSCARD')
 
