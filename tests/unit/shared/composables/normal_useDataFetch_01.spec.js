@@ -330,7 +330,7 @@ describe('useDataFetch - 正常系', () => {
 
   describe('パフォーマンス監視', () => {
     it('パフォーマンス測定が正しく行われる', async () => {
-      const { default: performanceMonitor } = await import('@/utils/performance')
+      const { default: performanceMonitor } = await import('@shared/utils/performance')
       mockFetcher.mockResolvedValue({ test: 'data' })
 
       const { execute } = useDataFetch(
@@ -346,7 +346,7 @@ describe('useDataFetch - 正常系', () => {
     })
 
     it('エラー時もパフォーマンス測定が完了する', async () => {
-      const { default: performanceMonitor } = await import('@/utils/performance')
+      const { default: performanceMonitor } = await import('@shared/utils/performance')
       mockFetcher.mockRejectedValue(new Error('Test error'))
 
       const { execute } = useDataFetch(

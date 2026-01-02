@@ -90,18 +90,18 @@ describe('型定義自動生成機能', () => {
 
   describe('ファイル生成確認', () => {
     it('database.tsファイルが生成されている', () => {
-      const filePath = join(process.cwd(), 'src/types/database.ts')
+      const filePath = join(process.cwd(), 'src/shared/types/database.ts')
       expect(existsSync(filePath)).toBe(true)
-      
+
       const content = readFileSync(filePath, 'utf-8')
       expect(content).toContain('export interface Database')
       expect(content).toContain('// 自動生成されたデータベース型定義')
     })
 
     it('supabase.tsファイルが生成されている', () => {
-      const filePath = join(process.cwd(), 'src/types/supabase.ts')
+      const filePath = join(process.cwd(), 'src/shared/types/supabase.ts')
       expect(existsSync(filePath)).toBe(true)
-      
+
       const content = readFileSync(filePath, 'utf-8')
       expect(content).toContain('export type DiaryEntry')
       expect(content).toContain('// 自動生成されたSupabaseクライアント型定義')

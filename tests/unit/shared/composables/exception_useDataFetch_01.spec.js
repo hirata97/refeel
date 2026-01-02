@@ -302,7 +302,7 @@ describe('useDataFetch - 異常系・エラーハンドリング', () => {
     })
 
     it('パフォーマンス監視でエラーが発生してもfetch処理は完了する', async () => {
-      const { default: performanceMonitor } = await import('@/utils/performance')
+      const { default: performanceMonitor } = await import('@shared/utils/performance')
       
       // パフォーマンス監視でエラーを発生させる
       performanceMonitor.start.mockImplementation(() => {
