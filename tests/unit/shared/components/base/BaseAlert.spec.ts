@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { nextTick } from 'vue'
-import BaseAlert from '@/components/base/BaseAlert.vue'
+import BaseAlert from '@shared/components/base/BaseAlert.vue'
 
 describe('BaseAlert', () => {
   beforeEach(() => {
