@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import { performSecurityCheck, sanitizeInputData } from '@/utils/sanitization'
 import type { DiaryEntry, Profile } from '@/types/supabase'
 

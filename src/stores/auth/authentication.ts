@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import type { User, Session } from '@supabase/supabase-js'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import { enhancedSessionManager } from '../../utils/enhanced-session-management'
 import { auditLogger, AuditEventType } from '../../utils/audit-logger'
 import { performSecurityCheck } from '../../utils/sanitization'

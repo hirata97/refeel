@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import { enhancedSessionManager } from '../../utils/enhanced-session-management'
 import { createLogger } from '../../utils/logger'
 

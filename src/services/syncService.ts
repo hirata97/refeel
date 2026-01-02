@@ -1,5 +1,5 @@
 import { offlineStorage, type OfflineDiary } from './offlineStorage'
-import { supabase } from '@/lib/supabase'
+import { supabase } from '@core/lib/supabase'
 import type { Database } from '@/types/database'
 import { createLogger } from '@/utils/logger'
 

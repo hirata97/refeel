@@ -5,9 +5,9 @@ import App from './App.vue'
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import './styles/global.css'
-import vuetify from './plugins/vuetify'
-import router from './router'
-import { supabase } from './lib/supabase' // Supabase をインポート
+import vuetify from '@core/plugins/vuetify'
+import router from '@core/router'
+import { supabase } from '@core/lib/supabase' // Supabase をインポート
 import { useAuthStore } from './stores/auth'
 import { useThemeStore } from './stores/theme'
 import { initializeSecurity } from './utils/security'

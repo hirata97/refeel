@@ -1,5 +1,5 @@
 import { useNotificationStore } from '@/stores/notification'
-import { useLoadingStore } from '@/stores/loading'
+import { useLoadingStore } from '@core/stores/loading'
 import { createLogger } from '@/utils/logger'
 
 const logger = createLogger('ERRORHANDLING')
