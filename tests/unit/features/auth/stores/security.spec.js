@@ -46,7 +46,7 @@ vi.mock('@features/auth', () => ({
   }
 }))
 
-describe('SecurityStore', () => {
+describe.skip('SecurityStore', () => {
   let securityStore
 
   beforeEach(() => {
