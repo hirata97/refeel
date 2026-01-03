@@ -101,7 +101,7 @@ import { BaseButton, BaseAlert } from '@shared/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
 import { logAuthAttempt } from '@/utils/auth'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'
-import { useAuthGuard } from '@/composables/useAuthGuard'
+import { useAuthGuard } from '@features/auth/composables/useAuthGuard'
 import { useAppRouter } from '@shared/composables'
 import { useErrorHandler } from '@shared/composables'
 

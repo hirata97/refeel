@@ -66,7 +66,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAuthGuard } from '@/composables/useAuthGuard'
+import { useAuthGuard } from '@features/auth/composables/useAuthGuard'
 import { useAppRouter } from '@shared/composables'
 import { useErrorHandler } from '@shared/composables'
 import { supabase } from '@core/lib/supabase'

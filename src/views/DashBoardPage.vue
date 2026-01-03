@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useDashboardData } from '@/composables/useDashboardData'
-import { useAuthGuard } from '@/composables/useAuthGuard'
+import { useAuthGuard } from '@features/auth/composables/useAuthGuard'
 import StatCard from '@/components/dashboard/StatCard.vue'
 import MoodChartCard from '@/components/dashboard/MoodChartCard.vue'
 import EmotionTagAnalysisCard from '@/components/dashboard/EmotionTagAnalysisCard.vue'

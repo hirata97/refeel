@@ -9,7 +9,7 @@
 export * from '@features/auth/types'
 
 // ===== 認証ガード・ユーティリティ =====
-export * from './guards'
+export * from '@features/auth/utils/guards'
 
 // ===== セッション管理 =====
 export * from '@features/auth/services/session-manager'

@@ -182,9 +182,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@features/auth'
-import PasswordChange from '@/components/security/PasswordChange.vue'
-import SessionManagement from '@/components/security/SessionManagement.vue'
-// import AuditLogViewer from '@/components/security/AuditLogViewer.vue'
+import PasswordChange from '@features/auth/components/PasswordChange.vue'
+import SessionManagement from '@features/auth/components/SessionManagement.vue'
+// import AuditLogViewer from '@features/auth/components/AuditLogViewer.vue'
 
 // State
 const authStore = useAuthStore()
