@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { AccountLockoutManager, DEFAULT_LOCKOUT_POLICY } from '../../src/utils/account-lockout.ts'
-import { AuditLogger } from '../../src/utils/audit-logger.ts'
+import { AccountLockoutManager, DEFAULT_LOCKOUT_POLICY } from '@/features/auth/services/account-lockout'
+import { AuditLogger } from '@/features/auth/services/audit-logger'
 
 // localStorage のモック
 Object.defineProperty(window, 'localStorage', {

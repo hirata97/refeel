@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { EnhancedSessionManager, DEFAULT_SESSION_SETTINGS } from '../../src/utils/enhanced-session-management.ts'
-import { AuditLogger } from '../../src/utils/audit-logger.ts'
+import { EnhancedSessionManager, DEFAULT_SESSION_SETTINGS } from '@/features/auth/services/enhanced-session-management'
+import { AuditLogger } from '@/features/auth/services/audit-logger'
 
 // global objects のモック
 Object.defineProperty(global, 'navigator', {

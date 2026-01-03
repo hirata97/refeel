@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { SecurityConfigManager } from '@/config/security'
+import { SecurityConfigManager } from '@core/config/security'
 
 describe('SecurityConfigManager', () => {
   let configManager: SecurityConfigManager

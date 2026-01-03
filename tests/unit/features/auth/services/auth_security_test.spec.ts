@@ -1,10 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { 
-  passwordValidator, 
-  accountLockoutManager, 
-  performSecurityCheck,
-  AuditEventType 
-} from '@/utils/auth'
+import { passwordValidator } from '@/features/auth/services/password-policy'
+import { accountLockoutManager } from '@/features/auth/services/account-lockout'
+import { performSecurityCheck } from '@shared/utils/sanitization'
+import { AuditEventType } from '@/features/auth/services/audit-logger'
 
 describe('Security Utils', () => {
   describe('passwordValidator', () => {

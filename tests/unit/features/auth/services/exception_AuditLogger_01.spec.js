@@ -5,11 +5,11 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { 
-  AuditLogger, 
-  AuditEventType, 
-  AuditEventSeverity 
-} from '@/utils/audit-logger'
+import {
+  AuditLogger,
+  AuditEventType,
+  AuditEventSeverity
+} from '@/features/auth/services/audit-logger'
 
 describe('AuditLogger - 異常系', () => {
   let logger

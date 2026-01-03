@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '@features/auth'
 
 // モックの設定
-vi.mock('@/lib/supabase', () => ({
+vi.mock('@core/lib/supabase', () => ({
   default: {
     auth: {
       signInWithPassword: vi.fn(() => Promise.resolve({ data: { user: null, session: null }, error: null })),
@@ -30,12 +30,12 @@ vi.mock('@/lib/supabase', () => ({
   }
 }))
 
-vi.mock('@/utils/sanitization', () => ({
+vi.mock('@shared/utils/sanitization', () => ({
   performSecurityCheck: vi.fn(() => ({ isSecure: true, sanitizedValue: '' })),
   sanitizeInputData: vi.fn((data) => data)
 }))
 
-vi.mock('@/utils/account-lockout', () => ({
+vi.mock('@/features/auth/services/account-lockout', () => ({
   default: {
     checkLockoutStatus: vi.fn().mockResolvedValue({ isLocked: false }),
     recordLoginAttempt: vi.fn().mockResolvedValue(undefined),
@@ -50,7 +50,7 @@ vi.mock('@/utils/account-lockout', () => ({
   }
 }))
 
-vi.mock('@/utils/audit-logger', () => ({
+vi.mock('@/features/auth/services/audit-logger', () => ({
   default: {
     log: vi.fn()
   },
@@ -65,7 +65,7 @@ vi.mock('@/utils/audit-logger', () => ({
   }
 }))
 
-vi.mock('@/utils/enhanced-session-management', () => ({
+vi.mock('@/features/auth/services/enhanced-session-management', () => ({
   default: {
     createSession: vi.fn(),
     terminateSession: vi.fn(),
@@ -95,7 +95,7 @@ vi.mock('@/utils/two-factor-auth', () => ({
   }
 }))
 
-vi.mock('@/utils/password-policy', () => ({
+vi.mock('@/features/auth/services/password-policy', () => ({
   default: {
     validatePassword: vi.fn(() => ({ isValid: true, errors: [] })),
     hashPassword: vi.fn((pwd) => pwd),
@@ -126,17 +126,17 @@ describe('AuthStore - 異常系・エラーハンドリング', () => {
     authStore = useAuthStore()
 
     // モックをインポート
-    const lockoutModule = await import('@/utils/account-lockout')
+    const lockoutModule = await import('@/features/auth/services/account-lockout')
     accountLockoutManager = lockoutModule.accountLockoutManager
 
-    const sanitizationModule = await import('@/utils/sanitization')
+    const sanitizationModule = await import('@shared/utils/sanitization')
     performSecurityCheck = sanitizationModule.performSecurityCheck
 
-    const passwordModule = await import('@/utils/password-policy')
+    const passwordModule = await import('@/features/auth/services/password-policy')
     passwordValidator = passwordModule.passwordValidator
     passwordHistoryManager = passwordModule.passwordHistoryManager
 
-    const supabaseModule = await import('@/lib/supabase')
+    const supabaseModule = await import('@core/lib/supabase')
     supabase = supabaseModule.supabase
 
     vi.clearAllMocks()

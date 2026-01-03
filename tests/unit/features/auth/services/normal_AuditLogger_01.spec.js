@@ -10,7 +10,7 @@ import {
   AuditEventType, 
   AuditEventSeverity,
   auditLogger 
-} from '@/utils/audit-logger'
+} from '@/features/auth/services/audit-logger'
 
 describe('AuditLogger - 正常系', () => {
   let logger

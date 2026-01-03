@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { useAuthStore } from '@features/auth'
 
 // モックの設定
-vi.mock('@/lib/supabase', () => ({
+vi.mock('@core/lib/supabase', () => ({
   default: {
     auth: {
       signInWithPassword: vi.fn(),
@@ -18,12 +18,12 @@ vi.mock('@/lib/supabase', () => ({
   }
 }))
 
-vi.mock('@/utils/sanitization', () => ({
+vi.mock('@shared/utils/sanitization', () => ({
   performSecurityCheck: vi.fn(() => ({ isSecure: true, threats: [] })),
   sanitizeInputData: vi.fn((data) => data)
 }))
 
-vi.mock('@/utils/account-lockout', () => ({
+vi.mock('@/features/auth/services/account-lockout', () => ({
   default: {
     checkLockoutStatus: vi.fn(() => ({ isLocked: false, failedAttempts: 0 })),
     recordLoginAttempt: vi.fn(),
@@ -32,13 +32,13 @@ vi.mock('@/utils/account-lockout', () => ({
   }
 }))
 
-vi.mock('@/utils/audit-logger', () => ({
+vi.mock('@/features/auth/services/audit-logger', () => ({
   default: {
     log: vi.fn()
   }
 }))
 
-vi.mock('@/utils/enhanced-session-management', () => ({
+vi.mock('@/features/auth/services/enhanced-session-management', () => ({
   default: {
     createSession: vi.fn(),
     terminateSession: vi.fn(),
@@ -60,7 +60,7 @@ vi.mock('@/utils/two-factor-auth', () => ({
   }
 }))
 
-vi.mock('@/utils/password-policy', () => ({
+vi.mock('@/features/auth/services/password-policy', () => ({
   default: {
     validatePassword: vi.fn(() => ({ 
       isValid: true, 
@@ -253,7 +253,7 @@ describe('AuthStore - 正常系', () => {
   describe('セッション検証', () => {
     it('validateSession - 有効なセッションの場合', async () => {
       // Supabaseクライアントのモック
-      const { default: supabase } = await import('@/lib/supabase')
+      const { default: supabase } = await import('@core/lib/supabase')
       supabase.auth.getUser.mockResolvedValue({
         data: { user: { id: 'user-1', email: 'test@example.com' } },
         error: null
@@ -281,7 +281,7 @@ describe('AuthStore - 正常系', () => {
 
   describe('セッション管理', () => {
     it('regenerateSession が正しく動作する', async () => {
-      const { default: supabase } = await import('@/lib/supabase')
+      const { default: supabase } = await import('@core/lib/supabase')
       const newSession = {
         access_token: 'new-token-456',
         expires_at: Date.now() / 1000 + 3600,
@@ -307,7 +307,7 @@ describe('AuthStore - 正常系', () => {
     })
 
     it('invalidateSession が正しく動作する', async () => {
-      const { default: supabase } = await import('@/lib/supabase')
+      const { default: supabase } = await import('@core/lib/supabase')
       supabase.auth.signOut.mockResolvedValue({ error: null })
 
       authStore.setUser({ id: 'user-1', email: 'test@example.com' })
@@ -325,7 +325,7 @@ describe('AuthStore - 正常系', () => {
 
   describe('初期化プロセス', () => {
     it('initialize が正しく動作する - セッションあり', async () => {
-      const { default: supabase } = await import('@/lib/supabase')
+      const { default: supabase } = await import('@core/lib/supabase')
       const mockSession = {
         access_token: 'token-123',
         expires_at: Date.now() / 1000 + 3600,
@@ -350,7 +350,7 @@ describe('AuthStore - 正常系', () => {
     })
 
     it('initialize が正しく動作する - セッションなし', async () => {
-      const { default: supabase } = await import('@/lib/supabase')
+      const { default: supabase } = await import('@core/lib/supabase')
       
       supabase.auth.getSession.mockResolvedValue({
         data: { session: null },
