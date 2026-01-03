@@ -6,7 +6,7 @@
  */
 
 // ===== 型定義 =====
-export * from './types'
+export * from '@features/auth/types'
 
 // ===== 認証ガード・ユーティリティ =====
 export * from './guards'
