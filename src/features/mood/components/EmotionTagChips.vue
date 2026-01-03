@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { EmotionTag, EmotionCategory } from '@/types/emotion-tags'
+import type { EmotionTag, EmotionCategory } from '@features/mood'
 
 interface Props {
   /** 表示する感情タグの配列 */

@@ -98,13 +98,14 @@ describe('BaseButton', () => {
       expect(button.classes()).toContain('v-btn--disabled')
     })
 
-    it('loading状態でもクリックイベントは処理される', async () => {
+    it('loading状態ではクリックイベントがブロックされる', async () => {
       const wrapper = createWrapper({ loading: true })
       const button = wrapper.find('.v-btn')
-      
+
       await button.trigger('click')
-      
-      expect(wrapper.emitted('click')).toHaveLength(1)
+
+      // Vuetifyのv-btnはloading状態でクリックをブロックする
+      expect(wrapper.emitted('click')).toBeUndefined()
       expect(button.classes()).toContain('v-btn--loading')
     })
   })

@@ -193,6 +193,11 @@ describe('KeyManager', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockSessionStorage.getItem.mockReturnValue(null)
+    DataEncryption.setMasterKey(null as unknown as CryptoKey)
+  })
+
+  afterEach(() => {
+    DataEncryption.setMasterKey(null as unknown as CryptoKey)
   })
 
   describe('storeKey', () => {
@@ -319,11 +324,10 @@ describe('EncryptionConfigManager', () => {
       rotationInterval: 90 * 24 * 60 * 60 * 1000,
       sensitiveFields: [
         'title',
-        'content', 
+        'content',
         'note',
         'personal_note',
         'reflection',
-        'tags',
         'private_data'
       ],
       encryptByDefault: true,

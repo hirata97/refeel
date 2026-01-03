@@ -138,7 +138,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import type { EmotionCategory } from '@/types/emotion-tags'
+import type { EmotionCategory } from '@features/mood'
 
 // Props
 interface Props {

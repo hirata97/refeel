@@ -121,10 +121,10 @@ import { useAuthStore } from '@/stores/auth'
 import { useDataStore } from '@/stores/data'
 import { useNotificationStore } from '@features/notifications'
 import { useLoadingStore } from '@core/stores/loading'
-import { useEmotionTagsStore } from '@/stores/emotionTags'
+import { useEmotionTagsStore } from '@features/mood'
 import { usePerformanceMonitor } from '@shared/utils'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
-import EmotionTagSelector from '@/components/mood/EmotionTagSelector.vue'
+import { EmotionTagSelector } from '@features/mood'
 import { createLogger } from '@shared/utils'
 
 const logger = createLogger('DIARYREGISTERPAGE')

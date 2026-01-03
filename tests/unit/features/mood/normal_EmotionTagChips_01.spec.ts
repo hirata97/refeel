@@ -7,8 +7,8 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import EmotionTagChips from '@/components/mood/EmotionTagChips.vue'
-import type { EmotionTag } from '@/types/emotion-tags'
+import { EmotionTagChips } from '@features/mood'
+import type { EmotionTag } from '@features/mood'
 
 // Vuetifyのセットアップ
 const vuetify = createVuetify({

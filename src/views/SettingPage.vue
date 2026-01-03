@@ -72,7 +72,7 @@ import {
 } from '@features/settings'
 import { useBrowserNotificationStore, NotificationSettings } from '@features/notifications'
 import { useTheme } from 'vuetify'
-import EmotionTagManager from '@/components/mood/EmotionTagManager.vue'
+import { EmotionTagManager } from '@features/mood'
 
 // タブの状態管理
 const activeTab = ref<string>('theme')

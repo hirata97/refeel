@@ -10,7 +10,7 @@ import type {
   EmotionTagStats,
   EmotionTagFilter,
   EmotionCategory,
-} from '@/types/emotion-tags'
+} from '@features/mood'
 
 export const useEmotionTagsStore = defineStore('emotionTags', () => {
   // 状態
