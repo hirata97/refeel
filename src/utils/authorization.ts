@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { Permission, ResourceType, getUserRole, UserRole } from './access-control'
 import type { User } from '@supabase/supabase-js'
 

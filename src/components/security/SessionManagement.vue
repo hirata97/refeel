@@ -203,7 +203,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import type { SessionInfo } from '@/utils/enhanced-session-management'
 
 // State

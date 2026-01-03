@@ -226,7 +226,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { PrivacyManager, GDPRCompliance } from '@/utils/privacy'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import DataDeletionDialog from './DataDeletionDialog.vue'
 import type { PrivacySettings } from '@/types/encryption'
 import { createLogger } from '@shared/utils'

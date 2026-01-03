@@ -181,7 +181,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import PasswordChange from '@/components/security/PasswordChange.vue'
 import SessionManagement from '@/components/security/SessionManagement.vue'
 // import AuditLogViewer from '@/components/security/AuditLogViewer.vue'

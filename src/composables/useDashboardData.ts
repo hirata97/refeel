@@ -5,7 +5,7 @@
 
 import { ref, computed } from 'vue'
 import { useDataStore } from '@/stores/data'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import type {
   DashboardData,
   DashboardStats,

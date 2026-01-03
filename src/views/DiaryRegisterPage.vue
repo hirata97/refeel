@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { useDataStore } from '@/stores/data'
 import { useNotificationStore } from '@features/notifications'
 import { useLoadingStore } from '@core/stores/loading'

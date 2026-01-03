@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { createSessionStore } from './session'
 import { createAuthenticationStore } from './authentication'
-import { createSecurityStore } from './security'
+import { createSecurityStore } from './security-module'
 import { createLockoutStore } from './lockout'
 import { accountLockoutManager } from '../../utils/account-lockout'
 

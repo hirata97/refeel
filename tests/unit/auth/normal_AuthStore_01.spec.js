@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 
 // モックの設定
 vi.mock('@/lib/supabase', () => ({

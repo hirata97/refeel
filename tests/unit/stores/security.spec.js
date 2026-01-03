@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
-import { useSecurityStore } from '@/stores/security'
+import { useSecurityStore } from '@features/auth/stores/security'
 
 // Auth utilsをモック
 vi.mock('@/utils/auth', () => ({

@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { useSimpleDiaryForm } from '@/composables/useSimpleForm'
 import { useDiaryLoader } from '@/composables/useDiaryLoader'
 import { useDiaryEditor } from '@/composables/useDiaryEditor'

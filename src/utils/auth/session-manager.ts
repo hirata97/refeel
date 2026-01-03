@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { SessionInfo, SecurityStats, AuditEventType } from './types'
 import { auditLogger } from './audit-logger'
 import { SecurityReporting } from '../security'

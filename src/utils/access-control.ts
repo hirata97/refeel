@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { createLogger } from '@shared/utils'
 
 const logger = createLogger('ACCESS-CONTROL')

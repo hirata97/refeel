@@ -1,6 +1,6 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 
 export interface AuthGuardOptions {
   redirectTo?: string
