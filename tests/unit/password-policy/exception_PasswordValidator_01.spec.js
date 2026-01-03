@@ -8,7 +8,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { 
   PasswordValidator,
   DEFAULT_PASSWORD_POLICY
-} from '@/utils/password-policy'
+} from '@features/auth/services/password-policy'
 
 // Crypto API のモック
 Object.defineProperty(globalThis, 'crypto', {

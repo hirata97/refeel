@@ -12,13 +12,13 @@ export * from '@features/auth/types'
 export * from './guards'
 
 // ===== セッション管理 =====
-export * from './session-manager'
+export * from '@features/auth/services/session-manager'
 
 // ===== ロックアウト管理 =====
-export * from './lockout-manager'
+export * from '@features/auth/services/lockout-manager'
 
 // ===== パスワード管理 =====
-export * from './password-manager'
+export * from '@features/auth/services/password-manager'
 
 // ===== 監査ログ =====
-export * from './audit-logger'
+export * from '@features/auth/services/audit-logger'

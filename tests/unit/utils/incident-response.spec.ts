@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { IncidentResponseManager, AutomatedResponseSystem } from '@/utils/incident-response'
+import { IncidentResponseManager, AutomatedResponseSystem } from '@features/auth/services/incident-response'
 import type {
   SecurityIncident,
   SecurityEvent

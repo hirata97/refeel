@@ -10,7 +10,7 @@ import {
   passwordValidator,
   DEFAULT_PASSWORD_POLICY,
   SPECIAL_CHARS
-} from '@/utils/password-policy'
+} from '@features/auth/services/password-policy'
 
 // Crypto API のモック
 Object.defineProperty(globalThis, 'crypto', {

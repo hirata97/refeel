@@ -204,7 +204,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@features/auth'
-import type { SessionInfo } from '@/utils/enhanced-session-management'
+import type { SessionInfo } from '@features/auth/services/enhanced-session-management'
 
 // State
 const authStore = useAuthStore()

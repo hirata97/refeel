@@ -197,8 +197,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useAuthStore } from '@features/auth'
-import { passwordValidator } from '@/utils/password-policy'
-import type { PasswordValidationResult } from '@/utils/password-policy'
+import { passwordValidator } from '@features/auth/services/password-policy'
+import type { PasswordValidationResult } from '@features/auth/services/password-policy'
 import type { VForm } from 'vuetify/components'
 
 // State
