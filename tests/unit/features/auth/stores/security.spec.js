@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useSecurityStore } from '@features/auth/stores/security'
 
 // Auth utilsをモック
-vi.mock('@/utils/auth', () => ({
+vi.mock('@features/auth', () => ({
   accountLockoutManager: {
     checkLockoutStatus: vi.fn(),
     recordLoginAttempt: vi.fn(),
@@ -71,7 +71,7 @@ describe('SecurityStore', () => {
 
   describe('security checks', () => {
     it('should perform input security check', () => {
-      const { performSecurityCheck } = vi.requireMocked('@/utils/auth')
+      const { performSecurityCheck } = vi.requireMocked('@features/auth')
       const mockResult = { isSecure: true, threats: [] }
       performSecurityCheck.mockReturnValue(mockResult)
 
@@ -84,7 +84,7 @@ describe('SecurityStore', () => {
 
   describe('account lockout management', () => {
     it('should check lockout status', async () => {
-      const { accountLockoutManager } = vi.requireMocked('@/utils/auth')
+      const { accountLockoutManager } = vi.requireMocked('@features/auth')
       const mockStatus = { isLocked: false, failedAttempts: 0 }
       accountLockoutManager.checkLockoutStatus.mockResolvedValue(mockStatus)
 
@@ -96,7 +96,7 @@ describe('SecurityStore', () => {
     })
 
     it('should record login attempt', async () => {
-      const { accountLockoutManager } = vi.requireMocked('@/utils/auth')
+      const { accountLockoutManager } = vi.requireMocked('@features/auth')
       
       await securityStore.recordLoginAttempt('test@example.com', true, '127.0.0.1', 'Test Agent')
 
@@ -111,7 +111,7 @@ describe('SecurityStore', () => {
 
   describe('password management', () => {
     it('should validate password', () => {
-      const { passwordValidator } = vi.requireMocked('@/utils/auth')
+      const { passwordValidator } = vi.requireMocked('@features/auth')
       const mockResult = { 
         isValid: true, 
         score: 4, 
@@ -128,7 +128,7 @@ describe('SecurityStore', () => {
     })
 
     it('should hash password', async () => {
-      const { passwordValidator } = vi.requireMocked('@/utils/auth')
+      const { passwordValidator } = vi.requireMocked('@features/auth')
       passwordValidator.hashPassword.mockResolvedValue('hashed_password')
 
       const result = await securityStore.hashPassword('test123')
@@ -140,7 +140,7 @@ describe('SecurityStore', () => {
 
   describe('2FA management', () => {
     it('should setup 2FA', async () => {
-      const { twoFactorAuthManager } = vi.requireMocked('@/utils/auth')
+      const { twoFactorAuthManager } = vi.requireMocked('@features/auth')
       const mockSetupResult = { 
         secret: 'SECRET123',
         qrCode: 'data:image/png;base64,abc123',
@@ -155,7 +155,7 @@ describe('SecurityStore', () => {
     })
 
     it('should enable 2FA and clear pending state on success', async () => {
-      const { twoFactorAuthManager } = vi.requireMocked('@/utils/auth')
+      const { twoFactorAuthManager } = vi.requireMocked('@features/auth')
       securityStore.setTwoFactorRequired(true)
       securityStore.setPendingTwoFactorSessionId('session123')
 
@@ -182,7 +182,7 @@ describe('SecurityStore', () => {
     })
 
     it('should verify 2FA code', async () => {
-      const { twoFactorAuthManager } = vi.requireMocked('@/utils/auth')
+      const { twoFactorAuthManager } = vi.requireMocked('@features/auth')
       securityStore.setTwoFactorRequired(true)
       
       twoFactorAuthManager.verify2FACode.mockResolvedValue({ 
@@ -201,7 +201,7 @@ describe('SecurityStore', () => {
 
   describe('session management', () => {
     it('should create session', async () => {
-      const { enhancedSessionManager } = vi.requireMocked('@/utils/auth')
+      const { enhancedSessionManager } = vi.requireMocked('@features/auth')
       
       await securityStore.createSession('user123', 'session123', 'Test Agent', '127.0.0.1')
 
@@ -214,7 +214,7 @@ describe('SecurityStore', () => {
     })
 
     it('should terminate session', async () => {
-      const { enhancedSessionManager } = vi.requireMocked('@/utils/auth')
+      const { enhancedSessionManager } = vi.requireMocked('@features/auth')
       
       await securityStore.terminateSession('session123', 'user_logout')
 
@@ -222,7 +222,7 @@ describe('SecurityStore', () => {
     })
 
     it('should get active user sessions', () => {
-      const { enhancedSessionManager } = vi.requireMocked('@/utils/auth')
+      const { enhancedSessionManager } = vi.requireMocked('@features/auth')
       const mockSessions = [{ id: 'session1' }, { id: 'session2' }]
       enhancedSessionManager.getActiveUserSessions.mockReturnValue(mockSessions)
 
@@ -270,7 +270,7 @@ describe('SecurityStore', () => {
 
   describe('audit logging', () => {
     it('should log security events', async () => {
-      const { auditLogger, AuditEventType } = vi.requireMocked('@/utils/auth')
+      const { auditLogger, AuditEventType } = vi.requireMocked('@features/auth')
       
       await securityStore.logSecurityEvent(
         AuditEventType.AUTH_LOGIN,

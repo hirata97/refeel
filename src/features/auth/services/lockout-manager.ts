@@ -1,6 +1,6 @@
-import { LockoutStatus, AuditEventType } from './types'
+import { LockoutStatus, AuditEventType } from '@features/auth/types'
 import { auditLogger } from './audit-logger'
-import { SecurityReporting } from '../security'
+import { SecurityReporting } from '@features/auth/security'
 
 /**
  * 認証失敗カウントの管理

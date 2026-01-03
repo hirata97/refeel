@@ -1,12 +1,12 @@
 import { ref } from 'vue'
 import type { User, Session } from '@supabase/supabase-js'
 import { supabase } from '@core/lib/supabase'
-import { enhancedSessionManager } from '../../utils/enhanced-session-management'
-import { auditLogger, AuditEventType } from '../../utils/audit-logger'
+import { enhancedSessionManager } from '@features/auth/services/enhanced-session-management'
+import { auditLogger, AuditEventType } from '@features/auth/services/audit-logger'
 import { performSecurityCheck } from '@shared/utils/sanitization'
-import { passwordValidator, passwordHistoryManager } from '../../utils/password-policy'
-import type { PasswordValidationResult } from '../../utils/password-policy'
-import type { LockoutStatus } from '../../utils/account-lockout'
+import { passwordValidator, passwordHistoryManager } from '@features/auth/services/password-policy'
+import type { PasswordValidationResult } from '@features/auth/services/password-policy'
+import type { LockoutStatus } from '@features/auth/services/account-lockout'
 import { createLogger } from '@shared/utils/logger'
 
 const logger = createLogger('AUTH-AUTHENTICATION')

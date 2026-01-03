@@ -1,5 +1,5 @@
-import { AuditEventType } from './types'
-import { SecurityReporting } from '../security'
+import { AuditEventType } from '@features/auth/types'
+import { SecurityReporting } from '@features/auth/security'
 
 /**
  * 監査ログ機能

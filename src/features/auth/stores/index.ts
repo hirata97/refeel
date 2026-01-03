@@ -4,7 +4,7 @@ import { createSessionStore } from './session'
 import { createAuthenticationStore } from './authentication'
 import { createSecurityStore } from './security-module'
 import { createLockoutStore } from './lockout'
-import { accountLockoutManager } from '../../utils/account-lockout'
+import { accountLockoutManager } from '@features/auth/services/account-lockout'
 
 export const useAuthStore = defineStore('auth', () => {
   // 基本状態

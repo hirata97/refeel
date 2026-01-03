@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import type { User } from '@supabase/supabase-js'
-import { enhancedSessionManager } from '../../utils/enhanced-session-management'
+import { enhancedSessionManager } from '@features/auth/services/enhanced-session-management'
 
 export const createSecurityStore = (userRef: () => User | null) => {
   // セキュリティ関連の計算プロパティ

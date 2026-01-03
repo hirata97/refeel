@@ -1,7 +1,7 @@
 import { useAuthStore } from '@features/auth'
-import { SessionInfo, SecurityStats, AuditEventType } from './types'
+import { SessionInfo, SecurityStats, AuditEventType } from '@features/auth/types'
 import { auditLogger } from './audit-logger'
-import { SecurityReporting } from '../security'
+import { SecurityReporting } from '@features/auth/security'
 
 /**
  * セッションの有効性を検証
