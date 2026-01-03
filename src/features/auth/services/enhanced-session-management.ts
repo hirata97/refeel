@@ -3,7 +3,7 @@
  * Issue #70: 認証・認可システムの強化実装
  */
 
-import { AuditLogger, AuditEventType } from './audit-logger'
+import { auditLogger, AuditEventType } from './audit-logger'
 import { createLogger } from '@shared/utils/logger'
 
 const logger = createLogger('EnhancedSessionManager')
@@ -64,11 +64,11 @@ export const DEFAULT_SESSION_SETTINGS: SessionSecuritySettings = {
  */
 export class EnhancedSessionManager {
   private settings: SessionSecuritySettings
-  private auditLogger: AuditLogger
+  private auditLogger: typeof auditLogger
 
   constructor(settings: Partial<SessionSecuritySettings> = {}) {
     this.settings = { ...DEFAULT_SESSION_SETTINGS, ...settings }
-    this.auditLogger = AuditLogger.getInstance()
+    this.auditLogger = auditLogger
   }
 
   /**
@@ -106,7 +106,7 @@ export class EnhancedSessionManager {
 
     // 監査ログに記録
     await this.auditLogger.log(
-      AuditEventType.AUTH_SESSION_CREATED,
+      AuditEventType.SESSION_CREATED,
       `新しいセッション作成: ${userId}`,
       {
         userId,
@@ -202,7 +202,7 @@ export class EnhancedSessionManager {
 
     // 監査ログに記録
     await this.auditLogger.log(
-      AuditEventType.AUTH_SESSION_TERMINATED,
+      AuditEventType.SESSION_TERMINATED,
       `セッション終了: ${sessionInfo.userId}`,
       {
         userId: sessionInfo.userId,
@@ -229,7 +229,7 @@ export class EnhancedSessionManager {
     }
 
     if (terminatedCount > 0) {
-      await this.auditLogger.log(AuditEventType.AUTH_MASS_LOGOUT, `全セッション終了: ${userId}`, {
+      await this.auditLogger.log(AuditEventType.LOGOUT, `全セッション終了: ${userId}`, {
         userId,
         terminatedCount,
         excludedSession: excludeSessionId,

@@ -1,6 +1,9 @@
 import { AuditEventType } from '@features/auth/types'
 import { SecurityReporting } from '@features/auth/security'
 
+// 型を再エクスポート
+export { AuditEventType }
+
 /**
  * 監査ログ機能
  */

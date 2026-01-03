@@ -3,7 +3,7 @@
  * Issue #70: 認証・認可システムの強化実装
  */
 
-import { AuditLogger, AuditEventType } from './audit-logger'
+import { auditLogger, AuditEventType } from './audit-logger'
 
 export interface LockoutPolicy {
   maxFailedAttempts: number
@@ -49,11 +49,11 @@ export const DEFAULT_LOCKOUT_POLICY: LockoutPolicy = {
  */
 export class AccountLockoutManager {
   private policy: LockoutPolicy
-  private auditLogger: AuditLogger
+  private auditLogger: typeof auditLogger
 
   constructor(policy: LockoutPolicy = DEFAULT_LOCKOUT_POLICY) {
     this.policy = policy
-    this.auditLogger = AuditLogger.getInstance()
+    this.auditLogger = auditLogger
   }
 
   /**
@@ -78,7 +78,7 @@ export class AccountLockoutManager {
 
     // 監査ログに記録
     await this.auditLogger.log(
-      success ? AuditEventType.AUTH_LOGIN : AuditEventType.AUTH_FAILED_LOGIN,
+      success ? AuditEventType.LOGIN_SUCCESS : AuditEventType.LOGIN_FAILURE,
       `ログイン${success ? '成功' : '失敗'}: ${email}`,
       {
         email,
