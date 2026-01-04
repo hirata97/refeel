@@ -4,15 +4,15 @@ import { useAuthStore } from '@features/auth'
 // ページコンポーネントを一元管理
 const pages = {
   TopPage: () => import('@/views/TopPage.vue'),
-  LoginPage: () => import('@/views/LoginPage.vue'),
-  AccountRegisterPage: () => import('@/views/AccountRegisterPage.vue'),
-  SettingPage: () => import('@/views/SettingPage.vue'),
+  LoginPage: () => import('@/views/auth/LoginPage.vue'),
+  AccountRegisterPage: () => import('@/views/auth/AccountRegisterPage.vue'),
+  SettingPage: () => import('@/views/settings/SettingPage.vue'),
   HelpPage: () => import('@/views/HelpPage.vue'),
-  DiaryRegisterPage: () => import('@/views/DiaryRegisterPage.vue'),
-  DiaryViewPage: () => import('@/views/DiaryViewPage.vue'),
-  DiaryEditPage: () => import('@/views/DiaryEditPage.vue'),
-  DashBoardPage: () => import('@/views/DashBoardPage.vue'),
-  WeeklyReflectionPage: () => import('@/views/WeeklyReflectionPage.vue'),
+  DiaryRegisterPage: () => import('@/views/diary/DiaryRegisterPage.vue'),
+  DiaryViewPage: () => import('@/views/diary/DiaryViewPage.vue'),
+  DiaryEditPage: () => import('@/views/diary/DiaryEditPage.vue'),
+  DashBoardPage: () => import('@/views/dashboard/DashBoardPage.vue'),
+  WeeklyReflectionPage: () => import('@/views/reports/WeeklyReflectionPage.vue'),
 }
 
 // ルートの定義を簡略化
