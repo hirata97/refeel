@@ -11,6 +11,7 @@
 
 import { execSync } from 'child_process'
 import { writeFileSync, existsSync, mkdirSync } from 'fs'
+import prettier from 'prettier'
 import { join } from 'path'
 
 const PROJECT_ROOT = process.cwd()
@@ -84,9 +85,30 @@ function prepareTyepesDirectory() {
 }
 
 /**
+ * 指定ファイルを Prettier で整形して書き込む
+ */
+async function formatAndWrite(filePath, content) {
+  try {
+    let prettierConfig = null
+    if (typeof prettier.resolveConfig === 'function') {
+      try {
+        prettierConfig = await prettier.resolveConfig(filePath)
+      } catch {
+        // ignore
+      }
+    }
+    const formatted = prettier.format(content, { ...(prettierConfig || {}), filepath: filePath })
+    writeFileSync(filePath, formatted)
+    log(`Prettierで整形しました: ${filePath}`, 'success')
+  } catch (e) {
+    log(`Prettier 整形に失敗しました: ${e.message}`, 'error')
+  }
+}
+
+/**
  * ローカル環境用の型定義生成（モックデータベース使用）
  */
-function generateTypesLocal() {
+async function generateTypesLocal() {
   log('ローカル環境用の型定義を生成しています...')
   
   // 基本的なデータベース型定義のテンプレート
@@ -255,7 +277,15 @@ export type DashboardData = {
   // ファイル書き込み
   writeFileSync(GENERATED_TYPES_FILE, databaseTypeTemplate)
   writeFileSync(SUPABASE_TYPES_FILE, supabaseTypeTemplate)
-  
+
+  // Prettier で整形（失敗しても処理を続行）
+  try {
+    await formatAndWrite(GENERATED_TYPES_FILE, databaseTypeTemplate)
+    await formatAndWrite(SUPABASE_TYPES_FILE, supabaseTypeTemplate)
+  } catch (e) {
+    log(`Prettier 整形中にエラーが発生しました: ${e.message}`, 'error')
+  }
+
   log('ローカル型定義を生成しました', 'success')
 }
 
@@ -298,12 +328,17 @@ ${typesOutput}
 `
     
     writeFileSync(GENERATED_TYPES_FILE, wrappedTypes)
+    try {
+      await formatAndWrite(GENERATED_TYPES_FILE, wrappedTypes)
+    } catch (e) {
+      log(`Prettier 整形中にエラーが発生しました: ${e.message}`, 'error')
+    }
     log('本番環境の型定義を生成しました', 'success')
     
   } catch (error) {
     log(`本番環境での型定義生成に失敗: ${error.message}`, 'error')
     log('ローカル環境用にフォールバックします', 'error')
-    generateTypesLocal()
+    await generateTypesLocal()
   }
 }
 
@@ -339,7 +374,7 @@ async function main() {
     if (useProduction) {
       await generateTypesProduction()
     } else {
-      generateTypesLocal()
+      await generateTypesLocal()
     }
     
     // 3. 互換性チェック
