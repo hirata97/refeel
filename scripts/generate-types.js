@@ -93,7 +93,7 @@ async function formatAndWrite(filePath, content) {
     if (typeof prettier.resolveConfig === 'function') {
       try {
         prettierConfig = await prettier.resolveConfig(filePath)
-      } catch (e) {
+      } catch {
         // ignore
       }
     }
