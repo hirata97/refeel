@@ -292,7 +292,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js'
-import { useWeeklyAnalysis } from '@/composables/useWeeklyAnalysis'
+import { useWeeklyAnalysis } from '@features/reports'
 import { StatCard } from '@/features/dashboard'
 
 // Chart.js登録

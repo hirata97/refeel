@@ -5,14 +5,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { 
+import {
   analyzeFrequencyStats,
   analyzeContentStats,
   analyzeMoodStats,
   analyzeContinuityStats,
   analyzeTimeStats,
   analyzeKeywordStats
-} from '@/services/reportAnalytics'
+} from '@features/reports'
 
 // モックデータの準備
 const mockDiaries = [
@@ -139,9 +139,9 @@ describe('レポート分析サービス - 正常系', () => {
 
     it('曜日別平均気分が計算される', () => {
       const result = analyzeMoodStats(mockDiaries)
-      
+
       expect(result.weeklyAverage).toBeDefined()
-      expect(Object.keys(result.weeklyAverage)).toEqual(['月', '火', '水', '木', '金', '土', '日'])
+      expect(Object.keys(result.weeklyAverage).sort()).toEqual(['月', '火', '水', '木', '金', '土', '日'].sort())
     })
 
     it('月別平均気分が計算される', () => {

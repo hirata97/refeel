@@ -4,7 +4,7 @@
  * Issue #40: レポート機能の期間選択機能
  */
 
-import type { DateRange, PresetDateRange } from '@/types/report'
+import type { DateRange, PresetDateRange } from '@features/reports'
 
 /**
  * 今日の日付をYYYY-MM-DD形式で取得
