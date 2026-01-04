@@ -155,6 +155,9 @@ export const useAuthStore = defineStore('auth', () => {
     setError,
     clearError,
 
+    // ユーザー管理（テスト用）
+    setUser: authenticationStore.setUser,
+
     // セッション管理
     setSession: sessionStore.setSession,
     updateLastActivity: sessionStore.updateLastActivity,

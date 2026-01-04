@@ -131,9 +131,9 @@ describe('InputValidation', () => {
     it('should detect XSS attempts in email', () => {
       const maliciousEmail = 'test@example.com<script>alert("xss")</script>'
       const result = InputValidation.validateEmail(maliciousEmail)
-      
+
       expect(result.isValid).toBe(false)
-      expect(result.errors).toInclude('Invalid email format')
+      expect(result.errors).toContain('Invalid email format')
     })
   })
 

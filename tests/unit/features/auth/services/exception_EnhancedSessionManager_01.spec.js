@@ -9,7 +9,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { EnhancedSessionManager } from '@/features/auth/services/enhanced-session-management'
-import { auditLogger } from '@/features/auth/services/audit-logger'
+// import { auditLogger } from '@/features/auth/services/audit-logger'
 
 // global objects のモック
 Object.defineProperty(global, 'navigator', {
