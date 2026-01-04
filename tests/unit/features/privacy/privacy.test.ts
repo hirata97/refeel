@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { 
-  PrivacyManager, 
-  ConsentManager, 
-  DataDeletionManager, 
-  GDPRCompliance 
-} from '@/utils/privacy'
+import {
+  PrivacyManager,
+  ConsentManager,
+  DataDeletionManager,
+  GDPRCompliance
+} from '@features/privacy'
 // Import types are used in function signatures
 
 // Mock Supabase

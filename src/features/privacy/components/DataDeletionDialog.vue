@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { DataDeletionManager } from '@/utils/privacy'
+import { DataDeletionManager } from '@features/privacy'
 import { useAuthStore } from '@features/auth'
 import { createLogger } from '@shared/utils'
 
