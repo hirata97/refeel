@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 import { useWeeklyAnalysis } from '@features/reports'
 
 // ストアのモック
@@ -59,6 +60,7 @@ describe('useWeeklyAnalysis - 正常系', () => {
   let weeklyAnalysis
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
     weeklyAnalysis = useWeeklyAnalysis()
   })
@@ -172,6 +174,7 @@ describe('useWeeklyAnalysis - 週の変更', () => {
   let weeklyAnalysis
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
     weeklyAnalysis = useWeeklyAnalysis()
   })
@@ -189,6 +192,7 @@ describe('useWeeklyAnalysis - データ変換', () => {
   let _weeklyAnalysis
 
   beforeEach(() => {
+    setActivePinia(createPinia())
     vi.clearAllMocks()
     _weeklyAnalysis = useWeeklyAnalysis()
   })
@@ -217,9 +221,9 @@ describe('useWeeklyAnalysis - データ変換', () => {
 
     // createWeeklyMoodData関数の動作を間接的にテスト
     // 実際の実装では、fetchWeeklyReflection経由でテストする
-    expect(testDiaries.length).toBe(2)
-    expect(testDiaries[0].mood).toBe(8)
-    expect(testDiaries[1].mood).toBe(6)
+    expect(_testDiaries.length).toBe(2)
+    expect(_testDiaries[0].mood).toBe(8)
+    expect(_testDiaries[1].mood).toBe(6)
   })
 
   it('感情タグ頻度計算は現在無効（旧tagsシステム削除済み）', () => {
