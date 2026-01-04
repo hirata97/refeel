@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { BaseCard } from '@shared/components/base'
-import type { RecentDiary } from '@/types/dashboard'
+import type { RecentDiary } from '@/features/dashboard'
 
 interface Props {
   /** 最近の日記データ */

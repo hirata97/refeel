@@ -13,8 +13,8 @@ import type {
   MoodDataPoint,
   DashboardLoadingState,
   DashboardError,
-} from '@/types/dashboard'
-import type { ComparisonData } from '@/components/dashboard/ComparisonCard.vue'
+} from '@/features/dashboard'
+import type { ComparisonData } from '@/features/dashboardComparisonCard.vue'
 import type { DiaryEntry } from '@/stores/data'
 
 export function useDashboardData() {
