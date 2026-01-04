@@ -105,18 +105,14 @@ export class EnhancedSessionManager {
     this.saveSessionInfo(sessionInfo)
 
     // 監査ログに記録
-    await this.auditLogger.log(
-      AuditEventType.SESSION_CREATED,
-      `新しいセッション作成: ${userId}`,
-      {
-        userId,
-        sessionId,
-        deviceId,
-        ipAddress,
-        userAgent: this.sanitizeUserAgent(userAgent),
-        timestamp: now.toISOString(),
-      },
-    )
+    await this.auditLogger.log(AuditEventType.SESSION_CREATED, `新しいセッション作成: ${userId}`, {
+      userId,
+      sessionId,
+      deviceId,
+      ipAddress,
+      userAgent: this.sanitizeUserAgent(userAgent),
+      timestamp: now.toISOString(),
+    })
 
     return sessionInfo
   }
