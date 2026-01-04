@@ -7,7 +7,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import { useDashboardData } from '@/composables/useDashboardData'
 import { useDataStore } from '@/stores/data'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 
 // モック設定
 vi.mock('@/stores/data')

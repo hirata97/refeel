@@ -142,7 +142,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '@/stores/data'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { useEmotionTagsStore } from '@features/mood'
 import { useDiaries } from '@shared/composables'
 import DiaryFilter from '@/components/diary/DiaryFilter.vue'

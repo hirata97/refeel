@@ -95,7 +95,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { DataDeletionManager } from '@/utils/privacy'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { createLogger } from '@shared/utils'
 
 const logger = createLogger('DATADELETIONDIALOG')

@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth'
 import { useNotificationStore, GlobalNotification } from '@features/notifications'
 import { useLoadingStore } from '@core/stores/loading'
 import PWAInstallPrompt from '@/components/PWAInstallPrompt.vue'
