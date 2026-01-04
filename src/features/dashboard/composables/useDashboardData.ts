@@ -14,7 +14,7 @@ import type {
   DashboardLoadingState,
   DashboardError,
 } from '@/features/dashboard'
-import type { ComparisonData } from '@/features/dashboardComparisonCard.vue'
+import type { ComparisonData } from '@/features/dashboard/types/dashboard'
 import type { DiaryEntry } from '@/stores/data'
 
 export function useDashboardData() {

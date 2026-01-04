@@ -75,3 +75,11 @@ export interface DashboardError {
   /** 全体エラー */
   overall: string | null
 }
+
+export interface ComparisonData {
+  previousMood: number
+  currentMood: number
+  previousReason?: string
+  currentReason?: string
+  streakDays: number
+}
