@@ -105,7 +105,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDashboardData, StatCard, MoodChartCard, EmotionTagAnalysisCard, ComparisonCard, DetailedAnalyticsSection } from '@/features/dashboard'
+import {
+  useDashboardData,
+  StatCard,
+  MoodChartCard,
+  EmotionTagAnalysisCard,
+  ComparisonCard,
+  DetailedAnalyticsSection,
+} from '@/features/dashboard'
 import { useAuthGuard } from '@features/auth/composables/useAuthGuard'
 
 // タブ管理
