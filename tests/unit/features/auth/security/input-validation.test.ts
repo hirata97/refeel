@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { InputValidation } from '@/utils/security'
+import { InputValidation } from '@features/auth/security'
 
 describe('InputValidation', () => {
   describe('validateInput', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { XSSProtection } from '@/utils/security'
+import { XSSProtection } from '@features/auth/security'
 
 // DOMPurifyのモック
 vi.mock('dompurify', () => ({

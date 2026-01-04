@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { CSRFProtection } from '@/utils/security'
+import { CSRFProtection } from '@features/auth/security'
 
 // sessionStorageのモック
 Object.defineProperty(window, 'sessionStorage', {

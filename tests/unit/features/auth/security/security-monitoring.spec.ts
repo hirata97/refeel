@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { SecurityMonitor, SecurityAlertManager, SecurityMetricsCollector } from '@/utils/security-monitoring'
-import { SecurityIncidentReporter } from '@/utils/security'
+import { SecurityIncidentReporter } from '@features/auth/security'
 import type { SecurityEvent, SecurityAlert, ThreatLevel } from '@/types/security-monitoring'
 
 // loggerのモック（グローバルモックを明示的に宣言）
