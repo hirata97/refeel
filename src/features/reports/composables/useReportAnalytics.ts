@@ -5,8 +5,8 @@
  */
 
 import { ref, reactive, computed, watch } from 'vue'
-import type { DateRange, AnalyticsPeriod, AnalyticsResult } from '@/types/report'
-import { generateAnalyticsReport } from '@/services/reportAnalytics'
+import type { DateRange, AnalyticsPeriod, AnalyticsResult } from '../types/report'
+import { generateAnalyticsReport } from '../services/reportAnalytics'
 import { dateRangePresets, getPresetRange } from '@shared/utils'
 import { createLogger } from '@shared/utils'
 

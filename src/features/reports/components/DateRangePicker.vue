@@ -95,7 +95,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
-import type { DateRange } from '@/types/report'
+import type { DateRange } from '../types/report'
 import {
   dateRangePresets,
   getToday,

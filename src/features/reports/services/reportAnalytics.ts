@@ -17,7 +17,7 @@ import type {
   TimeStats,
   KeywordStats,
   AnalyticsPeriod,
-} from '@/types/report'
+} from '../types/report'
 import { validateDateRange, getDaysBetween } from '@shared/utils'
 import { createLogger } from '@shared/utils'
 

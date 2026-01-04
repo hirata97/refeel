@@ -5,14 +5,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { 
+import {
   analyzeFrequencyStats,
   analyzeContentStats,
   analyzeMoodStats,
   analyzeContinuityStats,
   analyzeTimeStats,
   analyzeKeywordStats
-} from '@/services/reportAnalytics'
+} from '@features/reports'
 
 // モックデータの準備
 const mockDiaries = [

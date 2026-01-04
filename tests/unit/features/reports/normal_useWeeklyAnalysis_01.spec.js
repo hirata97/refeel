@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useWeeklyAnalysis } from '@/composables/useWeeklyAnalysis'
+import { useWeeklyAnalysis } from '@features/reports'
 
 // ストアのモック
 vi.mock('@/stores/data', () => ({
