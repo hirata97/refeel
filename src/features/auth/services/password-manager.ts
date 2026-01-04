@@ -1,4 +1,4 @@
-import { PasswordValidationResult } from '@features/auth/types'
+import type { PasswordValidationResult } from '@features/auth/types'
 import bcrypt from 'bcryptjs'
 
 /**
