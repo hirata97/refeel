@@ -293,7 +293,7 @@ import {
   Filler,
 } from 'chart.js'
 import { useWeeklyAnalysis } from '@/composables/useWeeklyAnalysis'
-import StatCard from '@/components/dashboard/StatCard.vue'
+import { StatCard } from '@/features/dashboard'
 
 // Chart.js登録
 ChartJS.register(

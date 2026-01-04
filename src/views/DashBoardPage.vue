@@ -105,13 +105,15 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useDashboardData } from '@/composables/useDashboardData'
+import {
+  useDashboardData,
+  StatCard,
+  MoodChartCard,
+  EmotionTagAnalysisCard,
+  ComparisonCard,
+  DetailedAnalyticsSection,
+} from '@/features/dashboard'
 import { useAuthGuard } from '@features/auth/composables/useAuthGuard'
-import StatCard from '@/components/dashboard/StatCard.vue'
-import MoodChartCard from '@/components/dashboard/MoodChartCard.vue'
-import EmotionTagAnalysisCard from '@/components/dashboard/EmotionTagAnalysisCard.vue'
-import ComparisonCard from '@/components/dashboard/ComparisonCard.vue'
-import DetailedAnalyticsSection from '@/components/dashboard/DetailedAnalyticsSection.vue'
 
 // タブ管理
 const activeTab = ref('overview')

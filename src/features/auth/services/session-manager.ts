@@ -1,5 +1,6 @@
 import { useAuthStore } from '@features/auth'
-import { SessionInfo, SecurityStats, AuditEventType } from '@features/auth/types'
+import type { SessionInfo, SecurityStats } from '@features/auth/types'
+import { AuditEventType } from '@features/auth/types'
 import { auditLogger } from './audit-logger'
 import { SecurityReporting } from '@features/auth/security'
 

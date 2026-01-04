@@ -44,7 +44,7 @@ import {
   Legend,
 } from 'chart.js'
 import { BaseCard } from '@shared/components/base'
-import type { MoodDataPoint } from '@/types/dashboard'
+import type { MoodDataPoint } from '@/features/dashboard'
 
 // Chart.jsコンポーネントの登録
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)

@@ -1,4 +1,5 @@
-import { LockoutStatus, AuditEventType } from '@features/auth/types'
+import type { LockoutStatus } from '@features/auth/types'
+import { AuditEventType } from '@features/auth/types'
 import { auditLogger } from './audit-logger'
 import { SecurityReporting } from '@features/auth/security'
 
