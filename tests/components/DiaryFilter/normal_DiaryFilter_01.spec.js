@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
-import DiaryFilter from '@/components/diary/DiaryFilter.vue'
+import DiaryFilter from '@features/diary/components/DiaryFilter.vue'
 
 // パフォーマンスモニターのモック - グローバルモック（tests/setup.ts）を使用
 
