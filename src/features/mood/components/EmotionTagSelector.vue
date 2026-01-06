@@ -15,7 +15,14 @@
       </div>
 
       <!-- エラー状態 -->
-      <v-alert v-else-if="error" type="error" variant="tonal" class="mb-4" density="compact" data-testid="error-alert">
+      <v-alert
+        v-else-if="error"
+        type="error"
+        variant="tonal"
+        class="mb-4"
+        density="compact"
+        data-testid="error-alert"
+      >
         {{ error }}
       </v-alert>
 
@@ -64,7 +71,13 @@
               {{ negativeTagsGroup.label }}
             </span>
           </div>
-          <v-chip-group v-model="selectedNegativeTags" multiple color="error" class="emotion-chips" :disabled="disabled">
+          <v-chip-group
+            v-model="selectedNegativeTags"
+            multiple
+            color="error"
+            class="emotion-chips"
+            :disabled="disabled"
+          >
             <v-chip
               v-for="tag in negativeTagsGroup.tags"
               :key="tag.id"
@@ -91,7 +104,13 @@
               {{ neutralTagsGroup.label }}
             </span>
           </div>
-          <v-chip-group v-model="selectedNeutralTags" multiple color="info" class="emotion-chips" :disabled="disabled">
+          <v-chip-group
+            v-model="selectedNeutralTags"
+            multiple
+            color="info"
+            class="emotion-chips"
+            :disabled="disabled"
+          >
             <v-chip
               v-for="tag in neutralTagsGroup.tags"
               :key="tag.id"
