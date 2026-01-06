@@ -99,7 +99,7 @@
 import { ref, computed, onUnmounted, watch, nextTick } from 'vue'
 import { BaseButton, BaseAlert } from '@shared/components/base'
 import { InputValidation, XSSProtection } from '@/utils/security'
-import { logAuthAttempt } from '@/utils/auth'
+import { logAuthAttempt } from '@features/auth/services/lockout-manager'
 import { useSimpleLoginForm } from '@/composables/useSimpleForm'
 import { useAuthGuard } from '@features/auth/composables/useAuthGuard'
 import { useAppRouter } from '@shared/composables'

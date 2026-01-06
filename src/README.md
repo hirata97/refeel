@@ -105,7 +105,7 @@ src/
 <script setup lang="ts">
 // 1. import文
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@features/auth/stores/auth'
 
 // 2. 型定義
 interface Props {
@@ -236,7 +236,7 @@ watch(
 #### 1. プレゼンテーションコンポーネント
 
 ```vue
-<!-- components/dashboard/StatCard.vue -->
+<!-- features/dashboard/components/StatCard.vue -->
 <template>
   <BaseCard>
     <template #title>{{ title }}</template>
@@ -268,7 +268,7 @@ const changeClass = computed(() => ({
 #### 2. コンテナコンポーネント
 
 ```vue
-<!-- views/DashBoardPage.vue -->
+<!-- views/dashboard/DashBoardPage.vue -->
 <template>
   <div class="dashboard">
     <StatCard
@@ -283,8 +283,8 @@ const changeClass = computed(() => ({
 </template>
 
 <script setup lang="ts">
-import { useDashboardData } from '@/composables/useDashboardData'
-import StatCard from '@/components/dashboard/StatCard.vue'
+import { useDashboardData } from '@features/dashboard/composables/useDashboardData'
+import StatCard from '@features/dashboard/components/StatCard.vue'
 
 const { dashboardStats, loading } = useDashboardData()
 </script>

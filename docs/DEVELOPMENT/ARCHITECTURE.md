@@ -42,143 +42,149 @@
 - **CI/CD**: 5項目品質チェック（lint・型・テスト・ビルド・セキュリティ）
 - **パッケージ管理**: npm + npm-run-all2
 
-## コンポーネント構造
-
-### src/views/ - 各ページのメインビュー
-
-- `AccountRegisterPage.vue` - アカウント登録
-- `DashBoardPage.vue` - ダッシュボード
-- `DiaryRegisterPage.vue` - 目標登録
-- `DiaryEditPage.vue` - 目標編集
-- `DiaryReportPage.vue` - レポート画面（Chart.js統合）
-- `DiaryViewPage.vue` - 目標表示（ページネーション・フィルター統合）
-- `LoginPage.vue` - ログイン
-- `SettingPage.vue` - 設定
-- `TopPage.vue` - トップページ
-- `HelpPage.vue` - ヘルプページ
-
-### src/components/ - 再利用可能コンポーネント
-
-#### 基本コンポーネント（src/components/base/）
-
-- `BaseButton.vue` - 標準化されたボタン
-- `BaseCard.vue` - 統一されたカードレイアウト
-- `BaseForm.vue` - フォームバリデーション統合
-- `BaseAlert.vue` - アラート・通知表示
-
-#### 機能コンポーネント
-
-- `PaginationComponent.vue` - ページネーション統合コンポーネント（229行）
-- `pagination/` - ページネーション機能モジュール
-  - `PaginationCore.vue` - 基本機能（185行）
-  - `PaginationControls.vue` - ナビゲーション制御（198行）
-  - `PaginationAnimation.vue` - アニメーション・エラー処理（166行）
-  - `PaginationJump.vue` - ページジャンプ機能（112行）
-- `settings/` - 設定タブコンポーネント
-  - `ProfileTab.vue` - プロフィール設定
-  - `SecurityTab.vue` - セキュリティ設定
-  - `DataTab.vue` - データ管理設定
-- `DiaryFilter.vue` - 日記フィルタリング
-- `SupabaseComponent.vue` - Supabase連携
-- `MyComponent.vue` - カスタムコンポーネント
-
-### src/stores/ - Pinia状態管理
-
-#### 認証ストア（モジュール化済み）
-- `auth/` - 認証機能モジュール
-  - `index.ts` - 統合インターフェース（185行）
-  - `session.ts` - セッション管理（258行）
-  - `authentication.ts` - ログイン・ログアウト処理（404行）
-  - `security.ts` - セキュリティチェック（29行）
-  - `lockout.ts` - アカウントロックアウト（33行）
-
-#### その他ストア
-- `data.ts` - データ取得・キャッシング（サーバーサイドページネーション対応）
-- `pagination.ts` - ページネーション状態管理（URL同期・永続化） ⭐ 新規
-- `counter.ts` - カウンター状態（サンプル）
-
-### 重要な設定ファイル
-
-- `src/lib/supabase.ts` - Supabaseクライアント設定
-- `src/security/` - 統合セキュリティモジュール
-  - `index.ts` - セキュリティ機能統一エクスポート
-  - `core/index.ts` - 基本セキュリティ機能
-  - `monitoring/index.ts` - セキュリティ監視システム
-  - `reporting/index.ts` - セキュリティレポート機能
-- `vite.config.ts` - Viteビルド設定
-- `eslint.config.js` - ESLint設定
-- `playwright.config.ts` - E2Eテスト設定
-
-## ディレクトリ構成（2025年更新版）
+## 📁 ディレクトリ構成（Feature-based + Shared構造）
 
 ```
 src/
-├── components/          # 再利用可能なコンポーネント
-│   ├── base/           # ベースコンポーネント（BaseButton, BaseCard等）
-│   ├── pagination/     # ページネーション機能モジュール
-│   │   ├── PaginationCore.vue      # 基本機能（185行）
-│   │   ├── PaginationControls.vue  # ナビゲーション制御（198行）
-│   │   ├── PaginationAnimation.vue # アニメーション処理（166行）
-│   │   └── PaginationJump.vue      # ページジャンプ（112行）
-│   ├── settings/       # 設定タブコンポーネント
-│   │   ├── ProfileTab.vue    # プロフィール設定
-│   │   ├── SecurityTab.vue   # セキュリティ設定
-│   │   └── DataTab.vue       # データ管理設定
-│   ├── PaginationComponent.vue  # ページネーション統合（229行）
-│   ├── DiaryFilter.vue          # フィルタリング機能
-│   └── SupabaseComponent.vue    # Supabase連携
-├── views/              # ページコンポーネント（9ページ）
-├── stores/             # Pinia状態管理
-│   ├── auth/           # 認証ストアモジュール
-│   │   ├── index.ts           # 統合インターフェース（185行）
-│   │   ├── session.ts         # セッション管理（258行）
-│   │   ├── authentication.ts  # 認証処理（404行）
-│   │   ├── security.ts        # セキュリティ（29行）
-│   │   └── lockout.ts         # ロックアウト（33行）
-│   ├── data.ts         # データ・キャッシング
-│   ├── pagination.ts   # ページネーション（新規）
-│   └── counter.ts      # サンプル
-├── composables/        # Vue3コンポーザブル
-│   ├── useSimpleForm.ts     # フォーム管理
-│   └── useDataFetch.ts      # データ取得
-├── security/           # 統合セキュリティモジュール
-│   ├── index.ts        # セキュリティ機能統一エクスポート
-│   ├── core/           # 基本セキュリティ機能
-│   │   └── index.ts    # セキュリティコア機能
-│   ├── monitoring/     # セキュリティ監視
-│   │   └── index.ts    # 監視システム・アラート管理
-│   └── reporting/      # セキュリティレポート
-│       └── index.ts    # インシデント報告・統計
-├── utils/              # ユーティリティ関数
-│   ├── sanitization.ts      # セキュリティサニタイゼーション
-│   ├── auth.ts             # 認証ヘルパー
-│   ├── authorization.ts     # 認可制御
-│   ├── access-control.ts    # アクセス制御
-│   ├── audit-logger.ts      # 監査ログ
-│   └── performance.ts       # パフォーマンス監視
-├── types/              # TypeScript型定義
-│   ├── database.ts     # データベーススキーマ型（自動生成）
-│   ├── supabase.ts     # Supabaseクライアント型（自動生成）
-│   ├── custom.ts       # カスタム型定義（手動管理）
-│   └── security.d.ts   # セキュリティ型定義
-├── services/           # ビジネスロジック・サービス層
-├── config/             # アプリケーション設定
-├── router/             # Vue Routerルート定義
-├── lib/                # ライブラリ設定
-│   └── supabase.ts     # Supabaseクライアント
-└── plugins/            # プラグイン設定
-    └── vuetify.ts      # Vuetify設定
+├── features/           # 機能別モジュール（ドメイン駆動設計）
+│   ├── auth/          # 認証・セキュリティ機能
+│   │   ├── components/     # 認証関連コンポーネント
+│   │   ├── composables/    # 認証コンポーザブル（useAuthGuard等）
+│   │   ├── services/       # 認証サービス（session, lockout, password, audit）
+│   │   ├── stores/         # 認証ストア（auth.ts, security.ts）
+│   │   ├── types/          # 認証型定義
+│   │   ├── utils/          # 認証ユーティリティ（guards等）
+│   │   └── security/       # セキュリティモジュール
+│   │       ├── core/           # セキュリティコア機能
+│   │       ├── monitoring/     # セキュリティ監視
+│   │       ├── reporting/      # セキュリティレポート
+│   │       └── utils/          # セキュリティユーティリティ
+│   ├── dashboard/     # ダッシュボード機能
+│   │   ├── components/     # ダッシュボードコンポーネント
+│   │   ├── composables/    # ダッシュボードコンポーザブル
+│   │   └── types/          # ダッシュボード型定義
+│   ├── diary/         # 日記機能
+│   │   ├── components/     # 日記コンポーネント
+│   │   └── composables/    # 日記コンポーザブル
+│   ├── mood/          # 気分記録機能
+│   │   ├── components/     # 気分記録コンポーネント
+│   │   ├── stores/         # 気分記録ストア
+│   │   └── types/          # 気分記録型定義
+│   ├── notifications/ # 通知機能
+│   │   ├── components/     # 通知コンポーネント
+│   │   ├── composables/    # 通知コンポーザブル
+│   │   └── stores/         # 通知ストア
+│   ├── privacy/       # プライバシー機能
+│   │   ├── components/     # プライバシーコンポーネント
+│   │   └── utils/          # プライバシーユーティリティ
+│   ├── reports/       # レポート機能
+│   │   ├── components/     # レポートコンポーネント
+│   │   ├── composables/    # レポートコンポーザブル
+│   │   ├── services/       # レポートサービス
+│   │   └── types/          # レポート型定義
+│   └── settings/      # 設定機能
+│       ├── components/     # 設定コンポーネント
+│       └── stores/         # 設定ストア
+├── shared/            # 共通コンポーネント・ユーティリティ
+│   ├── components/    # 共通コンポーネント
+│   │   ├── base/          # ベースコンポーネント（BaseButton, BaseCard等）
+│   │   ├── a11y/          # アクセシビリティコンポーネント
+│   │   └── pagination/    # ページネーションコンポーネント
+│   ├── composables/   # 共通コンポーザブル
+│   ├── utils/         # 共通ユーティリティ
+│   └── types/         # 共通型定義
+├── views/             # ページコンポーネント（機能別）
+│   ├── auth/          # 認証ページ（LoginPage, AccountRegisterPage）
+│   ├── dashboard/     # ダッシュボードページ
+│   ├── diary/         # 日記ページ（Register, Edit, View）
+│   ├── reports/       # レポートページ
+│   └── settings/      # 設定ページ
+├── core/              # コア機能（アプリ全体の基盤）
+│   ├── config/        # アプリケーション設定
+│   ├── lib/           # ライブラリ設定（supabase.ts等）
+│   ├── plugins/       # プラグイン設定（vuetify.ts等）
+│   ├── router/        # Vue Routerルート定義
+│   └── stores/        # コアストア（app.ts等）
+├── components/        # レガシーコンポーネント（段階的移行中）
+├── composables/       # レガシーコンポーザブル（段階的移行中）
+├── stores/            # レガシーストア（段階的移行中）
+├── services/          # ビジネスロジック・サービス層
+├── types/             # TypeScript型定義
+│   ├── database.ts    # データベーススキーマ型（自動生成）
+│   ├── supabase.ts    # Supabaseクライアント型（自動生成）
+│   └── custom.ts      # カスタム型定義（手動管理）
+├── utils/             # ユーティリティ関数
+│   └── security/      # セキュリティユーティリティ
+└── styles/            # グローバルスタイル
 
-docs/                   # プロジェクトドキュメント（構造化）
-scripts/                # 自動化スクリプト（Issue管理、PR作成等）
-tasks/                  # Issue管理ファイル
-tests/                  # テストファイル
-│   ├── BaseButton/     # コンポーネント別テスト
-│   ├── BaseCard/
-│   └── BaseForm/
+docs/                  # プロジェクトドキュメント（構造化）
+scripts/               # 自動化スクリプト（Issue管理、PR作成等）
+tasks/                 # Issue管理ファイル
+tests/                 # テストファイル
 ```
 
-## セキュリティアーキテクチャ（2025年強化版）
+## 🎯 Feature-based構造の設計原則
+
+### 1. 機能別モジュール化（features/）
+
+各機能（feature）は独立したモジュールとして設計され、以下の構造を持つ：
+
+- **components/**: その機能専用のコンポーネント
+- **composables/**: その機能専用のコンポーザブル
+- **services/**: ビジネスロジック層
+- **stores/**: 状態管理
+- **types/**: 型定義
+- **utils/**: ユーティリティ関数
+
+### 2. 共通コード（shared/）
+
+複数の機能で共有されるコードは `shared/` に配置：
+
+- **components/**: 汎用的なUIコンポーネント（BaseButton, BaseCard等）
+- **composables/**: 汎用的なコンポーザブル（useAppRouter, useErrorHandler等）
+- **utils/**: 汎用的なユーティリティ関数
+- **types/**: 共通型定義
+
+### 3. コア機能（core/）
+
+アプリケーション全体の基盤となる設定・ライブラリ：
+
+- **config/**: アプリケーション設定
+- **lib/**: 外部ライブラリ設定（Supabase等）
+- **plugins/**: Vueプラグイン設定（Vuetify等）
+- **router/**: ルーティング設定
+- **stores/**: アプリ全体の状態管理
+
+### 4. ページコンポーネント（views/）
+
+ページコンポーネントは機能別に分類され、featuresモジュールを組み合わせて構成：
+
+- `views/auth/` → `features/auth/` を使用
+- `views/dashboard/` → `features/dashboard/` を使用
+- `views/diary/` → `features/diary/` を使用
+
+## 📐 importパス規約
+
+```typescript
+// ✅ 推奨: エイリアスパスを使用
+import { useAuthStore } from '@features/auth/stores/auth'
+import { BaseButton } from '@shared/components/base'
+import { supabase } from '@core/lib/supabase'
+
+// ❌ 非推奨: 相対パスは避ける
+import { useAuthStore } from '../../../features/auth/stores/auth'
+
+// ✅ エイリアス定義（vite.config.ts）
+{
+  '@features': '/src/features',
+  '@shared': '/src/shared',
+  '@core': '/src/core',
+  '@views': '/src/views',
+  '@': '/src'
+}
+```
+
+## 🔒 セキュリティアーキテクチャ
 
 ### 多層防御セキュリティ構成
 
@@ -200,9 +206,9 @@ tests/                  # テストファイル
 │  - セキュリティ設定管理                  │
 ├─────────────────────────────────────────┤
 │      Authorization Layer               │
-│  - アクセス制御（utils/access-control）  │
-│  - 認可制御（utils/authorization）       │
-│  - 監査ログ（utils/audit-logger）        │
+│  - アクセス制御                         │
+│  - 認可制御                            │
+│  - 監査ログ                            │
 ├─────────────────────────────────────────┤
 │     Store Layer (Pinia 2.2)           │
 │  - 統合セキュリティチェック               │
@@ -220,13 +226,13 @@ tests/                  # テストファイル
 └─────────────────────────────────────────┘
 ```
 
-### セキュリティ機能（2025年強化版）
+### セキュリティ機能
 
 #### 入力値検証・サニタイゼーション
 
 - **リアルタイムバリデーション**: VeeValidate 4.15による即座検証
 - **多層サニタイゼーション**: DOMPurify 3.2 + カスタムルール
-- **攻撃パターン検出**: utils/sanitization.tsによる統合チェック
+- **攻撃パターン検出**: 統合セキュリティモジュールによる検出
 - **サーバーサイド検証**: Supabaseでの最終検証
 
 #### データ保護・暗号化
@@ -239,18 +245,36 @@ tests/                  # テストファイル
 #### 認証・認可・監査
 
 - **JWT認証**: Supabase自動トークン管理
-- **セッション監視**: リアルタイムセッション状態管理
-- **アクセス制御**: utils/access-control.tsによる細かい制御
-- **認可システム**: utils/authorization.tsによる権限管理
-- **監査ログ**: utils/audit-logger.tsによる操作追跡
+- **セッション監視**: リアルタイムセッション状態管理（`features/auth/services/session-manager.ts`）
+- **アカウントロックアウト**: ログイン失敗時の保護（`features/auth/services/lockout-manager.ts`）
+- **パスワード管理**: 強力なパスワードポリシー（`features/auth/services/password-manager.ts`）
+- **監査ログ**: 操作追跡（`features/auth/services/audit-logger.ts`）
 
-#### パフォーマンス・監視
+#### セキュリティ監視・レポート
 
-- **セキュリティメトリクス**: utils/performance.tsによる監視
-- **異常検出**: パフォーマンス異常とセキュリティリスク連携
-- **リアルタイム監視**: Supabaseリアルタイム機能活用
+- **セキュリティ監視**: `features/auth/security/monitoring/` による異常検知
+- **セキュリティレポート**: `features/auth/security/reporting/` によるインシデント報告
+- **パフォーマンス監視**: 異常検出とセキュリティリスク連携
+
+## 🧪 テスト戦略
+
+### テスト構成
+
+```
+tests/
+├── [feature]/          # 機能別テスト
+│   ├── unit/          # ユニットテスト
+│   └── integration/   # 統合テスト
+└── e2e/               # E2Eテスト（Playwright）
+```
+
+### テストパターン
+
+- **ユニットテスト**: 各コンポーネント・サービス・ユーティリティの単体テスト
+- **統合テスト**: 複数モジュールの連携テスト
+- **E2Eテスト**: ユーザーシナリオ全体のテスト
 
 ---
 
-**最終更新**: 2025-12-03
-**変更履歴**: 技術スタック重複解消、ディレクトリ構成の実際のsrc/構造への同期（config/, services/, types/詳細追加）
+**最終更新**: 2026-01-06
+**変更履歴**: Feature-based + Shared構造への完全移行、importパス規約追加、セキュリティアーキテクチャ更新

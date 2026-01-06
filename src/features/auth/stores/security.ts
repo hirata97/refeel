@@ -1,15 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import {
-  accountLockoutManager,
-  passwordValidator,
-  passwordHistoryManager,
-  enhancedSessionManager,
-  auditLogger,
-  AuditEventType,
-  performSecurityCheck,
-} from '@/utils/auth'
-import type { LockoutStatus, PasswordValidationResult } from '@/utils/auth'
+import { accountLockoutManager } from '@features/auth/services/lockout-manager'
+import { passwordValidator, passwordHistoryManager } from '@features/auth/services/password-manager'
+import { enhancedSessionManager } from '@features/auth/services/session-manager'
+import { auditLogger, AuditEventType } from '@features/auth/services/audit-logger'
+import { performSecurityCheck } from '@features/auth/utils/guards'
+import type { LockoutStatus, PasswordValidationResult } from '@features/auth/types'
 import { createLogger } from '@shared/utils'
 
 const logger = createLogger('SECURITY')
