@@ -124,23 +124,24 @@ supabase status    # 状態確認
 
 詳細なSupabase操作（CLIインストール、DBリセット、URL一覧等）は [supabase/README.md](supabase/README.md) を参照してください。
 
-## 📁 プロジェクト構造
+## 📁 プロジェクト構造（Feature-based + Shared構造）
 
 ```
 ├── src/               # アプリケーションコード
-│   ├── views/        # ページコンポーネント
-│   ├── stores/       # Piniaストア（状態管理）
-│   ├── lib/          # ユーティリティ・設定
+│   ├── features/     # 機能別モジュール（auth, dashboard, diary等）
+│   ├── shared/       # 共通コンポーネント・ユーティリティ
+│   ├── views/        # ページコンポーネント（機能別）
+│   ├── core/         # コア機能（lib, router, plugins等）
 │   └── types/        # TypeScript型定義
 ├── tests/             # テストファイル
-│   ├── unit/         # ユニットテスト（Vitest）
+│   ├── [feature]/    # 機能別テスト
 │   └── e2e/          # E2Eテスト（Playwright）
 ├── docs/              # 詳細ドキュメント
 ├── scripts/           # 自動化スクリプト
 └── supabase/          # DBマイグレーション・Seed・設定
 ```
 
-各ディレクトリの詳細は配下のREADME.mdを参照してください。
+詳細なアーキテクチャ: [docs/DEVELOPMENT/ARCHITECTURE.md](docs/DEVELOPMENT/ARCHITECTURE.md)
 
 ## 📚 ドキュメント
 

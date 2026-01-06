@@ -71,7 +71,7 @@ import { useAppRouter } from '@shared/composables'
 import { useErrorHandler } from '@shared/composables'
 import { supabase } from '@core/lib/supabase'
 import { InputValidation, XSSProtection } from '@/utils/security'
-import { logAuthAttempt } from '@/utils/auth'
+import { logAuthAttempt } from '@features/auth/services/lockout-manager'
 import { useSimpleRegisterForm } from '@/composables/useSimpleForm'
 import { createLogger } from '@shared/utils'
 
