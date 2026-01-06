@@ -15,7 +15,7 @@
       </div>
 
       <!-- エラー状態 -->
-      <v-alert v-else-if="error" type="error" variant="tonal" class="mb-4" density="compact">
+      <v-alert v-else-if="error" type="error" variant="tonal" class="mb-4" density="compact" data-testid="error-alert">
         {{ error }}
       </v-alert>
 
@@ -36,6 +36,7 @@
             multiple
             color="success"
             class="emotion-chips"
+            :disabled="disabled"
           >
             <v-chip
               v-for="tag in positiveTagsGroup.tags"
@@ -45,6 +46,8 @@
               variant="outlined"
               size="small"
               :title="tag.description"
+              data-testid="emotion-chip"
+              :disabled="disabled"
             >
               {{ tag.name }}
             </v-chip>
@@ -61,7 +64,7 @@
               {{ negativeTagsGroup.label }}
             </span>
           </div>
-          <v-chip-group v-model="selectedNegativeTags" multiple color="error" class="emotion-chips">
+          <v-chip-group v-model="selectedNegativeTags" multiple color="error" class="emotion-chips" :disabled="disabled">
             <v-chip
               v-for="tag in negativeTagsGroup.tags"
               :key="tag.id"
@@ -70,6 +73,8 @@
               variant="outlined"
               size="small"
               :title="tag.description"
+              data-testid="emotion-chip"
+              :disabled="disabled"
             >
               {{ tag.name }}
             </v-chip>
@@ -86,7 +91,7 @@
               {{ neutralTagsGroup.label }}
             </span>
           </div>
-          <v-chip-group v-model="selectedNeutralTags" multiple color="info" class="emotion-chips">
+          <v-chip-group v-model="selectedNeutralTags" multiple color="info" class="emotion-chips" :disabled="disabled">
             <v-chip
               v-for="tag in neutralTagsGroup.tags"
               :key="tag.id"
@@ -95,6 +100,8 @@
               variant="outlined"
               size="small"
               :title="tag.description"
+              data-testid="emotion-chip"
+              :disabled="disabled"
             >
               {{ tag.name }}
             </v-chip>

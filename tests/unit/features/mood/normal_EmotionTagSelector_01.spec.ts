@@ -26,7 +26,7 @@ const mockEmotionTags: EmotionTag[] = [
   { id: '21', name: '平常', category: 'neutral', color: '#757575', description: '特に感情の起伏がない普通の状態', display_order: 21, created_at: '', updated_at: '' }
 ]
 
-describe.skip('EmotionTagSelector', () => {
+describe('EmotionTagSelector', () => {
   beforeEach(() => {
     // Piniaのセットアップ
     const pinia = createPinia()
