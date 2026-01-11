@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import pluginVue from 'eslint-plugin-vue'
 import vueTsEslintConfig from '@vue/eslint-config-typescript'
 import pluginVitest from '@vitest/eslint-plugin'
@@ -16,7 +17,9 @@ export default [
   },
 
   ...pluginVue.configs['flat/essential'],
-  ...vueTsEslintConfig(),
+  ...vueTsEslintConfig({
+    rootDir: fileURLToPath(new URL('..', import.meta.url)),
+  }),
   
   {
     name: 'app/global-rules',
