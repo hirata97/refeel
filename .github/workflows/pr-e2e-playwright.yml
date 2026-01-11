@@ -140,7 +140,7 @@ jobs:
 
     # スモークテスト実行（chromiumのみ、smoke/配下のみ）
     - name: Run Smoke Tests
-      run: npx playwright test --project=chromium tests/e2e/smoke
+      run: npx playwright test --config config/playwright.config.ts --project=chromium tests/e2e/smoke
       env:
         CI: true
         E2E_TIER: smoke
@@ -204,7 +204,7 @@ jobs:
 
     # コア機能テスト実行（core/配下のみ）
     - name: Run Core Feature Tests
-      run: npx playwright test --project=${{ matrix.browser }} tests/e2e/core
+      run: npx playwright test --config config/playwright.config.ts --project=${{ matrix.browser }} tests/e2e/core
       env:
         CI: true
         E2E_TIER: core
@@ -269,7 +269,7 @@ jobs:
 
     # フルE2Eテスト実行（全テスト）
     - name: Run Full E2E Tests
-      run: npx playwright test --project=${{ matrix.browser }}
+      run: npx playwright test --config config/playwright.config.ts --project=${{ matrix.browser }}
       env:
         CI: true
         E2E_TIER: full
