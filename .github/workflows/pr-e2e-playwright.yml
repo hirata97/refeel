@@ -13,6 +13,7 @@ on:
       - 'package*.json'
       - 'vite.config.ts'
       - 'playwright.config.ts'
+      - 'tsconfig*.json'
       - '.github/workflows/pr-e2e-playwright.yml'
 
   # 手動実行も可能
