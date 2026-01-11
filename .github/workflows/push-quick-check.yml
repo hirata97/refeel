@@ -69,7 +69,7 @@ jobs:
 
     # ESLint（厳格）
     - name: ESLint Check
-      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache
+      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache --config config/eslint.config.js
 
     # TypeScript型チェック（厳格）
     - name: TypeScript Check
