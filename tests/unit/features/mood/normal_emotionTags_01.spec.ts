@@ -31,7 +31,7 @@ const mockEmotionTags: EmotionTag[] = [
   { id: '21', name: '平常', category: 'neutral', color: '#757575', description: '特に感情の起伏がない普通の状態', display_order: 21, created_at: '2024-01-01', updated_at: '2024-01-01' }
 ]
 
-describe.skip('useEmotionTagsStore', () => {
+describe('useEmotionTagsStore', () => {
   beforeEach(() => {
     // Piniaのセットアップ
     setActivePinia(createPinia())
@@ -142,29 +142,29 @@ describe.skip('useEmotionTagsStore', () => {
 
   describe('linkDiaryEmotionTags', () => {
     it('日記と感情タグを正常に関連付けできる', async () => {
-      // 削除処理のモック
-      mockSupabase.single.mockResolvedValueOnce({
-        data: null,
-        error: null
-      })
-      
-      // 挿入処理のモック
-      mockSupabase.single.mockResolvedValueOnce({
-        data: null,
-        error: null
-      })
-
       const store = useEmotionTagsStore()
       const diaryId = 'diary-123'
       const emotionTagIds = ['1', '2', '11']
-      
+
+      // 削除処理のモック（eq()の戻り値として設定）
+      vi.mocked(mockSupabase.eq).mockResolvedValueOnce({
+        data: null,
+        error: null
+      } as unknown as ReturnType<typeof mockSupabase.eq>)
+
+      // 挿入処理のモック（insert()の戻り値として設定）
+      vi.mocked(mockSupabase.insert).mockResolvedValueOnce({
+        data: null,
+        error: null
+      } as unknown as ReturnType<typeof mockSupabase.insert>)
+
       await expect(store.linkDiaryEmotionTags(diaryId, emotionTagIds)).resolves.toBeUndefined()
-      
+
       // 削除処理の呼び出し確認
       expect(mockSupabase.from).toHaveBeenCalledWith('diary_emotion_tags')
       expect(mockSupabase.delete).toHaveBeenCalled()
       expect(mockSupabase.eq).toHaveBeenCalledWith('diary_id', diaryId)
-      
+
       // 挿入処理の呼び出し確認
       expect(mockSupabase.insert).toHaveBeenCalledWith([
         { diary_id: diaryId, emotion_tag_id: '1' },
@@ -174,32 +174,34 @@ describe.skip('useEmotionTagsStore', () => {
     })
 
     it('空の感情タグIDの場合は削除のみ行う', async () => {
-      mockSupabase.single.mockResolvedValue({
-        data: null,
-        error: null
-      })
-
       const store = useEmotionTagsStore()
       const diaryId = 'diary-123'
       const emotionTagIds: string[] = []
-      
+
+      // 削除処理のモック
+      vi.mocked(mockSupabase.eq).mockResolvedValueOnce({
+        data: null,
+        error: null
+      } as unknown as ReturnType<typeof mockSupabase.eq>)
+
       await store.linkDiaryEmotionTags(diaryId, emotionTagIds)
-      
+
       // 削除は実行されるが挿入は実行されない
       expect(mockSupabase.delete).toHaveBeenCalled()
       expect(mockSupabase.insert).not.toHaveBeenCalled()
     })
 
     it('削除処理でエラーが発生した場合、例外がスローされる', async () => {
-      mockSupabase.single.mockResolvedValue({
-        data: null,
-        error: { message: '削除エラー' }
-      })
-
       const store = useEmotionTagsStore()
       const diaryId = 'diary-123'
       const emotionTagIds = ['1', '2']
-      
+
+      // エラーを返すモック設定
+      vi.mocked(mockSupabase.eq).mockResolvedValueOnce({
+        data: null,
+        error: { message: '削除エラー' }
+      } as unknown as ReturnType<typeof mockSupabase.eq>)
+
       await expect(store.linkDiaryEmotionTags(diaryId, emotionTagIds)).rejects.toThrow()
       expect(store.error.linkDiaryEmotionTags).toBeTruthy()
     })
@@ -211,46 +213,49 @@ describe.skip('useEmotionTagsStore', () => {
         { emotion_tag_id: '1', emotion_tags: mockEmotionTags[0] },
         { emotion_tag_id: '2', emotion_tags: mockEmotionTags[1] }
       ]
-      
-      mockSupabase.single.mockResolvedValue({
-        data: mockResponse,
-        error: null
-      })
 
       const store = useEmotionTagsStore()
       const diaryId = 'diary-123'
-      
+
+      // eq()の戻り値として設定
+      vi.mocked(mockSupabase.eq).mockResolvedValueOnce({
+        data: mockResponse,
+        error: null
+      } as unknown as ReturnType<typeof mockSupabase.eq>)
+
       const result = await store.getDiaryEmotionTags(diaryId)
-      
+
       expect(result).toEqual([mockEmotionTags[0], mockEmotionTags[1]])
       expect(mockSupabase.eq).toHaveBeenCalledWith('diary_id', diaryId)
     })
 
     it('該当する感情タグがない場合、空配列を返す', async () => {
-      mockSupabase.single.mockResolvedValue({
-        data: [],
-        error: null
-      })
-
       const store = useEmotionTagsStore()
       const diaryId = 'diary-123'
-      
+
+      // 空配列を返すモック
+      vi.mocked(mockSupabase.eq).mockResolvedValueOnce({
+        data: [],
+        error: null
+      } as unknown as ReturnType<typeof mockSupabase.eq>)
+
       const result = await store.getDiaryEmotionTags(diaryId)
-      
+
       expect(result).toEqual([])
     })
 
     it('エラー時は空配列を返す', async () => {
-      mockSupabase.single.mockResolvedValue({
-        data: null,
-        error: { message: '取得エラー' }
-      })
-
       const store = useEmotionTagsStore()
       const diaryId = 'diary-123'
-      
+
+      // エラーを返すモック
+      vi.mocked(mockSupabase.eq).mockResolvedValueOnce({
+        data: null,
+        error: { message: '取得エラー' }
+      } as unknown as ReturnType<typeof mockSupabase.eq>)
+
       const result = await store.getDiaryEmotionTags(diaryId)
-      
+
       expect(result).toEqual([])
       expect(store.error.getDiaryEmotionTags).toBeTruthy()
     })
@@ -300,19 +305,31 @@ describe.skip('useEmotionTagsStore', () => {
       expect(store.error).toEqual({})
     })
 
-    it('isCacheValidが正常に動作する', () => {
+    it('isCacheValidが正常に動作する', async () => {
+      // フェイクタイマーを使用
+      vi.useFakeTimers()
       const store = useEmotionTagsStore()
-      
+
       // キャッシュ無効状態
       expect(store.isCacheValid()).toBe(false)
-      
+
       // キャッシュ有効状態（現在時刻設定）
-      store.$patch({ lastFetch: Date.now() })
+      // fetchEmotionTagsを実行してlastFetchを更新
+      vi.mocked(mockSupabase.order).mockResolvedValueOnce({
+        data: mockEmotionTags,
+        error: null
+      } as unknown as ReturnType<typeof mockSupabase.order>)
+
+      await store.fetchEmotionTags()
       expect(store.isCacheValid()).toBe(true)
-      
-      // キャッシュ期限切れ状態
-      store.$patch({ lastFetch: Date.now() - (6 * 60 * 1000) }) // 6分前
+
+      // キャッシュ期限切れ状態のテスト
+      // 6分経過をシミュレート
+      vi.advanceTimersByTime(6 * 60 * 1000)
       expect(store.isCacheValid()).toBe(false)
+
+      // タイマーをリセット
+      vi.useRealTimers()
     })
   })
 })
