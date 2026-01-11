@@ -36,7 +36,7 @@ export default mergeConfig(
         'tests/unit/password-policy/**/*.spec.{js,ts}',
         'tests/security/**/*.test.{js,ts}',
       ],
-      root: fileURLToPath(new URL('./', import.meta.url)),
+      root: fileURLToPath(new URL('../', import.meta.url)),
       globals: true,
       setupFiles: ['./tests/helpers/setup.ts'],
       css: {
