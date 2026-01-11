@@ -87,7 +87,7 @@ jobs:
 
     # 厳格なESLintチェック（エラーで失敗・キャッシュ利用）
     - name: ESLint Code Analysis
-      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache
+      run: npx eslint . --max-warnings=0 --cache --cache-location .eslintcache --config config/eslint.config.js
 
     # 厳格なTypeScriptチェック（エラーで失敗）
     - name: TypeScript Type Check

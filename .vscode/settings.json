@@ -43,6 +43,9 @@
     "typescriptreact",
     "vue"
   ],
+  "eslint.options": {
+    "overrideConfigFile": "config/eslint.config.js"
+  },
 
   // ファイル設定
   "files.eol": "\n",
