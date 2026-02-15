@@ -114,7 +114,6 @@ gh pr create --title "タイトル" --body "説明\n\nCloses #番号"
 - `fetch-issue.sh` - Issue取得・タスク化スクリプト
 - `generate-types.js` - Supabase型定義生成スクリプト
 - `ci-type-check.sh` - CI環境用TypeScriptチェック
-- `close-linked-issues.sh` - Issue自動クローズスクリプト
 
 ### 生成ファイル
 

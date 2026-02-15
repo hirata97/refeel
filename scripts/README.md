@@ -48,11 +48,6 @@ npm run ci:type-check
 - Vuetifyの既知の型問題を除外してチェック
 - 他のTypeScriptエラーは厳格にチェック
 
-### 4. close-linked-issues.sh
-PR作成時にリンクされたIssueを自動クローズします。
-
-**注意:** このスクリプトは内部的に使用されます。
-
 ## 前提条件
 
 ### 必要なツール
