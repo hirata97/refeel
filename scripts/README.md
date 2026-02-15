@@ -21,38 +21,7 @@ npm run fetch-issue [issue番号]
 - タスク管理ファイル (`tasks/issue-[番号]-tasks.md`) の生成
 - Claude Code用プロンプトの自動生成
 
-### 2. create-pr.sh
-作業完了後のPR作成を自動化します。
-
-```bash
-npm run create-pr "PRタイトル" ["PR説明"]
-```
-
-**機能:**
-- 変更の自動ステージング・コミット
-- Claude Code署名付きコミットメッセージ
-- リモートへのプッシュ
-- mainブランチに向けたPR自動作成
-- Issue番号の自動検出と`Closes #`記載
-
-### 3. auto-issue.sh
-Issueの自動実装フローを実行します（CLAUDE.md推奨）。
-
-```bash
-# 最新のオープンIssueを自動選択
-npm run auto-issue
-
-# 特定のIssue実装
-npm run auto-issue [issue番号]
-```
-
-**機能:**
-- オープンIssueの自動選択
-- fetch-issue.shによるタスクファイル生成
-- 品質チェック（lint, build）
-- create-pr.shによるPR自動作成
-
-### 4. generate-types.js
+### 2. generate-types.js
 Supabaseの型定義を自動生成します。
 
 ```bash
@@ -68,7 +37,7 @@ npm run generate-types:prod
 - `src/types/database.ts`と`src/types/supabase.ts`を更新
 - 型チェックによる互換性検証
 
-### 5. ci-type-check.sh
+### 3. ci-type-check.sh
 CI環境用のTypeScriptチェックを実行します。
 
 ```bash
@@ -78,11 +47,6 @@ npm run ci:type-check
 **機能:**
 - Vuetifyの既知の型問題を除外してチェック
 - 他のTypeScriptエラーは厳格にチェック
-
-### 6. close-linked-issues.sh
-PR作成時にリンクされたIssueを自動クローズします。
-
-**注意:** このスクリプトは`create-pr.sh`から内部的に呼び出されます。
 
 ## 前提条件
 
@@ -116,12 +80,6 @@ npm run fetch-issue 123
 
 # 4. 実装作業...
 
-# 5. PR作成
-npm run create-pr "feat: Issue #123 機能追加"
-```
-
-または自動化フローを使用：
-
-```bash
-npm run auto-issue
+# 5. PR作成（Claude Codeまたはgh CLI使用）
+gh pr create --title "feat: Issue #123 機能追加" --body "Closes #123"
 ```

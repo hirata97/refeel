@@ -69,11 +69,14 @@ ${LABELS}
 
 ## 実行コマンド例
 \`\`\`bash
-# Issue作業開始
-npm run start-issue ${ISSUE_NUMBER}
+# Issue作業開始（Claude Code推奨）
+/start-work
 
-# 作業完了後PR作成  
-npm run create-pr "fix: Issue #${ISSUE_NUMBER} ${TITLE}" "Issue #${ISSUE_NUMBER}の対応
+# または手動でブランチ作成
+git checkout -b feature/issue-${ISSUE_NUMBER}-description
+
+# 作業完了後PR作成（Claude CodeまたはGitHub CLI）
+gh pr create --title "fix: Issue #${ISSUE_NUMBER} ${TITLE}" --body "Issue #${ISSUE_NUMBER}の対応
 
 Closes #${ISSUE_NUMBER}"
 \`\`\`
@@ -98,8 +101,8 @@ echo "✅ タスクファイルを生成しました: $TASK_FILE"
 echo ""
 echo "次のステップ:"
 echo "1. ファイルの内容を確認: cat $TASK_FILE"
-echo "2. Claude Codeで作業開始: Issue内容をコピーして実装依頼"
-echo "3. 作業完了後: npm run create-pr \"fix: Issue #$ISSUE_NUMBER $TITLE\" \"Issue #${ISSUE_NUMBER}の対応\n\nCloses #${ISSUE_NUMBER}\""
+echo "2. Claude Codeで作業開始: /start-work または Issue内容をコピーして実装依頼"
+echo "3. 作業完了後: Claude CodeまたはGitHub CLIでPR作成"
 echo ""
 
 # Issue作業開始用ブランチ提案

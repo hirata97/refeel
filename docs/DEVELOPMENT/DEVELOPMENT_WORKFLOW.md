@@ -27,11 +27,11 @@ git pull origin main
 
 ### 2. Issue確認と作業開始
 ```bash
-# Issue情報を取得（自動化スクリプト使用）
-npm run fetch-issue [Issue番号]
+# Claude Code `/start-work` スキル使用（推奨）
+/start-work
 
-# 作業開始（ブランチ作成とラベル更新）
-npm run start-issue [Issue番号]
+# または Issue情報を取得
+npm run fetch-issue [Issue番号]
 ```
 
 ### 3. 手動でのブランチ作成（必要時）
@@ -189,8 +189,11 @@ git push -u origin feature/issue-[番号]-[説明]
 
 ### 2. PR作成
 ```bash
-# 自動化スクリプト使用（推奨）
-npm run create-pr "タイトル" "説明"
+# Claude Code使用（推奨）
+# Claude Codeが自動的にPR作成
+
+# またはGitHub CLI使用
+gh pr create --title "タイトル" --body "説明\n\nCloses #番号"
 
 # または手動でGitHub UIから作成
 ```
