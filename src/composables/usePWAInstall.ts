@@ -1,4 +1,5 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import { logger } from '@shared/utils/logger'
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: ReadonlyArray<string>
