@@ -35,7 +35,7 @@ for ISSUE_NUMBER in $ISSUE_NUMBERS; do
 - ブランチ: $(git branch --show-current)
 - コミット: $(git rev-parse --short HEAD)
 
-🤖 Auto-closed by create-pr script"; then
+🤖 Auto-closed by automation script"; then
         echo "✅ Issue #$ISSUE_NUMBER を正常にクローズしました"
     else
         echo "❌ Issue #$ISSUE_NUMBER のクローズに失敗しました"
