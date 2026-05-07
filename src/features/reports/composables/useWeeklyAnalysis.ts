@@ -153,27 +153,27 @@ export function useWeeklyAnalysis() {
     weekRange: ReturnType<typeof getWeekRange>,
   ): WeeklyMoodData[] => {
     const moodData: WeeklyMoodData[] = []
+    const moodByDate: Record<string, { sum: number; count: number }> = {}
+
+    diaries.forEach((diary) => {
+      const dateKey = new Date(diary.created_at).toISOString().split('T')[0]
+      if (!moodByDate[dateKey]) {
+        moodByDate[dateKey] = { sum: 0, count: 0 }
+      }
+      moodByDate[dateKey].sum += diary.mood || 5
+      moodByDate[dateKey].count++
+    })
 
     // 1週間の各日について処理
     for (let i = 0; i < 7; i++) {
       const date = new Date(weekRange.start)
       date.setDate(weekRange.start.getDate() + i)
       const dateString = date.toISOString().split('T')[0]
-
-      // その日の日記を検索
-      const dayDiaries = diaries.filter((diary) => {
-        const diaryDate = new Date(diary.created_at).toISOString().split('T')[0]
-        return diaryDate === dateString
-      })
+      const dayMood = moodByDate[dateString]
 
       // その日の平均気分スコアを計算
       const averageMood =
-        dayDiaries.length > 0
-          ? Math.round(
-              (dayDiaries.reduce((sum, diary) => sum + (diary.mood || 5), 0) / dayDiaries.length) *
-                10,
-            ) / 10
-          : 0
+        dayMood && dayMood.count > 0 ? Math.round((dayMood.sum / dayMood.count) * 10) / 10 : 0
 
       moodData.push({
         date: dateString,
